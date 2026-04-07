@@ -1,6 +1,7 @@
 import { CampaignData } from '../types/campaign';
 
 export const tylaCarwashCampaign: CampaignData = {
+  slug: 'tyla-carwash',
   artist: 'TYLA',
   song: 'Carwash',
   releaseDate: 'May 29, 2026',

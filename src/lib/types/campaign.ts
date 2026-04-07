@@ -60,6 +60,7 @@ export interface RiskCard {
 }
 
 export interface CampaignData {
+  slug: string;
   artist: string;
   song: string;
   releaseDate: string;
