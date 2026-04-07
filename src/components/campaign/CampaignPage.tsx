@@ -268,7 +268,7 @@ function GlassCard({
      Inner motion.div handles the 3D tilt (rotateX + rotateY).
      Separating them avoids framer-motion's transform composition conflicts. */
   return (
-    <motion.div variants={fadeUp}>
+    <motion.div variants={fadeUp} className="h-full">
       <motion.div
         ref={cardRef}
         style={
@@ -284,7 +284,7 @@ function GlassCard({
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
         className={`
-          relative overflow-hidden rounded-2xl
+          relative overflow-hidden rounded-2xl h-full
           bg-[#181818] border border-[#303030]
           ${hover ? 'hover:border-[#fd3737]/40 hover:shadow-lg hover:shadow-[#fd3737]/5 transition-all duration-500' : ''}
           ${glow ? 'shadow-lg shadow-[#fd3737]/5 border-[#fd3737]/20' : ''}
