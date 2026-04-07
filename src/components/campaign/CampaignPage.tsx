@@ -231,7 +231,7 @@ function Section({
   );
 }
 
-/* ─── glass card with 3D tilt ─── */
+/* ─── glass card ─── */
 function GlassCard({
   children,
   className = '',
@@ -243,56 +243,18 @@ function GlassCard({
   hover?: boolean;
   glow?: boolean;
 }) {
-  const cardRef = useRef<HTMLDivElement>(null);
-  const rotateX = useMotionValue(0);
-  const rotateY = useMotionValue(0);
-  const springConfig = { stiffness: 200, damping: 25 };
-  const springRotateX = useSpring(rotateX, springConfig);
-  const springRotateY = useSpring(rotateY, springConfig);
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!hover || !cardRef.current) return;
-    const rect = cardRef.current.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / rect.width - 0.5;
-    const y = (e.clientY - rect.top) / rect.height - 0.5;
-    rotateX.set(y * -8);
-    rotateY.set(x * 8);
-  };
-
-  const handleMouseLeave = () => {
-    rotateX.set(0);
-    rotateY.set(0);
-  };
-
-  /* Outer div handles the variant animation (fadeUp: opacity + y).
-     Inner motion.div handles the 3D tilt (rotateX + rotateY).
-     Separating them avoids framer-motion's transform composition conflicts. */
   return (
-    <motion.div variants={fadeUp} className="h-full">
-      <motion.div
-        ref={cardRef}
-        style={
-          hover
-            ? {
-                rotateX: springRotateX,
-                rotateY: springRotateY,
-                transformPerspective: 1200,
-                transformStyle: 'preserve-3d' as const,
-              }
-            : {}
-        }
-        onMouseMove={handleMouseMove}
-        onMouseLeave={handleMouseLeave}
-        className={`
-          relative overflow-hidden rounded-2xl h-full
-          bg-[#181818] border border-[#303030]
-          ${hover ? 'hover:border-[#fd3737]/40 hover:shadow-lg hover:shadow-[#fd3737]/5 transition-all duration-500' : ''}
-          ${glow ? 'shadow-lg shadow-[#fd3737]/5 border-[#fd3737]/20' : ''}
-          ${className}
-        `}
-      >
-        {children}
-      </motion.div>
+    <motion.div
+      variants={fadeUp}
+      className={`
+        relative overflow-hidden rounded-2xl
+        bg-[#181818] border border-[#303030]
+        ${hover ? 'hover:border-[#fd3737]/40 hover:shadow-lg hover:shadow-[#fd3737]/5 hover:scale-[1.01] transition-all duration-500' : ''}
+        ${glow ? 'shadow-lg shadow-[#fd3737]/5 border-[#fd3737]/20' : ''}
+        ${className}
+      `}
+    >
+      {children}
     </motion.div>
   );
 }
