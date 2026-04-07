@@ -121,13 +121,13 @@ function SectionDivider() {
 
 /* ─── phase card (each reveals independently on scroll) ─── */
 function PhaseCard({ phase, index }: { phase: { name: string; dateRange: string; objectives: string[] }; index: number }) {
-  const { ref, inView } = useInView({ threshold: 0.2, rootMargin: '-40px' });
+  const { ref, inView } = useInView({ threshold: 0.3, rootMargin: '-30px' });
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, x: -40 }}
-      animate={inView ? { opacity: 1, x: 0 } : { opacity: 0, x: -40 }}
-      transition={{ duration: 0.7, delay: 0.1 }}
+      initial={{ opacity: 0, y: 16, scale: 0.98 }}
+      animate={inView ? { opacity: 1, y: 0, scale: 1 } : {}}
+      transition={{ duration: 0.5 }}
       className="ml-14 md:ml-20 relative overflow-hidden rounded-2xl bg-[#181818] border border-[#303030] hover:border-[#fd3737]/40 hover:shadow-lg hover:shadow-[#fd3737]/5 hover:scale-[1.01] transition-all duration-500 p-8"
     >
       <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3 mb-5">
@@ -143,16 +143,10 @@ function PhaseCard({ phase, index }: { phase: { name: string; dateRange: string;
       </div>
       <div className="space-y-2 ml-[3.25rem]">
         {phase.objectives.map((obj, j) => (
-          <motion.div
-            key={j}
-            initial={{ opacity: 0, x: -15 }}
-            animate={inView ? { opacity: 1, x: 0 } : {}}
-            transition={{ duration: 0.4, delay: 0.3 + j * 0.1 }}
-            className="flex gap-3 text-[#E4E4E9] text-sm font-normal"
-          >
+          <div key={j} className="flex gap-3 text-[#E4E4E9] text-sm font-normal">
             <span className="text-[#fd3737]/60 mt-0.5 flex-shrink-0">—</span>
             <span>{obj}</span>
-          </motion.div>
+          </div>
         ))}
       </div>
     </motion.div>
