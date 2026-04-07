@@ -512,24 +512,11 @@ export function CampaignPage({ campaign }: { campaign: CampaignData }) {
         <div className="absolute inset-0 bg-gradient-to-b from-[#fd3737]/[0.03] to-transparent pointer-events-none" />
 
         <Section number="06" title="Week-by-Week Playbook" subtitle="Tactical breakdown of every week's campaign activities, creator actions, and success signals.">
-          {/* strategy image */}
-          <GlassCard className="mb-14 overflow-hidden" hover={false}>
-            <div className="relative h-48 md:h-64">
-              <Image
-                src={`/images/${campaign.slug || 'tyla-carwash'}/strategy.png`}
-                alt="Campaign Strategy"
-                fill
-                className="object-cover opacity-60"
-              />
-              <div className="absolute inset-0 bg-gradient-to-r from-[#0a0a0a] via-[#0a0a0a]/70 to-transparent" />
-              <div className="absolute inset-0 flex items-center px-10">
-                <div>
-                  <span className="text-[10px] tracking-[0.3em] uppercase text-[#fd3737] font-semibold">Core Deliverable</span>
-                  <h3 className="font-display text-3xl md:text-4xl text-white mt-2">Production Calendar</h3>
-                  <p className="text-[#E4E4E9] text-sm font-normal mt-2 max-w-lg">Every week mapped with specific actions, platforms, formats, and success signals.</p>
-                </div>
-              </div>
-            </div>
+          {/* playbook intro card */}
+          <GlassCard className="mb-14 p-10 border-l-2 border-l-[#fd3737]" glow hover={false}>
+            <span className="text-[10px] tracking-[0.3em] uppercase text-[#fd3737] font-semibold">Core Deliverable</span>
+            <h3 className="font-display text-3xl md:text-4xl text-white mt-2">Production Calendar</h3>
+            <p className="text-[#E4E4E9] text-sm font-normal mt-3 max-w-2xl">Every week mapped with specific actions, platforms, formats, and success signals.</p>
           </GlassCard>
 
           {/* weeks */}
