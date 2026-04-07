@@ -21,8 +21,8 @@
 :root {
   --background: #0a0a0a;
   --foreground: #fafafa;
-  --text-secondary: #c8c8d0;
-  --text-muted: #9898a0;
+  --text-secondary: #E4E4E9;
+  --text-muted: #B8B8C0;
   --accent: #fd3737;
   --surface: #141414;
   --surface-50: #1a1a1a;
@@ -38,7 +38,7 @@ body {
   color: var(--foreground);
   background: var(--background);
   font-family: 'Work Sans', sans-serif;
-  font-weight: 300;
+  font-weight: 400;
   line-height: 1.7;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
