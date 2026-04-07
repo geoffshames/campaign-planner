@@ -8,12 +8,13 @@ import { CampaignData } from '@/lib/types/campaign';
 
 /* ─── animation variants ─── */
 const fadeUp = {
-  hidden: { opacity: 0, y: 32 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: 'easeOut' as const } },
+  hidden: { opacity: 1, y: 0 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
 };
 
 const stagger = {
-  visible: { transition: { staggerChildren: 0.08 } },
+  hidden: { opacity: 1 },
+  visible: { opacity: 1, transition: { staggerChildren: 0.05 } },
 };
 
 /* ─── section wrapper ─── */
