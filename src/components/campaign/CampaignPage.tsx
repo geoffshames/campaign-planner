@@ -566,8 +566,8 @@ export function CampaignPage({ campaign }: { campaign: CampaignData }) {
                             <div className="space-y-3">
                               {week.actions.map((action, j) => (
                                 <div key={j} className="flex gap-4 items-start">
-                                  <div className="w-5 h-5 rounded-full bg-[#71717A]/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                                    <span className="text-[#71717A] text-[10px]">✓</span>
+                                  <div className="w-5 h-5 rounded-full bg-[#A1A1AA]/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                    <span className="text-[#A1A1AA] text-[10px]">✓</span>
                                   </div>
                                   <span className="text-[#E4E4E9] text-sm font-normal leading-relaxed">{action}</span>
                                 </div>
@@ -624,7 +624,7 @@ export function CampaignPage({ campaign }: { campaign: CampaignData }) {
           {campaign.contentStrategy.map((pillar, i) => (
             <GlassCard key={i} className="p-8 relative overflow-hidden">
               <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#fd3737]/40 to-transparent" />
-              <span className="font-display text-4xl text-[#555555]">{String(i + 1).padStart(2, '0')}</span>
+              <span className="font-display text-4xl text-[#666666]">{String(i + 1).padStart(2, '0')}</span>
               <h3 className="font-display text-xl text-white mt-3 mb-3">{pillar.pillar}</h3>
               <p className="text-[#E4E4E9] text-sm font-normal leading-relaxed mb-5">{pillar.description}</p>
               <div className="flex flex-wrap gap-2">
@@ -720,7 +720,7 @@ export function CampaignPage({ campaign }: { campaign: CampaignData }) {
               { tier: 'Mega Creators', count: '3–5', followers: '5M+', approach: 'Exclusive early access, official first-listen reactions, co-created content', color: '#fd3737' },
               { tier: 'Macro Creators', count: '15–20', followers: '500K–5M', approach: 'Challenge tutorial partnerships, featured on Tyla channels, sound exclusivity', color: '#D42D2D' },
               { tier: 'Micro Creators', count: '50–100', followers: '50K–500K', approach: 'Organic challenge participation, reposts, community seeding', color: '#A1A1AA' },
-              { tier: 'Nano Creators', count: 'Open', followers: '<50K', approach: 'Community-driven, incentive-based challenges, user-generated content', color: '#71717A' },
+              { tier: 'Nano Creators', count: 'Open', followers: '<50K', approach: 'Community-driven, incentive-based challenges, user-generated content', color: '#A1A1AA' },
             ].map((item, i) => (
               <GlassCard key={i} className="p-6">
                 <div className="flex items-start gap-4">
@@ -750,7 +750,7 @@ export function CampaignPage({ campaign }: { campaign: CampaignData }) {
               { phase: 'W-2', action: '10 mid-tier creators get early access and choreography tutorial', color: '#D42D2D' },
               { phase: 'W-2', action: '3 mega creators post first-listen reactions', color: '#fd3737' },
               { phase: 'W-1', action: 'Release sound to 50+ micro creators', color: '#A1A1AA' },
-              { phase: 'W0+', action: 'Activate nano tier and open challenge incentives', color: '#71717A' },
+              { phase: 'W0+', action: 'Activate nano tier and open challenge incentives', color: '#A1A1AA' },
             ].map((item, i) => (
               <div key={i} className="flex gap-6 items-start">
                 <span className="font-display text-lg min-w-[3rem] text-right" style={{ color: item.color }}>{item.phase}</span>
@@ -803,10 +803,10 @@ export function CampaignPage({ campaign }: { campaign: CampaignData }) {
           {/* channel cards */}
           <div className="lg:col-span-3 space-y-4">
             {[
-              { channel: 'Organic Social', percent: 40, rationale: 'Owned audience activation, contest seeding, UGC amplification — the foundation of all campaign momentum.', color: '#71717A' },
-              { channel: 'Creator Seeding', percent: 30, rationale: 'Organic reach through trusted voices and challenge virality. Tiered approach maximizes authenticity and scale.', color: '#A1A1AA' },
-              { channel: 'Paid Social', percent: 25, rationale: 'Amplify top-performing challenge content. Targeted reach in US, South Africa, and key growth markets.', color: '#D42D2D' },
-              { channel: 'Experiential', percent: 5, rationale: 'IRL brand building, press coverage, TikTok-worthy moments at key events.', color: '#333333' },
+              { channel: 'Organic Social', percent: 40, rationale: 'Owned audience activation, contest seeding, UGC amplification — the foundation of all campaign momentum.', color: '#FD3737' },
+              { channel: 'Creator Seeding', percent: 30, rationale: 'Organic reach through trusted voices and challenge virality. Tiered approach maximizes authenticity and scale.', color: '#D42D2D' },
+              { channel: 'Paid Social', percent: 25, rationale: 'Amplify top-performing challenge content. Targeted reach in US, South Africa, and key growth markets.', color: '#A1A1AA' },
+              { channel: 'Experiential', percent: 5, rationale: 'IRL brand building, press coverage, TikTok-worthy moments at key events.', color: '#71717A' },
             ].map((item, i) => (
               <GlassCard key={i} className="p-6">
                 <div className="flex items-start gap-4">
@@ -841,7 +841,7 @@ export function CampaignPage({ campaign }: { campaign: CampaignData }) {
             },
             {
               phase: 'Sustain (4 weeks)',
-              color: '#71717A',
+              color: '#A1A1AA',
               metrics: ['80%+ streaming retention', '1M+ total challenge creates', 'Sustained playlist rotation', '2–3 weeks in top 40 Spotify'],
             },
           ].map((kpi, i) => (
@@ -870,10 +870,10 @@ export function CampaignPage({ campaign }: { campaign: CampaignData }) {
               <h3 className="font-display text-lg text-white mb-6">{risk.title}</h3>
 
               <div className="flex gap-3 mb-6">
-                <Badge color={risk.likelihood === 'High' ? '#FD3737' : risk.likelihood === 'Medium' ? '#333333' : '#A1A1AA'}>
+                <Badge color={risk.likelihood === 'High' ? '#FD3737' : risk.likelihood === 'Medium' ? '#B8B8C0' : '#A1A1AA'}>
                   {risk.likelihood} Likelihood
                 </Badge>
-                <Badge color={risk.impact === 'High' ? '#FD3737' : risk.impact === 'Medium' ? '#333333' : '#A1A1AA'}>
+                <Badge color={risk.impact === 'High' ? '#FD3737' : risk.impact === 'Medium' ? '#B8B8C0' : '#A1A1AA'}>
                   {risk.impact} Impact
                 </Badge>
               </div>
