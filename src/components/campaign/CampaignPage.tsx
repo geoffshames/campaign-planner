@@ -487,7 +487,7 @@ export function CampaignPage({ campaign }: { campaign: CampaignData }) {
                 <div className="absolute -left-[calc(3.5rem+5px)] md:-left-[calc(5rem+5px)] top-8 w-3 h-3 rounded-full bg-[#fd3737] ring-4 ring-[#0a0a0a]" style={{ position: 'relative', left: 0, top: 0, display: 'none' }} />
                 <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3 mb-5">
                   <div className="flex items-center gap-4">
-                    <span className="font-display text-3xl text-[#fd3737]/30">{String(i + 1).padStart(2, '0')}</span>
+                    <span className="font-display text-3xl text-[#fd3737]/60">{String(i + 1).padStart(2, '0')}</span>
                     <h3 className="font-display text-xl text-white">{phase.name}</h3>
                   </div>
                   <span className="text-[#B8B8C0] text-sm font-normal whitespace-nowrap">{phase.dateRange}</span>
@@ -537,7 +537,7 @@ export function CampaignPage({ campaign }: { campaign: CampaignData }) {
                     className="w-full p-6 md:p-8 text-left flex items-start justify-between gap-4"
                   >
                     <div className="flex items-start gap-5">
-                      <span className={`font-display text-2xl md:text-3xl transition-colors duration-300 ${expandedWeek === idx ? 'text-[#fd3737]' : 'text-[#333333]'}`}>
+                      <span className={`font-display text-2xl md:text-3xl transition-colors duration-300 ${expandedWeek === idx ? 'text-[#fd3737]' : 'text-[#666666]'}`}>
                         {week.week.replace('Week ', 'W')}
                       </span>
                       <div>
@@ -624,7 +624,7 @@ export function CampaignPage({ campaign }: { campaign: CampaignData }) {
           {campaign.contentStrategy.map((pillar, i) => (
             <GlassCard key={i} className="p-8 relative overflow-hidden">
               <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#fd3737]/40 to-transparent" />
-              <span className="font-display text-4xl text-[#333333]/60">{String(i + 1).padStart(2, '0')}</span>
+              <span className="font-display text-4xl text-[#555555]">{String(i + 1).padStart(2, '0')}</span>
               <h3 className="font-display text-xl text-white mt-3 mb-3">{pillar.pillar}</h3>
               <p className="text-[#E4E4E9] text-sm font-normal leading-relaxed mb-5">{pillar.description}</p>
               <div className="flex flex-wrap gap-2">
