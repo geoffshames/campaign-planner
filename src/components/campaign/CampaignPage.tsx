@@ -140,17 +140,17 @@ export function CampaignPage({ campaign }: { campaign: CampaignData }) {
   }));
 
   const channelAllocationData = [
-    { name: 'Organic Social', value: 40, color: '#1DB954' },
-    { name: 'Creator Seeding', value: 30, color: '#00f2ea' },
-    { name: 'Paid Social', value: 25, color: '#E1306C' },
-    { name: 'Experiential', value: 5, color: '#F59E0B' },
+    { name: 'Organic Social', value: 40, color: '#FD3737' },
+    { name: 'Creator Seeding', value: 30, color: '#D42D2D' },
+    { name: 'Paid Social', value: 25, color: '#A1A1AA' },
+    { name: 'Experiential', value: 5, color: '#71717A' },
   ];
 
   const creatorTierData = [
-    { name: 'Mega (5M+)', value: 10, color: '#fd3737' },
-    { name: 'Macro (500K–5M)', value: 30, color: '#E1306C' },
-    { name: 'Micro (50K–500K)', value: 40, color: '#00f2ea' },
-    { name: 'Nano (<50K)', value: 20, color: '#1DB954' },
+    { name: 'Mega (5M+)', value: 10, color: '#FD3737' },
+    { name: 'Macro (500K–5M)', value: 30, color: '#D42D2D' },
+    { name: 'Micro (50K–500K)', value: 40, color: '#A1A1AA' },
+    { name: 'Nano (<50K)', value: 20, color: '#71717A' },
   ];
 
   return (
@@ -180,7 +180,7 @@ export function CampaignPage({ campaign }: { campaign: CampaignData }) {
             src={`/images/${campaign.slug || 'tyla-carwash'}/hero.png`}
             alt=""
             fill
-            className="object-cover opacity-40"
+            className="object-cover opacity-60"
             priority
           />
           <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/60 to-transparent" />
@@ -441,16 +441,16 @@ export function CampaignPage({ campaign }: { campaign: CampaignData }) {
                     <div className="text-[#71717a] text-sm font-light mt-1">{item.release}</div>
                   </div>
                 </div>
-                <Badge color="#22C55E">Low</Badge>
+                <Badge color="#A1A1AA">Low</Badge>
               </div>
             </GlassCard>
           ))}
         </div>
 
-        <GlassCard className="p-8 border-l-2 border-l-[#22C55E]" glow hover={false}>
+        <GlassCard className="p-8 border-l-2 border-l-[#A1A1AA]" glow hover={false}>
           <div className="flex gap-5 items-start">
-            <div className="w-12 h-12 rounded-xl bg-[#22C55E]/10 flex items-center justify-center flex-shrink-0">
-              <span className="text-[#22C55E] text-xl">✓</span>
+            <div className="w-12 h-12 rounded-xl bg-[#A1A1AA]/10 flex items-center justify-center flex-shrink-0">
+              <span className="text-[#A1A1AA] text-xl">✓</span>
             </div>
             <div>
               <h4 className="font-display text-xl text-white mb-2">Clear Lane</h4>
@@ -581,8 +581,8 @@ export function CampaignPage({ campaign }: { campaign: CampaignData }) {
                             <div className="space-y-3">
                               {week.actions.map((action, j) => (
                                 <div key={j} className="flex gap-4 items-start">
-                                  <div className="w-5 h-5 rounded-full bg-[#1DB954]/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                                    <span className="text-[#1DB954] text-[10px]">✓</span>
+                                  <div className="w-5 h-5 rounded-full bg-[#71717A]/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                    <span className="text-[#71717A] text-[10px]">✓</span>
                                   </div>
                                   <span className="text-[#a1a1aa] text-sm font-light leading-relaxed">{action}</span>
                                 </div>
@@ -593,12 +593,12 @@ export function CampaignPage({ campaign }: { campaign: CampaignData }) {
                           {/* creator actions */}
                           {week.creatorActions && week.creatorActions.length > 0 && (
                             <div>
-                              <h4 className="text-[10px] tracking-[0.25em] uppercase text-[#E1306C] font-semibold mb-4">Creator Actions</h4>
+                              <h4 className="text-[10px] tracking-[0.25em] uppercase text-[#D42D2D] font-semibold mb-4">Creator Actions</h4>
                               <div className="space-y-3">
                                 {week.creatorActions.map((action, j) => (
                                   <div key={j} className="flex gap-4 items-start">
-                                    <div className="w-5 h-5 rounded-full bg-[#E1306C]/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                                      <span className="text-[#E1306C] text-[10px]">★</span>
+                                    <div className="w-5 h-5 rounded-full bg-[#D42D2D]/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                      <span className="text-[#D42D2D] text-[10px]">★</span>
                                     </div>
                                     <span className="text-[#a1a1aa] text-sm font-light leading-relaxed">{action}</span>
                                   </div>
@@ -609,12 +609,12 @@ export function CampaignPage({ campaign }: { campaign: CampaignData }) {
 
                           {/* success signals */}
                           <div>
-                            <h4 className="text-[10px] tracking-[0.25em] uppercase text-[#00f2ea] font-semibold mb-4">Success Signals</h4>
+                            <h4 className="text-[10px] tracking-[0.25em] uppercase text-[#A1A1AA] font-semibold mb-4">Success Signals</h4>
                             <div className="space-y-3">
                               {week.successSignals.map((signal, j) => (
                                 <div key={j} className="flex gap-4 items-start">
-                                  <div className="w-5 h-5 rounded-full bg-[#00f2ea]/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                                    <span className="text-[#00f2ea] text-[10px]">▸</span>
+                                  <div className="w-5 h-5 rounded-full bg-[#A1A1AA]/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                    <span className="text-[#A1A1AA] text-[10px]">▸</span>
                                   </div>
                                   <span className="text-[#a1a1aa] text-sm font-light leading-relaxed">{signal}</span>
                                 </div>
@@ -669,9 +669,9 @@ export function CampaignPage({ campaign }: { campaign: CampaignData }) {
               </thead>
               <tbody>
                 {[
-                  { platform: 'TikTok', frequency: '3–5x weekly', type: 'Challenge, BTS, Reactions', color: '#00f2ea' },
-                  { platform: 'Instagram', frequency: 'Daily Stories + 2x Reels/week', type: 'Aesthetic, Challenge, Reactions', color: '#E1306C' },
-                  { platform: 'YouTube', frequency: '1x weekly', type: 'BTS, Music Video, Long-form', color: '#FF0000' },
+                  { platform: 'TikTok', frequency: '3–5x weekly', type: 'Challenge, BTS, Reactions', color: '#A1A1AA' },
+                  { platform: 'Instagram', frequency: 'Daily Stories + 2x Reels/week', type: 'Aesthetic, Challenge, Reactions', color: '#D42D2D' },
+                  { platform: 'YouTube', frequency: '1x weekly', type: 'BTS, Music Video, Long-form', color: '#FD3737' },
                   { platform: 'X', frequency: 'Real-time + 2x daily', type: 'Engagement, Updates', color: '#a1a1aa' },
                 ].map((item, i) => (
                   <tr key={i} className="border-b border-[#333333]/20 hover:bg-[#1a1a1a]/50 transition-colors">
@@ -733,9 +733,9 @@ export function CampaignPage({ campaign }: { campaign: CampaignData }) {
           <div className="lg:col-span-3 space-y-4">
             {[
               { tier: 'Mega Creators', count: '3–5', followers: '5M+', approach: 'Exclusive early access, official first-listen reactions, co-created content', color: '#fd3737' },
-              { tier: 'Macro Creators', count: '15–20', followers: '500K–5M', approach: 'Challenge tutorial partnerships, featured on Tyla channels, sound exclusivity', color: '#E1306C' },
-              { tier: 'Micro Creators', count: '50–100', followers: '50K–500K', approach: 'Organic challenge participation, reposts, community seeding', color: '#00f2ea' },
-              { tier: 'Nano Creators', count: 'Open', followers: '<50K', approach: 'Community-driven, incentive-based challenges, user-generated content', color: '#1DB954' },
+              { tier: 'Macro Creators', count: '15–20', followers: '500K–5M', approach: 'Challenge tutorial partnerships, featured on Tyla channels, sound exclusivity', color: '#D42D2D' },
+              { tier: 'Micro Creators', count: '50–100', followers: '50K–500K', approach: 'Organic challenge participation, reposts, community seeding', color: '#A1A1AA' },
+              { tier: 'Nano Creators', count: 'Open', followers: '<50K', approach: 'Community-driven, incentive-based challenges, user-generated content', color: '#71717A' },
             ].map((item, i) => (
               <GlassCard key={i} className="p-6">
                 <div className="flex items-start gap-4">
@@ -762,10 +762,10 @@ export function CampaignPage({ campaign }: { campaign: CampaignData }) {
           <div className="space-y-6">
             {[
               { phase: 'W-3', action: 'Seed 5 macro creators with NDA mystery audio', color: '#fd3737' },
-              { phase: 'W-2', action: '10 mid-tier creators get early access and choreography tutorial', color: '#E1306C' },
+              { phase: 'W-2', action: '10 mid-tier creators get early access and choreography tutorial', color: '#D42D2D' },
               { phase: 'W-2', action: '3 mega creators post first-listen reactions', color: '#fd3737' },
-              { phase: 'W-1', action: 'Release sound to 50+ micro creators', color: '#00f2ea' },
-              { phase: 'W0+', action: 'Activate nano tier and open challenge incentives', color: '#1DB954' },
+              { phase: 'W-1', action: 'Release sound to 50+ micro creators', color: '#A1A1AA' },
+              { phase: 'W0+', action: 'Activate nano tier and open challenge incentives', color: '#71717A' },
             ].map((item, i) => (
               <div key={i} className="flex gap-6 items-start">
                 <span className="font-display text-lg min-w-[3rem] text-right" style={{ color: item.color }}>{item.phase}</span>
@@ -818,10 +818,10 @@ export function CampaignPage({ campaign }: { campaign: CampaignData }) {
           {/* channel cards */}
           <div className="lg:col-span-3 space-y-4">
             {[
-              { channel: 'Organic Social', percent: 40, rationale: 'Owned audience activation, contest seeding, UGC amplification — the foundation of all campaign momentum.', color: '#1DB954' },
-              { channel: 'Creator Seeding', percent: 30, rationale: 'Organic reach through trusted voices and challenge virality. Tiered approach maximizes authenticity and scale.', color: '#00f2ea' },
-              { channel: 'Paid Social', percent: 25, rationale: 'Amplify top-performing challenge content. Targeted reach in US, South Africa, and key growth markets.', color: '#E1306C' },
-              { channel: 'Experiential', percent: 5, rationale: 'IRL brand building, press coverage, TikTok-worthy moments at key events.', color: '#F59E0B' },
+              { channel: 'Organic Social', percent: 40, rationale: 'Owned audience activation, contest seeding, UGC amplification — the foundation of all campaign momentum.', color: '#71717A' },
+              { channel: 'Creator Seeding', percent: 30, rationale: 'Organic reach through trusted voices and challenge virality. Tiered approach maximizes authenticity and scale.', color: '#A1A1AA' },
+              { channel: 'Paid Social', percent: 25, rationale: 'Amplify top-performing challenge content. Targeted reach in US, South Africa, and key growth markets.', color: '#D42D2D' },
+              { channel: 'Experiential', percent: 5, rationale: 'IRL brand building, press coverage, TikTok-worthy moments at key events.', color: '#333333' },
             ].map((item, i) => (
               <GlassCard key={i} className="p-6">
                 <div className="flex items-start gap-4">
@@ -851,12 +851,12 @@ export function CampaignPage({ campaign }: { campaign: CampaignData }) {
             },
             {
               phase: 'Launch Week',
-              color: '#00f2ea',
+              color: '#A1A1AA',
               metrics: ['15M+ first-week streams', 'Top 20 Billboard Hot 100', '500K+ TikTok creates', '10M+ social impressions'],
             },
             {
               phase: 'Sustain (4 weeks)',
-              color: '#1DB954',
+              color: '#71717A',
               metrics: ['80%+ streaming retention', '1M+ total challenge creates', 'Sustained playlist rotation', '2–3 weeks in top 40 Spotify'],
             },
           ].map((kpi, i) => (
@@ -885,10 +885,10 @@ export function CampaignPage({ campaign }: { campaign: CampaignData }) {
               <h3 className="font-display text-lg text-white mb-6">{risk.title}</h3>
 
               <div className="flex gap-3 mb-6">
-                <Badge color={risk.likelihood === 'High' ? '#EF4444' : risk.likelihood === 'Medium' ? '#F59E0B' : '#22C55E'}>
+                <Badge color={risk.likelihood === 'High' ? '#FD3737' : risk.likelihood === 'Medium' ? '#333333' : '#A1A1AA'}>
                   {risk.likelihood} Likelihood
                 </Badge>
-                <Badge color={risk.impact === 'High' ? '#EF4444' : risk.impact === 'Medium' ? '#F59E0B' : '#22C55E'}>
+                <Badge color={risk.impact === 'High' ? '#FD3737' : risk.impact === 'Medium' ? '#333333' : '#A1A1AA'}>
                   {risk.impact} Impact
                 </Badge>
               </div>
