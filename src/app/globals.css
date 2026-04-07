@@ -1,0 +1,96 @@
+@import url('https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700&display=swap');
+
+@font-face {
+  font-family: 'N27';
+  src: url('/brand/N27-Bold.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --background: #0a0a0a;
+  --foreground: #fafafa;
+  --text-secondary: #a1a1aa;
+  --text-muted: #71717a;
+  --accent: #fd3737;
+  --surface: #141414;
+  --surface-50: #1a1a1a;
+  --surface-100: #262626;
+  --surface-200: #333333;
+  --color-pop: #e040fb;
+  --color-tiktok: #00f2ea;
+  --color-instagram: #e1306c;
+  --color-youtube: #ff0000;
+  --color-spotify: #1db954;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: 'Work Sans', sans-serif;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'N27', 'Work Sans', sans-serif;
+  font-weight: 700;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .text-primary {
+    color: var(--foreground);
+  }
+
+  .text-secondary {
+    color: var(--text-secondary);
+  }
+
+  .text-muted {
+    color: var(--text-muted);
+  }
+
+  .bg-surface {
+    background-color: var(--surface);
+  }
+
+  .bg-surface-50 {
+    background-color: var(--surface-50);
+  }
+
+  .bg-surface-100 {
+    background-color: var(--surface-100);
+  }
+
+  .border-surface {
+    border-color: var(--surface-200);
+  }
+
+  .text-accent {
+    color: var(--accent);
+  }
+
+  .gradient-card {
+    background: linear-gradient(135deg, rgb(26, 26, 26, 0.8) 0%, rgb(20, 20, 20, 0.5) 100%);
+    border: 1px solid rgba(51, 51, 51, 0.6);
+  }
+}
