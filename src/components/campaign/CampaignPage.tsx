@@ -255,8 +255,8 @@ function GlassCard({
     const rect = cardRef.current.getBoundingClientRect();
     const x = (e.clientX - rect.left) / rect.width - 0.5;
     const y = (e.clientY - rect.top) / rect.height - 0.5;
-    rotateX.set(y * -6);
-    rotateY.set(x * 6);
+    rotateX.set(y * -8);
+    rotateY.set(x * 8);
   };
 
   const handleMouseLeave = () => {
@@ -264,30 +264,35 @@ function GlassCard({
     rotateY.set(0);
   };
 
+  /* Outer div handles the variant animation (fadeUp: opacity + y).
+     Inner motion.div handles the 3D tilt (rotateX + rotateY).
+     Separating them avoids framer-motion's transform composition conflicts. */
   return (
-    <motion.div
-      ref={cardRef}
-      variants={fadeUp}
-      style={
-        hover
-          ? {
-              rotateX: springRotateX,
-              rotateY: springRotateY,
-              transformPerspective: 1200,
-            }
-          : {}
-      }
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      className={`
-        relative overflow-hidden rounded-2xl
-        bg-[#181818] border border-[#303030]
-        ${hover ? 'hover:border-[#fd3737]/40 hover:shadow-lg hover:shadow-[#fd3737]/5 transition-all duration-500' : ''}
-        ${glow ? 'shadow-lg shadow-[#fd3737]/5 border-[#fd3737]/20' : ''}
-        ${className}
-      `}
-    >
-      {children}
+    <motion.div variants={fadeUp}>
+      <motion.div
+        ref={cardRef}
+        style={
+          hover
+            ? {
+                rotateX: springRotateX,
+                rotateY: springRotateY,
+                transformPerspective: 1200,
+                transformStyle: 'preserve-3d' as const,
+              }
+            : {}
+        }
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
+        className={`
+          relative overflow-hidden rounded-2xl
+          bg-[#181818] border border-[#303030]
+          ${hover ? 'hover:border-[#fd3737]/40 hover:shadow-lg hover:shadow-[#fd3737]/5 transition-all duration-500' : ''}
+          ${glow ? 'shadow-lg shadow-[#fd3737]/5 border-[#fd3737]/20' : ''}
+          ${className}
+        `}
+      >
+        {children}
+      </motion.div>
     </motion.div>
   );
 }
