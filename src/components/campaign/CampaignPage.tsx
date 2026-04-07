@@ -119,6 +119,46 @@ function SectionDivider() {
   );
 }
 
+/* ─── phase card (each reveals independently on scroll) ─── */
+function PhaseCard({ phase, index }: { phase: { name: string; dateRange: string; objectives: string[] }; index: number }) {
+  const { ref, inView } = useInView({ threshold: 0.2, rootMargin: '-40px' });
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, x: -40 }}
+      animate={inView ? { opacity: 1, x: 0 } : { opacity: 0, x: -40 }}
+      transition={{ duration: 0.7, delay: 0.1 }}
+      className="ml-14 md:ml-20 relative overflow-hidden rounded-2xl bg-[#181818] border border-[#303030] hover:border-[#fd3737]/40 hover:shadow-lg hover:shadow-[#fd3737]/5 hover:scale-[1.01] transition-all duration-500 p-8"
+    >
+      <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3 mb-5">
+        <div className="flex items-center gap-4">
+          <span className="font-display text-3xl text-[#fd3737]/60">
+            {String(index + 1).padStart(2, '0')}
+          </span>
+          <h3 className="font-display text-xl text-white">{phase.name}</h3>
+        </div>
+        <span className="text-[#B8B8C0] text-sm font-normal whitespace-nowrap">
+          {phase.dateRange}
+        </span>
+      </div>
+      <div className="space-y-2 ml-[3.25rem]">
+        {phase.objectives.map((obj, j) => (
+          <motion.div
+            key={j}
+            initial={{ opacity: 0, x: -15 }}
+            animate={inView ? { opacity: 1, x: 0 } : {}}
+            transition={{ duration: 0.4, delay: 0.3 + j * 0.1 }}
+            className="flex gap-3 text-[#E4E4E9] text-sm font-normal"
+          >
+            <span className="text-[#fd3737]/60 mt-0.5 flex-shrink-0">—</span>
+            <span>{obj}</span>
+          </motion.div>
+        ))}
+      </div>
+    </motion.div>
+  );
+}
+
 /* ─── animated number counter ─── */
 function AnimatedNumber({
   value,
@@ -884,27 +924,7 @@ export function CampaignPage({ campaign }: { campaign: CampaignData }) {
 
           <div className="space-y-6">
             {campaign.phases.map((phase, i) => (
-              <GlassCard key={i} className="ml-14 md:ml-20 p-8">
-                <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3 mb-5">
-                  <div className="flex items-center gap-4">
-                    <span className="font-display text-3xl text-[#fd3737]/60">
-                      {String(i + 1).padStart(2, '0')}
-                    </span>
-                    <h3 className="font-display text-xl text-white">{phase.name}</h3>
-                  </div>
-                  <span className="text-[#B8B8C0] text-sm font-normal whitespace-nowrap">
-                    {phase.dateRange}
-                  </span>
-                </div>
-                <div className="space-y-2 ml-[3.25rem]">
-                  {phase.objectives.map((obj, j) => (
-                    <div key={j} className="flex gap-3 text-[#E4E4E9] text-sm font-normal">
-                      <span className="text-[#fd3737]/60 mt-0.5 flex-shrink-0">—</span>
-                      <span>{obj}</span>
-                    </div>
-                  ))}
-                </div>
-              </GlassCard>
+              <PhaseCard key={i} phase={phase} index={i} />
             ))}
           </div>
         </div>
