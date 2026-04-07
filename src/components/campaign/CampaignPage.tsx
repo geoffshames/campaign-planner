@@ -52,7 +52,7 @@ function Section({
           {title}
         </h2>
         {subtitle && (
-          <p className="text-[#a1a1aa] text-lg md:text-xl mt-4 max-w-3xl leading-relaxed font-light">
+          <p className="text-[#c8c8d0] text-lg md:text-xl mt-4 max-w-3xl leading-relaxed font-light">
             {subtitle}
           </p>
         )}
@@ -79,11 +79,9 @@ function GlassCard({
       variants={fadeUp}
       className={`
         relative overflow-hidden rounded-2xl
-        bg-gradient-to-br from-[#1a1a1a]/90 to-[#141414]/70
-        border border-[#333333]/50
-        backdrop-blur-sm
-        ${hover ? 'hover:border-[#fd3737]/30 hover:shadow-lg hover:shadow-[#fd3737]/5 hover:scale-[1.005] transition-all duration-500' : ''}
-        ${glow ? 'shadow-lg shadow-[#fd3737]/5' : ''}
+        bg-[#161616] border border-[#2a2a2a]
+        ${hover ? 'hover:border-[#fd3737]/40 hover:shadow-lg hover:shadow-[#fd3737]/5 hover:scale-[1.005] transition-all duration-500' : ''}
+        ${glow ? 'shadow-lg shadow-[#fd3737]/5 border-[#fd3737]/20' : ''}
         ${className}
       `}
     >
@@ -96,9 +94,9 @@ function GlassCard({
 function StatBlock({ label, value, sub }: { label: string; value: string; sub?: string }) {
   return (
     <div>
-      <div className="text-[10px] tracking-[0.25em] uppercase text-[#71717a] font-semibold mb-2">{label}</div>
+      <div className="text-[10px] tracking-[0.25em] uppercase text-[#9898a0] font-semibold mb-2">{label}</div>
       <div className="font-display text-4xl md:text-5xl text-white tracking-tight">{value}</div>
-      {sub && <div className="text-[#71717a] text-sm mt-1 font-light">{sub}</div>}
+      {sub && <div className="text-[#9898a0] text-sm mt-1 font-light">{sub}</div>}
     </div>
   );
 }
@@ -122,7 +120,7 @@ function CustomTooltip({ active, payload }: { active?: boolean; payload?: any[] 
   return (
     <div className="bg-[#1a1a1a] border border-[#333333] rounded-lg px-4 py-2 shadow-xl">
       <p className="text-white text-sm font-semibold">{payload[0].name}</p>
-      <p className="text-[#a1a1aa] text-xs">{payload[0].value}%</p>
+      <p className="text-[#c8c8d0] text-xs">{payload[0].value}%</p>
     </div>
   );
 }
@@ -160,7 +158,7 @@ export function CampaignPage({ campaign }: { campaign: CampaignData }) {
         <div className="max-w-[1400px] mx-auto px-6 md:px-10 lg:px-16 h-16 flex items-center justify-between">
           <Image src="/brand/CC-LOGO-2024-WHITE.png" alt="Crowd Control Digital" width={140} height={28} className="opacity-90 hover:opacity-100 transition-opacity" />
           <div className="flex items-center gap-6">
-            <span className="hidden md:block text-[11px] tracking-[0.2em] uppercase text-[#71717a] font-semibold">Campaign Planner</span>
+            <span className="hidden md:block text-[11px] tracking-[0.2em] uppercase text-[#9898a0] font-semibold">Campaign Planner</span>
             <div className="h-4 w-px bg-[#333333] hidden md:block" />
             <Badge color="#e040fb">{campaign.genre}</Badge>
           </div>
@@ -199,7 +197,7 @@ export function CampaignPage({ campaign }: { campaign: CampaignData }) {
             <div className="flex flex-wrap items-center gap-3 mb-8">
               <Badge color="#e040fb">{campaign.genre}</Badge>
               <Badge>{campaign.tier}</Badge>
-              <Badge color="#a1a1aa">{campaign.releaseDate}</Badge>
+              <Badge color="#c8c8d0">{campaign.releaseDate}</Badge>
             </div>
 
             <h1 className="font-display text-7xl md:text-8xl lg:text-[10rem] leading-[0.85] tracking-tighter text-white mb-4">
@@ -211,18 +209,18 @@ export function CampaignPage({ campaign }: { campaign: CampaignData }) {
 
             <div className="flex flex-wrap items-center gap-8 text-sm">
               <div>
-                <span className="text-[#71717a] text-[10px] tracking-[0.25em] uppercase block mb-1">Campaign Window</span>
-                <span className="text-[#a1a1aa] font-light">{campaign.campaignWindow.start} — {campaign.campaignWindow.end}</span>
+                <span className="text-[#9898a0] text-[10px] tracking-[0.25em] uppercase block mb-1">Campaign Window</span>
+                <span className="text-[#c8c8d0] font-light">{campaign.campaignWindow.start} — {campaign.campaignWindow.end}</span>
               </div>
               <div className="h-8 w-px bg-[#333333]" />
               <div>
-                <span className="text-[#71717a] text-[10px] tracking-[0.25em] uppercase block mb-1">Release Date</span>
-                <span className="text-[#a1a1aa] font-light">{campaign.releaseDate}</span>
+                <span className="text-[#9898a0] text-[10px] tracking-[0.25em] uppercase block mb-1">Release Date</span>
+                <span className="text-[#c8c8d0] font-light">{campaign.releaseDate}</span>
               </div>
               <div className="h-8 w-px bg-[#333333]" />
               <div>
-                <span className="text-[#71717a] text-[10px] tracking-[0.25em] uppercase block mb-1">Prepared By</span>
-                <span className="text-[#a1a1aa] font-light">Crowd Control Digital</span>
+                <span className="text-[#9898a0] text-[10px] tracking-[0.25em] uppercase block mb-1">Prepared By</span>
+                <span className="text-[#c8c8d0] font-light">Crowd Control Digital</span>
               </div>
             </div>
           </motion.div>
@@ -234,8 +232,8 @@ export function CampaignPage({ campaign }: { campaign: CampaignData }) {
           transition={{ repeat: Infinity, duration: 2, ease: 'easeInOut' }}
           className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
         >
-          <span className="text-[10px] tracking-[0.3em] uppercase text-[#71717a]">Scroll</span>
-          <div className="w-px h-8 bg-gradient-to-b from-[#71717a] to-transparent" />
+          <span className="text-[10px] tracking-[0.3em] uppercase text-[#9898a0]">Scroll</span>
+          <div className="w-px h-8 bg-gradient-to-b from-[#9898a0] to-transparent" />
         </motion.div>
       </motion.section>
 
@@ -286,7 +284,7 @@ export function CampaignPage({ campaign }: { campaign: CampaignData }) {
                 <div key={i} className="flex justify-between items-center text-sm">
                   <span className="flex items-center gap-3">
                     <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: item.color }} />
-                    <span className="text-[#a1a1aa]">{item.name}</span>
+                    <span className="text-[#c8c8d0]">{item.name}</span>
                   </span>
                   <span className="font-semibold text-white">{item.value}M</span>
                 </div>
@@ -307,8 +305,8 @@ export function CampaignPage({ campaign }: { campaign: CampaignData }) {
                   </span>
                 </div>
                 <div className="font-display text-2xl text-white mb-1">{platform.followers}M</div>
-                <div className="text-[#71717a] text-xs">{platform.platform} followers</div>
-                <div className="mt-3 pt-3 border-t border-[#333333]/50 text-xs text-[#a1a1aa]">
+                <div className="text-[#9898a0] text-xs">{platform.platform} followers</div>
+                <div className="mt-3 pt-3 border-t border-[#333333]/50 text-xs text-[#c8c8d0]">
                   +{platform.monthlyGrowth}K/month growth
                 </div>
               </GlassCard>
@@ -324,7 +322,7 @@ export function CampaignPage({ campaign }: { campaign: CampaignData }) {
               {campaign.markets.map((market, i) => (
                 <div key={i}>
                   <div className="flex justify-between mb-2 text-sm">
-                    <span className="text-[#a1a1aa] font-light">{market.country}</span>
+                    <span className="text-[#c8c8d0] font-light">{market.country}</span>
                     <span className="text-white font-semibold">{market.percent}%</span>
                   </div>
                   <div className="w-full bg-[#1a1a1a] rounded-full h-1.5 overflow-hidden">
@@ -345,31 +343,31 @@ export function CampaignPage({ campaign }: { campaign: CampaignData }) {
             <h3 className="font-display text-lg text-white mb-8">Demographics</h3>
             <div className="grid grid-cols-2 gap-8">
               <div>
-                <div className="text-[10px] tracking-[0.25em] uppercase text-[#71717a] mb-3">Gender Split</div>
+                <div className="text-[10px] tracking-[0.25em] uppercase text-[#9898a0] mb-3">Gender Split</div>
                 <div className="flex items-end gap-4">
                   <div>
                     <div className="font-display text-3xl text-white">{campaign.demographics.femalePercent}%</div>
-                    <div className="text-[#71717a] text-xs mt-1">Female</div>
+                    <div className="text-[#9898a0] text-xs mt-1">Female</div>
                   </div>
                   <div className="h-12 w-px bg-[#333333]" />
                   <div>
-                    <div className="font-display text-3xl text-[#a1a1aa]">{campaign.demographics.malePercent}%</div>
-                    <div className="text-[#71717a] text-xs mt-1">Male</div>
+                    <div className="font-display text-3xl text-[#c8c8d0]">{campaign.demographics.malePercent}%</div>
+                    <div className="text-[#9898a0] text-xs mt-1">Male</div>
                   </div>
                 </div>
               </div>
               <div>
-                <div className="text-[10px] tracking-[0.25em] uppercase text-[#71717a] mb-3">Primary Age</div>
+                <div className="text-[10px] tracking-[0.25em] uppercase text-[#9898a0] mb-3">Primary Age</div>
                 <div className="font-display text-3xl text-white">{campaign.demographics.primaryAge}</div>
-                <div className="text-[#71717a] text-xs mt-1">{campaign.demographics.primaryAgePercent}% of audience</div>
+                <div className="text-[#9898a0] text-xs mt-1">{campaign.demographics.primaryAgePercent}% of audience</div>
               </div>
             </div>
             <div className="mt-8 pt-6 border-t border-[#333333]/50">
-              <div className="text-[10px] tracking-[0.25em] uppercase text-[#71717a] mb-3">Ethnicity Breakdown</div>
+              <div className="text-[10px] tracking-[0.25em] uppercase text-[#9898a0] mb-3">Ethnicity Breakdown</div>
               <div className="space-y-3">
                 {campaign.demographics.ethnicity.map((eth, i) => (
                   <div key={i} className="flex justify-between items-center text-sm">
-                    <span className="text-[#a1a1aa]">{eth.label}</span>
+                    <span className="text-[#c8c8d0]">{eth.label}</span>
                     <span className="font-semibold text-white">{eth.percent}%</span>
                   </div>
                 ))}
@@ -383,7 +381,7 @@ export function CampaignPage({ campaign }: { campaign: CampaignData }) {
       <Section number="03" title="Genre Landscape" subtitle="What's working in Pop right now — tactics, trends, and recent wins.">
         {/* summary callout */}
         <GlassCard className="p-10 mb-12 border-l-2 border-l-[#fd3737]" glow hover={false}>
-          <p className="text-lg md:text-xl leading-relaxed text-[#a1a1aa] font-light">
+          <p className="text-lg md:text-xl leading-relaxed text-[#c8c8d0] font-light">
             Pop in 2026 is experiencing a chart slump — new releases struggling against catalog. Winning campaigns are
             building narrative worlds, batching 20–30 short-form videos per song, and leading with IRL activations.
             Tyla&apos;s Afrobeats-Pop crossover and dance challenge DNA position her to cut through the noise.
@@ -403,7 +401,7 @@ export function CampaignPage({ campaign }: { campaign: CampaignData }) {
                 <span className="text-[#fd3737] text-lg mt-0.5 opacity-60 group-hover:opacity-100 transition-opacity">{tactic.icon}</span>
                 <div>
                   <h4 className="font-display text-lg text-white mb-2">{tactic.title}</h4>
-                  <p className="text-[#a1a1aa] text-sm font-light leading-relaxed">{tactic.desc}</p>
+                  <p className="text-[#c8c8d0] text-sm font-light leading-relaxed">{tactic.desc}</p>
                 </div>
               </div>
             </GlassCard>
@@ -415,7 +413,7 @@ export function CampaignPage({ campaign }: { campaign: CampaignData }) {
           <h3 className="font-display text-lg text-white mb-6">Active Trends</h3>
           <div className="flex flex-wrap gap-3">
             {['Phone-shot aesthetic', 'Behind-the-scenes studio content', 'Fan reaction compilations', 'Lo-fi lyric teasers', 'Day-in-the-life vlogs', 'Challenge tutorials', 'Collab mashups'].map((trend, i) => (
-              <span key={i} className="px-4 py-2 rounded-full bg-[#262626]/80 text-[#a1a1aa] text-sm font-light border border-[#333333]/50 hover:border-[#fd3737]/30 hover:text-white transition-all duration-300">
+              <span key={i} className="px-4 py-2 rounded-full bg-[#262626]/80 text-[#c8c8d0] text-sm font-light border border-[#333333]/50 hover:border-[#fd3737]/30 hover:text-white transition-all duration-300">
                 {trend}
               </span>
             ))}
@@ -438,7 +436,7 @@ export function CampaignPage({ campaign }: { campaign: CampaignData }) {
                   <div className="w-1 h-12 rounded-full bg-gradient-to-b from-[#fd3737]/60 to-transparent flex-shrink-0 mt-0.5" />
                   <div>
                     <div className="font-display text-lg text-white">{item.artist}</div>
-                    <div className="text-[#71717a] text-sm font-light mt-1">{item.release}</div>
+                    <div className="text-[#9898a0] text-sm font-light mt-1">{item.release}</div>
                   </div>
                 </div>
                 <Badge color="#A1A1AA">Low</Badge>
@@ -454,7 +452,7 @@ export function CampaignPage({ campaign }: { campaign: CampaignData }) {
             </div>
             <div>
               <h4 className="font-display text-xl text-white mb-2">Clear Lane</h4>
-              <p className="text-[#a1a1aa] font-light leading-relaxed">
+              <p className="text-[#c8c8d0] font-light leading-relaxed">
                 May 29 presents a wide-open window for Tyla to dominate the news cycle. No major pop releases competing
                 for streaming share, playlist placement, or social conversation.
               </p>
@@ -492,11 +490,11 @@ export function CampaignPage({ campaign }: { campaign: CampaignData }) {
                     <span className="font-display text-3xl text-[#fd3737]/30">{String(i + 1).padStart(2, '0')}</span>
                     <h3 className="font-display text-xl text-white">{phase.name}</h3>
                   </div>
-                  <span className="text-[#71717a] text-sm font-light whitespace-nowrap">{phase.dateRange}</span>
+                  <span className="text-[#9898a0] text-sm font-light whitespace-nowrap">{phase.dateRange}</span>
                 </div>
                 <div className="space-y-2 ml-[3.25rem]">
                   {phase.objectives.map((obj, j) => (
-                    <div key={j} className="flex gap-3 text-[#a1a1aa] text-sm font-light">
+                    <div key={j} className="flex gap-3 text-[#c8c8d0] text-sm font-light">
                       <span className="text-[#fd3737]/60 mt-0.5 flex-shrink-0">—</span>
                       <span>{obj}</span>
                     </div>
@@ -528,7 +526,7 @@ export function CampaignPage({ campaign }: { campaign: CampaignData }) {
                 <div>
                   <span className="text-[10px] tracking-[0.3em] uppercase text-[#fd3737] font-semibold">Core Deliverable</span>
                   <h3 className="font-display text-3xl md:text-4xl text-white mt-2">Production Calendar</h3>
-                  <p className="text-[#a1a1aa] text-sm font-light mt-2 max-w-lg">Every week mapped with specific actions, platforms, formats, and success signals.</p>
+                  <p className="text-[#c8c8d0] text-sm font-light mt-2 max-w-lg">Every week mapped with specific actions, platforms, formats, and success signals.</p>
                 </div>
               </div>
             </div>
@@ -542,8 +540,8 @@ export function CampaignPage({ campaign }: { campaign: CampaignData }) {
                   className={`
                     rounded-2xl overflow-hidden transition-all duration-500
                     ${expandedWeek === idx
-                      ? 'bg-gradient-to-br from-[#1a1a1a] to-[#141414] border border-[#fd3737]/20 shadow-lg shadow-[#fd3737]/5'
-                      : 'bg-gradient-to-br from-[#1a1a1a]/60 to-[#141414]/40 border border-[#333333]/30 hover:border-[#333333]/60'
+                      ? 'bg-[#161616] border border-[#fd3737]/30 shadow-lg shadow-[#fd3737]/5'
+                      : 'bg-[#111111] border border-[#222222] hover:border-[#333333]'
                     }
                   `}
                 >
@@ -557,10 +555,10 @@ export function CampaignPage({ campaign }: { campaign: CampaignData }) {
                       </span>
                       <div>
                         <h3 className="font-display text-lg md:text-xl text-white mb-1">{week.title}</h3>
-                        <p className="text-[#71717a] text-sm font-light">{week.objective}</p>
+                        <p className="text-[#9898a0] text-sm font-light">{week.objective}</p>
                       </div>
                     </div>
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 transition-all duration-300 ${expandedWeek === idx ? 'bg-[#fd3737]/10 text-[#fd3737] rotate-45' : 'bg-[#262626] text-[#71717a]'}`}>
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 transition-all duration-300 ${expandedWeek === idx ? 'bg-[#fd3737]/10 text-[#fd3737] rotate-45' : 'bg-[#262626] text-[#9898a0]'}`}>
                       <span className="text-lg leading-none">+</span>
                     </div>
                   </button>
@@ -584,7 +582,7 @@ export function CampaignPage({ campaign }: { campaign: CampaignData }) {
                                   <div className="w-5 h-5 rounded-full bg-[#71717A]/10 flex items-center justify-center flex-shrink-0 mt-0.5">
                                     <span className="text-[#71717A] text-[10px]">✓</span>
                                   </div>
-                                  <span className="text-[#a1a1aa] text-sm font-light leading-relaxed">{action}</span>
+                                  <span className="text-[#c8c8d0] text-sm font-light leading-relaxed">{action}</span>
                                 </div>
                               ))}
                             </div>
@@ -600,7 +598,7 @@ export function CampaignPage({ campaign }: { campaign: CampaignData }) {
                                     <div className="w-5 h-5 rounded-full bg-[#D42D2D]/10 flex items-center justify-center flex-shrink-0 mt-0.5">
                                       <span className="text-[#D42D2D] text-[10px]">★</span>
                                     </div>
-                                    <span className="text-[#a1a1aa] text-sm font-light leading-relaxed">{action}</span>
+                                    <span className="text-[#c8c8d0] text-sm font-light leading-relaxed">{action}</span>
                                   </div>
                                 ))}
                               </div>
@@ -616,7 +614,7 @@ export function CampaignPage({ campaign }: { campaign: CampaignData }) {
                                   <div className="w-5 h-5 rounded-full bg-[#A1A1AA]/10 flex items-center justify-center flex-shrink-0 mt-0.5">
                                     <span className="text-[#A1A1AA] text-[10px]">▸</span>
                                   </div>
-                                  <span className="text-[#a1a1aa] text-sm font-light leading-relaxed">{signal}</span>
+                                  <span className="text-[#c8c8d0] text-sm font-light leading-relaxed">{signal}</span>
                                 </div>
                               ))}
                             </div>
@@ -641,10 +639,10 @@ export function CampaignPage({ campaign }: { campaign: CampaignData }) {
               <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#fd3737]/40 to-transparent" />
               <span className="font-display text-4xl text-[#333333]/60">{String(i + 1).padStart(2, '0')}</span>
               <h3 className="font-display text-xl text-white mt-3 mb-3">{pillar.pillar}</h3>
-              <p className="text-[#a1a1aa] text-sm font-light leading-relaxed mb-5">{pillar.description}</p>
+              <p className="text-[#c8c8d0] text-sm font-light leading-relaxed mb-5">{pillar.description}</p>
               <div className="flex flex-wrap gap-2">
                 {pillar.platforms.map((p, j) => (
-                  <span key={j} className="text-[10px] tracking-wider uppercase px-3 py-1.5 rounded-full bg-[#262626] text-[#71717a] border border-[#333333]/50">
+                  <span key={j} className="text-[10px] tracking-wider uppercase px-3 py-1.5 rounded-full bg-[#262626] text-[#9898a0] border border-[#333333]/50">
                     {p}
                   </span>
                 ))}
@@ -662,9 +660,9 @@ export function CampaignPage({ campaign }: { campaign: CampaignData }) {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-[#333333]/50">
-                  <th className="text-left py-4 px-8 text-[10px] tracking-[0.25em] uppercase text-[#71717a] font-semibold">Platform</th>
-                  <th className="text-left py-4 px-8 text-[10px] tracking-[0.25em] uppercase text-[#71717a] font-semibold">Frequency</th>
-                  <th className="text-left py-4 px-8 text-[10px] tracking-[0.25em] uppercase text-[#71717a] font-semibold">Content Types</th>
+                  <th className="text-left py-4 px-8 text-[10px] tracking-[0.25em] uppercase text-[#9898a0] font-semibold">Platform</th>
+                  <th className="text-left py-4 px-8 text-[10px] tracking-[0.25em] uppercase text-[#9898a0] font-semibold">Frequency</th>
+                  <th className="text-left py-4 px-8 text-[10px] tracking-[0.25em] uppercase text-[#9898a0] font-semibold">Content Types</th>
                 </tr>
               </thead>
               <tbody>
@@ -672,7 +670,7 @@ export function CampaignPage({ campaign }: { campaign: CampaignData }) {
                   { platform: 'TikTok', frequency: '3–5x weekly', type: 'Challenge, BTS, Reactions', color: '#A1A1AA' },
                   { platform: 'Instagram', frequency: 'Daily Stories + 2x Reels/week', type: 'Aesthetic, Challenge, Reactions', color: '#D42D2D' },
                   { platform: 'YouTube', frequency: '1x weekly', type: 'BTS, Music Video, Long-form', color: '#FD3737' },
-                  { platform: 'X', frequency: 'Real-time + 2x daily', type: 'Engagement, Updates', color: '#a1a1aa' },
+                  { platform: 'X', frequency: 'Real-time + 2x daily', type: 'Engagement, Updates', color: '#c8c8d0' },
                 ].map((item, i) => (
                   <tr key={i} className="border-b border-[#333333]/20 hover:bg-[#1a1a1a]/50 transition-colors">
                     <td className="py-4 px-8">
@@ -681,8 +679,8 @@ export function CampaignPage({ campaign }: { campaign: CampaignData }) {
                         <span className="font-semibold text-sm text-white">{item.platform}</span>
                       </span>
                     </td>
-                    <td className="py-4 px-8 text-[#a1a1aa] text-sm font-light">{item.frequency}</td>
-                    <td className="py-4 px-8 text-[#a1a1aa] text-sm font-light">{item.type}</td>
+                    <td className="py-4 px-8 text-[#c8c8d0] text-sm font-light">{item.frequency}</td>
+                    <td className="py-4 px-8 text-[#c8c8d0] text-sm font-light">{item.type}</td>
                   </tr>
                 ))}
               </tbody>
@@ -721,7 +719,7 @@ export function CampaignPage({ campaign }: { campaign: CampaignData }) {
                 <div key={i} className="flex justify-between items-center text-sm">
                   <span className="flex items-center gap-3">
                     <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: item.color }} />
-                    <span className="text-[#a1a1aa]">{item.name}</span>
+                    <span className="text-[#c8c8d0]">{item.name}</span>
                   </span>
                   <span className="font-semibold text-white">{item.value}%</span>
                 </div>
@@ -745,10 +743,10 @@ export function CampaignPage({ campaign }: { campaign: CampaignData }) {
                       <h4 className="font-display text-lg text-white">{item.tier}</h4>
                       <div className="flex gap-3">
                         <Badge color={item.color}>{item.count} creators</Badge>
-                        <Badge color="#71717a">{item.followers}</Badge>
+                        <Badge color="#9898a0">{item.followers}</Badge>
                       </div>
                     </div>
-                    <p className="text-[#a1a1aa] text-sm font-light">{item.approach}</p>
+                    <p className="text-[#c8c8d0] text-sm font-light">{item.approach}</p>
                   </div>
                 </div>
               </GlassCard>
@@ -770,7 +768,7 @@ export function CampaignPage({ campaign }: { campaign: CampaignData }) {
               <div key={i} className="flex gap-6 items-start">
                 <span className="font-display text-lg min-w-[3rem] text-right" style={{ color: item.color }}>{item.phase}</span>
                 <div className="w-2 h-2 rounded-full mt-2 flex-shrink-0" style={{ backgroundColor: item.color }} />
-                <span className="text-[#a1a1aa] text-sm font-light">{item.action}</span>
+                <span className="text-[#c8c8d0] text-sm font-light">{item.action}</span>
               </div>
             ))}
           </div>
@@ -807,7 +805,7 @@ export function CampaignPage({ campaign }: { campaign: CampaignData }) {
                 <div key={i} className="flex justify-between items-center text-sm">
                   <span className="flex items-center gap-3">
                     <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: item.color }} />
-                    <span className="text-[#a1a1aa]">{item.name}</span>
+                    <span className="text-[#c8c8d0]">{item.name}</span>
                   </span>
                   <span className="font-semibold text-white">{item.value}%</span>
                 </div>
@@ -831,7 +829,7 @@ export function CampaignPage({ campaign }: { campaign: CampaignData }) {
                       <h4 className="font-display text-lg text-white">{item.channel}</h4>
                       <span className="font-display text-2xl" style={{ color: item.color }}>{item.percent}%</span>
                     </div>
-                    <p className="text-[#a1a1aa] text-sm font-light leading-relaxed">{item.rationale}</p>
+                    <p className="text-[#c8c8d0] text-sm font-light leading-relaxed">{item.rationale}</p>
                   </div>
                 </div>
               </GlassCard>
@@ -868,7 +866,7 @@ export function CampaignPage({ campaign }: { campaign: CampaignData }) {
                 {kpi.metrics.map((metric, j) => (
                   <li key={j} className="flex gap-3 items-start text-sm">
                     <span className="mt-1 flex-shrink-0" style={{ color: kpi.color }}>◆</span>
-                    <span className="text-[#a1a1aa] font-light">{metric}</span>
+                    <span className="text-[#c8c8d0] font-light">{metric}</span>
                   </li>
                 ))}
               </ul>
@@ -895,12 +893,12 @@ export function CampaignPage({ campaign }: { campaign: CampaignData }) {
 
               <div className="space-y-5">
                 <div>
-                  <div className="text-[10px] tracking-[0.25em] uppercase text-[#71717a] font-semibold mb-2">Trigger Signal</div>
-                  <p className="text-[#a1a1aa] text-sm font-light leading-relaxed">{risk.triggerSignal}</p>
+                  <div className="text-[10px] tracking-[0.25em] uppercase text-[#9898a0] font-semibold mb-2">Trigger Signal</div>
+                  <p className="text-[#c8c8d0] text-sm font-light leading-relaxed">{risk.triggerSignal}</p>
                 </div>
                 <div className="pt-4 border-t border-[#333333]/50">
                   <div className="text-[10px] tracking-[0.25em] uppercase text-[#fd3737] font-semibold mb-2">Contingency</div>
-                  <p className="text-[#a1a1aa] text-sm font-light leading-relaxed">{risk.contingency}</p>
+                  <p className="text-[#c8c8d0] text-sm font-light leading-relaxed">{risk.contingency}</p>
                 </div>
               </div>
             </GlassCard>
@@ -931,14 +929,14 @@ export function CampaignPage({ campaign }: { campaign: CampaignData }) {
             >
               <motion.div variants={fadeUp}>
                 <h2 className="font-display text-5xl md:text-6xl text-white mb-4">Campaign Ready</h2>
-                <p className="text-[#a1a1aa] font-light text-lg max-w-xl mx-auto mb-12">
+                <p className="text-[#c8c8d0] font-light text-lg max-w-xl mx-auto mb-12">
                   A data-driven, creator-first rollout built to capture the summer moment for Tyla&apos;s &quot;Carwash&quot;.
                 </p>
               </motion.div>
 
               <motion.div variants={fadeUp} className="flex flex-col items-center gap-6">
                 <Image src="/brand/CC-LOGO-2024-WHITE.png" alt="Crowd Control Digital" width={160} height={32} className="opacity-60" />
-                <div className="text-[#71717a] text-xs tracking-wider">
+                <div className="text-[#9898a0] text-xs tracking-wider">
                   <span>info@crowdcontroldigital.com</span>
                   <span className="mx-3">·</span>
                   <span>Campaign intelligence, artist positioning &amp; music marketing</span>
