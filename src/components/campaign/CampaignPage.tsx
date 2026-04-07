@@ -47,7 +47,7 @@ export function CampaignPage({ campaign }: { campaign: CampaignData }) {
     <div className="min-h-screen bg-[#0a0a0a] text-white overflow-x-hidden">
       {/* HERO */}
       <motion.section
-        initial={{ opacity: 0 }}
+        initial={{ opacity: 1 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.8 }}
         className="relative h-screen flex items-center justify-center overflow-hidden"
@@ -63,7 +63,7 @@ export function CampaignPage({ campaign }: { campaign: CampaignData }) {
             {campaign.artist}
           </motion.h1>
           <motion.h2
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 1, y: 0 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
             className="text-5xl md:text-6xl text-[#fd3737] font-bold mb-8"
@@ -71,7 +71,7 @@ export function CampaignPage({ campaign }: { campaign: CampaignData }) {
             {campaign.song}
           </motion.h2>
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 1, y: 0 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.6 }}
             className="flex flex-wrap gap-4 justify-center mb-8"
@@ -266,8 +266,8 @@ export function CampaignPage({ campaign }: { campaign: CampaignData }) {
 
       {/* FOOTER */}
       <motion.section
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
+        initial={{ opacity: 1 }}
+        animate={{ opacity: 1 }}
         viewport={{ once: true }}
         className="py-20 px-4 md:px-8 bg-gradient-to-t from-[#0a0a0a] to-transparent text-center border-t border-[#333333]"
       >
@@ -290,8 +290,8 @@ export function CampaignPage({ campaign }: { campaign: CampaignData }) {
 function GenreLandscapeSection() {
   return (
     <motion.section
-      initial={{ opacity: 0 }}
-      whileInView={{ opacity: 1 }}
+      initial={{ opacity: 1 }}
+      animate={{ opacity: 1 }}
       viewport={{ once: true }}
       className="py-20 px-4 md:px-8 max-w-7xl mx-auto"
     >
@@ -343,8 +343,8 @@ function GenreLandscapeSection() {
 function CompetitiveCalendarSection() {
   return (
     <motion.section
-      initial={{ opacity: 0 }}
-      whileInView={{ opacity: 1 }}
+      initial={{ opacity: 1 }}
+      animate={{ opacity: 1 }}
       viewport={{ once: true }}
       className="py-20 px-4 md:px-8 max-w-7xl mx-auto"
     >
@@ -392,8 +392,8 @@ function CompetitiveCalendarSection() {
 function CampaignOverviewSection({ campaign }: { campaign: CampaignData }) {
   return (
     <motion.section
-      initial={{ opacity: 0 }}
-      whileInView={{ opacity: 1 }}
+      initial={{ opacity: 1 }}
+      animate={{ opacity: 1 }}
       viewport={{ once: true }}
       className="py-20 px-4 md:px-8 max-w-7xl mx-auto"
     >
@@ -445,8 +445,8 @@ function PlaybookSection({
 }) {
   return (
     <motion.section
-      initial={{ opacity: 0 }}
-      whileInView={{ opacity: 1 }}
+      initial={{ opacity: 1 }}
+      animate={{ opacity: 1 }}
       viewport={{ once: true }}
       className="py-20 px-4 md:px-8 max-w-7xl mx-auto"
     >
@@ -536,8 +536,8 @@ function ContentStrategySection({ campaign }: { campaign: CampaignData }) {
 
   return (
     <motion.section
-      initial={{ opacity: 0 }}
-      whileInView={{ opacity: 1 }}
+      initial={{ opacity: 1 }}
+      animate={{ opacity: 1 }}
       viewport={{ once: true }}
       className="py-20 px-4 md:px-8 max-w-7xl mx-auto"
     >
@@ -604,8 +604,8 @@ function CreatorSeedingSection({
 }) {
   return (
     <motion.section
-      initial={{ opacity: 0 }}
-      whileInView={{ opacity: 1 }}
+      initial={{ opacity: 1 }}
+      animate={{ opacity: 1 }}
       viewport={{ once: true }}
       className="py-20 px-4 md:px-8 max-w-7xl mx-auto"
     >
@@ -727,8 +727,8 @@ function ChannelAllocationSection({
 }) {
   return (
     <motion.section
-      initial={{ opacity: 0 }}
-      whileInView={{ opacity: 1 }}
+      initial={{ opacity: 1 }}
+      animate={{ opacity: 1 }}
       viewport={{ once: true }}
       className="py-20 px-4 md:px-8 max-w-7xl mx-auto"
     >
@@ -815,8 +815,8 @@ function ChannelAllocationSection({
 function SuccessMetricsSection() {
   return (
     <motion.section
-      initial={{ opacity: 0 }}
-      whileInView={{ opacity: 1 }}
+      initial={{ opacity: 1 }}
+      animate={{ opacity: 1 }}
       viewport={{ once: true }}
       className="py-20 px-4 md:px-8 max-w-7xl mx-auto"
     >
@@ -860,8 +860,8 @@ function SuccessMetricsSection() {
 function RisksSection({ campaign }: { campaign: CampaignData }) {
   return (
     <motion.section
-      initial={{ opacity: 0 }}
-      whileInView={{ opacity: 1 }}
+      initial={{ opacity: 1 }}
+      animate={{ opacity: 1 }}
       viewport={{ once: true }}
       className="py-20 px-4 md:px-8 max-w-7xl mx-auto"
     >
