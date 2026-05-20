@@ -124,7 +124,7 @@ export function BadTunerForeverLove() {
   const nav = [
     ['diagnosis', 'Diagnosis'], ['comps', 'Comp Teardown'], ['video', 'Video Intel'],
     ['strategy', 'Strategy'], ['system', 'Content System'], ['playbook', 'Playbook'],
-    ['channels', 'Channels'], ['clipping', 'Clipping'], ['dsp', 'DSP'],
+    ['channels', 'Channels'], ['clipping', 'Clipping'], ['swrm', 'SWRM'], ['dsp', 'DSP'],
   ];
 
   return (
@@ -418,8 +418,28 @@ export function BadTunerForeverLove() {
       </Section>
       <SectionDivider />
 
+      {/* ═══ 09 SWRM ═══ */}
+      <Section id="swrm" number="09" title="SWRM · Owned Engagement Layer" subtitle={C.swrm.intro}>
+        <GlassCard className="p-8 md:p-10 mb-8 border-l-2 border-l-[#fd3737]" glow hover={false}>
+          <p className="text-[#E4E4E9] text-base md:text-lg leading-relaxed">{C.swrm.why}</p>
+        </GlassCard>
+        <div className="grid md:grid-cols-2 gap-5">
+          {C.swrm.plays.map((p, i) => (
+            <GlassCard key={i} className="p-7">
+              <div className="flex items-center gap-3 mb-3">
+                <span className="font-display text-2xl text-[#fd3737]">{String(i + 1).padStart(2, '0')}</span>
+                <h4 className="font-display text-lg text-[#FAFAFA]">{p.name}</h4>
+              </div>
+              <p className="text-[#E4E4E9] text-sm leading-relaxed">{p.detail}</p>
+            </GlassCard>
+          ))}
+        </div>
+        <GlassCard className="p-6 mt-6" hover={false}><p className="text-[#B8B8C0] text-sm leading-relaxed">{C.swrm.note}</p></GlassCard>
+      </Section>
+      <SectionDivider />
+
       {/* ═══ 10 DSP ═══ */}
-      <Section id="dsp" number="09" title="DSP Conversion" subtitle={C.dsp.intro}>
+      <Section id="dsp" number="10" title="DSP Conversion" subtitle={C.dsp.intro}>
         <div className="grid md:grid-cols-2 gap-5">
           {C.dsp.items.map((d, i) => (
             <GlassCard key={i} className="p-7">

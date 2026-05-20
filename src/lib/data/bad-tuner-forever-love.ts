@@ -196,7 +196,7 @@ export const badTuner = {
   allocation: [
     { channel: 'Organic content engine', pct: 45, color: '#FD3737', rationale: 'The 5 phone-shot formats are the core. Highest-leverage, lowest-cost, and the only thing that fixes the underlying problem.' },
     { channel: 'Paid clipping + social', pct: 25, color: '#D42D2D', rationale: 'One long set, clipped and amplified at launch ($2-5K test), plus paid behind the best organic angles.' },
-    { channel: 'Creator / UGC seeding', pct: 20, color: '#A1A1AA', rationale: 'Micro-creators on house/dance pages + fan-flip co-authoring to manufacture sound adoption.' },
+    { channel: 'Creator + SWRM engagement', pct: 20, color: '#A1A1AA', rationale: 'Micro-creators on house/dance pages, fan-flip co-authoring, and CCD-owned SWRM real-user engagement to clear the algorithm threshold.' },
     { channel: 'DSP + experiential', pct: 10, color: '#71717A', rationale: 'Marquee, Showcase, Countdown page, and tour/college tie-ins via Orchard.' },
   ],
   allocationPhases: [
@@ -227,6 +227,19 @@ export const badTuner = {
       { name: 'Showcase', detail: 'Home-feed banner to keep the EP in view across launch week.' },
       { name: 'Spotify Canvas as a social funnel', detail: 'Carry the @handle + "follow for the making" hook in Canvas loops on every single, converting passive streamers into followers.' },
     ],
+  },
+
+  // ── SWRM (owned engagement layer) ──
+  swrm: {
+    intro: 'SWRM is CCD’s own two-sided engagement marketplace: verified real users (SWRMERS) get paid to complete genuine engagement tasks — comments, saves, shares, follows. The high-trust alternative to bots and engagement pods. It went live in May 2026 with real users earning same-day, and bad tuner is already on the CCD x SWRM client roster (precedent: Quin/KUN, Electric Guest "ETR").',
+    why: 'The core problem is 412K streamers but ~200 likes a post. SWRM puts real early engagement on the first clips of each new format so they clear the algorithm’s surface-area threshold — turning the content engine on faster than waiting for organic alone to compound.',
+    plays: [
+      { name: 'Algorithmic lift', detail: 'Seed real saves / comments / shares on the first 1-2 clips of each format so TikTok and IG learn his sound and push them. Directly attacks the ~200-likes ceiling.' },
+      { name: 'Motif breadcrumbs', detail: 'Prime "track id?" / "when is forever love out" comments on the recurring-motif teasers — manufacturing the organic-looking demand Barry gets with "Bhibo". Per-user AI-varied comments (via comment-copilot) keep them from looking copy-pasted.' },
+      { name: 'Follow + pre-save nudges', detail: 'Route follow and pre-save actions on each single drop to convert passive streamers into followers and pre-savers — the exact conversion the cascade is built around.' },
+      { name: 'Owned = cost + control', detail: 'As a CCD-owned tool SWRM runs at marketplace cost (20% self-serve), not agency markup. Spend stays in-house and is dialed per drop.' },
+    ],
+    note: 'Guardrail: SWRMERS are verified real people doing genuine actions, and comments are AI-varied per user to stay authentic. Keep volume tasteful — SWRM seeds the engagement the content engine is built to earn; it does not replace it.',
   },
 
   // ── 11 KPIs ──
