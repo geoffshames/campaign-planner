@@ -208,36 +208,13 @@ export const badTuner = {
 
   // ── 09 Clipping + Amplification ──
   clipping: {
-    intro: 'Barry built reach by clipping his live sets. bad tuner has the same asset and is not using it.',
-    steps: [
-      { step: 'Source one long-form set', detail: 'Use existing footage (Lot Radio) or capture one new set. One asset feeds dozens of clips.' },
-      { step: 'Tight clipper brief', detail: 'Brief clippers to tie every clip back to forever love + a pre-save link, with the EP motif as the hook.' },
-      { step: 'Paid clipping test', detail: 'Test small on a strong single first, then scale the main $2-5K push at the EP (Oct 2). $1-5 CPM cap; measure cost-per-save and pre-save, not just views.' },
-      { step: 'Third-party amplification', detail: 'Your Culture engagement, Strive FM, and micro-creator UGC seeding across house/dance pages.' },
-      { step: 'College via The Orchard', detail: 'Distribution runs through The Orchard via Independent Co — activate The Orchard college/campus radio program, tied to tour routing once dates lock.' },
-    ],
-  },
-
-  // ── 10 DSP Conversion ──
-  dsp: {
-    intro: 'The cascade builds the audience; the DSP stack converts it — per single, then at the EP.',
-    items: [
-      { name: 'Per-single pre-save + Marquee', detail: 'Pre-save live ~3-4 weeks out per single (industry norm ~30 days; Barry Cant Swim ran ~6 weeks on his label single). His own past pushes were only ~2-4 days — too short. Marquee at drop, aimed at lapsed + recent listeners from the 412K base.' },
-      { name: 'EP Countdown Page', detail: 'Opens at the Aug 7 announce. Add Clips — artists who do see ~2x more pre-saves. Pre-save link in every bio and clip through Oct 2.' },
-      { name: 'Showcase', detail: 'Home-feed banner to keep the EP in view across launch week.' },
-      { name: 'Spotify Canvas as a social funnel', detail: 'Carry the @handle + "follow for the making" hook in Canvas loops on every single, converting passive streamers into followers.' },
-    ],
-  },
-
-  // ── SWRM (owned engagement layer) ──
-  swrm: {
-    intro: 'SWRM is CCD’s own two-sided engagement marketplace: verified real users (SWRMERS) get paid to complete genuine engagement tasks — comments, saves, shares, follows. The high-trust alternative to bots and engagement pods. It went live in May 2026 with real users earning same-day, and bad tuner is already on the CCD x SWRM client roster (precedent: Quin/KUN, Electric Guest "ETR").',
+    intro: 'SWRM is our own two-sided engagement marketplace: verified real users get paid to complete genuine engagement tasks — comments, saves, shares, follows. It is the high-trust alternative to bots and engagement pods, and it is already live, with real users completing tasks and getting paid same-day.',
     why: 'The core problem is 412K streamers but ~200 likes a post. SWRM puts real early engagement on the first clips of each new format so they clear the algorithm’s surface-area threshold — turning the content engine on faster than waiting for organic alone to compound.',
     plays: [
       { name: 'Algorithmic lift', detail: 'Seed real saves / comments / shares on the first 1-2 clips of each format so TikTok and IG learn his sound and push them. Directly attacks the ~200-likes ceiling.' },
       { name: 'Motif breadcrumbs', detail: 'Prime "track id?" / "when is forever love out" comments on the recurring-motif teasers — manufacturing the organic-looking demand Barry gets with "Bhibo". Per-user AI-varied comments (via comment-copilot) keep them from looking copy-pasted.' },
       { name: 'Follow + pre-save nudges', detail: 'Route follow and pre-save actions on each single drop to convert passive streamers into followers and pre-savers — the exact conversion the cascade is built around.' },
-      { name: 'Owned = cost + control', detail: 'As a CCD-owned tool SWRM runs at marketplace cost (20% self-serve), not agency markup. Spend stays in-house and is dialed per drop.' },
+      { name: 'Owned = cost + control', detail: 'As an owned tool, SWRM runs at marketplace cost (20% self-serve), not agency markup. Spend stays in-house and is dialed per drop.' },
     ],
     note: 'Guardrail: SWRMERS are verified real people doing genuine actions, and comments are AI-varied per user to stay authentic. Keep volume tasteful — SWRM seeds the engagement the content engine is built to earn; it does not replace it.',
   },
