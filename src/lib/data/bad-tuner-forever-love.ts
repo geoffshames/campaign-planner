@@ -7,16 +7,25 @@ export const badTuner = {
   song: 'forever love',
   releaseType: 'EP',
   genre: 'House / UK Garage',
-  releaseDate: 'Date TBD',
+  releaseDate: 'October 2, 2026',
   tier: 'Mid-Level · Streaming-Strong',
   label: 'Independent Co. / The Orchard',
   homeBase: 'Brooklyn, NY',
-  campaignWindow: '10-week flexible window · anchors on confirmed release date',
+  campaignWindow: 'May 20 – October 2, 2026 · four-single cascade into the EP',
   generatedDate: 'May 20, 2026',
+
+  // ── Release calendar ──
+  calendar: [
+    { date: 'Jun 12', label: 'Single 1 — Young Soul', kind: 'single' },
+    { date: 'Jul 10', label: 'Single 2', kind: 'single' },
+    { date: 'Aug 7', label: 'Single 3 + EP announce', kind: 'announce' },
+    { date: 'Sep 4', label: 'Single 4', kind: 'single' },
+    { date: 'Oct 2', label: 'forever love EP', kind: 'ep' },
+  ],
 
   // ── 02 The Diagnosis / Artist Position ──
   diagnosis: {
-    headline: 'A streaming star who is invisible on social.',
+    headline: 'The streaming star that is hiding on social.',
     body:
       'bad tuner has 412.5K Spotify monthly listeners but only ~16.8K TikTok followers and ~12K on Instagram. He has posted 1,625 TikToks that average roughly 200 likes each. The gap is not effort and it is not frequency. He already posts far more than Barry Cant Swim, Fred Again and Joy Anonymous combined. The problem is format and intent: roughly 90% of his recent posts are gig flyers (\"lmk if you wanna come\", \"tickets in bio\"). The single rule every winning comp follows is the one rule he breaks: they never post ads. The fix is not more posting. It is a repeatable, phone-shot \"show the making\" engine that converts the 412K people who already stream him into followers and pre-savers.',
     stats: [
@@ -117,12 +126,14 @@ export const badTuner = {
 
   // ── 05 Thesis + Phases ──
   thesis:
-    'Kill the gig-flyer feed. Replace it with a phone-shot “show the making” engine — five rinse-and-repeat formats batched in NYC, built around one recurring unreleased forever love hook — that turns 412K passive streamers into followers and pre-savers, then converts that owned audience on release week with clipping, DSP tools and a Countdown page.',
+    'Kill the gig-flyer feed. Replace it with a phone-shot "show the making" engine — five rinse-and-repeat formats batched in NYC, tied together by one recurring forever love motif that runs across all four singles into the EP. Each monthly single is a content sprint that compounds the last, turning 412K passive streamers into followers and pre-savers, then converting them on Oct 2 with clipping, Marquee/Showcase and a Countdown page.',
   phases: [
-    { name: 'Reset & Seed', weeks: 'Weeks 1-3', objectives: ['Stop posting ads', 'Stand up the 5 content formats', 'Plant the recurring forever love hook'] },
-    { name: 'Build', weeks: 'Weeks 4-6', objectives: ['Post the same EP track 3-5 ways', 'Open Countdown page + pre-save', 'Seed micro-creators on house/dance pages'] },
-    { name: 'Launch', weeks: 'Weeks 7-8', objectives: ['EP drops', 'Fire clipping campaign off the long set', 'Marquee + Showcase + Countdown convert'] },
-    { name: 'Sustain', weeks: 'Weeks 9-10', objectives: ['Keep the engine running', 'Fan-flip + live-clip cycle', 'Tie college + tour amplification to dates'] },
+    { name: 'Reset & Build Engine', weeks: 'Now – Jun 11', objectives: ['Kill the flyer feed', 'Stand up the 5 formats + motif', 'Warm the 412K base before Single 1'] },
+    { name: 'Single 1 · Young Soul', weeks: 'Jun 12 – Jul 9', objectives: ['Prove the engine on the first drop', 'Convert streamers to followers', 'Tease toward Single 2'] },
+    { name: 'Single 2', weeks: 'Jul 10 – Aug 6', objectives: ['Second sprint; scale the winning format', 'Grow pre-save intent', 'Set up the announce'] },
+    { name: 'Single 3 · EP Announce', weeks: 'Aug 7 – Sep 3', objectives: ['Announce forever love', 'Open the EP Countdown page', 'Pay off the recurring motif'] },
+    { name: 'Single 4', weeks: 'Sep 4 – Oct 1', objectives: ['Final pre-EP push', 'Peak pre-saves', 'Load the clipping campaign'] },
+    { name: 'EP Launch · forever love', weeks: 'Oct 2+', objectives: ['Fire clipping off the long set', 'Marquee + Showcase + Countdown convert', 'Hold the curve into sustain'] },
   ],
 
   // ── 06 The Content System ──
@@ -134,22 +145,19 @@ export const badTuner = {
     { name: 'Live clip of the week', what: 'One clip from sessions or shows — Lot Radio, Public Records — drop timed to a crowd reaction.', platform: 'TikTok · Reels · YT', why: 'Live moments were the #1 driver across every comp (Barry 519K, Fred millions, Joy 133K). He already has Lot Radio footage.', batch: 'Pull from one long set; feeds the clipping campaign too.' },
   ],
   algorithmNote:
-    'Recurring hook: pick ONE forever love motif (a vocal chop, a name) and run it across teasers like Barry runs “Bhibo” — same unreleased track, posted 3-5 different ways, until fans are commenting “track id?”. That is how the algorithm learns his sound and how demand is manufactured before release.',
+    'Recurring hook: pick ONE forever love motif (a vocal chop, a name) and run it across all four singles like Barry runs "Bhibo". Each single is also posted 3-5 different ways so the algorithm learns the sound — and by the Aug 7 announce, fans already recognize the EP. Same motif, four drops, one payoff.',
   cadence:
     'Target 5 posts/week of REAL content — not 5 flyers. The 80/20 rule: at most 1 in 5 posts can mention a show, and show promo lives in Stories / close-friends, not the main feed.',
 
   // ── 07 Weekly Playbook (10 weeks, relative to release) ──
   playbook: [
-    { week: 'Week 1', phase: 'Reset & Seed', objective: 'Stop the bleeding. No more flyers in the main feed.', actions: ['Audit + archive the worst gig-flyer posts; move all show promo to Stories', 'Film 5 “one sound, one flip” clips in one NYC walk', 'Post 3 of them, each opening with a text-in-3s hook'], signals: ['Per-post avg engagement up vs. flyer baseline', 'Saves appear (the algorithm signal)'] },
-    { week: 'Week 2', phase: 'Reset & Seed', objective: 'Establish the constraint-beat format.', actions: ['Batch 4 “made a beat with only ___” clips in one session', 'Post 5x this week (mix flip + constraint)', 'Reply to every comment within the first hour'], signals: ['First clip over 5K plays', 'Comment-to-view ratio climbing'] },
-    { week: 'Week 3', phase: 'Reset & Seed', objective: 'Plant the recurring forever love hook.', actions: ['Tease ONE EP loop as a named motif (the “Bhibo” move)', 'Post the same loop 2 ways (flip + started-vs-going)', 'Pin the best-performing format to profile'], signals: ['“track id?” / “when is this out” comments begin', 'Follower growth turns positive week-over-week'] },
-    { week: 'Week 4', phase: 'Build', objective: 'Turn on demand-capture infrastructure.', actions: ['Open Spotify Countdown Page + pre-save link in every bio', 'Launch “fan flips” — ask fans to send sounds', 'Post the EP motif a 3rd way'], signals: ['First 250-500 pre-saves', 'Fan submissions in the inbox'] },
-    { week: 'Week 5', phase: 'Build', objective: 'Lock the date and the long set.', actions: ['Confirm EP release date; back-time DSP tools', 'Capture / select one long-form set (Lot Radio or new) for clipping', 'Brief the clipping vendor — tight brief tying to forever love + pre-save'], signals: ['Release date locked', 'Long set + clip brief approved'] },
-    { week: 'Week 6', phase: 'Build', objective: 'Seed the creator + page network.', actions: ['Seed 8-12 micro-creators on house/dance pages with the EP sound', 'Post a fan-flip you actually built (co-author moment)', 'Add Clips to the Countdown page (2x pre-save lift)'], signals: ['First creator posts live', 'Pre-saves pacing toward target'] },
-    { week: 'Week 7', phase: 'Launch', objective: 'Release week — convert the owned audience.', actions: ['EP drops; turn on Marquee + Showcase', 'Launch the paid clipping campaign off the long set ($2-5K test)', 'Post a live clip timed to the drop, every day this week'], signals: ['First-week streams vs. “lately in the void” baseline', 'Clip campaign CPM in the $1-5 range'] },
-    { week: 'Week 8', phase: 'Launch', objective: 'Amplify what is already moving.', actions: ['Double down budget on the 2 best-performing clip angles', 'Push Your Culture + Strive FM placements', 'Repost the best fan + creator UGC to main'], signals: ['One clip / sound breaks out (>50K)', 'Sound creates climbing on TikTok'] },
-    { week: 'Week 9', phase: 'Sustain', objective: 'Hold the curve, keep the engine on.', actions: ['Resume the 5-format weekly rotation', 'Run “started vs going” on the strongest EP track', 'Tie college / Orchard push to confirmed tour dates'], signals: ['Streaming holds 70%+ of week 1', 'Organic creates continue without paid'] },
-    { week: 'Week 10', phase: 'Sustain', objective: 'Bank the audience and set up the next cycle.', actions: ['Move new followers to a Laylo / email + SMS list', 'Plan the next recurring motif from EP cuts', 'Recap reel of the best moments of the rollout'], signals: ['Follower retention holding', 'Owned audience (email/SMS) established'] },
+    { week: 'Now – Jun 11', phase: 'Reset & Build Engine', objective: 'Get the engine running BEFORE Single 1 — do not launch Young Soul into the old flyer feed.', actions: ['Audit + archive the worst gig flyers; route all show promo to Stories', 'Batch the first 8-10 clips across the 5 formats in 1-2 NYC shoots', 'Plant the forever love motif; post the Young Soul hook 3 ways', 'Capture / select the long-form set (Lot Radio) for later clipping'], signals: ['Per-post engagement up vs. the flyer baseline', '"when is this out" comments on the motif'] },
+    { week: 'Jun 12 · Single 1 — Young Soul', phase: 'Single 1', objective: 'First drop. Prove the engine converts streamers into followers.', actions: ['Pre-save live + in every bio by ~May 29', 'Drop day: live clip timed to the hook + Marquee on', 'Post Young Soul 3-5 ways across the week (flip, started-vs-going, fan flip)', 'Spotify Canvas carries the @handle "follow for the making" hook'], signals: ['First-week streams vs. the "lately in the void" baseline', 'Net new followers pulled from the 412K base'] },
+    { week: 'Jul 10 · Single 2', phase: 'Single 2', objective: 'Second monthly sprint — scale whatever format won on Single 1.', actions: ['Pre-save up by ~Jun 26; Marquee at drop', 'Lead with the 2 best-performing formats from Single 1', 'One b2b / collab clip with an NYC-garage peer for borrowed reach', 'Keep the motif visible — it now spans two singles'], signals: ['A format or clip breaks out (>50K)', 'Pre-save list growing drop over drop'] },
+    { week: 'Aug 7 · Single 3 + EP Announce', phase: 'Single 3 · EP Announce', objective: 'The mid-rollout tentpole. Announce forever love and open the Countdown page.', actions: ['Open the EP Countdown page with Clips (~2x pre-saves) — bios + every clip CTA', 'Announce the EP: "every loop you have seen = this record" (motif payoff)', 'Single 3 drop + Marquee; tracklist / teaser reveal', 'Start seeding micro-creators on house/dance pages with EP sounds'], signals: ['Countdown pre-saves ramping', 'The announce is the highest-engagement post yet'] },
+    { week: 'Sep 4 · Single 4', phase: 'Single 4', objective: 'Final single — peak the pre-EP push and load the clipping campaign.', actions: ['Pre-save by ~Aug 21; Marquee at drop', 'Brief + ready the paid clipping campaign off the long set (tight brief → forever love + pre-save)', 'Fan-flip cycle peaks — give fans EP stems as a pre-save unlock', 'Confirm tour routing → line up The Orchard college/campus push'], signals: ['Pre-saves on track for EP day', 'Clipper brief approved; creators live'] },
+    { week: 'Oct 2 · forever love EP', phase: 'EP Launch', objective: 'EP day. Convert the audience the whole cascade built.', actions: ['EP drops; Marquee + Showcase on', 'Fire the paid clipping campaign ($2-5K test, $1-5 CPM cap)', 'Daily live clips timed to the standout EP cuts', 'Double budget on the 2 best clip angles; push Your Culture + Strive FM'], signals: ['EP first-week vs. the single baselines', 'Sound creates climbing; clip CPM in range'] },
+    { week: 'Oct 3+ · Sustain', phase: 'Sustain', objective: 'Hold the curve and bank the audience.', actions: ['Resume the 5-format weekly rotation', 'College / Orchard + tour amplification on confirmed dates', 'Move new followers into a Laylo email/SMS list', 'Plan the next motif from EP cuts'], signals: ['Streaming holds 70%+ of week 1', 'Owned audience (email/SMS) established'] },
   ],
 
   // ── 08 Channel Allocation ──
@@ -160,10 +168,10 @@ export const badTuner = {
     { channel: 'DSP + experiential', pct: 10, color: '#71717A', rationale: 'Marquee, Showcase, Countdown page, and tour/college tie-ins via Orchard.' },
   ],
   allocationPhases: [
-    { phase: 'Reset & Seed', split: 'Organic 80 · Seeding 15 · Paid 0 · DSP 5' },
-    { phase: 'Build', split: 'Organic 55 · Seeding 25 · Paid 5 · DSP 15' },
-    { phase: 'Launch', split: 'Organic 30 · Paid 45 · Seeding 15 · DSP 10' },
-    { phase: 'Sustain', split: 'Organic 60 · Seeding 20 · Paid 10 · DSP 10' },
+    { phase: 'Reset & Build', split: 'Organic 80 · Seeding 15 · Paid 0 · DSP 5' },
+    { phase: 'Singles 1-2', split: 'Organic 60 · Seeding 20 · Paid 5 · DSP 15' },
+    { phase: 'Announce → Single 4', split: 'Organic 50 · Seeding 25 · Paid 10 · DSP 15' },
+    { phase: 'EP Launch (Oct 2)', split: 'Organic 30 · Paid 45 · Seeding 15 · DSP 10' },
   ],
 
   // ── 09 Clipping + Amplification ──
@@ -172,7 +180,7 @@ export const badTuner = {
     steps: [
       { step: 'Source one long-form set', detail: 'Use existing footage (Lot Radio) or capture one new set. One asset feeds dozens of clips.' },
       { step: 'Tight clipper brief', detail: 'Brief clippers to tie every clip back to forever love + a pre-save link, with the EP motif as the hook.' },
-      { step: 'Paid clipping test', detail: '$2-5K test at a $1-5 CPM cap. Measure cost-per-save and pre-save, not just views.' },
+      { step: 'Paid clipping test', detail: 'Test small on a strong single first, then scale the main $2-5K push at the EP (Oct 2). $1-5 CPM cap; measure cost-per-save and pre-save, not just views.' },
       { step: 'Third-party amplification', detail: 'Your Culture engagement, Strive FM, and micro-creator UGC seeding across house/dance pages.' },
       { step: 'College via The Orchard', detail: 'Distribution runs through The Orchard via Independent Co — activate The Orchard college/campus radio program, tied to tour routing once dates lock.' },
     ],
@@ -180,12 +188,12 @@ export const badTuner = {
 
   // ── 10 DSP Conversion ──
   dsp: {
-    intro: 'The whole point of the content reset is to have an audience to convert on release week. The DSP stack does the converting.',
+    intro: 'The cascade builds the audience; the DSP stack converts it — per single, then at the EP.',
     items: [
-      { name: 'Countdown Page', detail: 'Open in the Build phase. Add Clips — artists who do see ~2x more pre-saves. Pre-save link in every bio and clip.' },
-      { name: 'Marquee', detail: 'Full-screen new-release recommendation at launch. Target lapsed + recent listeners from his 412K base.' },
-      { name: 'Showcase', detail: 'Home-feed banner to keep the EP in view through launch week.' },
-      { name: 'Pre-save funnel', detail: 'Every organic clip ends on the same CTA. The recurring motif teases manufacture the intent the Countdown page captures.' },
+      { name: 'Per-single pre-save + Marquee', detail: 'Every single gets a pre-save live ~2 weeks out and a Marquee at drop, aimed at lapsed + recent listeners from the 412K base.' },
+      { name: 'EP Countdown Page', detail: 'Opens at the Aug 7 announce. Add Clips — artists who do see ~2x more pre-saves. Pre-save link in every bio and clip through Oct 2.' },
+      { name: 'Showcase', detail: 'Home-feed banner to keep the EP in view across launch week.' },
+      { name: 'Spotify Canvas as a social funnel', detail: 'Carry the @handle + "follow for the making" hook in Canvas loops on every single, converting passive streamers into followers.' },
     ],
   },
 

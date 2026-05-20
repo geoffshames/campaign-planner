@@ -136,7 +136,7 @@ export function BadTunerForeverLove() {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/brand/CC-LOGO-2024-WHITE.png" alt="Crowd Control Digital" className="h-5 w-auto opacity-90" />
           <div className="hidden lg:flex gap-5 text-[12px] text-[#B8B8C0]">
-            {nav.map(([id, label]) => <a key={id} href={`#${id}`} className="hover:text-[#fd3737] transition-colors">{label}</a>)}
+            {nav.map(([id, label]) => <a key={id} href={`#${id}`} className="uppercase tracking-wide hover:text-[#fd3737] transition-colors">{label}</a>)}
           </div>
         </div>
       </div>
@@ -282,6 +282,17 @@ export function BadTunerForeverLove() {
             <p className="text-xl md:text-2xl text-[#FAFAFA] leading-relaxed mt-4">{C.thesis}</p>
           </div>
         </GlassCard>
+        <div className="mb-12">
+          <div className="text-[11px] uppercase tracking-wider text-[#fd3737] mb-4">Release calendar</div>
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+            {C.calendar.map((c, i) => (
+              <GlassCard key={i} className={`p-5 text-center ${c.kind === 'ep' ? 'border-2 border-[#fd3737]/50' : c.kind === 'announce' ? 'border-l-2 border-l-[#fd3737]' : ''}`}>
+                <div className="font-display text-2xl text-[#FAFAFA]">{c.date}</div>
+                <div className="text-[#B8B8C0] text-xs mt-1 leading-snug">{c.label}</div>
+              </GlassCard>
+            ))}
+          </div>
+        </div>
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5">
           {C.phases.map((p, i) => (
             <GlassCard key={i} className="p-6">
@@ -325,7 +336,7 @@ export function BadTunerForeverLove() {
       <SectionDivider />
 
       {/* ═══ 07 PLAYBOOK ═══ */}
-      <Section id="playbook" number="06" title="Week-by-Week Playbook" subtitle="A production calendar, not a strategy deck. Weeks are relative to the release date and shift as a block once the date locks.">
+      <Section id="playbook" number="06" title="Week-by-Week Playbook" subtitle="A production calendar backing into the five release dates — a single every month into the Oct 2 EP.">
         <div className="relative">
           <div className="absolute left-[19px] md:left-6 top-2 bottom-2 w-px bg-gradient-to-b from-[#fd3737] via-[#333333] to-transparent" />
           <div className="space-y-5">
