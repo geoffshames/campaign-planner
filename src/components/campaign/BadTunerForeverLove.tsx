@@ -122,7 +122,7 @@ export function BadTunerForeverLove() {
   const nav = [
     ['diagnosis', 'Diagnosis'], ['comps', 'Comp Teardown'], ['video', 'Video Intel'],
     ['strategy', 'Strategy'], ['system', 'Content System'], ['playbook', 'Playbook'],
-    ['channels', 'Channels'], ['clipping', 'Clipping'], ['dsp', 'DSP'], ['kpis', 'KPIs'], ['risks', 'Risks'],
+    ['channels', 'Channels'], ['clipping', 'Clipping'], ['dsp', 'DSP'],
   ];
 
   return (
@@ -402,44 +402,6 @@ export function BadTunerForeverLove() {
           ))}
         </div>
       </Section>
-      <SectionDivider />
-
-      {/* ═══ 11 KPIs ═══ */}
-      <Section id="kpis" number="10" title="Success Metrics" subtitle="Benchmarked against his own prior EP and the comp set.">
-        {([['Pre-Release', C.kpis.preRelease], ['Launch', C.kpis.launch], ['Sustain', C.kpis.sustain]] as const).map(([label, list], gi) => (
-          <div key={gi} className="mb-8">
-            <div className="text-[11px] uppercase tracking-wider text-[#fd3737] mb-3">{label}</div>
-            <div className="grid md:grid-cols-3 gap-4">
-              {list.map((k, i) => (
-                <GlassCard key={i} className="p-6">
-                  <h4 className="font-display text-base text-[#FAFAFA] leading-snug mb-2">{k.metric}</h4>
-                  <div className="text-[#fd3737] text-sm font-semibold mb-2">{k.target}</div>
-                  <p className="text-[#B8B8C0] text-xs leading-relaxed">{k.benchmark}</p>
-                </GlassCard>
-              ))}
-            </div>
-          </div>
-        ))}
-      </Section>
-      <SectionDivider />
-
-      {/* ═══ 12 RISKS ═══ */}
-      <Section id="risks" number="11" title="Risks + Contingencies" subtitle="What could derail this, and what to do about it.">
-        <div className="grid md:grid-cols-2 gap-5">
-          {C.risks.map((r, i) => (
-            <GlassCard key={i} className="p-7">
-              <h4 className="font-display text-lg text-[#FAFAFA] mb-3">{r.title}</h4>
-              <div className="flex gap-2 mb-4">
-                <Badge color={levelColor(r.likelihood)}>Likelihood: {r.likelihood}</Badge>
-                <Badge color={levelColor(r.impact)}>Impact: {r.impact}</Badge>
-              </div>
-              <p className="text-[#B8B8C0] text-xs mb-2"><span className="text-[#E4E4E9]">Trigger: </span>{r.trigger}</p>
-              <p className="text-[#E4E4E9] text-sm leading-relaxed"><span className="text-[#fd3737] font-semibold">Contingency: </span>{r.contingency}</p>
-            </GlassCard>
-          ))}
-        </div>
-      </Section>
-
       {/* footer */}
       <div className="relative mt-16 overflow-hidden">
         {/* eslint-disable-next-line @next/next/no-img-element */}

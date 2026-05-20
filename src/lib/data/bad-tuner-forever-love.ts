@@ -9,7 +9,7 @@ export const badTuner = {
   genre: 'House / UK Garage',
   releaseDate: 'Date TBD',
   tier: 'Mid-Level · Streaming-Strong',
-  label: 'Foreign Family Collective lineage',
+  label: 'Independent Co. / The Orchard',
   homeBase: 'Brooklyn, NY',
   campaignWindow: '10-week flexible window · anchors on confirmed release date',
   generatedDate: 'May 20, 2026',
@@ -32,7 +32,7 @@ export const badTuner = {
     ],
     context: [
       'Brooklyn, NY producer — DJ + multi-instrumentalist. House, UK garage and French house lean.',
-      'Foreign Family Collective lineage (ODESZA’s label); toured supporting TOKiMONSTA; remixes for Two Another and CLAVVS.',
+      'Distributed through The Orchard via Independent Co. Foreign Family Collective lineage; toured supporting TOKiMONSTA; remixes for Two Another and CLAVVS.',
       'Prior EP “lately in the void” (Feb 2026); recent singles “in this world” and “let em rock.” forever love is the next chapter.',
       'Already has the raw material: throws his own NYC parties (Public Records) and has played The Lot Radio — the exact long-form footage source this plan leans on.',
     ],
@@ -174,7 +174,7 @@ export const badTuner = {
       { step: 'Tight clipper brief', detail: 'Brief clippers to tie every clip back to forever love + a pre-save link, with the EP motif as the hook.' },
       { step: 'Paid clipping test', detail: '$2-5K test at a $1-5 CPM cap. Measure cost-per-save and pre-save, not just views.' },
       { step: 'Third-party amplification', detail: 'Your Culture engagement, Strive FM, and micro-creator UGC seeding across house/dance pages.' },
-      { step: 'College via Orchard', detail: 'Tie college radio / campus pushes to confirmed tour routing once dates lock.' },
+      { step: 'College via The Orchard', detail: 'Distribution runs through The Orchard via Independent Co — activate The Orchard college/campus radio program, tied to tour routing once dates lock.' },
     ],
   },
 
