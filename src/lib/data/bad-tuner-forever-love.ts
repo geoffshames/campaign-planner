@@ -208,6 +208,29 @@ export const badTuner = {
 
   // ── 09 Clipping + Amplification ──
   clipping: {
+    intro: 'Barry built reach by clipping his live sets. bad tuner has the same asset and is not using it.',
+    steps: [
+      { step: 'Source one long-form set', detail: 'Use existing footage (Lot Radio) or capture one new set. One asset feeds dozens of clips.' },
+      { step: 'Tight clipper brief', detail: 'Brief clippers to tie every clip back to forever love + a pre-save link, with the EP motif as the hook.' },
+      { step: 'Paid clipping test', detail: 'Test small on a strong single first, then scale the main $2-5K push at the EP (Oct 2). $1-5 CPM cap; measure cost-per-save and pre-save, not just views.' },
+      { step: 'Third-party amplification', detail: 'Your Culture engagement, Strive FM, and micro-creator UGC seeding across house/dance pages.' },
+      { step: 'College via The Orchard', detail: 'Distribution runs through The Orchard via Independent Co — activate The Orchard college/campus radio program, tied to tour routing once dates lock.' },
+    ],
+  },
+
+  // ── 10 DSP Conversion ──
+  dsp: {
+    intro: 'The cascade builds the audience; the DSP stack converts it — per single, then at the EP.',
+    items: [
+      { name: 'Per-single pre-save + Marquee', detail: 'Pre-save live ~3-4 weeks out per single (industry norm ~30 days; Barry Cant Swim ran ~6 weeks on his label single). His own past pushes were only ~2-4 days — too short. Marquee at drop, aimed at lapsed + recent listeners from the 412K base.' },
+      { name: 'EP Countdown Page', detail: 'Opens at the Aug 7 announce. Add Clips — artists who do see ~2x more pre-saves. Pre-save link in every bio and clip through Oct 2.' },
+      { name: 'Showcase', detail: 'Home-feed banner to keep the EP in view across launch week.' },
+      { name: 'Spotify Canvas as a social funnel', detail: 'Carry the @handle + "follow for the making" hook in Canvas loops on every single, converting passive streamers into followers.' },
+    ],
+  },
+
+  // ── SWRM (owned engagement layer) ──
+  swrm: {
     intro: 'SWRM is our own two-sided engagement marketplace: verified real users get paid to complete genuine engagement tasks — comments, saves, shares, follows. It is the high-trust alternative to bots and engagement pods, and it is already live, with real users completing tasks and getting paid same-day.',
     why: 'The core problem is 412K streamers but ~200 likes a post. SWRM puts real early engagement on the first clips of each new format so they clear the algorithm’s surface-area threshold — turning the content engine on faster than waiting for organic alone to compound.',
     plays: [
