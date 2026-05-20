@@ -210,7 +210,7 @@ export function BadTunerForeverLove() {
       <SectionDivider />
 
       {/* ═══ 03 COMP TEARDOWN ═══ */}
-      <Section id="comps" number="02" title="Comp Content Teardown" subtitle="How Barry Cant Swim, Fred Again and Joy Anonymous actually post — cadence, hooks and the formats that win.">
+      <Section id="comps" number="02" title="Comp Content Teardown" subtitle="How the reference artists actually post — cadence, hooks and the formats that win. Three dance benchmarks, plus two NYC / persona references.">
         <div className="grid lg:grid-cols-3 gap-6">
           {C.comps.map((a, i) => (
             <GlassCard key={i} className="p-7 flex flex-col">
