@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://campaign.crowdcontroldigital.com"),
   title: "Campaign Planner - Crowd Control Digital",
   description: "Campaign planning tools for music releases",
 };
