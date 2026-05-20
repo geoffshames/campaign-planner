@@ -336,7 +336,7 @@ export function BadTunerForeverLove() {
       <SectionDivider />
 
       {/* ═══ 07 PLAYBOOK ═══ */}
-      <Section id="playbook" number="06" title="Week-by-Week Playbook" subtitle="A production calendar backing into the five release dates — a single every month into the Oct 2 EP.">
+      <Section id="playbook" number="06" title="Rollout Playbook" subtitle="A production calendar backing into the five release dates — a single every month into the Oct 2 EP.">
         <div className="relative">
           <div className="absolute left-[19px] md:left-6 top-2 bottom-2 w-px bg-gradient-to-b from-[#fd3737] via-[#333333] to-transparent" />
           <div className="space-y-5">
