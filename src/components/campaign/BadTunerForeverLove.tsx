@@ -119,6 +119,8 @@ export function BadTunerForeverLove() {
     window.addEventListener('mousemove', h); return () => window.removeEventListener('mousemove', h);
   }, [mx, my]);
 
+  const [menuOpen, setMenuOpen] = useState(false);
+
   const nav = [
     ['diagnosis', 'Diagnosis'], ['comps', 'Comp Teardown'], ['video', 'Video Intel'],
     ['strategy', 'Strategy'], ['system', 'Content System'], ['playbook', 'Playbook'],
@@ -138,7 +140,21 @@ export function BadTunerForeverLove() {
           <div className="hidden lg:flex gap-5 text-[12px] text-[#B8B8C0]">
             {nav.map(([id, label]) => <a key={id} href={`#${id}`} className="uppercase tracking-wide hover:text-[#fd3737] transition-colors">{label}</a>)}
           </div>
+          <button onClick={() => setMenuOpen((o) => !o)} aria-label="Toggle menu" aria-expanded={menuOpen} className="lg:hidden text-[#FAFAFA] p-2 -mr-2">
+            {menuOpen ? (
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="5" y1="5" x2="19" y2="19" /><line x1="19" y1="5" x2="5" y2="19" /></svg>
+            ) : (
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" /></svg>
+            )}
+          </button>
         </div>
+        {menuOpen && (
+          <div className="lg:hidden border-t border-[#333333]/40 bg-[#0A0A0A]/95">
+            <div className="max-w-6xl mx-auto px-6 py-4 grid grid-cols-2 gap-x-4 gap-y-3 text-[13px] text-[#E4E4E9]">
+              {nav.map(([id, label]) => <a key={id} href={`#${id}`} onClick={() => setMenuOpen(false)} className="uppercase tracking-wide hover:text-[#fd3737] transition-colors">{label}</a>)}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* ═══ 01 HERO ═══ */}
