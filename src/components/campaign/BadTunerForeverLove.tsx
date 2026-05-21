@@ -273,7 +273,7 @@ export function BadTunerForeverLove() {
             </GlassCard>
           ))}
         </div>
-        <div className="text-[11px] uppercase tracking-wider text-[#fd3737] mb-4">The videos</div>
+        <div className="text-[11px] uppercase tracking-wider text-[#fd3737] mb-4">Deep-dive examples · 6 of 26</div>
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
           {C.videoIntel.videos.map((v, i) => (
             <GlassCard key={i} className="p-6">

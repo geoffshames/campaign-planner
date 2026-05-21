@@ -136,15 +136,16 @@ export const badTuner = {
 
   // ── 04 Video Intelligence (TwelveLabs Pegasus) ──
   videoIntel: {
-    analyzed: 6,
+    analyzed: 26,
     summary:
-      'Six top-performing comp videos were run through TwelveLabs Pegasus for frame-level analysis. The visual language that wins is remarkably consistent — and it is cheap to copy.',
+      'Twenty-six top-performing reference posts (Barry Cant Swim, Fred Again, Joy Anonymous, Bad Tuner) were run through TwelveLabs Pegasus for frame-level analysis. The visual language that wins is strikingly consistent across the whole set — and cheap to copy.',
     patterns: [
-      { pattern: 'Text-on-screen in the first 3 seconds', prevalence: '6 of 6 videos', implication: 'Open every clip with a context line (“made this beat from a subway sound”). Zero cost, sets the hook, lifts retention.' },
-      { pattern: 'Phone-shot and raw beats polished', prevalence: '6 of 6 videos', implication: 'bad tuner’s glossy “let em rock” video underperformed his raw clips. Shoot on a phone. “The key is not perfection, but presence.”' },
-      { pattern: 'The drop is engineered onto a visual peak', prevalence: '4 of 6 explicit', implication: 'Cut the clip so the drop lands on a movement, a crowd reaction or a face — Fred at 0:55, Barry at 0:15, bad tuner’s own best at 0:08.' },
-      { pattern: 'Edit pace splits by format', prevalence: 'Live = sub-2s cuts on the beat; process = ~10s shots', implication: 'Match the cut rhythm to the format. Live energy montages cut fast; build/teardown clips breathe.' },
-      { pattern: 'Lyric / keyword overlays at emotional peaks', prevalence: 'Fred, Barry, Joy', implication: 'Layer a short caption on the climax (“wait for it”, the track name) to amplify the moment without production cost.' },
+      { pattern: 'Phone-shot beats polished', prevalence: '25 of 26 posts', implication: 'Shoot on a phone, full stop. The one glossy outlier underperformed. Production value is not the lever — presence is.' },
+      { pattern: 'Text-on-screen in the first 3 seconds', prevalence: '24 of 26 posts', implication: 'Open every clip with a context line (most watch with sound off). Zero cost, sets the hook, lifts retention.' },
+      { pattern: 'Varied pacing, never one constant speed', prevalence: '16 of 20 coded "mixed"', implication: 'Cut with rhythm changes; live clips drop to sub-2s on the beat. Monotone pacing kills retention.' },
+      { pattern: 'Live performance is the highest-engagement format', prevalence: 'The most common format in the set', implication: 'A crowd + a drop beats a studio shot. Make the live clip of the week non-negotiable; clip the long set for more.' },
+      { pattern: 'The drop is engineered onto a visual peak', prevalence: '4 of the 6 deep-analyzed', implication: 'Cut so the drop lands on a movement, a crowd reaction, or a face — not mid-phrase.' },
+      { pattern: 'Caption-driven storytelling', prevalence: 'Across the top performers', implication: 'The caption does the work — a specific personal story outperforms any "out now" promo line.' },
     ],
     videos: [
       { title: 'Yakitori-shop DJ set', artist: 'Barry Cant Swim', plays: '519K plays · 5,073 saves', insight: 'Unconventional intimate venue + text-set scene + handheld warmth. Most replicable element: an unexpected, personal performance space.' },
