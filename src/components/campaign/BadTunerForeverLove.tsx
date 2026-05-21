@@ -123,7 +123,7 @@ export function BadTunerForeverLove() {
 
   const nav = [
     ['diagnosis', 'Diagnosis'], ['comps', 'Comp Teardown'], ['video', 'Video Intel'],
-    ['strategy', 'Strategy'], ['system', 'Content System'], ['playbook', 'Playbook'],
+    ['strategy', 'Strategy'], ['system', 'Content System'], ['ideas', 'Ideas'], ['playbook', 'Playbook'],
     ['channels', 'Channels'], ['clipping', 'Clipping'], ['swrm', 'SWRM'], ['dsp', 'DSP'],
   ];
 
@@ -351,8 +351,27 @@ export function BadTunerForeverLove() {
       </Section>
       <SectionDivider />
 
+      {/* ═══ 06 CONTENT IDEAS ═══ */}
+      <Section id="ideas" number="06" title="10 Content Ideas" subtitle="Specific, NYC-rooted, phone-shot bits to batch and rotate — built off the Bad Tuner content call.">
+        <div className="grid md:grid-cols-2 gap-5">
+          {C.ideas.map((idea, i) => (
+            <GlassCard key={i} className={`p-7 ${idea.top3 ? 'border-l-2 border-l-[#fd3737]' : ''}`}>
+              <div className="flex items-center gap-3 mb-3">
+                <span className="font-display text-2xl text-[#fd3737]">{String(i + 1).padStart(2, '0')}</span>
+                <h4 className="font-display text-lg text-[#FAFAFA]">{idea.name}</h4>
+                {idea.top3 && <span className="ml-auto"><Badge>Start here</Badge></span>}
+              </div>
+              <p className="text-[#E4E4E9] text-sm leading-relaxed mb-3">{idea.bit}</p>
+              <p className="text-[#B8B8C0] text-xs mb-1">Hook: <span className="text-[#E4E4E9]">{idea.hook}</span></p>
+              <p className="text-[#B8B8C0] text-xs"><span className="text-[#fd3737]">Why: </span>{idea.why}</p>
+            </GlassCard>
+          ))}
+        </div>
+      </Section>
+      <SectionDivider />
+
       {/* ═══ 07 PLAYBOOK ═══ */}
-      <Section id="playbook" number="06" title="Rollout Playbook" subtitle="A production calendar backing into the five release dates — a single every month into the Oct 2 EP.">
+      <Section id="playbook" number="07" title="Rollout Playbook" subtitle="A production calendar backing into the five release dates — a single every month into the Oct 2 EP.">
         <div className="relative">
           <div className="absolute left-[19px] md:left-6 top-2 bottom-2 w-px bg-gradient-to-b from-[#fd3737] via-[#333333] to-transparent" />
           <div className="space-y-5">
@@ -363,7 +382,7 @@ export function BadTunerForeverLove() {
       <SectionDivider />
 
       {/* ═══ 08 CHANNELS ═══ */}
-      <Section id="channels" number="07" title="Channel Allocation" subtitle="Where the effort and budget go. Organic content is the core because it is the only thing that fixes the underlying problem.">
+      <Section id="channels" number="08" title="Channel Allocation" subtitle="Where the effort and budget go. Organic content is the core because it is the only thing that fixes the underlying problem.">
         <div className="grid lg:grid-cols-2 gap-8 items-center">
           <GlassCard className="p-8" hover={false}>
             <div className="h-[280px]">
@@ -405,7 +424,7 @@ export function BadTunerForeverLove() {
       <SectionDivider />
 
       {/* ═══ 09 CLIPPING ═══ */}
-      <Section id="clipping" number="08" title="Clipping + Amplification" subtitle={C.clipping.intro}>
+      <Section id="clipping" number="09" title="Clipping + Amplification" subtitle={C.clipping.intro}>
         <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-4">
           {C.clipping.steps.map((s, i) => (
             <GlassCard key={i} className="p-6">
@@ -419,7 +438,7 @@ export function BadTunerForeverLove() {
       <SectionDivider />
 
       {/* ═══ 09 SWRM ═══ */}
-      <Section id="swrm" number="09" title="SWRM · Owned Engagement Layer" subtitle={C.swrm.intro}>
+      <Section id="swrm" number="10" title="SWRM · Owned Engagement Layer" subtitle={C.swrm.intro}>
         <GlassCard className="p-8 md:p-10 mb-8 border-l-2 border-l-[#fd3737]" glow hover={false}>
           <p className="text-[#E4E4E9] text-base md:text-lg leading-relaxed">{C.swrm.why}</p>
         </GlassCard>
@@ -439,7 +458,7 @@ export function BadTunerForeverLove() {
       <SectionDivider />
 
       {/* ═══ 10 DSP ═══ */}
-      <Section id="dsp" number="10" title="DSP Conversion" subtitle={C.dsp.intro}>
+      <Section id="dsp" number="11" title="DSP Conversion" subtitle={C.dsp.intro}>
         <div className="grid md:grid-cols-2 gap-5">
           {C.dsp.items.map((d, i) => (
             <GlassCard key={i} className="p-7">
