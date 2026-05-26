@@ -26,6 +26,7 @@ export function generateMetadata({ params }: { params: { slug: string } }): Meta
     title: `${tylaCarwashCampaign.artist} - ${tylaCarwashCampaign.song} | Campaign Planner`,
     description: `Campaign plan for ${tylaCarwashCampaign.artist}'s ${tylaCarwashCampaign.song}`,
     robots: { index: false, follow: false },
+    robots: { index: false, follow: false },
   };
 }
 
