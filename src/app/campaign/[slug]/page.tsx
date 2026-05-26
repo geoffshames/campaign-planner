@@ -2,10 +2,11 @@ import { tylaCarwashCampaign } from '@/lib/data/tyla-carwash';
 import { badTuner } from '@/lib/data/bad-tuner-forever-love';
 import { CampaignPage as CampaignPageComponent } from '@/components/campaign/CampaignPage';
 import { BadTunerForeverLove } from '@/components/campaign/BadTunerForeverLove';
+import { TemporexWantingIsHaunting } from '@/components/campaign/TemporexWantingIsHaunting';
 import type { Metadata } from 'next';
 
 export function generateStaticParams() {
-  return [{ slug: 'tyla-carwash' }, { slug: 'bad-tuner-forever-love' }];
+  return [{ slug: 'tyla-carwash' }, { slug: 'bad-tuner-forever-love' }, { slug: 'temporex-wanting-is-haunting' }];
 }
 
 export function generateMetadata({ params }: { params: { slug: string } }): Metadata {
@@ -27,6 +28,9 @@ export function generateMetadata({ params }: { params: { slug: string } }): Meta
 }
 
 export default function CampaignPageServer({ params }: { params: { slug: string } }) {
+  if (params.slug === 'temporex-wanting-is-haunting') {
+    return <TemporexWantingIsHaunting />;
+  }
   if (params.slug === 'bad-tuner-forever-love') {
     return <BadTunerForeverLove />;
   }

@@ -1,6 +1,7 @@
 import Link from 'next/link';
 
 const campaigns = [
+  { slug: 'temporex-wanting-is-haunting', artist: 'temporex', song: 'wanting is haunting', genre: 'Bedroom Pop / Dream Pop', tag: 'Album rollout + lore-driven content system' },
   { slug: 'bad-tuner-forever-love', artist: 'bad tuner', song: 'forever love', genre: 'House / UK Garage', tag: 'Content strategy + EP rollout' },
   { slug: 'tyla-carwash', artist: 'TYLA', song: 'Carwash', genre: 'Pop', tag: 'Pre-release campaign' },
 ];
