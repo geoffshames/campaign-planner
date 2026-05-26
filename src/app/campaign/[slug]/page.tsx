@@ -14,6 +14,7 @@ export function generateMetadata({ params }: { params: { slug: string } }): Meta
     return {
       title: 'bad tuner — forever love | Campaign Planner',
       description: 'Content strategy + EP rollout playbook for bad tuner, grounded in TwelveLabs video analysis and comp teardowns of Barry Cant Swim, Fred Again and Joy Anonymous.',
+      robots: { index: false, follow: false },
       openGraph: {
         title: 'bad tuner — forever love | Crowd Control Digital',
         description: 'Content strategy + EP rollout playbook for bad tuner.',
@@ -24,6 +25,7 @@ export function generateMetadata({ params }: { params: { slug: string } }): Meta
   return {
     title: `${tylaCarwashCampaign.artist} - ${tylaCarwashCampaign.song} | Campaign Planner`,
     description: `Campaign plan for ${tylaCarwashCampaign.artist}'s ${tylaCarwashCampaign.song}`,
+    robots: { index: false, follow: false },
   };
 }
 

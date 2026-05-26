@@ -1,31 +1,23 @@
-import Link from 'next/link';
+import type { Metadata } from 'next';
 
-const campaigns = [
-  { slug: 'temporex-wanting-is-haunting', artist: 'temporex', song: 'wanting is haunting', genre: 'Bedroom Pop / Dream Pop', tag: 'Album rollout + lore-driven content system' },
-  { slug: 'bad-tuner-forever-love', artist: 'bad tuner', song: 'forever love', genre: 'House / UK Garage', tag: 'Content strategy + EP rollout' },
-  { slug: 'tyla-carwash', artist: 'TYLA', song: 'Carwash', genre: 'Pop', tag: 'Pre-release campaign' },
-];
+export const metadata: Metadata = {
+  title: 'Crowd Control Digital · Campaign Planner',
+  description: 'Crowd Control Digital · campaign.crowdcontroldigital.com',
+  robots: { index: false, follow: false },
+};
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-[#FAFAFA] px-6 py-20">
-      <div className="max-w-5xl mx-auto">
-        <div className="mb-16">
-          <span className="text-[11px] tracking-[0.35em] uppercase text-[#fd3737] font-semibold">Crowd Control Digital</span>
-          <h1 className="font-display text-5xl md:text-7xl mt-3">CAMPAIGN PLANNER</h1>
-          <p className="text-[#B8B8C0] text-lg mt-4">Data-driven campaign playbooks for music releases.</p>
-        </div>
-        <div className="grid md:grid-cols-2 gap-6">
-          {campaigns.map((c) => (
-            <Link key={c.slug} href={`/campaign/${c.slug}`} className="group block rounded-2xl border border-[#333333]/60 bg-gradient-to-br from-[#1A1A1A]/80 to-[#141414]/50 p-8 hover:border-[#fd3737]/50 hover:shadow-lg hover:shadow-[#fd3737]/5 transition-all duration-500">
-              <span className="px-3 py-1 rounded-full text-[11px] font-semibold bg-[#fd3737]/15 text-[#fd3737]">{c.genre}</span>
-              <h2 className="font-display text-3xl mt-5 group-hover:text-[#fd3737] transition-colors">{c.artist}</h2>
-              <p className="font-display text-xl text-[#fd3737] lowercase">{c.song}</p>
-              <p className="text-[#B8B8C0] text-sm mt-4">{c.tag}</p>
-              <span className="inline-block mt-6 text-sm text-[#E4E4E9] group-hover:translate-x-1 transition-transform">View playbook →</span>
-            </Link>
-          ))}
-        </div>
+    <div className="min-h-screen bg-[#0A0A0A] text-[#FAFAFA] flex flex-col items-center justify-center px-6 text-center">
+      <div className="max-w-xl">
+        <span className="text-[11px] tracking-[0.35em] uppercase text-[#fd3737] font-semibold">Crowd Control Digital</span>
+        <h1 className="font-display text-5xl md:text-7xl mt-4">CAMPAIGN PLANNER</h1>
+        <p className="text-[#B8B8C0] text-sm md:text-base mt-6 leading-relaxed">
+          Client campaign plans live at private URLs and are accessible by direct link only.
+          <br />
+          If you were sent a link, follow the URL exactly.
+        </p>
+        <p className="text-[#71717A] text-xs mt-10">info@crowdcontroldigital.com</p>
       </div>
     </div>
   );
