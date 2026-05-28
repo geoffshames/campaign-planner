@@ -1,11 +1,11 @@
-// Temporex — "Wanting is Haunting" album rollout
+// Temporex — "Fantastic Machine" album rollout
 // Research: TikTok metadata (Tokscript), web research, indie / bedroom-pop lane data
 // Note: IG comp deep-dive pending (Tokscript IG service outage at build time).
 
 export const temporex = {
-  slug: 'temporex-wanting-is-haunting',
+  slug: 'temporex-fantastic-machine',
   artist: 'temporex',
-  song: 'wanting is haunting',
+  song: 'fantastic machine',
   releaseType: 'album',
   genre: 'Bedroom Pop / Dream Pop',
   releaseDate: 'November 2026 (TBD)',
@@ -20,8 +20,8 @@ export const temporex = {
     { date: 'Jul 10', label: 'Single 1 — Waterhole', kind: 'single' },
     { date: 'Aug 14', label: 'Single 2 — Real Time (w/ video)', kind: 'single' },
     { date: 'Sep 18', label: 'Single 3 — Somewhere I’m Better Now', kind: 'single' },
-    { date: 'Oct 23', label: 'Single 4 — Fantastic Machine (w/ big video)', kind: 'announce' },
-    { date: 'Nov TBD', label: 'Album — focus track Wanting is Haunting', kind: 'ep' },
+    { date: 'Oct 23', label: 'Single 4 — Fantastic Machine (title track + big video)', kind: 'announce' },
+    { date: 'Nov TBD', label: 'Album · Fantastic Machine', kind: 'ep' },
   ],
 
   // ── 02 The Diagnosis / Artist Position ──
@@ -33,7 +33,7 @@ export const temporex = {
       { value: '1.4M', label: 'Spotify monthly listeners', tone: 'good' },
       { value: '32K', label: 'TikTok followers (3 lifetime posts)', tone: 'bad' },
       { value: '~5y', label: 'Since last album (Bowling, 2021)', tone: 'bad' },
-      { value: 'Nov 26', label: 'Album drop — focus track Wanting is Haunting', tone: 'good' },
+      { value: 'Nov 26', label: 'Album drop — Fantastic Machine', tone: 'good' },
     ],
     social: [
       { platform: 'Spotify', value: '1.4M', sub: 'monthly listeners', pct: 100 },
@@ -129,7 +129,7 @@ export const temporex = {
       { pattern: 'Phone-shot beats polished — even more in this lane', prevalence: 'Web data: lo-fi Reels +20% vs polished; TikTok lo-fi +32% watch-through', implication: 'Shoot on a phone. Resist the urge to make every visual "art-directed." The lo-fi instinct is the lever; the visual art piece can sit in static covers, not every Reel.' },
       { pattern: 'Text-on-screen in the first 3 seconds', prevalence: 'Universal in short-form best practice; most viewers watch sound-off', implication: 'Open every clip with a context line (most watch with sound off). For temporex this is a free win on lore: "the man who was poisoned by a gnome" reads as a hook.' },
       { pattern: 'Varied pacing, never one constant speed', prevalence: 'The dominant cut pattern across the reference set', implication: 'Mix slow lo-fi shots with fast cuts on a hook. Dream-pop does not mean uniformly slow.' },
-      { pattern: 'The single moment is engineered onto a visual peak', prevalence: 'Across the top performers', implication: 'For temporex this is the lyric or the loop drop. Cut so the line "wanting is haunting" lands on a face, an object, or the gnome.' },
+      { pattern: 'The single moment is engineered onto a visual peak', prevalence: 'Across the top performers', implication: 'For temporex this is the lyric or the loop drop. Cut so the title-track hook lands on a face, an object, or the gnome.' },
       { pattern: 'Caption-driven storytelling outperforms promo lines', prevalence: 'Universal across the prior analysis', implication: 'A specific story (the Waterhole gnome backstory the artist already wrote) beats "out now" or "pre-save link in bio" every time.' },
       { pattern: 'A recurring named world makes every post feel like one project', prevalence: 'The Garden built 365K on exactly this with "Vada Vada"', implication: 'temporex should give the album a named visual world (the farm + the gnome + the gradient sunset palette) and stamp every clip with it.' },
     ],
@@ -138,14 +138,14 @@ export const temporex = {
 
   // ── 05 Thesis + Phases ──
   thesis:
-    'Turn the lore on. The artist behind 1.4 million monthly streams has been radio silent on socials for years. The fix is to show up — but in his own voice: visual artist, dream-pop, gnomes-on-a-farm. Build ONE connected world — the album, the gnome, the farm, the desert palette — that runs across all four singles into the album, the way The Garden runs "Vada Vada." Each monthly single is a chapter in that world. The 1.4M people streaming temporex should arrive in November to a Spotify Countdown page already filled with people they recognize from a year of lore.',
+    'Turn the lore on. The artist behind 1.4 million monthly streams has been radio silent on socials for years. The fix is to show up — but in his own voice: visual artist, surreal live-action cartoon (The Mask, Monkeybone, Cool World, Earthworm Jim), strange and unnatural proportions, intricate sets and costumes, late-90s film palette. Build ONE connected world — the gnome, the farm, the unnatural creatures, the faded peach-lavender palette — that runs across all four singles into the Fantastic Machine album. Each monthly single is a chapter in that world. The 1.4M people streaming temporex should arrive in November to a Spotify Countdown page already filled with people they recognize from a year of lore.',
   phases: [
     { name: 'Lore Drop / Reset', weeks: 'May 22 – Jul 9', objectives: ['Turn the engine on (he is silent today)', 'Open the visual world: farm + gnome + palette', 'Stand up the 5 content formats; book IG and TikTok cadence'] },
     { name: 'Single 1 · Waterhole', weeks: 'Jul 10 – Aug 13', objectives: ['Drop the gnome story publicly', 'Country-western imagery + Linn Drum demo', 'Friend cameo (Adrian) becomes a recurring beat'] },
     { name: 'Single 2 · Real Time (music video)', weeks: 'Aug 14 – Sep 17', objectives: ['Music video as the centerpiece — clip it 12 ways', 'Open the world wider (new location, new character)', 'Small clipping test off the MV'] },
     { name: 'Single 3 · Somewhere I’m Better Now', weeks: 'Sep 18 – Oct 22', objectives: ['Open the album Countdown page', 'Bridge: tie back to the gnome / the farm', 'Begin album sequencing teases'] },
-    { name: 'Single 4 · Fantastic Machine (big video)', weeks: 'Oct 23 – early Nov', objectives: ['The big-budget video is the tentpole and the clipping quarry', 'Main paid clipping push ($3-5K)', 'Pre-album press + creator seeding crescendos'] },
-    { name: 'Album Launch · Wanting is Haunting', weeks: 'November (TBD) +', objectives: ['Album drops; Marquee + Showcase on; Countdown converts', 'Drop the focus track "wanting is haunting" as the centerpiece', 'Sustain the world for ≥4 weeks post-release'] },
+    { name: 'Single 4 · Fantastic Machine (title track + big video)', weeks: 'Oct 23 – early Nov', objectives: ['The big-budget video is the tentpole and the clipping quarry', 'Main paid clipping push from the $12K album budget', 'Pre-album press + creator seeding crescendos'] },
+    { name: 'Album Launch · Fantastic Machine', weeks: 'November (TBD) +', objectives: ['Album drops; Marquee + Showcase on; Countdown converts', 'The title track Fantastic Machine is the centerpiece', 'Sustain the world for ≥4 weeks post-release'] },
   ],
 
   // ── 06 The Content System ──
@@ -157,23 +157,65 @@ export const temporex = {
     { name: 'Album Lookbook', what: 'Visual stills + 10-second mood clips: cover art, character sketches, settings, palette, merch test prints. The visual art identity becomes a recurring channel.', platform: 'IG carousels · IG Stories · IG Reels', why: '"music and visual art" is in his bio. Lean into it. This is the world bible fans collect.', batch: '2 per week; one carousel, one Reel.' },
   ],
   algorithmNote:
-    'Recurring world: pick ONE named lore element (the gnome, the farm name, the album’s visual palette) and stamp every clip with it for six months. The gnome should appear in tiny ways across all five formats. By the November album, fans should be commenting "this is the [name]verse" without prompting. Same hook, twenty drops, one payoff.',
+    'Recurring world: pick ONE named lore element (the gnome, the farm, the cartoon palette, the Fantastic Machine itself) and stamp every clip with it for six months. The gnome and the unnatural-proportions visual language should appear across all five formats. By the November album, fans should be commenting "this is the Fantastic Machine world" without prompting. Same hook, twenty drops, one payoff.',
   cadence:
     'Target 3-5 posts a week on IG (the lane platform); 1-2 on TikTok. Quality > volume in this lane (lo-fi Reels beat polished by 20%, TikTok by 32%). The 80/20 rule still applies: at most 1 in 5 posts can be a "presave / out Friday" line.',
 
   // ── 07 Content Ideas ──
   ideas: [
-    { name: 'Meet the Gnome', bit: 'A recurring illustrated / claymation gnome character that appears in every clip, takes over Stories for a day, sends "voicemails" via Reels audio. One recurring character that ties every post to the album.', hook: 'this is the gnome who poisoned the man', why: 'The artist literally wrote this character into the Waterhole song. Use him. He becomes the album’s mascot.', top3: true },
-    { name: 'Waterhole Farm', bit: 'Recurring visual world — the lonely man’s farm — shot in Joshua Tree or SD desert. Photo carousels + 10-second mood clips. Cohesive palette throughout.', hook: 'this is where the man lived', why: 'Album-world cohesion. Gives every post a "home." Plays to the artist’s visual-art identity.', top3: true },
-    { name: 'How I Made [track]', bit: 'Linn Drum + alt-tuning demo for each single. Show the actual gear and the actual workflow.', hook: 'made this from a Linn Drum and a detuned acoustic', why: 'Producer TikTok / songwriter Reddit eats this up. High save intent. Real to what he does.', top3: true },
+    { name: 'Meet the Gnome', bit: 'A recurring illustrated / claymation gnome with strange and unnatural proportions (per the album’s vis-dev). Appears in every clip, takes over Stories for a day, sends "voicemails" via Reels audio.', hook: 'this is the gnome who poisoned the man', why: 'The artist wrote this character into the Waterhole song. Use him. He becomes the Fantastic Machine mascot.', top3: true },
+    { name: 'Waterhole Farm', bit: 'Recurring visual world (the lonely man’s farm) shot live-action with cartoon set pieces — Cool World aesthetic. Photo carousels + 10-second mood clips. Cohesive palette throughout.', hook: 'this is where the man lived', why: 'Album-world cohesion. Anchors the cartoon-meets-real direction.', top3: true },
+    { name: 'How I Made [track]', bit: 'Linn Drum + alt-tuning demo for each single. Real desk, real gear, with a single oversized cartoon prop (Earthworm Jim style) sneaking into frame.', hook: 'made this from a Linn Drum and a detuned acoustic', why: 'Producer TikTok / songwriter Reddit eats this. High save intent. Plays to his actual workflow.', top3: true },
     { name: 'Muttering Vocals', bit: 'Short clips of the artist muttering nonsense over a loop until real words form. The actual songwriting workflow he described in the Waterhole notes.', hook: 'this is how the song starts', why: 'Bedroom-pop process content. Authentic, lo-fi, fascinating.', top3: false },
-    { name: 'Visual Art Diary', bit: 'Sketches, paintings, sculpture, ceramics — the work that becomes single covers, merch, lyric video frames. Treat the visual-art half of his bio as a real channel.', hook: 'this is the cover before the cover', why: 'Leans on his actual unique identity (the "music and visual art" framing). Nobody else in the lane has this.', top3: false },
-    { name: 'Friend Cameos (one instrument, one room)', bit: 'A recurring slot: each week a different friend (or peer in the SD / LA indie scene) walks in, plays one instrument on one track. Adrian started it.', hook: 'today: Adrian on mandolin', why: 'Borrowed audience + the collab pattern that consistently overperforms in every CCD reference set.', top3: false },
-    { name: 'Crate-Digging San Diego', bit: 'Go to local record shops (Folk Arts, M-Theory) and vintage instrument stores. Pull a record, tell its story, sample from it on camera.', hook: 'found this in a $2 bin', why: 'The classic crate-dig-meets-sample-flip move, rooted in San Diego. Anchors the artist in a place.', top3: false },
+    { name: 'Visual Art Diary', bit: 'Sketches, paintings, sculpture, ceramics — the work that becomes single covers, merch, lyric video frames, and Fantastic Machine cover art.', hook: 'this is the cover before the cover', why: 'Leans on his actual unique identity (the "music and visual art" framing). Nobody else in the lane has this.', top3: false },
+    { name: 'Friend Cameos (one instrument, one room)', bit: 'A recurring slot: each week a different friend (Adrian on mandolin started it) walks in, plays one instrument on one track.', hook: 'today: Adrian on mandolin', why: 'Borrowed audience + a low-effort collab pattern. Rotate in directors and visual collaborators too (Eagan, Cage Claypool).', top3: false },
+    { name: 'Costume + Set BTS', bit: 'Document the intricate sets, surreal lighting, and costumes the artist explicitly wants for the music videos. Shoot-day photos, prop builds, costume tests, set walk-throughs.', hook: 'building the Fantastic Machine', why: 'The vis-dev doc calls out intricate set design + costumes as the central visual lever. The production process IS content.', top3: false },
     { name: '3 Linn Drum Loops, 3 Rooms', bit: 'Same drum loop interpreted three different ways across three locations (bedroom, garage, desert porch). One constraint, three answers.', hook: 'same loop, three rooms', why: 'Constraint format. Producer-bait. Visually cohesive. Specific to his gear.', top3: false },
-    { name: 'Fantastic Machine BTS', bit: 'Episodic build of the big-budget Oct 23 music video. 8-12 short posts capturing pre-production, set build, shoot day, on-monitor moments.', hook: 'day 1: building the machine', why: 'A music video shoot is a content quarry. The Garden does this constantly. Free content for weeks.', top3: false },
-    { name: 'Wanting is Haunting Lore Drops', bit: 'Cryptic Reels teasing the album’s focus track across the final two months. Slowed-down loops, a single lyric line over a still, the gnome saying the title in a Story.', hook: 'wanting is haunting', why: 'Same hook, new contexts — slow-drip teasers across weeks until fans are commenting WHEN.', top3: false },
+    { name: 'FPV Drone Music Video', bit: 'One-shot FPV drone music video — the artist named this directly in vis-dev. Could be Real Time or a deep cut. Frame-perfect motion through the Fantastic Machine world.', hook: 'one take. one drone.', why: 'Direct from the artist’s wishlist. FPV drone work travels: shareable as a clip, novel for the lane, builds the world.', top3: false },
+    { name: 'Fantastic Machine MV Build', bit: 'Episodic build of the big-budget Oct 23 music video. Pre-production, set build, costume tests, shoot day, on-monitor moments — surreal cartoon-meets-real proportions on display.', hook: 'day 1: building the machine', why: 'A music video shoot is a content quarry. The Garden does this constantly. Free content for weeks, and it sells the visual identity.', top3: false },
+    { name: '3D Premiere + Glasses', bit: 'Host an in-person Fantastic Machine premiere event with a 3D animated short and 3D glasses handed out. Clip the audience-reaction footage for socials.', hook: 'free 3D glasses at the door', why: 'Artist’s explicit ask from the vis-dev doc. A novel, deeply on-brand experiential moment that doubles as IRL press and content.', top3: false },
+    { name: 'Crate-Digging San Diego', bit: 'Local record shops (Folk Arts, M-Theory) and vintage instrument stores. Pull a record, tell its story, sample from it on camera — with one cartoon prop in every shot.', hook: 'found this in a $2 bin', why: 'The classic crate-dig-meets-sample-flip move, rooted in San Diego. Anchors the artist in a place.', top3: false },
   ],
+
+  // ── Visual Identity (from artist’s vis-dev) ──
+  visualIdentity: {
+    lookAndFeel: 'Surreal live-action cartoon. Real-world bedrooms, desks, streets fused with hand-painted characters of strange and unnatural proportions — long arms, stretched smiles, faded peach-lavender palette, film grain. The lineage is The Mask (1994), Monkeybone (2001), Cool World (1992), Who Framed Roger Rabbit (1988), Rocky & Bullwinkle (2000) — with an Earthworm Jim energy underneath all of it.',
+    principles: [
+      'Part visualizer, part performance — minimal nonsensical narrative drives every video',
+      'Intricate set design and surreal lighting; costumes do real work',
+      'Late-90s faded film palette (peach, lavender, dull cyan) — never glossy',
+      'Strange and unnatural proportions on every recurring character (the gnome included)',
+    ],
+    mvReferences: [
+      { title: 'Nirvana — Heart-Shaped Box', url: 'https://www.youtube.com/watch?v=n6P0SitRwy8' },
+      { title: 'Michael Jackson — Leave Me Alone', url: 'https://www.youtube.com/watch?v=crbFmpezO4A' },
+      { title: 'Peter Gabriel — Sledgehammer', url: 'https://www.youtube.com/watch?v=OJWJE0x7T4Q' },
+      { title: 'Peter Gabriel — Big Time', url: 'https://www.youtube.com/watch?v=PBAl9cchQac' },
+      { title: 'Slow Pulp — Falling Apart', url: 'https://www.youtube.com/watch?v=yuoFLLHB1Fc' },
+      { title: 'Magdalena Bay — Second Sleep', url: 'https://www.youtube.com/watch?v=JAe2faaZ3sY' },
+      { title: 'Duelin’ Firemen! Summer CES 1994 Teaser', url: 'https://www.youtube.com/watch?v=MY0GZEqOIJ4' },
+    ],
+  },
+
+  // ── Production / Video Collaborator Leads (from artist) ──
+  collaborators: [
+    { name: 'Eagan', role: 'Music video director', note: 'Friend of the artist with a clear artistic vision. Artist is enthusiastic about him directing one of the videos.' },
+    { name: 'Cage Claypool', role: 'Music video / visual creator', note: 'Flagged as a strong potential collaborator in the vis-dev doc.' },
+    { name: 'Open seat #1', role: 'Director / visual creator (full creative control on offer)', note: 'The artist flagged two unnamed creators whose work he loves enough to give full creative control. Identify from the vis-dev doc IG links and brief.' },
+    { name: 'Open seat #2', role: 'Director / visual creator (full creative control on offer)', note: 'The second of the two unnamed creators referenced in vis-dev. Same standing offer.' },
+  ],
+
+  // ── Budgets by drop ──
+  budgets: {
+    total: '$30,000 marketing across the rollout',
+    perDrop: [
+      { drop: 'Single 1 · Waterhole', amount: '$6,000', allocation: 'Marquee + pre-save infrastructure, micro-creator seeding on bedroom-pop / indie pages, SWRM engagement to seed lore posts, paid social behind the best organic clips.' },
+      { drop: 'Single 2 · Real Time (MV)', amount: '$6,000', allocation: 'Same base stack + a small clipping test ($1-2K) off the Real Time music video to learn what hooks land.' },
+      { drop: 'Single 3', amount: '$6,000', allocation: 'Same base stack + open the Spotify Countdown page (Clips uploaded), creator seeding warms up for the album.' },
+      { drop: 'Single 4 + Album · Fantastic Machine', amount: '$12,000', allocation: 'Main paid clipping push ($3-5K) off the big-budget video, Marquee + Showcase at scale, macro + micro creator seeding, SWRM at launch, press push (Strive FM / Your Culture).' },
+    ],
+    note: 'Marketing only. The big-budget Fantastic Machine music video production is funded separately.',
+  },
 
   // ── 08 Rollout Playbook ──
   playbook: [
@@ -182,7 +224,7 @@ export const temporex = {
     { week: 'Aug 14 · Single 2 — Real Time (music video)', phase: 'Single 2 · Music video', objective: 'The music video IS the content asset. Clip it 12 ways.', actions: ['Pre-save up by ~Jul 17 (4 wks out); Marquee at drop', 'Music video drops alongside the single; immediately cut 8-12 vertical Reels off it', 'Small paid clipping test ($1-2K) — measure cost-per-save, not just views', 'Push the lore wider: new character or location enters the world'], signals: ['MV crosses 100K views in week 1', 'A clip / lyric line breaks out organically'] },
     { week: 'Sep 18 · Single 3 — Somewhere I’m Better Now', phase: 'Single 3 · Album Countdown opens', objective: 'Mid-rollout tentpole. Open the album Countdown page; bridge the world to the album.', actions: ['Open Spotify Countdown for the album with Clips (~2x pre-saves) — bio + every clip CTA', 'Announce the album: "this is the [name]verse" payoff', 'Pre-save up by ~Aug 21; Marquee at single drop', 'Begin seeding micro-creators on bedroom-pop / dream-pop / indie pages'], signals: ['Countdown pre-saves ramping', 'Announce is the highest-engagement post yet'] },
     { week: 'Oct 23 · Single 4 — Fantastic Machine (big budget video)', phase: 'Single 4 · Big video tentpole', objective: 'Tentpole. Big video is the clipping quarry AND the visual climax of the world.', actions: ['Pre-save up by ~Sep 25 (4 wks out)', 'Drop the music video alongside the single', 'Main paid clipping push: $3-5K, tight brief tying clips to album pre-save', 'Fan-flip cycle peaks — invite fans to recreate one shot from the video'], signals: ['MV crosses 500K views in 2 weeks', 'Clip campaign CPM in the $1-5 range'] },
-    { week: 'Nov · Album — Wanting is Haunting', phase: 'Album Launch', objective: 'Album day. Convert the year-long lore audience.', actions: ['Album drops; Marquee + Showcase on; Countdown page converts', 'Drop the focus-track Reel ("wanting is haunting" text-in-3s)', 'Daily Reels of the album’s standout moments across launch week', 'Push press, Your Culture, Strive FM, micro-creator seeding'], signals: ['Album first-week streams beat "Bowling" (2021) baseline by 50%+', 'Sound creates on the focus track climbing on Reels and TikTok'] },
+    { week: 'Nov · Album — Fantastic Machine', phase: 'Album Launch', objective: 'Album day. Convert the year-long lore audience.', actions: ['Album drops; Marquee + Showcase on; Countdown page converts', 'Drop the title-track Reel ("Fantastic Machine" text-in-3s, cartoon hook visual)', 'Daily Reels of the album’s standout moments across launch week', 'Push press, Your Culture, Strive FM, micro-creator seeding'], signals: ['Album first-week streams beat "Bowling" (2021) baseline by 50%+', 'Sound creates on the title track climbing on Reels and TikTok'] },
     { week: 'Nov + (sustain)', phase: 'Sustain', objective: 'Hold the world. Bank the audience.', actions: ['Resume the 5-format weekly rotation through year-end', 'Move new followers into Laylo email/SMS', 'Tour announce (if booked) tied to the world / characters', 'Plan visual-art exhibit or merch capsule extending the [name]verse'], signals: ['Streaming holds 70%+ of week 1 by week 4', 'Owned audience (email/SMS) standing up; tour-on-sale activity if relevant'] },
   ],
 
@@ -202,7 +244,7 @@ export const temporex = {
 
   // ── 10 Clipping + Amplification ──
   clipping: {
-    intro: 'temporex has no recurring long-set asset to clip — the two music videos are the clipping quarries. Small test off the Real Time MV in August, main push off the Fantastic Machine big-budget video in October.',
+    intro: 'temporex has no recurring long-set asset to clip — the two music videos are the clipping quarries. Small test off the Real Time MV in August (out of the $6K Single 2 budget), main push off the Fantastic Machine big-budget video in October-November (out of the $12K album budget).',
     steps: [
       { step: 'Music video #1 (Aug 14)', detail: 'Real Time MV is the first clipping asset. Cut 8-12 vertical Reels off it on launch day.' },
       { step: 'Small paid clipping test', detail: 'Test small (~$1-2K) on Real Time MV in August. Learn what hooks land. Measure cost-per-save and pre-save, not just views.' },
@@ -230,7 +272,7 @@ export const temporex = {
     intro: 'The cascade builds the world; the DSP stack converts the 1.4M streaming audience that has been on autopilot for years.',
     items: [
       { name: 'Per-single pre-save + Marquee', detail: 'Each of the four singles gets a pre-save live ~3-4 weeks out (industry norm is 30 days; we have the runway, use it). Marquee at drop, aimed first at lapsed listeners from the 1.4M base.' },
-      { name: 'Album Countdown Page', detail: 'Opens at Single 3 (Sep 18) for ~8-10 weeks of lead-in. Add Clips — artists who do see ~2x more pre-saves. Pre-save link in every bio and clip through the November album drop.' },
+      { name: 'Album Countdown Page', detail: 'Opens at Single 3 (Sep 18) for ~8-10 weeks of lead-in toward Fantastic Machine. Add Clips — artists who do see ~2x more pre-saves. Pre-save link in every bio and clip through the November album drop.' },
       { name: 'Showcase', detail: 'Home-feed banner across album launch week.' },
       { name: 'Spotify Canvas as a social funnel', detail: 'Carry the @handle + "follow for the lore" hook in Canvas loops on every single. This converts the 1.4M passive streamers into followers — the core problem.' },
     ],
@@ -240,7 +282,7 @@ export const temporex = {
     'Tokscript — Temporex (@.temporex) and Nourished by Time (@nourishedbytime) TikTok metadata',
     'Web research — comp identification and handles, Temporex catalog and streaming stats',
     'Web research — bedroom-pop / lo-fi lane data (Sprout Social, Brandlens, NewzEnler 2026)',
-    'Artist-supplied — Waterhole track notes and the four reference artists',
+    'Artist-supplied — Waterhole track notes, Fantastic Machine vis-dev doc (MV refs + collaborators + 3D-glasses premiere idea), and the four reference artists',
   ],
 };
 

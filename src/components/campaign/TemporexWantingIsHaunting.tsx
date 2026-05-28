@@ -161,7 +161,7 @@ export function TemporexWantingIsHaunting() {
       <div ref={heroRef} className="relative h-[88vh] min-h-[600px] flex items-end overflow-hidden">
         <motion.div className="absolute inset-0 z-0" style={{ y: heroY }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/images/temporex-wanting-is-haunting/hero.png" alt="" className="w-full h-full object-cover" />
+          <img src="/images/temporex-fantastic-machine/hero.png" alt="" className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-[#0A0A0A]/55 to-[#0A0A0A]/30" />
         </motion.div>
         <motion.div className="relative z-10 max-w-6xl mx-auto px-6 pb-16 w-full" style={{ opacity: heroFade }}>
@@ -296,7 +296,7 @@ export function TemporexWantingIsHaunting() {
         <GlassCard className="p-8 md:p-12 mb-12 relative overflow-hidden" glow hover={false}>
           <div className="absolute top-0 left-0 w-1 h-full bg-[#fd3737]" />
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/images/temporex-wanting-is-haunting/strategy.png" alt="" className="absolute inset-0 w-full h-full object-cover opacity-10" />
+          <img src="/images/temporex-fantastic-machine/strategy.png" alt="" className="absolute inset-0 w-full h-full object-cover opacity-10" />
           <div className="relative">
             <span className="text-[11px] tracking-[0.3em] uppercase text-[#fd3737] font-semibold">Campaign Thesis</span>
             <p className="text-xl md:text-2xl text-[#FAFAFA] leading-relaxed mt-4">{C.thesis}</p>
@@ -313,6 +313,41 @@ export function TemporexWantingIsHaunting() {
             ))}
           </div>
         </div>
+        {/* Visual Identity */}
+        <div className="mb-12">
+          <div className="text-[11px] uppercase tracking-wider text-[#fd3737] mb-4">Visual identity</div>
+          <GlassCard className="p-8 mb-6" hover={false}>
+            <p className="text-[#E4E4E9] text-base md:text-lg leading-relaxed">{C.visualIdentity.lookAndFeel}</p>
+            <ul className="mt-6 space-y-3">
+              {C.visualIdentity.principles.map((p, i) => (
+                <li key={i} className="flex gap-3 text-[#E4E4E9] text-sm leading-snug"><span className="text-[#fd3737] mt-1">▹</span>{p}</li>
+              ))}
+            </ul>
+          </GlassCard>
+          <div className="text-[11px] uppercase tracking-wider text-[#B8B8C0] mb-3">Music video references</div>
+          <div className="grid sm:grid-cols-2 gap-2">
+            {C.visualIdentity.mvReferences.map((r, i) => (
+              <a key={i} href={r.url} target="_blank" rel="noopener noreferrer" className="rounded-lg bg-[#1A1A1A]/60 border border-[#333333]/60 px-4 py-3 text-[#E4E4E9] text-sm hover:border-[#fd3737]/40 hover:text-[#fd3737] transition-colors">{r.title} ↗</a>
+            ))}
+          </div>
+        </div>
+
+        {/* Production leads / collaborators */}
+        <div className="mb-12">
+          <div className="text-[11px] uppercase tracking-wider text-[#fd3737] mb-4">Production leads · video collaborators</div>
+          <div className="grid md:grid-cols-2 gap-4">
+            {C.collaborators.map((c, i) => (
+              <GlassCard key={i} className="p-6">
+                <div className="flex items-baseline justify-between mb-1">
+                  <h4 className="font-display text-base text-[#FAFAFA]">{c.name}</h4>
+                  <span className="text-[#B8B8C0] text-xs">{c.role}</span>
+                </div>
+                <p className="text-[#E4E4E9] text-sm leading-relaxed mt-2">{c.note}</p>
+              </GlassCard>
+            ))}
+          </div>
+        </div>
+
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5">
           {C.phases.map((p, i) => (
             <GlassCard key={i} className="p-6">
@@ -424,6 +459,21 @@ export function TemporexWantingIsHaunting() {
             </GlassCard>
           ))}
         </div>
+
+        {/* Budget by drop */}
+        <div className="mt-10">
+          <div className="text-[11px] uppercase tracking-wider text-[#fd3737] mb-4">Budget by drop · {C.budgets.total}</div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+            {C.budgets.perDrop.map((d, i) => (
+              <GlassCard key={i} className="p-5">
+                <div className="text-[#B8B8C0] text-xs mb-1">{d.drop}</div>
+                <div className="font-display text-2xl text-[#fd3737]">{d.amount}</div>
+                <p className="text-[#E4E4E9] text-xs leading-relaxed mt-3">{d.allocation}</p>
+              </GlassCard>
+            ))}
+          </div>
+          <p className="text-[#B8B8C0] text-xs italic">{C.budgets.note}</p>
+        </div>
       </Section>
       <SectionDivider />
 
@@ -475,7 +525,7 @@ export function TemporexWantingIsHaunting() {
       {/* footer */}
       <div className="relative mt-16 overflow-hidden">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/images/temporex-wanting-is-haunting/closing.png" alt="" className="absolute inset-0 w-full h-full object-cover opacity-20" />
+        <img src="/images/temporex-fantastic-machine/closing.png" alt="" className="absolute inset-0 w-full h-full object-cover opacity-20" />
         <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-[#0A0A0A]/80 to-[#0A0A0A]/40" />
         <div className="relative max-w-6xl mx-auto px-6 py-20 text-center">
           <p className="font-display text-2xl md:text-3xl text-[#FAFAFA]">{C.artist} — <span className="text-[#fd3737] lowercase">{C.song}</span></p>

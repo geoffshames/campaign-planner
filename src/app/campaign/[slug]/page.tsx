@@ -9,21 +9,22 @@ export function generateStaticParams() {
     { slug: 'tyla-carwash' },
     { slug: 'bad-tuner-forever-love' },
     { slug: 'temporex-wanting-is-haunting' },
+    { slug: 'temporex-fantastic-machine' },
   ];
 }
 
 const noIndex = { robots: { index: false, follow: false } } as const;
 
 export function generateMetadata({ params }: { params: { slug: string } }): Metadata {
-  if (params.slug === 'temporex-wanting-is-haunting') {
+  if (params.slug === 'temporex-wanting-is-haunting' || params.slug === 'temporex-fantastic-machine') {
     return {
       ...noIndex,
-      title: 'temporex — Wanting is Haunting | Campaign Planner',
-      description: 'Album rollout strategy for temporex, backing into four singles and the November album. Lore-driven content system for the 1.4M-streaming dream-pop artist.',
+      title: 'temporex — Fantastic Machine | Campaign Planner',
+      description: 'Album rollout strategy for temporex (Fantastic Machine, Nov 2026), backing into four singles. Lore-driven content system for the 1.4M-streaming dream-pop artist.',
       openGraph: {
-        title: 'temporex — Wanting is Haunting | Crowd Control Digital',
+        title: 'temporex — Fantastic Machine | Crowd Control Digital',
         description: 'Album rollout strategy for temporex.',
-        images: ['/images/temporex-wanting-is-haunting/og.png'],
+        images: ['/images/temporex-fantastic-machine/og.png'],
       },
     };
   }
@@ -47,7 +48,7 @@ export function generateMetadata({ params }: { params: { slug: string } }): Meta
 }
 
 export default function CampaignPageServer({ params }: { params: { slug: string } }) {
-  if (params.slug === 'temporex-wanting-is-haunting') {
+  if (params.slug === 'temporex-wanting-is-haunting' || params.slug === 'temporex-fantastic-machine') {
     return <TemporexWantingIsHaunting />;
   }
   if (params.slug === 'bad-tuner-forever-love') {
