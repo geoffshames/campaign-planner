@@ -1,5 +1,5 @@
 // Temporex — "Wanting is Haunting" album rollout
-// Research: TikTok metadata (Tokscript), web research, prior CCD analysis (Bad Tuner)
+// Research: TikTok metadata (Tokscript), web research, indie / bedroom-pop lane data
 // Note: IG comp deep-dive pending (Tokscript IG service outage at build time).
 
 export const temporex = {
@@ -28,7 +28,7 @@ export const temporex = {
   diagnosis: {
     headline: 'The 1.4M-streaming dream-pop artist who has been radio silent on socials.',
     body:
-      'temporex has 1.4 million Spotify monthly listeners — and just 32K TikTok followers across only 3 lifetime TikTok posts (most recent: October 2024). The previous album "Bowling" dropped in 2021. The streaming engine is huge; the social engine is essentially off. This is the inverse of the Bad Tuner pattern: there, the problem was posting too much of the wrong thing (gig flyers). Here, the problem is not posting at all. The fix is not volume for volume’s sake — the comps in this lane prove that bedroom-pop wins with curation, not cadence. The fix is turning the engine on, in temporex’s own voice (music + visual art), with one connected world that runs across all four singles into the album.',
+      'temporex has 1.4 million Spotify monthly listeners — and just 32K TikTok followers across only 3 lifetime TikTok posts (most recent: October 2024). The previous album "Bowling" dropped in 2021. The streaming engine is huge; the social engine is essentially off. The problem is not posting at all. The fix is not volume for volume’s sake — the comps in this lane prove that bedroom-pop wins with curation, not cadence. The fix is turning the engine on, in temporex’s own voice (music + visual art), with one connected world that runs across all four singles into the album.',
     stats: [
       { value: '1.4M', label: 'Spotify monthly listeners', tone: 'good' },
       { value: '32K', label: 'TikTok followers (3 lifetime posts)', tone: 'bad' },
@@ -124,21 +124,21 @@ export const temporex = {
   videoIntel: {
     analyzed: 0,
     summary:
-      'Frame-level deep-dive on indie/bedroom-pop reference posts is pending the Tokscript IG service restoring (all four comps are IG-first). In the meantime, the pattern library below carries forward from the prior CCD reference analysis (26 posts, frame-by-frame via TwelveLabs Pegasus) and is layered with bedroom-pop / lo-fi lane data — these patterns hold even more strongly here than in dance.',
+      'Frame-level deep-dive on temporex’s reference posts (The Garden, Chanel Beads, Nourished by Time, Homeshake) is pending the Tokscript IG service restoring (all four comps are IG-first). In the meantime, the pattern library below pulls from short-form best practice and bedroom-pop / lo-fi lane research — and these patterns hold especially strongly in this lane.',
     patterns: [
       { pattern: 'Phone-shot beats polished — even more in this lane', prevalence: 'Web data: lo-fi Reels +20% vs polished; TikTok lo-fi +32% watch-through', implication: 'Shoot on a phone. Resist the urge to make every visual "art-directed." The lo-fi instinct is the lever; the visual art piece can sit in static covers, not every Reel.' },
-      { pattern: 'Text-on-screen in the first 3 seconds', prevalence: '24 of 26 posts in the prior CCD reference set', implication: 'Open every clip with a context line (most watch with sound off). For temporex this is a free win on lore: "the man who was poisoned by a gnome" reads as a hook.' },
+      { pattern: 'Text-on-screen in the first 3 seconds', prevalence: 'Universal in short-form best practice; most viewers watch sound-off', implication: 'Open every clip with a context line (most watch with sound off). For temporex this is a free win on lore: "the man who was poisoned by a gnome" reads as a hook.' },
       { pattern: 'Varied pacing, never one constant speed', prevalence: 'The dominant cut pattern across the reference set', implication: 'Mix slow lo-fi shots with fast cuts on a hook. Dream-pop does not mean uniformly slow.' },
       { pattern: 'The single moment is engineered onto a visual peak', prevalence: 'Across the top performers', implication: 'For temporex this is the lyric or the loop drop. Cut so the line "wanting is haunting" lands on a face, an object, or the gnome.' },
       { pattern: 'Caption-driven storytelling outperforms promo lines', prevalence: 'Universal across the prior analysis', implication: 'A specific story (the Waterhole gnome backstory the artist already wrote) beats "out now" or "pre-save link in bio" every time.' },
-      { pattern: 'A recurring named world makes every post feel like one project', prevalence: 'The Garden ("Vada Vada"), Barry Cant Swim ("Bhibo"), Fred Again (lowercase diary voice)', implication: 'temporex should give the album a named visual world (the farm + the gnome + the gradient sunset palette) and stamp every clip with it.' },
+      { pattern: 'A recurring named world makes every post feel like one project', prevalence: 'The Garden built 365K on exactly this with "Vada Vada"', implication: 'temporex should give the album a named visual world (the farm + the gnome + the gradient sunset palette) and stamp every clip with it.' },
     ],
     videos: [] as { title: string; artist: string; plays: string; insight: string }[],
   },
 
   // ── 05 Thesis + Phases ──
   thesis:
-    'Turn the lore on. The artist behind 1.4 million monthly streams has been radio silent on socials for years — and unlike Bad Tuner, the fix is not "post less promo," it is "show up at all." But show up in his own voice: visual artist, dream-pop, gnomes-on-a-farm. Build ONE connected world — the album, the gnome, the farm, the desert palette — that runs across all four singles into the album, the way The Garden runs "Vada Vada." Each monthly single is a chapter in that world. The 1.4M people streaming temporex should arrive in November to a Spotify Countdown page already filled with people they recognize from a year of lore.',
+    'Turn the lore on. The artist behind 1.4 million monthly streams has been radio silent on socials for years. The fix is to show up — but in his own voice: visual artist, dream-pop, gnomes-on-a-farm. Build ONE connected world — the album, the gnome, the farm, the desert palette — that runs across all four singles into the album, the way The Garden runs "Vada Vada." Each monthly single is a chapter in that world. The 1.4M people streaming temporex should arrive in November to a Spotify Countdown page already filled with people they recognize from a year of lore.',
   phases: [
     { name: 'Lore Drop / Reset', weeks: 'May 22 – Jul 9', objectives: ['Turn the engine on (he is silent today)', 'Open the visual world: farm + gnome + palette', 'Stand up the 5 content formats; book IG and TikTok cadence'] },
     { name: 'Single 1 · Waterhole', weeks: 'Jul 10 – Aug 13', objectives: ['Drop the gnome story publicly', 'Country-western imagery + Linn Drum demo', 'Friend cameo (Adrian) becomes a recurring beat'] },
@@ -163,16 +163,16 @@ export const temporex = {
 
   // ── 07 Content Ideas ──
   ideas: [
-    { name: 'Meet the Gnome', bit: 'A recurring illustrated / claymation gnome character that appears in every clip, takes over Stories for a day, sends "voicemails" via Reels audio. The Bhibo move applied to lore.', hook: 'this is the gnome who poisoned the man', why: 'The artist literally wrote this character into the Waterhole song. Use him. He becomes the album’s mascot.', top3: true },
+    { name: 'Meet the Gnome', bit: 'A recurring illustrated / claymation gnome character that appears in every clip, takes over Stories for a day, sends "voicemails" via Reels audio. One recurring character that ties every post to the album.', hook: 'this is the gnome who poisoned the man', why: 'The artist literally wrote this character into the Waterhole song. Use him. He becomes the album’s mascot.', top3: true },
     { name: 'Waterhole Farm', bit: 'Recurring visual world — the lonely man’s farm — shot in Joshua Tree or SD desert. Photo carousels + 10-second mood clips. Cohesive palette throughout.', hook: 'this is where the man lived', why: 'Album-world cohesion. Gives every post a "home." Plays to the artist’s visual-art identity.', top3: true },
     { name: 'How I Made [track]', bit: 'Linn Drum + alt-tuning demo for each single. Show the actual gear and the actual workflow.', hook: 'made this from a Linn Drum and a detuned acoustic', why: 'Producer TikTok / songwriter Reddit eats this up. High save intent. Real to what he does.', top3: true },
     { name: 'Muttering Vocals', bit: 'Short clips of the artist muttering nonsense over a loop until real words form. The actual songwriting workflow he described in the Waterhole notes.', hook: 'this is how the song starts', why: 'Bedroom-pop process content. Authentic, lo-fi, fascinating.', top3: false },
     { name: 'Visual Art Diary', bit: 'Sketches, paintings, sculpture, ceramics — the work that becomes single covers, merch, lyric video frames. Treat the visual-art half of his bio as a real channel.', hook: 'this is the cover before the cover', why: 'Leans on his actual unique identity (the "music and visual art" framing). Nobody else in the lane has this.', top3: false },
     { name: 'Friend Cameos (one instrument, one room)', bit: 'A recurring slot: each week a different friend (or peer in the SD / LA indie scene) walks in, plays one instrument on one track. Adrian started it.', hook: 'today: Adrian on mandolin', why: 'Borrowed audience + the collab pattern that consistently overperforms in every CCD reference set.', top3: false },
-    { name: 'Crate-Digging San Diego', bit: 'Go to local record shops (Folk Arts, M-Theory) and vintage instrument stores. Pull a record, tell its story, sample from it on camera.', hook: 'found this in a $2 bin', why: 'Barry Cant Swim’s Sneaky Pete move, localized to San Diego. Roots him in a place.', top3: false },
+    { name: 'Crate-Digging San Diego', bit: 'Go to local record shops (Folk Arts, M-Theory) and vintage instrument stores. Pull a record, tell its story, sample from it on camera.', hook: 'found this in a $2 bin', why: 'The classic crate-dig-meets-sample-flip move, rooted in San Diego. Anchors the artist in a place.', top3: false },
     { name: '3 Linn Drum Loops, 3 Rooms', bit: 'Same drum loop interpreted three different ways across three locations (bedroom, garage, desert porch). One constraint, three answers.', hook: 'same loop, three rooms', why: 'Constraint format. Producer-bait. Visually cohesive. Specific to his gear.', top3: false },
-    { name: 'Fantastic Machine BTS', bit: 'Episodic build of the big-budget Oct 23 music video. 8-12 short posts capturing pre-production, set build, shoot day, on-monitor moments.', hook: 'day 1: building the machine', why: 'A music video shoot is a content quarry. Fred Again does this; The Garden does this. Free content for weeks.', top3: false },
-    { name: 'Wanting is Haunting Lore Drops', bit: 'Cryptic Reels teasing the album’s focus track across the final two months. Slowed-down loops, a single lyric line over a still, the gnome saying the title in a Story.', hook: 'wanting is haunting', why: 'The Bhibo move on the focus track — same hook revealed in new contexts until fans demand the drop.', top3: false },
+    { name: 'Fantastic Machine BTS', bit: 'Episodic build of the big-budget Oct 23 music video. 8-12 short posts capturing pre-production, set build, shoot day, on-monitor moments.', hook: 'day 1: building the machine', why: 'A music video shoot is a content quarry. The Garden does this constantly. Free content for weeks.', top3: false },
+    { name: 'Wanting is Haunting Lore Drops', bit: 'Cryptic Reels teasing the album’s focus track across the final two months. Slowed-down loops, a single lyric line over a still, the gnome saying the title in a Story.', hook: 'wanting is haunting', why: 'Same hook, new contexts — slow-drip teasers across weeks until fans are commenting WHEN.', top3: false },
   ],
 
   // ── 08 Rollout Playbook ──
@@ -202,7 +202,7 @@ export const temporex = {
 
   // ── 10 Clipping + Amplification ──
   clipping: {
-    intro: 'Different from a tour-artist clipping play: temporex has no Lot Radio long set. Instead, the two music videos are the clipping quarries — small test in August, big push in October.',
+    intro: 'temporex has no recurring long-set asset to clip — the two music videos are the clipping quarries. Small test off the Real Time MV in August, main push off the Fantastic Machine big-budget video in October.',
     steps: [
       { step: 'Music video #1 (Aug 14)', detail: 'Real Time MV is the first clipping asset. Cut 8-12 vertical Reels off it on launch day.' },
       { step: 'Small paid clipping test', detail: 'Test small (~$1-2K) on Real Time MV in August. Learn what hooks land. Measure cost-per-save and pre-save, not just views.' },
@@ -239,7 +239,6 @@ export const temporex = {
   sources: [
     'Tokscript — Temporex (@.temporex) and Nourished by Time (@nourishedbytime) TikTok metadata',
     'Web research — comp identification and handles, Temporex catalog and streaming stats',
-    'Prior CCD analysis — universal pattern library from 26-post TwelveLabs Pegasus frame analysis',
     'Web research — bedroom-pop / lo-fi lane data (Sprout Social, Brandlens, NewzEnler 2026)',
     'Artist-supplied — Waterhole track notes and the four reference artists',
   ],

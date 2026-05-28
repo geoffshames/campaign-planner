@@ -356,7 +356,7 @@ export function TemporexWantingIsHaunting() {
       <SectionDivider />
 
       {/* ═══ 06 CONTENT IDEAS ═══ */}
-      <Section id="ideas" number="06" title="10 Content Ideas" subtitle="Specific, NYC-rooted, phone-shot bits to batch and rotate — built off the Bad Tuner content call.">
+      <Section id="ideas" number="06" title="10 Content Ideas" subtitle="Specific, lo-fi, lore-driven bits to batch and rotate — built off temporex’s reference set and the indie / dream-pop lane.">
         <div className="grid md:grid-cols-2 gap-5">
           {C.ideas.map((idea, i) => (
             <GlassCard key={i} className={`p-7 ${idea.top3 ? 'border-l-2 border-l-[#fd3737]' : ''}`}>
