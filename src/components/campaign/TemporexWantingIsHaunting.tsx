@@ -123,7 +123,7 @@ export function TemporexWantingIsHaunting() {
 
   const nav = [
     ['diagnosis', 'Diagnosis'], ['comps', 'Comp Teardown'], ['video', 'Video Intel'],
-    ['strategy', 'Strategy'], ['system', 'Content System'], ['ideas', 'Ideas'], ['playbook', 'Playbook'],
+    ['strategy', 'Strategy'], ['system', 'Content System'], ['ideas', 'Ideas'], ['world', 'World-Building'], ['playbook', 'Playbook'],
     ['channels', 'Channels'], ['clipping', 'Clipping'], ['swrm', 'SWRM'], ['dsp', 'DSP'],
   ];
 
@@ -391,7 +391,7 @@ export function TemporexWantingIsHaunting() {
       <SectionDivider />
 
       {/* ═══ 06 CONTENT IDEAS ═══ */}
-      <Section id="ideas" number="06" title="10 Content Ideas" subtitle="Specific, lo-fi, lore-driven bits to batch and rotate — built off temporex’s reference set and the indie / dream-pop lane.">
+      <Section id="ideas" number="06" title="Content Ideas" subtitle="Specific, lo-fi, lore-driven bits to batch and rotate — built off temporex’s reference set and the indie / dream-pop lane.">
         <div className="grid md:grid-cols-2 gap-5">
           {C.ideas.map((idea, i) => (
             <GlassCard key={i} className={`p-7 ${idea.top3 ? 'border-l-2 border-l-[#fd3737]' : ''}`}>
@@ -409,8 +409,34 @@ export function TemporexWantingIsHaunting() {
       </Section>
       <SectionDivider />
 
-      {/* ═══ 07 PLAYBOOK ═══ */}
-      <Section id="playbook" number="07" title="Rollout Playbook" subtitle="A production calendar backing into the five release dates — a single every month into the Oct 2 EP.">
+      {/* ═══ 07 WORLD-BUILDING ACTIVATIONS ═══ */}
+      <Section id="world" number="07" title="World-Building Activations" subtitle="Three big plays that build the Fantastic Machine universe outside the feed — owned, ownable, and tightly tied to the album narrative.">
+        <div className="grid lg:grid-cols-3 gap-6">
+          {C.worldBuilding.map((p, i) => (
+            <GlassCard key={i} className="p-7 flex flex-col">
+              <div className="text-[#fd3737] text-[11px] uppercase tracking-wider mb-2">{p.format}</div>
+              <h4 className="font-display text-lg text-[#FAFAFA] mb-3 leading-snug">{p.name}</h4>
+              <p className="text-[#E4E4E9] text-sm leading-relaxed mb-4">{p.bit}</p>
+              <div className="text-[11px] uppercase tracking-wider text-[#B8B8C0] mb-1 mt-auto">Why</div>
+              <p className="text-[#E4E4E9] text-sm leading-relaxed">{p.why}</p>
+              {p.refs.length > 0 && (
+                <div className="mt-4 pt-4 border-t border-[#333333]/60">
+                  <div className="text-[11px] uppercase tracking-wider text-[#B8B8C0] mb-2">References</div>
+                  <div className="space-y-1">
+                    {p.refs.map((r, j) => (
+                      <a key={j} href={r.url} target="_blank" rel="noopener noreferrer" className="block text-[#E4E4E9] text-xs hover:text-[#fd3737] transition-colors">{r.label} ↗</a>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </GlassCard>
+          ))}
+        </div>
+      </Section>
+      <SectionDivider />
+
+            {/* ═══ 07 PLAYBOOK ═══ */}
+      <Section id="playbook" number="08" title="Rollout Playbook" subtitle="A production calendar backing into the five release dates — a single every month into the Oct 2 EP.">
         <div className="relative">
           <div className="absolute left-[19px] md:left-6 top-2 bottom-2 w-px bg-gradient-to-b from-[#fd3737] via-[#333333] to-transparent" />
           <div className="space-y-5">
@@ -421,7 +447,7 @@ export function TemporexWantingIsHaunting() {
       <SectionDivider />
 
       {/* ═══ 08 CHANNELS ═══ */}
-      <Section id="channels" number="08" title="Channel Allocation" subtitle="Where the effort and budget go. Organic content is the core because it is the only thing that fixes the underlying problem.">
+      <Section id="channels" number="09" title="Channel Allocation" subtitle="Where the effort and budget go. Organic content is the core because it is the only thing that fixes the underlying problem.">
         <div className="grid lg:grid-cols-2 gap-8 items-center">
           <GlassCard className="p-8" hover={false}>
             <div className="h-[280px]">
@@ -478,7 +504,7 @@ export function TemporexWantingIsHaunting() {
       <SectionDivider />
 
       {/* ═══ 09 CLIPPING ═══ */}
-      <Section id="clipping" number="09" title="Clipping + Amplification" subtitle={C.clipping.intro}>
+      <Section id="clipping" number="10" title="Clipping + Amplification" subtitle={C.clipping.intro}>
         <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-4">
           {C.clipping.steps.map((s, i) => (
             <GlassCard key={i} className="p-6">
@@ -492,7 +518,7 @@ export function TemporexWantingIsHaunting() {
       <SectionDivider />
 
       {/* ═══ 09 SWRM ═══ */}
-      <Section id="swrm" number="10" title="SWRM · Owned Engagement Layer" subtitle={C.swrm.intro}>
+      <Section id="swrm" number="11" title="SWRM · Owned Engagement Layer" subtitle={C.swrm.intro}>
         <GlassCard className="p-8 md:p-10 mb-8 border-l-2 border-l-[#fd3737]" glow hover={false}>
           <p className="text-[#E4E4E9] text-base md:text-lg leading-relaxed">{C.swrm.why}</p>
         </GlassCard>
@@ -512,7 +538,7 @@ export function TemporexWantingIsHaunting() {
       <SectionDivider />
 
       {/* ═══ 10 DSP ═══ */}
-      <Section id="dsp" number="11" title="DSP Conversion" subtitle={C.dsp.intro}>
+      <Section id="dsp" number="12" title="DSP Conversion" subtitle={C.dsp.intro}>
         <div className="grid md:grid-cols-2 gap-5">
           {C.dsp.items.map((d, i) => (
             <GlassCard key={i} className="p-7">

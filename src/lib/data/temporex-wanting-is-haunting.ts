@@ -278,11 +278,41 @@ export const temporex = {
     ],
   },
 
+
+  // ── World-Building Activations (Substack / Microsite / Booth) ──
+  worldBuilding: [
+    {
+      name: 'Substack · "From inside the Machine"',
+      format: 'Episodic narrative · owned email + on-platform',
+      bit: 'A Substack where each entry is written in the voice of a different character from the album. No song titles, no album mentions, just voices logging their days, unaware they are part of something larger. The hermit from Waterhole goes first. As new singles drop, new voices take over. Every narrator mentions a Machine in passing — one has it in his barn, another heard it running in the distance, a third is trying to build one and cannot finish it. Nobody explains it. By the album drop, the reader realizes they have been moving through Fantastic Machine the whole time.',
+      why: 'Owned narrative real estate. Substack subscribers convert at far higher intent than social followers, so this builds a small but extremely engaged email list across the rollout. Doubles as the seed bible for the Microsite and the Booth, and feeds organic lore breadcrumbs into Reels copy and SWRM comments.',
+      refs: [] as { label: string; url: string }[],
+    },
+    {
+      name: 'Archive Microsite · the Machine repair manual',
+      format: 'Standalone microsite (Vercel · custom domain)',
+      bit: 'A standalone site framed as a repair manual or catalog for a Machine that never existed. Each page is a component — illustrated, labeled with a made-up technical name, with a description of its unknown function. New parts get added as the rollout progresses. The full Machine is never shown until album day. Aesthetic: Dr. Seuss meets Looney Toons — pure cartoon absurdism, no steampunk. The Substack characters are hidden in the diagrams if you look close enough.',
+      why: 'A standalone artifact fans collect and share — the modern equivalent of liner notes. Generates inbound press and "look at this" tweets. Becomes the destination link from every Reel and every Substack entry. Locks in the visual identity in a way no social post can.',
+      refs: [
+        { label: 'eastasiangraphicsarchive.com', url: 'http://eastasiangraphicsarchive.com' },
+        { label: 'clothes.trudy.computer', url: 'http://clothes.trudy.computer' },
+      ],
+    },
+    {
+      name: 'Collaborative Animation Booth · live event activation',
+      format: 'IRL booth · Heavy Manners + animated-shorts events',
+      bit: 'A booth at the Heavy Manners show (and adjacent animated-shorts events) where attendees draw a single component of the Machine — a gear, a pipe, a lever, a creature — on an iPad or laptop. Each drawing gets added to a growing master illustration. The booth prints a personalized flier showing the current state of the Machine with their piece visibly in it, plus the album date. No two fliers are the same. By the album drop the Machine is fully assembled, built by strangers across every event the booth appears at. The final version becomes part of the short film.',
+      why: 'Turns every event night into a content moment + a tangible fan artifact + a real piece of the album world. The "your drawing made it into the film" narrative converts attendees into superfans, and the build-up across events becomes its own social series ("Machine at 23% complete · Tokyo, Sept 7" style updates).',
+      refs: [
+        { label: 'Reve assembly example (X)', url: 'https://x.com/reve/status/2060045081013592486' },
+      ],
+    },
+  ],
   sources: [
     'Tokscript — Temporex (@.temporex) and Nourished by Time (@nourishedbytime) TikTok metadata',
     'Web research — comp identification and handles, Temporex catalog and streaming stats',
     'Web research — bedroom-pop / lo-fi lane data (Sprout Social, Brandlens, NewzEnler 2026)',
-    'Artist-supplied — Waterhole track notes, Fantastic Machine vis-dev doc (MV refs + collaborators + 3D-glasses premiere idea), and the four reference artists',
+    'Artist-supplied — Waterhole track notes, Fantastic Machine vis-dev doc (MV refs + collaborators + 3D-glasses premiere idea), the Substack / Microsite / Booth activation briefs, and the four reference artists',
   ],
 };
 
