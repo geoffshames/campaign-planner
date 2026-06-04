@@ -165,13 +165,13 @@ export const miguelDamned = {
     },
     {
       name: 'Third-Party Playlisting + DSP Push',
-      cost: '$1,500–2,500',
+      cost: '$5,000–10,000',
       rate: 'Vetted curators only — no guarantees-for-cash',
-      projection: '300–500K added playlist reach · editorial unlock',
+      projection: '600K–1.2M added playlist reach · editorial unlock',
       timing: 'Pitch Week 1 · adds land Weeks 2–4',
       description:
         'The song has 1.8K user playlists and ZERO Spotify editorial — at 462K daily streams. Two-track approach: (1) Agency-side: vetted independent curator pitching (SubmitHub/Playlist Push-grade networks, 2-year growth-chart checks on every list, no stream-count guarantees — purge-proof) targeting R&B, throwback, and "in my feels" mood lists; (2) Label-side: a data memo to RCA same week — Sure Thing precedent, velocity table, chart entries — pushing for Are & Be, R&B Right Now, Viral 50 consideration, plus Discovery Mode activation on damned and a Marquee/Showcase flight for Wildheart. Editorial is the single highest-leverage unlock in the plan: it converts a UGC spike into a durable streaming base.',
-      kpis: ['≥2 Spotify editorial adds by Day 30', '+300K legitimate playlist reach', 'Playlist-sourced streams ≥12% of total by Day 30'],
+      kpis: ['≥2 Spotify editorial adds by Day 30', '+600K legitimate playlist reach', 'Playlist-sourced streams ≥12% of total by Day 30'],
     },
     {
       name: 'Artist Moment + Official Assets',
@@ -185,33 +185,33 @@ export const miguelDamned = {
     },
     {
       name: 'Conversion & Capture Layer',
-      cost: '$0–1,000',
+      cost: 'No cost · existing stack',
       rate: 'Infrastructure',
       projection: 'Owns the audience the trend rented',
       timing: 'Weeks 2–4',
       description:
-        'Catch-net for the attention the other five activations generate: Laylo drop page teasing "something for the damned" (capture SMS/email before any next move), Genius verified annotation push, comment-seeding squads on trending videos (EN + ES), a damned-anchored "Wildheart, revisited" official playlist to spread the surge across the album (Sure Thing 2023 lifted its parent album onto the charts), and a Pandora/iHeart radio promo memo built on the Shazam city-chart data. If Week 4 metrics hold, this layer becomes the bridge into a month-two decision: live session release, LATAM remix feature, or paid amplification scale-up.',
-      kpis: ['≥10K Laylo/SMS captures', 'Wildheart album streams +25%', 'Radio adds in ≥3 Shazam-spiking markets'],
+        'Catch-net for the attention the other five activations generate — running entirely on tools we already have: a Hive capture page teasing "something for the damned" (SMS/email before any next move), Genius verified annotation push, comment-seeding squads on trending videos (EN + ES), a damned-anchored "Wildheart, revisited" official playlist to spread the surge across the album (Sure Thing 2023 lifted its parent album onto the charts), and a Pandora/iHeart radio promo memo built on the Shazam city-chart data. If Week 4 metrics hold, this layer becomes the bridge into a month-two decision: live session release, LATAM remix feature, or paid amplification scale-up.',
+      kpis: ['≥10K Hive SMS/email captures', 'Wildheart album streams +25%', 'Radio adds in ≥3 Shazam-spiking markets'],
     },
   ],
 
   // ── 06 Channel Allocation (sums to 100) ──
   channels: [
-    { name: 'Clipping / creator volume', pct: 38, note: 'Two waves · the trend’s proven engine' },
-    { name: 'Streaming acquisition (Strive + playlisting)', pct: 26, note: 'Converts attention into durable streams' },
+    { name: 'Clipping / creator volume', pct: 34, note: 'Two waves · the trend’s proven engine' },
+    { name: 'Streaming acquisition (Strive + playlisting)', pct: 30, note: 'Converts attention into durable streams' },
     { name: 'LATAM fan-page network', pct: 19, note: 'Always-on · $2,500/mo per page · scale on proof' },
     { name: 'Artist content + official assets', pct: 12, note: 'One shoot, four weeks of drops' },
-    { name: 'Capture layer (Laylo, seeding, radio memo)', pct: 5, note: 'Owns what the trend rented' },
+    { name: 'Capture layer (Hive, seeding, radio memo)', pct: 5, note: 'No cost · owns what the trend rented' },
   ],
   budget: {
-    total: '$12,800–15,800 for the 30-day sprint (one LATAM page; +$2,500/mo per additional page)',
+    total: '$16,300–23,300 for the 30-day sprint (one LATAM page; +$2,500/mo per additional page)',
     lines: [
       { item: 'Clipping program (2 waves)', amount: '$5,000' },
       { item: 'LATAM fan-page network (per page)', amount: '$2,500/mo' },
       { item: 'Strive.fm flight', amount: '~$1,800 all-in' },
-      { item: 'Third-party playlisting', amount: '$1,500–2,500' },
+      { item: 'Third-party playlisting', amount: '$5,000–10,000' },
       { item: 'Artist content production', amount: '$2,000–4,000' },
-      { item: 'Capture layer tools', amount: '$0–1,000' },
+      { item: 'Capture layer (Hive — existing stack)', amount: '$0' },
     ],
   },
 
@@ -250,9 +250,9 @@ export const miguelDamned = {
       actions: [
         'Strive.fm 30–45 day flight launches: damned lead slot, Sure Thing + Adorn support, geo-weighted to Denver / Charlotte / Irvine / LA / NYC / Houston.',
         'Drop #2: stripped live one-take of damned — feeds the open vocal-showcase lane and gives cover/duet creators an official stem to react to.',
-        'Curator adds compound: target 150–250K added reach this week; follow up label editorial ask with Week 1 velocity proof.',
+        'Curator adds compound: target 250–400K added reach this week; follow up label editorial ask with Week 1 velocity proof.',
         'Launch "Wildheart, revisited" official playlist with damned at #1; push via artist stories + fan pages.',
-        'Laylo drop page live ("for the damned — algo viene"); seeded through fan-page link-in-bios.',
+        'Hive capture page live ("for the damned — algo viene"); seeded through fan-page link-in-bios.',
         'LATAM push: Spanish thank-you video drops; fan pages run Mexico-city-shoutout formats timed to it.',
       ],
       signals: ['Daily streams hold ≥420K', 'Spotify algorithmic reach passes 1.2M', 'Strive pacing on track for 150K by Day 45', 'Mexico listener growth visible in Chartmetric'],
@@ -278,7 +278,7 @@ export const miguelDamned = {
       actions: [
         'Drop #4: Spanish thank-you follow-up — duet a LATAM fan-page edit from Miguel’s account; tease "algo para México" if month-two LATAM plan is greenlit.',
         'Wildheart cross-pollination: fan pages + clippers brief shifts 30% to album cuts (Coffee, waves, Anointed — already at 150K daily streams itself).',
-        'Push Laylo captures through first SMS blast: live one-take full version as a gift, not an ask.',
+        'Push Hive captures through first SMS/email blast: live one-take full version as a gift, not an ask.',
         'Full-sprint retro: stream retention curve vs. Day 0, editorial status, LATAM share shift, CPM efficiency by lane.',
         'Month-two decision memo: (A) add LATAM page two + scale clipping, (B) LATAM remix feature / "condenado" Spanish version, (C) live session release, or (D) hold at maintenance.',
       ],

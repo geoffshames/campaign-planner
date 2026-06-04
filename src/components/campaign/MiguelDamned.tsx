@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { motion, useScroll, useSpring, useTransform, useMotionValue } from 'framer-motion';
-import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { miguelDamned as C } from '@/lib/data/miguel-damned';
 
 /* ── hooks ── */
@@ -69,6 +69,22 @@ function Badge({ children, color = '#fd3737' }: { children: React.ReactNode; col
   return <span className="px-3 py-1 rounded-full text-[11px] font-semibold" style={{ background: `${color}22`, color }}>{children}</span>;
 }
 function levelColor(v: string) { return v === 'High' ? '#EF4444' : v === 'Medium' ? '#F59E0B' : '#22C55E'; }
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function DonutTooltip({ active, payload }: any) {
+  if (!active || !payload?.length) return null;
+  const d = payload[0];
+  return (
+    <div className="rounded-xl border border-[#333333] bg-[#141414] px-4 py-3 shadow-xl max-w-[240px]">
+      <div className="flex items-center gap-2">
+        <span className="w-2.5 h-2.5 rounded-sm shrink-0" style={{ background: d.payload.fill }} />
+        <span className="text-[#FAFAFA] text-sm font-semibold">{d.name}</span>
+      </div>
+      <div className="font-display text-2xl text-[#fd3737] mt-1">{d.value}%</div>
+      <div className="text-[#B8B8C0] text-xs mt-1 leading-snug">{d.payload.note}</div>
+    </div>
+  );
+}
 
 const DONUT = ['#FD3737', '#D42D2D', '#A1A1AA', '#71717A', '#333333'];
 
@@ -383,12 +399,13 @@ export function MiguelDamned() {
         <div className="grid md:grid-cols-2 gap-6 items-start">
           <GlassCard className="p-8" hover={false}>
             <h3 className="font-display text-lg text-[#FAFAFA] mb-2">Effort split</h3>
-            <div className="h-64">
+            <div className="h-64 [&_*:focus]:outline-none [&_.recharts-sector]:outline-none">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
-                  <Pie data={C.channels.map((c) => ({ name: c.name, value: c.pct }))} dataKey="value" innerRadius={62} outerRadius={92} paddingAngle={3} stroke="none">
-                    {C.channels.map((_, i) => <Cell key={i} fill={DONUT[i % DONUT.length]} />)}
+                  <Pie data={C.channels.map((c, i) => ({ name: c.name, value: c.pct, note: c.note, fill: DONUT[i % DONUT.length] }))} dataKey="value" innerRadius={62} outerRadius={92} paddingAngle={3} stroke="none">
+                    {C.channels.map((_, i) => <Cell key={i} fill={DONUT[i % DONUT.length]} className="cursor-pointer transition-opacity hover:opacity-80" />)}
                   </Pie>
+                  <Tooltip content={<DonutTooltip />} cursor={false} />
                 </PieChart>
               </ResponsiveContainer>
             </div>
