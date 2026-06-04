@@ -140,7 +140,7 @@ export const miguelDamned = {
       projection: '1.7M–5M guaranteed views (≈2.9M at $1.75 blended CPM)',
       timing: 'Launch Week 1 · two waves',
       description:
-        'The trend’s own data proves nano-account volume wins here — top videos came from <2K-follower accounts. A briefed clipping campaign (Whop / Clipify-style marketplaces) industrializes exactly that. Wave 1 (Week 1, $3K): four briefed lanes — Gavel Hit POVs, Wildheart-era nostalgia edits, lyric-meaning explainers, couple/relationship storytimes — official sound REQUIRED for payout. Wave 2 (Week 3, $2K): double down on the winning lane plus a Spanish-caption LATAM lane routed to the fan-page network. Music campaigns clear $3–5 CPM on these marketplaces, so a $1–3 CPM brief is competitive but fundable at our volume.',
+        'The trend’s own data proves nano-account volume wins here — top videos came from <2K-follower accounts. A briefed clipping campaign through PayPerClip (proposal pending) industrializes exactly that. Wave 1 (Week 1, $3K): four briefed lanes — Gavel Hit POVs, Wildheart-era nostalgia edits, lyric-meaning explainers, couple/relationship storytimes — official sound REQUIRED for payout. Wave 2 (Week 3, $2K): double down on the winning lane plus a Spanish-caption LATAM lane routed to the fan-page network. Music campaigns clear $3–5 CPM on these marketplaces, so a $1–3 CPM brief is competitive but fundable at our volume.',
       kpis: ['≥2.5M verified views at ≤$2.00 blended CPM', '≥60% of paid clips on the official sound', 'Creates curve back to net-positive by Day 10'],
     },
     {
@@ -223,12 +223,12 @@ export const miguelDamned = {
       objective: 'Lock infrastructure before the wave cools — every day of plateau is paid reach lost.',
       actions: [
         'Send RCA the data memo: velocity table, Sure Thing precedent, editorial ask (Are & Be / R&B Right Now / Viral 50), Discovery Mode + Marquee request, official sped-up/slowed pack greenlight, CID claims on the four big derivative sounds.',
-        'Post clipping briefs to 2–3 marketplaces (Whop Clipping Culture, Clipify-grade): 4 lanes, official sound required, $1–3 CPM tiered by lane, content approval gate.',
+        'Finalize PayPerClip proposal and lock the brief: 4 lanes, official sound required, $1–3 CPM tiered by lane, content approval gate.',
         'Onboard the Mexico fan page (page one of the network): handle, brand kit, Spanish caption bank ("condenado a amarte" lyric translations), content calendar v1.',
         'Book Miguel half-day content shoot for Week 1 (4 deliverables, one setup).',
         'Begin vetted curator outreach with 2-year growth-chart screening; build target list of 60 R&B/throwback/mood playlists.',
       ],
-      signals: ['Briefs live with ≥100 clipper signups', 'Mexico page claimed + warmed', 'Label memo acknowledged', 'Shoot on calendar'],
+      signals: ['PayPerClip proposal signed + brief live', 'Mexico page claimed + warmed', 'Label memo acknowledged', 'Shoot on calendar'],
     },
     {
       week: 'Week 1 · Jun 9–15',
@@ -336,7 +336,7 @@ export const miguelDamned = {
     'kworb.net Spotify dailies (May 13 2026 snapshot): damned 462,980/day; Anointed 150,548/day; Perderme 69,463/day',
     'Billboard Pro: "Burner Pages and Volume Posting" + "Secret Tactics Digital Marketers Use" (2026) — fan-page network precedent',
     'Variety / Billboard 2023 Sure Thing revival coverage — chart + album-lift outcomes',
-    'Strive.fm published mechanics; Whop/Clipify 2026 clipping-market rate cards ($1–3 standard, $3–5 music)',
+    'Strive.fm published mechanics; clipping-market rate benchmarks ($1–3 standard, $3–5 music); PayPerClip proposal pending',
   ],
 };
 
