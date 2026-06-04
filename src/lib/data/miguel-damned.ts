@@ -145,13 +145,13 @@ export const miguelDamned = {
     },
     {
       name: 'LATAM Fan-Page Network',
-      cost: '$2,500/month',
-      rate: '8–12 pages · ES + PT',
-      projection: '4M+ monthly organic reach into Miguel’s #1 growth region',
+      cost: '$2,500/mo per page',
+      rate: 'Start with 1–2 pages · ES-first',
+      projection: 'Consistent daily LATAM presence · scale on proof, not promises',
       timing: 'Onboard Week 1 · always-on',
       description:
-        'Operate a network of Spanish and Portuguese fan pages (TikTok + IG Reels) targeting Mexico, Colombia, Chile and Brazil — the markets that already hold 5 of his top 10 cities. Content system: damned trend formats with Spanish captions and subtitled lyric translations ("condenado a amarte"), Perderme and Caramelo Duro cross-pollination, CAOS-era live clips from the Feb–Apr tour, and Sure Thing nostalgia. Pages post 3–5x daily, seed comment sections in Spanish, and funnel to the official sound. This is the burner-page/Chaotic Good model Billboard documented as music’s dominant 2026 tactic — applied to the single cheapest audience expansion surface Miguel has.',
-      kpis: ['≥4M monthly reach across network', '≥15% of damned creates from LATAM geos by Day 30', 'Mexico monthly listeners +10%'],
+        'Operate dedicated Spanish-language fan pages (TikTok + IG Reels) at $2,500/month per page — start with one Mexico-focused page (his top 5 cities worldwide are all Mexican), with a second ES page covering Colombia/Chile as the option once page one proves out. Content system: damned trend formats with Spanish captions and subtitled lyric translations ("condenado a amarte"), Perderme and Caramelo Duro cross-pollination, CAOS-era live clips from the Feb–Apr tour, and Sure Thing nostalgia. Pages post 3–5x daily, seed comment sections in Spanish, and funnel to the official sound. This is the burner-page/Chaotic Good model Billboard documented as music’s dominant 2026 tactic — applied to the single cheapest audience expansion surface Miguel has. No inflated reach projections: Week 4 retro decides whether to add pages based on actual creates share and Mexico listener movement.',
+      kpis: ['≥10% of new damned creates from LATAM geos by Day 30', 'Page-sourced engagement trending up week over week', 'Mexico monthly listeners visibly inflecting in Chartmetric'],
     },
     {
       name: 'Strive.fm Rideshare Campaign',
@@ -199,15 +199,15 @@ export const miguelDamned = {
   channels: [
     { name: 'Clipping / creator volume', pct: 38, note: 'Two waves · the trend’s proven engine' },
     { name: 'Streaming acquisition (Strive + playlisting)', pct: 26, note: 'Converts attention into durable streams' },
-    { name: 'LATAM fan-page network', pct: 19, note: 'Always-on · cheapest audience expansion' },
+    { name: 'LATAM fan-page network', pct: 19, note: 'Always-on · $2,500/mo per page · scale on proof' },
     { name: 'Artist content + official assets', pct: 12, note: 'One shoot, four weeks of drops' },
     { name: 'Capture layer (Laylo, seeding, radio memo)', pct: 5, note: 'Owns what the trend rented' },
   ],
   budget: {
-    total: '$12,500–14,500 for the 30-day sprint',
+    total: '$12,800–15,800 for the 30-day sprint (one LATAM page; +$2,500/mo per additional page)',
     lines: [
       { item: 'Clipping program (2 waves)', amount: '$5,000' },
-      { item: 'LATAM fan-page network', amount: '$2,500/mo' },
+      { item: 'LATAM fan-page network (per page)', amount: '$2,500/mo' },
       { item: 'Strive.fm flight', amount: '~$1,800 all-in' },
       { item: 'Third-party playlisting', amount: '$1,500–2,500' },
       { item: 'Artist content production', amount: '$2,000–4,000' },
@@ -224,11 +224,11 @@ export const miguelDamned = {
       actions: [
         'Send RCA the data memo: velocity table, Sure Thing precedent, editorial ask (Are & Be / R&B Right Now / Viral 50), Discovery Mode + Marquee request, official sped-up/slowed pack greenlight, CID claims on the four big derivative sounds.',
         'Post clipping briefs to 2–3 marketplaces (Whop Clipping Culture, Clipify-grade): 4 lanes, official sound required, $1–3 CPM tiered by lane, content approval gate.',
-        'Onboard LATAM fan-page operators: handles, brand kit, Spanish caption bank ("condenado a amarte" lyric translations), content calendar v1.',
+        'Onboard the Mexico fan page (page one of the network): handle, brand kit, Spanish caption bank ("condenado a amarte" lyric translations), content calendar v1.',
         'Book Miguel half-day content shoot for Week 1 (4 deliverables, one setup).',
         'Begin vetted curator outreach with 2-year growth-chart screening; build target list of 60 R&B/throwback/mood playlists.',
       ],
-      signals: ['Briefs live with ≥100 clipper signups', 'Fan pages claimed + warmed', 'Label memo acknowledged', 'Shoot on calendar'],
+      signals: ['Briefs live with ≥100 clipper signups', 'Mexico page claimed + warmed', 'Label memo acknowledged', 'Shoot on calendar'],
     },
     {
       week: 'Week 1 · Jun 9–15',
@@ -236,7 +236,7 @@ export const miguelDamned = {
       objective: 'Reverse the creates plateau with paid volume before organic decay sets in.',
       actions: [
         'Clipping Wave 1 ($3K) goes live across the four briefed lanes; daily leaderboard, kill underperforming lanes at 72 hours.',
-        'Fan-page network starts posting 3–5x daily per page: Gavel Hit formats with ES captions, tour-clip edits, Perderme cross-posts.',
+        'Mexico fan page starts posting 3–5x daily: Gavel Hit formats with ES captions, tour-clip edits, Perderme cross-posts.',
         'Film the Miguel shoot: trend reaction + nano-creator duet, stripped live one-take, lyric storytime, Spanish thank-you. Hold all drops until edited as a 4-week pipeline.',
         'Drop #1 (Friday): Miguel’s trend-reaction/duet on artist TikTok + IG — the "artist sees the trend" story moment.',
         'Comment-seeding squads (EN/ES) active on every trending damned video >100K views.',
@@ -280,7 +280,7 @@ export const miguelDamned = {
         'Wildheart cross-pollination: fan pages + clippers brief shifts 30% to album cuts (Coffee, waves, Anointed — already at 150K daily streams itself).',
         'Push Laylo captures through first SMS blast: live one-take full version as a gift, not an ask.',
         'Full-sprint retro: stream retention curve vs. Day 0, editorial status, LATAM share shift, CPM efficiency by lane.',
-        'Month-two decision memo: (A) scale clipping + LATAM to $10K/mo, (B) LATAM remix feature / "condenado" Spanish version, (C) live session release, or (D) hold at maintenance.',
+        'Month-two decision memo: (A) add LATAM page two + scale clipping, (B) LATAM remix feature / "condenado" Spanish version, (C) live session release, or (D) hold at maintenance.',
       ],
       signals: ['30-day cume ≥+13M streams', 'Daily streams ≥400K at Day 30 (vs ~250K natural decay)', 'Billboard Hot R&B Songs debut', '≥10K fan contacts owned'],
     },
@@ -294,7 +294,7 @@ export const miguelDamned = {
     { label: 'TikTok creates trend', target: 'Net-positive by Day 10', baseline: 'currently -747/wk' },
     { label: 'Clipping views', target: '≥2.5M at ≤$2.00 CPM', baseline: '$5K budget' },
     { label: 'Strive streams', target: '150K delivered', baseline: '3-week flight' },
-    { label: 'LATAM creates share', target: '≥15% of new creates', baseline: 'fan-page network KPI' },
+    { label: 'LATAM creates share', target: '≥10% of new creates', baseline: 'fan-page KPI · gates page-two spend' },
     { label: 'Chart position', target: 'Apple US R&B top 25 · Billboard R&B debut', baseline: 'currently #37 Apple' },
   ],
 
