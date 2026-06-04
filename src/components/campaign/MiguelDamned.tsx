@@ -416,8 +416,6 @@ export function MiguelDamned() {
                 ))}
               </div>
             </GlassCard>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <motion.div variants={fadeUp}><img src="/images/miguel-damned/timeline.png" alt="" className="w-full h-44 object-cover rounded-2xl opacity-80" /></motion.div>
           </div>
         </div>
       </Section>
