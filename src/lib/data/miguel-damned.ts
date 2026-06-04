@@ -144,14 +144,14 @@ export const miguelDamned = {
       kpis: ['≥2.5M verified views at ≤$2.00 blended CPM', '≥60% of paid clips on the official sound', 'Creates curve back to net-positive by Day 10'],
     },
     {
-      name: 'LATAM Fan-Page Network',
+      name: 'Fan Page + Volume Page Network',
       cost: '$2,500/mo per page',
-      rate: 'Start with 1–2 pages · ES-first',
-      projection: 'Consistent daily LATAM presence · scale on proof, not promises',
+      rate: 'Start with 1–2 pages · US + LATAM lanes',
+      projection: 'Always-on trend supply on pages we control · scale on proof',
       timing: 'Onboard Week 1 · always-on',
       description:
-        'Operate dedicated Spanish-language fan pages (TikTok + IG Reels) at $2,500/month per page — start with one Mexico-focused page (his top 5 cities worldwide are all Mexican), with a second ES page covering Colombia/Chile as the option once page one proves out. Content system: damned trend formats with Spanish captions and subtitled lyric translations ("condenado a amarte"), Perderme and Caramelo Duro cross-pollination, CAOS-era live clips from the Feb–Apr tour, and Sure Thing nostalgia. Pages post 3–5x daily, seed comment sections in Spanish, and funnel to the official sound. This is the burner-page/Chaotic Good model Billboard documented as music’s dominant 2026 tactic — applied to the single cheapest audience expansion surface Miguel has. No inflated reach projections: Week 4 retro decides whether to add pages based on actual creates share and Mexico listener movement.',
-      kpis: ['≥10% of new damned creates from LATAM geos by Day 30', 'Page-sourced engagement trending up week over week', 'Mexico monthly listeners visibly inflecting in Chartmetric'],
+        'Operate dedicated fan/volume pages (TikTok + IG Reels) at $2,500/month per page — the burner-page model Billboard documented as music’s dominant 2026 tactic, and exactly how this trend already works (the biggest damned sound is a fan re-upload, and the top videos came from sub-2K-follower accounts). Page one: a US-focused volume page posting 3–5x daily across the proven lanes — Gavel Hit POVs, Wildheart nostalgia edits, lyric-meaning explainers, Sure Thing cross-pollination — always on the official sound. Page two (option, data-backed): a Spanish-language page for the LATAM audience — his top 5 cities worldwide are all Mexican and LATAM is ~26% of the fanbase — running translated lyric formats ("condenado a amarte"), Perderme tie-ins and CAOS tour clips. Pages also seed comments on trending videos and act as the distribution rail for clipping winners. Week 4 retro gates additional pages on actual creates share and listener movement — no inflated reach projections.',
+      kpis: ['Network pages contribute a measurable share of new damned creates by Day 30', 'Page-sourced engagement trending up week over week', 'If ES page live: Mexico monthly listeners visibly inflecting in Chartmetric'],
     },
     {
       name: 'Strive.fm Rideshare Campaign',
@@ -199,15 +199,15 @@ export const miguelDamned = {
   channels: [
     { name: 'Clipping / creator volume', pct: 34, note: 'Two waves · the trend’s proven engine' },
     { name: 'Streaming acquisition (Strive + playlisting)', pct: 30, note: 'Converts attention into durable streams' },
-    { name: 'LATAM fan-page network', pct: 19, note: 'Always-on · $2,500/mo per page · scale on proof' },
+    { name: 'Fan + volume page network', pct: 19, note: 'Always-on · $2,500/mo per page · scale on proof' },
     { name: 'Artist content + official assets', pct: 12, note: 'One shoot, four weeks of drops' },
     { name: 'Capture layer (Hive, seeding, radio memo)', pct: 5, note: 'No cost · owns what the trend rented' },
   ],
   budget: {
-    total: '$16,300–23,300 for the 30-day sprint (one LATAM page; +$2,500/mo per additional page)',
+    total: '$16,300–23,300 for the 30-day sprint (one network page; +$2,500/mo per additional page)',
     lines: [
       { item: 'Clipping program (2 waves)', amount: '$5,000' },
-      { item: 'LATAM fan-page network (per page)', amount: '$2,500/mo' },
+      { item: 'Fan + volume page network (per page)', amount: '$2,500/mo' },
       { item: 'Strive.fm flight', amount: '~$1,800 all-in' },
       { item: 'Third-party playlisting', amount: '$5,000–10,000' },
       { item: 'Artist content production', amount: '$2,000–4,000' },
@@ -224,11 +224,11 @@ export const miguelDamned = {
       actions: [
         'Send RCA the data memo: velocity table, Sure Thing precedent, editorial ask (Are & Be / R&B Right Now / Viral 50), Discovery Mode + Marquee request, official sped-up/slowed pack greenlight, CID claims on the four big derivative sounds.',
         'Finalize PayPerClip proposal and lock the brief: 4 lanes, official sound required, $1–3 CPM tiered by lane, content approval gate.',
-        'Onboard the Mexico fan page (page one of the network): handle, brand kit, Spanish caption bank ("condenado a amarte" lyric translations), content calendar v1.',
+        'Onboard page one of the fan/volume network (US trend page): handle, brand kit, lane briefs, content calendar v1. Scope the Spanish-language page as the data-backed page two.',
         'Book Miguel half-day content shoot for Week 1 (4 deliverables, one setup).',
         'Begin vetted curator outreach with 2-year growth-chart screening; build target list of 60 R&B/throwback/mood playlists.',
       ],
-      signals: ['PayPerClip proposal signed + brief live', 'Mexico page claimed + warmed', 'Label memo acknowledged', 'Shoot on calendar'],
+      signals: ['PayPerClip proposal signed + brief live', 'Page one claimed + warmed', 'Label memo acknowledged', 'Shoot on calendar'],
     },
     {
       week: 'Week 1 · Jun 9–15',
@@ -236,7 +236,7 @@ export const miguelDamned = {
       objective: 'Reverse the creates plateau with paid volume before organic decay sets in.',
       actions: [
         'Clipping Wave 1 ($3K) goes live across the four briefed lanes; daily leaderboard, kill underperforming lanes at 72 hours.',
-        'Mexico fan page starts posting 3–5x daily: Gavel Hit formats with ES captions, tour-clip edits, Perderme cross-posts.',
+        'Network page one starts posting 3–5x daily: Gavel Hit formats, Wildheart nostalgia edits, lyric explainers — official sound only.',
         'Film the Miguel shoot: trend reaction + nano-creator duet, stripped live one-take, lyric storytime, Spanish thank-you. Hold all drops until edited as a 4-week pipeline.',
         'Drop #1 (Friday): Miguel’s trend-reaction/duet on artist TikTok + IG — the "artist sees the trend" story moment.',
         'Comment-seeding squads (EN/ES) active on every trending damned video >100K views.',
@@ -253,7 +253,7 @@ export const miguelDamned = {
         'Curator adds compound: target 250–400K added reach this week; follow up label editorial ask with Week 1 velocity proof.',
         'Launch "Wildheart, revisited" official playlist with damned at #1; push via artist stories + fan pages.',
         'Hive capture page live ("for the damned — algo viene"); seeded through fan-page link-in-bios.',
-        'LATAM push: Spanish thank-you video drops; fan pages run Mexico-city-shoutout formats timed to it.',
+        'LATAM beat: Spanish thank-you video drops; if the ES page is live, it runs Mexico-city-shoutout formats timed to it.',
       ],
       signals: ['Daily streams hold ≥420K', 'Spotify algorithmic reach passes 1.2M', 'Strive pacing on track for 150K by Day 45', 'Mexico listener growth visible in Chartmetric'],
     },
@@ -276,8 +276,8 @@ export const miguelDamned = {
       phase: 'Sustain + Decide',
       objective: 'Lock the gains, spread them across the catalog, and make the month-two call with data.',
       actions: [
-        'Drop #4: Spanish thank-you follow-up — duet a LATAM fan-page edit from Miguel’s account; tease "algo para México" if month-two LATAM plan is greenlit.',
-        'Wildheart cross-pollination: fan pages + clippers brief shifts 30% to album cuts (Coffee, waves, Anointed — already at 150K daily streams itself).',
+        'Drop #4: Spanish thank-you follow-up — duet a fan-page edit from Miguel’s account; tease "algo para México" if month-two LATAM plan is greenlit.',
+        'Wildheart cross-pollination: network pages + clippers brief shifts 30% to album cuts (Coffee, waves, Anointed — already at 150K daily streams itself).',
         'Push Hive captures through first SMS/email blast: live one-take full version as a gift, not an ask.',
         'Full-sprint retro: stream retention curve vs. Day 0, editorial status, LATAM share shift, CPM efficiency by lane.',
         'Month-two decision memo: (A) add LATAM page two + scale clipping, (B) LATAM remix feature / "condenado" Spanish version, (C) live session release, or (D) hold at maintenance.',
@@ -294,7 +294,7 @@ export const miguelDamned = {
     { label: 'TikTok creates trend', target: 'Net-positive by Day 10', baseline: 'currently -747/wk' },
     { label: 'Clipping views', target: '≥2.5M at ≤$2.00 CPM', baseline: '$5K budget' },
     { label: 'Strive streams', target: '150K delivered', baseline: '30–45 day flight · completes post-sprint' },
-    { label: 'LATAM creates share', target: '≥10% of new creates', baseline: 'fan-page KPI · gates page-two spend' },
+    { label: 'Network-driven creates', target: 'Measurable share by Day 30', baseline: 'fan/volume page KPI · gates page-two spend' },
     { label: 'Chart position', target: 'Apple US R&B top 25 · Billboard R&B debut', baseline: 'currently #37 Apple' },
   ],
 
