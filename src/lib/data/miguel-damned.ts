@@ -167,11 +167,11 @@ export const miguelDamned = {
       name: 'Third-Party Playlisting + DSP Push',
       cost: '$5,000–10,000',
       rate: 'Vetted curators only — no guarantees-for-cash',
-      projection: '600K–1.2M added playlist reach · editorial unlock',
+      projection: '300–500K streams at the $10K level · editorial unlock',
       timing: 'Pitch Week 1 · adds land Weeks 2–4',
       description:
         'The song has 1.8K user playlists and ZERO Spotify editorial — at 462K daily streams. Two-track approach: (1) Agency-side: vetted independent curator pitching (SubmitHub/Playlist Push-grade networks, 2-year growth-chart checks on every list, no stream-count guarantees — purge-proof) targeting R&B, throwback, and "in my feels" mood lists; (2) Label-side: a data memo to RCA same week — Sure Thing precedent, velocity table, chart entries — pushing for Are & Be, R&B Right Now, Viral 50 consideration, plus Discovery Mode activation on damned and a Marquee/Showcase flight for Wildheart. Editorial is the single highest-leverage unlock in the plan: it converts a UGC spike into a durable streaming base.',
-      kpis: ['≥2 Spotify editorial adds by Day 30', '+600K legitimate playlist reach', 'Playlist-sourced streams ≥12% of total by Day 30'],
+      kpis: ['≥2 Spotify editorial adds by Day 30', '300–500K playlist-driven streams at full $10K spend', 'Playlist-sourced streams ≥12% of total by Day 30'],
     },
     {
       name: 'Artist Moment + Official Assets',
@@ -250,7 +250,7 @@ export const miguelDamned = {
       actions: [
         'Strive.fm 30–45 day flight launches: damned lead slot, Sure Thing + Adorn support, geo-weighted to Denver / Charlotte / Irvine / LA / NYC / Houston.',
         'Drop #2: stripped live one-take of damned — feeds the open vocal-showcase lane and gives cover/duet creators an official stem to react to.',
-        'Curator adds compound: target 250–400K added reach this week; follow up label editorial ask with Week 1 velocity proof.',
+        'Curator adds compound: pacing toward 300–500K playlist-driven streams; follow up label editorial ask with Week 1 velocity proof.',
         'Launch "Wildheart, revisited" official playlist with damned at #1; push via artist stories + fan pages.',
         'Hive capture page live ("for the damned — algo viene"); seeded through fan-page link-in-bios.',
         'LATAM beat: Spanish thank-you video drops; if the ES page is live, it runs Mexico-city-shoutout formats timed to it.',
@@ -290,7 +290,7 @@ export const miguelDamned = {
   kpis: [
     { label: '30-day stream cume', target: '+13–15M', baseline: 'vs +9M natural decay path' },
     { label: 'Daily streams at Day 30', target: '≥400K', baseline: 'vs ~250K if trend dies undefended' },
-    { label: 'Spotify editorial adds', target: '≥2', baseline: 'currently 0' },
+    { label: 'Playlisting outcome', target: '300–500K streams · ≥2 editorial adds', baseline: 'at full $10K spend · currently 0 editorial' },
     { label: 'TikTok creates trend', target: 'Net-positive by Day 10', baseline: 'currently -747/wk' },
     { label: 'Clipping views', target: '≥2.5M at ≤$2.00 CPM', baseline: '$5K budget' },
     { label: 'Strive streams', target: '150K delivered', baseline: '30–45 day flight · completes post-sprint' },
