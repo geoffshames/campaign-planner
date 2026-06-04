@@ -2,6 +2,7 @@ import { tylaCarwashCampaign } from '@/lib/data/tyla-carwash';
 import { CampaignPage as CampaignPageComponent } from '@/components/campaign/CampaignPage';
 import { BadTunerForeverLove } from '@/components/campaign/BadTunerForeverLove';
 import { TemporexWantingIsHaunting } from '@/components/campaign/TemporexWantingIsHaunting';
+import { MiguelDamned } from '@/components/campaign/MiguelDamned';
 import type { Metadata } from 'next';
 
 export function generateStaticParams() {
@@ -10,6 +11,7 @@ export function generateStaticParams() {
     { slug: 'bad-tuner-forever-love' },
     { slug: 'temporex-wanting-is-haunting' },
     { slug: 'temporex-fantastic-machine' },
+    { slug: 'miguel-damned' },
   ];
 }
 
@@ -25,6 +27,18 @@ export function generateMetadata({ params }: { params: { slug: string } }): Meta
         title: 'temporex — Fantastic Machine | Crowd Control Digital',
         description: 'Album rollout strategy for temporex.',
         images: ['/images/temporex-fantastic-machine/og.png'],
+      },
+    };
+  }
+  if (params.slug === 'miguel-damned') {
+    return {
+      ...noIndex,
+      title: 'Miguel — damned | Campaign Planner',
+      description: '30-day catalog sprint for Miguel\u2019s damned: re-ignite the TikTok wave, convert 172M views into streams, open the LATAM front. Chartmetric + Cobrand grounded.',
+      openGraph: {
+        title: 'Miguel — damned | Crowd Control Digital',
+        description: '30-day sprint playbook for the damned viral moment.',
+        images: ['/images/miguel-damned/hero.png'],
       },
     };
   }
@@ -50,6 +64,9 @@ export function generateMetadata({ params }: { params: { slug: string } }): Meta
 export default function CampaignPageServer({ params }: { params: { slug: string } }) {
   if (params.slug === 'temporex-wanting-is-haunting' || params.slug === 'temporex-fantastic-machine') {
     return <TemporexWantingIsHaunting />;
+  }
+  if (params.slug === 'miguel-damned') {
+    return <MiguelDamned />;
   }
   if (params.slug === 'bad-tuner-forever-love') {
     return <BadTunerForeverLove />;
