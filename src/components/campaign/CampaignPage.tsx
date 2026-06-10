@@ -612,8 +612,8 @@ export function CampaignPage({ campaign }: { campaign: CampaignData }) {
               value={`${campaign.chartmetrics.spotifyMonthlyListeners}M`}
               numeric={campaign.chartmetrics.spotifyMonthlyListeners}
               suffix="M"
-              decimals={1}
-              sub="Superstar-tier streaming base"
+              decimals={2}
+              sub={`${campaign.tier}-tier streaming base`}
             />
           </GlassCard>
           <GlassCard className="p-8">
@@ -621,7 +621,7 @@ export function CampaignPage({ campaign }: { campaign: CampaignData }) {
               label="Popularity Score"
               value={`${campaign.chartmetrics.popularityScore}`}
               numeric={campaign.chartmetrics.popularityScore}
-              sub="Out of 100 — Superstar tier"
+              sub={`Out of 100 — ${campaign.tier} tier`}
             />
           </GlassCard>
           <GlassCard className="p-8">
@@ -630,7 +630,7 @@ export function CampaignPage({ campaign }: { campaign: CampaignData }) {
               value={`${campaign.chartmetrics.totalFanbase}M`}
               numeric={campaign.chartmetrics.totalFanbase}
               suffix="M"
-              decimals={1}
+              decimals={2}
               sub="Cross-platform audience"
             />
           </GlassCard>

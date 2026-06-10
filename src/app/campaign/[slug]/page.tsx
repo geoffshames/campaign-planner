@@ -1,4 +1,5 @@
 import { tylaCarwashCampaign } from '@/lib/data/tyla-carwash';
+import { kodokuHeLives } from '@/lib/data/kodoku-he-lives';
 import { CampaignPage as CampaignPageComponent } from '@/components/campaign/CampaignPage';
 import { BadTunerForeverLove } from '@/components/campaign/BadTunerForeverLove';
 import { TemporexWantingIsHaunting } from '@/components/campaign/TemporexWantingIsHaunting';
@@ -12,6 +13,7 @@ export function generateStaticParams() {
     { slug: 'temporex-wanting-is-haunting' },
     { slug: 'temporex-fantastic-machine' },
     { slug: 'miguel-damned' },
+    { slug: 'kodoku-he-lives' },
   ];
 }
 
@@ -27,6 +29,18 @@ export function generateMetadata({ params }: { params: { slug: string } }): Meta
         title: 'temporex — Fantastic Machine | Crowd Control Digital',
         description: 'Album rollout strategy for temporex.',
         images: ['/images/temporex-fantastic-machine/og.png'],
+      },
+    };
+  }
+  if (params.slug === 'kodoku-he-lives') {
+    return {
+      ...noIndex,
+      title: 'KODOKU \u2014 He Lives | Campaign Planner',
+      description: 'Album campaign playbook for KODOKU\u2019s He Lives (Aug 2026): riding the Christian R&B wave, RSVP YOUR CITY worship nights, and the pivot story from 65M secular streams to the faith lane.',
+      openGraph: {
+        title: 'KODOKU \u2014 He Lives | Crowd Control Digital',
+        description: 'Album campaign playbook for He Lives.',
+        images: ['/images/kodoku-he-lives/hero.png'],
       },
     };
   }
@@ -70,6 +84,9 @@ export default function CampaignPageServer({ params }: { params: { slug: string 
   }
   if (params.slug === 'bad-tuner-forever-love') {
     return <BadTunerForeverLove />;
+  }
+  if (params.slug === 'kodoku-he-lives') {
+    return <CampaignPageComponent campaign={kodokuHeLives} />;
   }
   if (params.slug === 'tyla-carwash') {
     return <CampaignPageComponent campaign={tylaCarwashCampaign} />;
