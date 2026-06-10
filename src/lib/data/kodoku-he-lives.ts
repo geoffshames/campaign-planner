@@ -285,6 +285,39 @@ export const kodokuHeLives: CampaignData = {
         'Crowd-worship and congregation UGC is the lane’s highest-leverage format (Forrest’s 21-second live clip: 1.79M plays; children-singing repost: 603K). RSVP YOUR CITY worship nights generate this footage on demand, and church worship-team covers extend it weekly. @dokult is the repost engine: 41K followers, 40K avg likes.',
     },
   ],
+  genreLandscape: {
+    subtitle:
+      "What's working in Christian R&B / faith-pop right now — tactics, trends, and recent wins.",
+    summary:
+      'Christian music is the fastest-growing lane in streaming: Forrest Frank took Child of God past 1 billion streams off 60K pre-saves and a TikTok-first system, Brandon Lake and Phil Wickham are filling arenas with Summer Worship Nights, and Gen-Z faith audiences are actively looking for music that says the name Jesus without apology. The winning formula is raw over polished: single-take performances, congregation moments, fan participation mechanics, and consistency over virality.',
+    tactics: [
+      {
+        title: 'Single-Take Sincerity',
+        desc: 'One uninterrupted phone-shot take, natural light, direct-to-camera. TwelveLabs analysis of the lane’s top clips shows zero cuts and soft lighting in every one — polish actively hurts',
+      },
+      {
+        title: 'Fan-Participation Drops',
+        desc: 'Vote-the-drop A/B posts (624K plays, 7.4K comments) and open-verse contests with a real feature as the prize — validated by Forrest Frank this month',
+      },
+      {
+        title: 'Congregation UGC',
+        desc: 'Crowd-worship and church-cover reposts are the highest-leverage format: a 21-second live clip did 1.79M plays; children-singing repost did 603K',
+      },
+      {
+        title: 'Save-Optimized Content',
+        desc: 'Worship audiences bookmark at 2-3x platform average — design posts as keepable devotionals, not disposable trends',
+      },
+    ],
+    trends: [
+      'Single-take field performances',
+      'Text-overlay lyric drops (hook by second 6)',
+      'Congregation covers and crowd worship',
+      'Testimony direct-to-camera',
+      'Vote-the-drop A/B posts',
+      'Open-verse challenges',
+      'Worship-night IRL content',
+    ],
+  },
   competitiveCalendar: {
     subtitle:
       'Release landscape around August 14 — the lane is wide open after the Jesus Generation Tour finale.',

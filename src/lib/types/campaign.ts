@@ -66,6 +66,13 @@ export interface CompetitiveCalendar {
   verdict: string;
 }
 
+export interface GenreLandscape {
+  subtitle: string;
+  summary: string;
+  tactics: { title: string; desc: string }[];
+  trends: string[];
+}
+
 export interface CampaignData {
   slug: string;
   artist: string;
@@ -96,4 +103,5 @@ export interface CampaignData {
   }[];
   risks: RiskCard[];
   competitiveCalendar?: CompetitiveCalendar;
+  genreLandscape?: GenreLandscape;
 }

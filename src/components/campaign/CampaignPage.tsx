@@ -790,46 +790,39 @@ export function CampaignPage({ campaign }: { campaign: CampaignData }) {
       <Section
         number="03"
         title="Genre Landscape"
-        subtitle="What's working in Pop right now — tactics, trends, and recent wins."
+        subtitle={campaign.genreLandscape?.subtitle || "What's working in Pop right now — tactics, trends, and recent wins."}
       >
         {/* summary callout */}
         <GlassCard className="p-10 mb-12 border-l-2 border-l-[#fd3737]" glow hover={false}>
           <p className="text-lg md:text-xl leading-relaxed text-[#E4E4E9] font-normal">
-            Pop in 2026 is experiencing a chart slump — new releases struggling against catalog.
-            Winning campaigns are building narrative worlds, batching 20–30 short-form videos per
-            song, and leading with IRL activations. Tyla&apos;s Afrobeats-Pop crossover and dance
-            challenge DNA position her to cut through the noise.
+            {campaign.genreLandscape?.summary || `Pop in 2026 is experiencing a chart slump — new releases struggling against catalog. Winning campaigns are building narrative worlds, batching 20-30 short-form videos per song, and leading with IRL activations.`}
           </p>
         </GlassCard>
 
         {/* tactics grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-14">
-          {[
+          {(campaign.genreLandscape?.tactics || [
             {
               title: 'World-Building Narratives',
               desc: 'Create immersive visual/conceptual universes around releases — proven by Sabrina Carpenter, Charli XCX',
-              icon: '◈',
             },
             {
               title: 'Video Batching (20–30 per song)',
               desc: 'Flood short-form platforms with variant content; volume drives algorithmic surface area',
-              icon: '◈',
             },
             {
               title: 'Tiered Creator Seeding',
               desc: 'Mega → Macro → Micro → Nano cascade for organic reach amplification',
-              icon: '◈',
             },
             {
               title: 'Dance Challenge Choreography',
               desc: 'Structured challenges that drive community participation and UGC velocity',
-              icon: '◈',
             },
-          ].map((tactic, i) => (
+          ]).map((tactic, i) => (
             <GlassCard key={i} className="p-8 group">
               <div className="flex items-start gap-4">
                 <span className="text-[#fd3737] text-lg mt-0.5 opacity-60 group-hover:opacity-100 transition-opacity">
-                  {tactic.icon}
+                  ◈
                 </span>
                 <div>
                   <h4 className="font-display text-lg text-white mb-2">{tactic.title}</h4>
@@ -844,7 +837,7 @@ export function CampaignPage({ campaign }: { campaign: CampaignData }) {
         <GlassCard className="p-8" hover={false}>
           <h3 className="font-display text-lg text-white mb-6">Active Trends</h3>
           <div className="flex flex-wrap gap-3">
-            {[
+            {(campaign.genreLandscape?.trends || [
               'Phone-shot aesthetic',
               'Behind-the-scenes studio content',
               'Fan reaction compilations',
@@ -852,7 +845,7 @@ export function CampaignPage({ campaign }: { campaign: CampaignData }) {
               'Day-in-the-life vlogs',
               'Challenge tutorials',
               'Collab mashups',
-            ].map((trend, i) => (
+            ]).map((trend, i) => (
               <motion.span
                 key={i}
                 variants={scaleIn}
@@ -1286,7 +1279,7 @@ export function CampaignPage({ campaign }: { campaign: CampaignData }) {
                 count: '15–20',
                 followers: '500K–5M',
                 approach:
-                  'Challenge tutorial partnerships, featured on Tyla channels, sound exclusivity',
+                  `Challenge tutorial partnerships, featured on ${campaign.artist} channels, sound exclusivity`,
                 color: '#D42D2D',
               },
               {
@@ -1641,8 +1634,8 @@ export function CampaignPage({ campaign }: { campaign: CampaignData }) {
                   Campaign Ready
                 </h2>
                 <p className="text-[#E4E4E9] font-normal text-lg max-w-xl mx-auto mb-12">
-                  A data-driven, creator-first rollout built to capture the summer moment for
-                  Tyla&apos;s &quot;Carwash&quot;.
+                  A data-driven, creator-first rollout built to capture the moment for{' '}
+                  {campaign.artist}&apos;s &quot;{campaign.song}&quot;.
                 </p>
               </motion.div>
 
