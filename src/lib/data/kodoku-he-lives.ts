@@ -82,7 +82,7 @@ export const kodokuHeLives: CampaignData = {
     ],
   },
   thesis:
-    "Ride the biggest wave in music right now: Kodoku's pivot from secular R&B (Rose Bath, Hennessy) into Christian R&B lands exactly as the Forrest Frank-led Jesus Generation moment peaks. Forrest's stadium tour ends August 1 and leaves a primed, activated Gen-Z faith audience with no major lane release in the window. He Lives drops August 14 into that vacuum. The play: triple Kodoku's proven-but-scarce single-take worship content, convert his cult-level 80% listener-to-follower ratio into pre-saves through the RSVP YOUR CITY mechanic, and borrow the lane's fan-participation formats (vote-the-drop, open verse, congregation UGC) that Forrest Frank has already validated at scale.",
+    "Ride the biggest wave in music right now: Kodoku's pivot from secular R&B (Rose Bath, Hennessy) into Christian R&B lands exactly as the Forrest Frank-led Jesus Generation moment peaks. Forrest's stadium tour ends August 1 and leaves a primed, activated Gen-Z faith audience with no major lane release in the window. He Lives drops August 14 into that vacuum. The play: triple Kodoku's proven-but-scarce single-take worship content, convert his cult-level 92% listener-to-follower ratio into pre-saves through the RSVP YOUR CITY mechanic, and borrow the lane's fan-participation formats (vote-the-drop, open verse, congregation UGC) that Forrest Frank has already validated at scale.",
   weeklyPlaybook: [
     {
       week: 'Week -8 · Jun 22',
@@ -105,7 +105,7 @@ export const kodokuHeLives: CampaignData = {
         'Post the title track tease: "because he lives" clip style did 310K plays in May, run the sequel',
         'IG Stories: weekly city-leaderboard update for RSVP YOUR CITY to gamify pre-saves',
       ],
-      successSignals: ['Engagement rate holds above 15% like-to-view at higher cadence', 'First 10K pre-saves'],
+      successSignals: ['Engagement rate holds above 15% like-to-view at higher cadence', 'First 1K pre-saves'],
     },
     {
       week: 'Week -6 · Jul 6',
@@ -128,7 +128,7 @@ export const kodokuHeLives: CampaignData = {
         'Seed the sound to 30-50 micro worship/dance creators (10-100K) with creative direction: single-take, outdoors, real settings — no studio polish',
       ],
       creatorActions: ['Micro-creator seeding wave 1: 30-50 creators, gifted + small fees', 'Recruit 10 church worship-team accounts for congregation covers'],
-      successSignals: ['1K+ creates on the open-verse sound', 'Vote post breaks 3K comments'],
+      successSignals: ['150+ early creates on the open-verse sound (WATERWALKIN, his most-used sound, has 280 lifetime)', 'Vote post breaks 1K comments (his best-ever: 1,968)'],
     },
     {
       week: 'Week -4 · Jul 20',
@@ -140,7 +140,7 @@ export const kodokuHeLives: CampaignData = {
         'TikTok Promote + Meta spark ads behind the top 2 organic clips only — amplify proven winners, never cold creative',
       ],
       creatorActions: ['Wave 2 seeding: 5-8 macro faith creators (100K-1M) with early album access'],
-      successSignals: ['Focus single hits 500K first-week streams', '25K cumulative pre-saves'],
+      successSignals: ['Focus single opens at 150-250K first-week streams (DEVOTED pace)', '3.5K cumulative pre-saves'],
     },
     {
       week: 'Week -3 · Jul 27',
@@ -152,7 +152,7 @@ export const kodokuHeLives: CampaignData = {
         'Hulvey collab content: WATERWALKIN already connects them — a simple co-sign clip from the lane’s #2 face is worth more than any ad dollar',
       ],
       creatorActions: ['Congregation UGC push: church accounts post covers, Kodoku reposts daily to Stories'],
-      successSignals: ['RSVP signups exceed 2K across 5 cities', '40K pre-saves'],
+      successSignals: ['RSVP signups exceed 1K across 5 cities', '5K pre-saves'],
     },
     {
       week: 'Week -2 · Aug 3',
@@ -163,7 +163,7 @@ export const kodokuHeLives: CampaignData = {
         '"This is yours on the 14th" daily countdown snippets, one track per day, single-take format',
         'Ship 30-second visualizers for every track so launch-week content is pre-loaded',
       ],
-      successSignals: ['Tracklist post becomes top-saved post of the campaign', '55K pre-saves'],
+      successSignals: ['Tracklist post becomes top-saved post of the campaign', '6K pre-saves'],
     },
     {
       week: 'Week -1 · Aug 10',
@@ -175,7 +175,7 @@ export const kodokuHeLives: CampaignData = {
         'Queue launch-day creator posts (all seeded creators post within the same 6-hour window Friday)',
         'Editorial playlist pitching deadline: Kodoku sits on just 2 editorial playlists (339K reach) vs 23.6K user-generated lists (1.4M reach) — pitch every track via S4A targeting glow, Top Christian R&B, New Music Friday Christian; this is the cheapest reach gap in the whole campaign',
       ],
-      successSignals: ['70K+ pre-saves (Forrest Frank’s Child of God did 60K — beat it as the headline)', 'All 5 worship nights at capacity RSVP'],
+      successSignals: ['7.5K+ pre-saves (~4% of his 187K Spotify followers; Forrest’s 60K is the lane ceiling, not the bar)', 'All 5 worship nights at capacity RSVP'],
     },
     {
       week: 'Week 0 · Aug 14',
@@ -187,7 +187,7 @@ export const kodokuHeLives: CampaignData = {
         'Worship nights in the 5 winning cities across release weekend, captured for next-week content',
         'Paid: shift full budget to spark ads on the 3 best-performing launch clips; TikTok Promote on the title track sound',
       ],
-      successSignals: ['3-5M first-week album streams', 'Top 5 iTunes Christian albums, top 10 Apple Music Christian', '5K+ creates on title-track sound in week one'],
+      successSignals: ['600K-1M first-week album streams (2-4x his current weekly catalog rate)', 'Top 10 iTunes Christian albums', '500+ creates on title-track sound in week one'],
     },
     {
       week: 'Week +1 · Aug 17',
@@ -221,7 +221,7 @@ export const kodokuHeLives: CampaignData = {
         'Retarget all campaign engagers with catalog ads; lookalikes off pre-save list. Test a Philippines push: it is his #2 country at 11.2% of audience and worship content travels there organically',
         'Post-mortem: per-format performance review feeds the next cycle',
       ],
-      successSignals: ['Monthly listeners stabilize above 400K (vs 226K pre-campaign)', 'Spotify followers cross 250K'],
+      successSignals: ['Monthly listeners stabilize above 260K (vs 203K pre-campaign)', 'Spotify followers cross 200K'],
     },
   ],
   phases: [
@@ -247,9 +247,9 @@ export const kodokuHeLives: CampaignData = {
       name: 'Launch',
       dateRange: 'Aug 3 - Aug 16',
       objectives: [
-        'Beat 70K pre-saves; convert city leaderboard into 5 sold-out worship nights',
+        '7.5K+ pre-saves; convert city leaderboard into 5 packed worship nights',
         'Synchronized launch: organic + creator wall + spark ads in one 72-hour window',
-        'Top 5 iTunes Christian, 3-5M first-week streams',
+        'Top 10 iTunes Christian, 600K-1M first-week streams',
       ],
     },
     {
@@ -258,7 +258,7 @@ export const kodokuHeLives: CampaignData = {
       objectives: [
         'Worship-night content wave; data-picked second focus track',
         'Deluxe + open-verse winner announce for the second news cycle',
-        'New baseline: 400K+ monthly listeners, RSVP data routes the tour',
+        'New baseline: 260K+ monthly listeners, RSVP data routes the tour',
       ],
     },
   ],
@@ -369,8 +369,196 @@ export const kodokuHeLives: CampaignData = {
       title: 'Pre-saves track below pace',
       likelihood: 'Low',
       impact: 'High',
-      triggerSignal: 'Under 30K pre-saves by July 27 (Week -3)',
-      contingency: 'Accelerate with an unreleased-track unlock at 50K pre-saves, push the city leaderboard rivalry harder on Stories, and shift paid budget forward into pre-save conversion ads on the top organic clips.',
+      triggerSignal: 'Under 3K pre-saves by July 27 (Week -3)',
+      contingency: 'Accelerate with an unreleased-track unlock at 6K pre-saves, push the city leaderboard rivalry harder on Stories, and shift paid budget forward into pre-save conversion ads on the top organic clips.',
     },
   ],
+  successMetrics: [
+    {
+      phase: 'Pre-Release',
+      color: '#fd3737',
+      metrics: [
+        '7.5K+ pre-saves (~4% of his 187K Spotify followers; his first tracked pre-save campaign, so this sets the baseline)',
+        '15%+ like-to-view rate held at 4-5 posts/week (current norm: 15-23% at 1-2 posts/month)',
+        '300+ open-verse creates; for scale, his most-used sound (WATERWALKIN) has 280 lifetime posts',
+        '2+ lane-press features off the pivot story',
+      ],
+    },
+    {
+      phase: 'Launch Week',
+      color: '#A1A1AA',
+      metrics: [
+        '600K-1M first-week album streams (2-4x his current weekly catalog rate)',
+        'Top 10 iTunes Christian albums',
+        '500+ creates on the title-track sound in week one',
+        '5+ editorial playlist adds (he currently sits on 2)',
+      ],
+    },
+    {
+      phase: 'Sustain (4 weeks)',
+      color: '#A1A1AA',
+      metrics: [
+        '2-3M album streams in month one: his best single ever (DEVOTED) took 17 months to reach 3.6M',
+        'Monthly listeners 203K to 260K+ (+28%, a bigger step than any prior release has produced)',
+        'Week-4 streams hold 50%+ of launch week',
+        'RSVP list converts into a routed worship-night tour map',
+      ],
+    },
+  ],
+  topPosts: {
+    subtitle:
+      'His last 12 months of posts, ranked and decoded. Every number is from the live TikTok and Instagram APIs, pulled June 10.',
+    posts: [
+      {
+        platform: 'TikTok',
+        title: 'don\u2019t you forget it.',
+        date: 'Aug 13, 2025',
+        views: '1.19M',
+        likes: '222K',
+        engagementRate: '18.6',
+        format: 'Single-take worship',
+        insight:
+          'His all-time ceiling: one uninterrupted phone-shot take in a field, no cuts, hook as the emotional peak. 26.3K bookmarks and 8.7K shares: keepsake behavior, not scroll-past.',
+      },
+      {
+        platform: 'Instagram',
+        title: 'because He lives',
+        date: 'May 14, 2026',
+        views: '688K',
+        likes: '73K',
+        engagementRate: '10.7',
+        format: 'Title-track tease',
+        insight:
+          'The He Lives title track is already validated: 1M+ combined views across platforms, and the TikTok cut drove his highest save rate ever (3.4% of viewers bookmarked it).',
+      },
+      {
+        platform: 'TikTok',
+        title: 'in the midst of my mess...',
+        date: 'Feb 26, 2026',
+        views: '612K',
+        likes: '102K',
+        engagementRate: '16.6',
+        format: 'Testimony single-take',
+        insight:
+          '96 seconds, one take, direct-to-camera. Proof his audience sits through long-form vulnerability: 1.4K comments, 13.5K saves. The pivot-story lane is wide open.',
+      },
+      {
+        platform: 'Instagram',
+        title: 'anyone see this coming?',
+        date: 'Apr 7, 2026',
+        views: '708K',
+        likes: '30K',
+        engagementRate: '4.3',
+        format: 'Curiosity hook',
+        insight:
+          'Curiosity captions buy reach (his #2 IG post of the year by views) but convert shallow: like-rate runs a third of his worship posts. Use for announcements, not the core.',
+      },
+      {
+        platform: 'TikTok',
+        title: 'my all in all',
+        date: 'May 14, 2026',
+        views: '476K',
+        likes: '109K',
+        engagementRate: '22.9',
+        format: 'Single-take worship',
+        insight:
+          'His highest like-to-view rate ever recorded, posted the same day as the title-track tease. The franchise format is not fatiguing; it is compounding.',
+      },
+      {
+        platform: 'Instagram',
+        title: 'this one next?',
+        date: 'May 25, 2026',
+        views: '461K',
+        likes: '50K',
+        engagementRate: '10.9',
+        format: 'Fan-vote question',
+        insight:
+          'Question captions are his comment engine: this and \u201cdo we like this one?\u201d (337K, 15.9%) both outperform. The audience wants a vote on what drops. Formalize it.',
+      },
+      {
+        platform: 'Instagram',
+        title: 'RUNNIN (collab repost)',
+        date: 'Apr 10, 2026',
+        views: '1.04M',
+        likes: '35K',
+        engagementRate: '3.4',
+        format: 'Collab reach',
+        insight:
+          'His biggest IG reach of the year, and his weakest conversion. Collabs buy borrowed eyeballs, not fans. Top of funnel only, never the campaign spine.',
+      },
+      {
+        platform: 'TikTok',
+        title: 'Lexus partner post',
+        date: 'Feb 13, 2026',
+        views: '23K',
+        likes: '2K',
+        engagementRate: '8.7',
+        format: 'Branded content',
+        insight:
+          'Both the algorithm and the audience suppressed it: 8-50x fewer views than his worship posts that month. Brand work must live inside the worship format, not replace it.',
+      },
+    ],
+    patterns: [
+      {
+        title: 'Single-take worship is the franchise',
+        desc: 'Three of his top five posts are one uninterrupted outdoor take. They run 16-23% like-to-view against a ~10% norm at his size and save at 2-3% of views. Nothing else he makes comes close.',
+      },
+      {
+        title: 'Scarcity is the bottleneck, not quality',
+        desc: 'Roughly 20 TikTok posts in the trailing year, under 2 a month. The data shows zero engagement decay when he posts more: in May he posted 3 times and landed two top-5 all-time posts. The algorithm is starved, not saturated.',
+      },
+      {
+        title: 'Questions turn viewers into voters',
+        desc: 'Every post phrased as a question beats his average and stacks comments (best: 1,968). Vote-the-drop and open-verse mechanics formalize an instinct the data already validates, at zero cost.',
+      },
+      {
+        title: 'Reach and conversion are different buys',
+        desc: 'The RUNNIN collab (1.04M views, 3.4% like-rate) and curiosity hooks buy reach; worship single-takes convert. Sequence both: borrowed reach early in the funnel, the franchise format at the moments that matter.',
+      },
+    ],
+  },
+  ninetyDay: {
+    subtitle:
+      'June 10 to September 8: what the post data says to do, in three 30-day blocks.',
+    summary:
+      'The post intelligence says one thing loudly: Kodoku has a franchise format with elite conversion and a starved algorithm. The 90-day play is to scale the proven single-take format from 2 posts a month to 4-5 a week without diluting it, formalize his question-post instinct into participation mechanics, and time the ramp so peak cadence collides with the August 14 release and the post-tour vacuum in the lane.',
+    phases: [
+      {
+        window: 'DAYS 1-30 \u00b7 JUN 10 - JUL 9',
+        title: 'Bank & Ramp',
+        focus: 'Build the content bank, then lift cadence from 2/month to 4-5/week using only proven formats.',
+        moves: [
+          'Batch-shoot 20+ single-take field performances in one weekend; the bank removes the quality-vs-volume tradeoff',
+          'Fixed weekly rotation: 2 worship single-takes, 1 testimony direct-to-camera, 1 question post, 1 congregation/fan repost',
+          'Pin the He Lives pre-save everywhere; launch the RSVP YOUR CITY leaderboard',
+          'Kill branded one-offs for 90 days (they run 8-50x below his format norm)',
+        ],
+        target: 'Like-to-view holds 15%+ at the new cadence; first 1K pre-saves; per-format baselines set.',
+      },
+      {
+        window: 'DAYS 31-60 \u00b7 JUL 10 - AUG 8',
+        title: 'Participation Engine',
+        focus: 'Convert the question-post instinct into formal mechanics while the Jesus Generation Tour primes the lane through Aug 1.',
+        moves: [
+          'Vote-the-drop A/B post picks the focus single; target 1K+ comments (his best: 1,968)',
+          'Open-verse challenge on the title track with a deluxe feature as the prize',
+          'Seed 30-50 micro worship creators plus 10 church worship-team accounts',
+          'Duet/stitch the tour-finale wave; land the Hulvey co-sign clip (WATERWALKIN already connects them)',
+        ],
+        target: '5K pre-saves; 150+ open-verse creates; focus single opens at DEVOTED pace (150-250K week one).',
+      },
+      {
+        window: 'DAYS 61-90 \u00b7 AUG 9 - SEP 8',
+        title: 'Launch & Convert',
+        focus: 'Drop He Lives into the vacuum, turn worship nights into the second content wave, lock the new baseline.',
+        moves: [
+          'Aug 14: midnight drop plus title-track single-take at 9am; all seeded creators post in one 6-hour window',
+          'Worship nights in the 5 winning RSVP cities; daily crowd-moment clips for two weeks',
+          'Spark ads only behind the top 3 organic clips; S4A editorial pitch on every track (2 editorial playlists today, 5+ the goal)',
+          'Deluxe announce with the open-verse winner for the second news cycle',
+        ],
+        target: '600K-1M first-week; 2-3M first-month (DEVOTED\u2019s 17-month total in 30 days); listeners stabilize 260K+.',
+      },
+    ],
+  },
 };

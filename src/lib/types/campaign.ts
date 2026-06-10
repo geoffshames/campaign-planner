@@ -73,6 +73,43 @@ export interface GenreLandscape {
   trends: string[];
 }
 
+export interface TopPost {
+  platform: string;
+  title: string;
+  date: string;
+  views: string;
+  likes: string;
+  engagementRate: string;
+  format: string;
+  insight: string;
+}
+
+export interface TopPostsAnalysis {
+  subtitle: string;
+  posts: TopPost[];
+  patterns: { title: string; desc: string }[];
+}
+
+export interface NinetyDayPhase {
+  window: string;
+  title: string;
+  focus: string;
+  moves: string[];
+  target: string;
+}
+
+export interface NinetyDayPlan {
+  subtitle: string;
+  summary: string;
+  phases: NinetyDayPhase[];
+}
+
+export interface SuccessMetricGroup {
+  phase: string;
+  color: string;
+  metrics: string[];
+}
+
 export interface CampaignData {
   slug: string;
   artist: string;
@@ -104,4 +141,7 @@ export interface CampaignData {
   risks: RiskCard[];
   competitiveCalendar?: CompetitiveCalendar;
   genreLandscape?: GenreLandscape;
+  topPosts?: TopPostsAnalysis;
+  ninetyDay?: NinetyDayPlan;
+  successMetrics?: SuccessMetricGroup[];
 }

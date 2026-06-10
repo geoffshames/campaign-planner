@@ -786,9 +786,105 @@ export function CampaignPage({ campaign }: { campaign: CampaignData }) {
 
       <SectionDivider />
 
+      {campaign.topPosts && (
+        <>
+          {/* ═══ 03 — POST INTELLIGENCE ═══ */}
+          <Section number="03" title="Post Intelligence" subtitle={campaign.topPosts.subtitle}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-14">
+              {campaign.topPosts.posts.map((p, i) => (
+                <GlassCard key={i} className="p-7">
+                  <div className="flex items-start justify-between mb-5 gap-3">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <span className="text-[#FD3737] flex-shrink-0">
+                        <PlatformIcon platform={p.platform} size={16} />
+                      </span>
+                      <div className="min-w-0">
+                        <div className="font-display text-lg text-white truncate">{p.title}</div>
+                        <div className="text-[#B8B8C0] text-xs mt-0.5">
+                          {p.platform} · {p.date}
+                        </div>
+                      </div>
+                    </div>
+                    <Badge color="#A1A1AA">{p.format}</Badge>
+                  </div>
+                  <div className="grid grid-cols-3 gap-3 mb-4">
+                    <div>
+                      <div className="font-display text-2xl md:text-3xl text-white">{p.views}</div>
+                      <div className="text-[#B8B8C0] text-xs">views</div>
+                    </div>
+                    <div>
+                      <div className="font-display text-2xl md:text-3xl text-white">{p.likes}</div>
+                      <div className="text-[#B8B8C0] text-xs">likes</div>
+                    </div>
+                    <div>
+                      <div className="font-display text-2xl md:text-3xl text-[#FD3737]">
+                        {p.engagementRate}%
+                      </div>
+                      <div className="text-[#B8B8C0] text-xs">like-to-view</div>
+                    </div>
+                  </div>
+                  <p className="text-[#E4E4E9] text-sm font-normal leading-relaxed">{p.insight}</p>
+                </GlassCard>
+              ))}
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              {campaign.topPosts.patterns.map((t, i) => (
+                <GlassCard key={i} className="p-8">
+                  <div className="flex items-start gap-4">
+                    <span className="text-[#fd3737] text-lg mt-0.5 opacity-60">◈</span>
+                    <div>
+                      <h4 className="font-display text-lg text-white mb-2">{t.title}</h4>
+                      <p className="text-[#E4E4E9] text-sm font-normal leading-relaxed">{t.desc}</p>
+                    </div>
+                  </div>
+                </GlassCard>
+              ))}
+            </div>
+          </Section>
+
+          <SectionDivider />
+        </>
+      )}
+
+      {campaign.ninetyDay && (
+        <>
+          {/* ═══ 04 — 90-DAY SPRINT ═══ */}
+          <Section number="04" title="The 90-Day Sprint" subtitle={campaign.ninetyDay.subtitle}>
+            <GlassCard className="p-10 mb-12 border-l-2 border-l-[#fd3737]" glow hover={false}>
+              <p className="text-lg md:text-xl leading-relaxed text-[#E4E4E9] font-normal">
+                {campaign.ninetyDay.summary}
+              </p>
+            </GlassCard>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {campaign.ninetyDay.phases.map((ph, i) => (
+                <GlassCard key={i} className="p-8">
+                  <div className="text-[#FD3737] text-xs tracking-widest mb-2">{ph.window}</div>
+                  <h3 className="font-display text-xl text-white mb-2">{ph.title}</h3>
+                  <p className="text-[#B8B8C0] text-sm font-normal mb-5">{ph.focus}</p>
+                  <ul className="space-y-3 mb-6">
+                    {ph.moves.map((m, j) => (
+                      <li key={j} className="flex gap-3 items-start text-sm">
+                        <span className="mt-1 flex-shrink-0 text-[#FD3737]">◆</span>
+                        <span className="text-[#E4E4E9] font-normal">{m}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="pt-4 border-t border-[#333333]/50">
+                    <span className="text-[#B8B8C0] text-xs tracking-wider">TARGET</span>
+                    <p className="text-[#E4E4E9] text-sm font-normal mt-1">{ph.target}</p>
+                  </div>
+                </GlassCard>
+              ))}
+            </div>
+          </Section>
+
+          <SectionDivider />
+        </>
+      )}
+
       {/* ═══ 03 — GENRE LANDSCAPE ═══ */}
       <Section
-        number="03"
+        number={campaign.topPosts ? '05' : '03'}
         title="Genre Landscape"
         subtitle={campaign.genreLandscape?.subtitle || "What's working in Pop right now — tactics, trends, and recent wins."}
       >
@@ -862,7 +958,7 @@ export function CampaignPage({ campaign }: { campaign: CampaignData }) {
 
       {/* ═══ 04 — COMPETITIVE CALENDAR ═══ */}
       <Section
-        number="04"
+        number={campaign.topPosts ? '06' : '04'}
         title="Competitive Calendar"
         subtitle={campaign.competitiveCalendar?.subtitle || "Release landscape around May 29 — identifying threats and opportunities."}
       >
@@ -907,7 +1003,7 @@ export function CampaignPage({ campaign }: { campaign: CampaignData }) {
 
       {/* ═══ 05 — CAMPAIGN OVERVIEW ═══ */}
       <Section
-        number="05"
+        number={campaign.topPosts ? '07' : '05'}
         title="Campaign Overview"
         subtitle="Strategic architecture and phased approach."
       >
@@ -946,7 +1042,7 @@ export function CampaignPage({ campaign }: { campaign: CampaignData }) {
         <div className="absolute inset-0 bg-gradient-to-b from-[#fd3737]/[0.03] to-transparent pointer-events-none" />
 
         <Section
-          number="06"
+          number={campaign.topPosts ? '08' : '06'}
           title="Week-by-Week Playbook"
           subtitle="Tactical breakdown of every week's campaign activities, creator actions, and success signals."
         >
@@ -1108,7 +1204,7 @@ export function CampaignPage({ campaign }: { campaign: CampaignData }) {
 
       {/* ═══ 07 — CONTENT STRATEGY ═══ */}
       <Section
-        number="07"
+        number={campaign.topPosts ? '09' : '07'}
         title="Content Strategy"
         subtitle="Platform-specific content direction, posting cadence, and recurring pillars."
       >
@@ -1214,7 +1310,7 @@ export function CampaignPage({ campaign }: { campaign: CampaignData }) {
 
       {/* ═══ 08 — CREATOR SEEDING ═══ */}
       <Section
-        number="08"
+        number={campaign.topPosts ? '10' : '08'}
         title="Creator Seeding Plan"
         subtitle="Tiered creator strategy with allocation, outreach approach, and seeding timeline."
       >
@@ -1374,7 +1470,7 @@ export function CampaignPage({ campaign }: { campaign: CampaignData }) {
 
       {/* ═══ 09 — CHANNEL ALLOCATION ═══ */}
       <Section
-        number="09"
+        number={campaign.topPosts ? '11' : '09'}
         title="Channel Allocation"
         subtitle="Strategic distribution of effort across campaign channels."
       >
@@ -1483,12 +1579,12 @@ export function CampaignPage({ campaign }: { campaign: CampaignData }) {
 
       {/* ═══ 10 — SUCCESS METRICS ═══ */}
       <Section
-        number="10"
+        number={campaign.topPosts ? '12' : '10'}
         title="Success Metrics"
         subtitle="Phase-gated KPIs benchmarked against genre and tier norms."
       >
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {[
+          {(campaign.successMetrics || [
             {
               phase: 'Pre-Release',
               color: '#fd3737',
@@ -1519,7 +1615,7 @@ export function CampaignPage({ campaign }: { campaign: CampaignData }) {
                 '2–3 weeks in top 40 Spotify',
               ],
             },
-          ].map((kpi, i) => (
+          ]).map((kpi, i) => (
             <GlassCard key={i} className="p-8 relative overflow-hidden">
               <div
                 className="absolute top-0 left-0 right-0 h-px"
@@ -1551,7 +1647,7 @@ export function CampaignPage({ campaign }: { campaign: CampaignData }) {
 
       {/* ═══ 11 — RISKS & CONTINGENCIES ═══ */}
       <Section
-        number="11"
+        number={campaign.topPosts ? '13' : '11'}
         title="Risks & Contingencies"
         subtitle="Scenario planning with trigger signals and response protocols."
       >
