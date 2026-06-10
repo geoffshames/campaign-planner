@@ -59,6 +59,13 @@ export interface RiskCard {
   contingency: string;
 }
 
+export interface CompetitiveCalendar {
+  subtitle: string;
+  items: { artist: string; release: string; threat: 'Low' | 'Medium' | 'High' }[];
+  verdictTitle: string;
+  verdict: string;
+}
+
 export interface CampaignData {
   slug: string;
   artist: string;
@@ -88,4 +95,5 @@ export interface CampaignData {
     description: string;
   }[];
   risks: RiskCard[];
+  competitiveCalendar?: CompetitiveCalendar;
 }

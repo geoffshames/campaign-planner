@@ -871,15 +871,15 @@ export function CampaignPage({ campaign }: { campaign: CampaignData }) {
       <Section
         number="04"
         title="Competitive Calendar"
-        subtitle="Release landscape around May 29 — identifying threats and opportunities."
+        subtitle={campaign.competitiveCalendar?.subtitle || "Release landscape around May 29 — identifying threats and opportunities."}
       >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-8">
-          {[
-            { artist: 'Billy Joel', release: 'Live Album Collection', threat: 'low' },
-            { artist: 'Shinedown', release: 'New Rock Single', threat: 'low' },
-            { artist: 'The Who', release: 'Legacy Live Album', threat: 'low' },
-            { artist: 'Alana Springsteen', release: 'Country Single', threat: 'low' },
-          ].map((item, i) => (
+          {(campaign.competitiveCalendar?.items || [
+            { artist: 'Billy Joel', release: 'Live Album Collection', threat: 'Low' as const },
+            { artist: 'Shinedown', release: 'New Rock Single', threat: 'Low' as const },
+            { artist: 'The Who', release: 'Legacy Live Album', threat: 'Low' as const },
+            { artist: 'Alana Springsteen', release: 'Country Single', threat: 'Low' as const },
+          ]).map((item, i) => (
             <GlassCard key={i} className="p-6">
               <div className="flex items-start justify-between">
                 <div className="flex gap-4 items-start">
@@ -889,7 +889,7 @@ export function CampaignPage({ campaign }: { campaign: CampaignData }) {
                     <div className="text-[#B8B8C0] text-sm font-normal mt-1">{item.release}</div>
                   </div>
                 </div>
-                <Badge color="#A1A1AA">Low</Badge>
+                <Badge color="#A1A1AA">{item.threat || 'Low'}</Badge>
               </div>
             </GlassCard>
           ))}
@@ -901,11 +901,9 @@ export function CampaignPage({ campaign }: { campaign: CampaignData }) {
               <span className="text-[#A1A1AA] text-xl">✓</span>
             </div>
             <div>
-              <h4 className="font-display text-xl text-white mb-2">Clear Lane</h4>
+              <h4 className="font-display text-xl text-white mb-2">{campaign.competitiveCalendar?.verdictTitle || 'Clear Lane'}</h4>
               <p className="text-[#E4E4E9] font-normal leading-relaxed">
-                May 29 presents a wide-open window for Tyla to dominate the news cycle. No major
-                pop releases competing for streaming share, playlist placement, or social
-                conversation.
+                {campaign.competitiveCalendar?.verdict || `May 29 presents a wide-open window for Tyla to dominate the news cycle. No major pop releases competing for streaming share, playlist placement, or social conversation.`}
               </p>
             </div>
           </div>

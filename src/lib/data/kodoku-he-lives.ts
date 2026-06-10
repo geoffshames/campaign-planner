@@ -285,6 +285,35 @@ export const kodokuHeLives: CampaignData = {
         'Crowd-worship and congregation UGC is the lane’s highest-leverage format (Forrest’s 21-second live clip: 1.79M plays; children-singing repost: 603K). RSVP YOUR CITY worship nights generate this footage on demand, and church worship-team covers extend it weekly. @dokult is the repost engine: 41K followers, 40K avg likes.',
     },
   ],
+  competitiveCalendar: {
+    subtitle:
+      'Release landscape around August 14 — the lane is wide open after the Jesus Generation Tour finale.',
+    items: [
+      {
+        artist: 'Forrest Frank',
+        release: 'Jesus Generation Tour ends Aug 1 — no album announced for August',
+        threat: 'Medium',
+      },
+      {
+        artist: 'Hulvey',
+        release: 'Final Reach Records album announced, date TBD',
+        threat: 'Medium',
+      },
+      {
+        artist: 'Lecrae',
+        release: 'Reconstruction: Second Story deluxe (dropped Feb, cycle fading)',
+        threat: 'Low',
+      },
+      {
+        artist: 'Mainstream pop',
+        release: 'Olivia Rodrigo cycle (June 12) dominates general TikTok, not the faith lane',
+        threat: 'Low',
+      },
+    ],
+    verdictTitle: 'The Vacuum Window',
+    verdict:
+      'Forrest Frank just spent the summer activating Gen-Z faith audiences in 29 stadium cities, and his tour ends August 1 with no album behind it. No major Christian R&B project is announced for mid-August. He Lives drops into a primed audience with no lane competition — the main risk is a surprise Hulvey date, which converts to a collab opportunity, not a collision.',
+  },
   risks: [
     {
       title: 'Higher cadence dilutes the intimacy',
