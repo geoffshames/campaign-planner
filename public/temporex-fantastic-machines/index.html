@@ -10,7 +10,9 @@
 :root{--bg:#0A0A0A;--ink:#FAFAFA;--sec:#E4E4E9;--muted:rgba(255,255,255,.56);--red:#FD3737;--line:rgba(255,255,255,.10);--card:rgba(255,255,255,.035);--card2:rgba(255,255,255,.07)}
 html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
 body{background:var(--bg);color:var(--ink);font-family:'Work Sans',system-ui,sans-serif;font-weight:400;line-height:1.55;font-size:16px;-webkit-font-smoothing:antialiased}
-.wrap{max-width:1040px;margin:0 auto;padding:0 26px}
+.wrap{max-width:1040px;margin:0 auto;padding:0 26px;position:relative;z-index:2}
+#bgcanvas{position:fixed;inset:0;width:100vw;height:100vh;z-index:0;opacity:.34;filter:blur(1px) brightness(.72) contrast(1.04);pointer-events:none}
+#bgscrim{position:fixed;inset:0;z-index:1;pointer-events:none;background:linear-gradient(180deg,rgba(10,10,10,.82),rgba(10,10,10,.56) 42%,rgba(10,10,10,.84))}
 h1,h2,h3,h4{font-family:'N27','Work Sans',sans-serif;font-weight:700;letter-spacing:-.01em;line-height:1.05}
 .mono{font-family:'JetBrains Mono',monospace}
 a{color:var(--red);text-decoration:none}
@@ -90,7 +92,7 @@ footer img{height:22px;opacity:.85;display:block;margin-bottom:16px}footer b{col
 @media(max-width:560px){.cal,.relcards{grid-template-columns:1fr}}
 @media print{body{background:#fff;color:#111}.scard,.act,section{break-inside:avoid}}
 </style></head>
-<body><div class="wrap">
+<body><canvas id="bgcanvas"></canvas><div id="bgscrim"></div><div class="wrap">
   <header class="mast">
     <img class="logo" src="/brand/CC-LOGO-2024-WHITE.png" alt="Crowd Control Digital">
     <div class="kick">Album Marketing Plan</div>
@@ -178,4 +180,19 @@ footer img{height:22px;opacity:.85;display:block;margin-bottom:16px}footer b{col
   </section>
   <footer><img src="/brand/CC-LOGO-2024-WHITE.png" alt="Crowd Control Digital">
     <b>Crowd Control Digital</b> · info@crowdcontroldigital.com<br>Temporex / Fantastic Machines · album marketing plan · July 2026</footer>
-</div></body></html>
+</div><script>
+(function(){
+  var N=72, cv=document.getElementById('bgcanvas'); if(!cv) return; var ctx=cv.getContext('2d');
+  var imgs=new Array(N), loaded=0, ready=false, cur=-1, dpr=Math.min(window.devicePixelRatio||1,2);
+  function size(){ cv.width=Math.floor(innerWidth*dpr); cv.height=Math.floor(innerHeight*dpr); }
+  function cover(img){ if(!img||!img.naturalWidth) return; var cw=cv.width,ch=cv.height,iw=img.naturalWidth,ih=img.naturalHeight; var s=Math.max(cw/iw,ch/ih); var w=iw*s,h=ih*s; ctx.clearRect(0,0,cw,ch); ctx.drawImage(img,(cw-w)/2,(ch-h)/2,w,h); }
+  function draw(f){ if(f===cur||!imgs[f]||!imgs[f].naturalWidth) return; cur=f; cover(imgs[f]); }
+  function frameFromScroll(){ var max=(document.documentElement.scrollHeight-innerHeight)||1; var p=Math.min(1,Math.max(0,(window.scrollY||window.pageYOffset)/max)); return Math.round(p*(N-1)); }
+  var ticking=false;
+  function onScroll(){ if(ticking) return; ticking=true; requestAnimationFrame(function(){ if(ready) draw(frameFromScroll()); ticking=false; }); }
+  for(var i=0;i<N;i++){ (function(i){ var im=new Image(); im.onload=function(){ loaded++; if(!ready && loaded>=6){ ready=true; size(); cur=-1; draw(frameFromScroll()); } }; im.src='/temporex-bg/f'+String(i+1).padStart(3,'0')+'.jpg'; imgs[i]=im; })(i); }
+  window.addEventListener('resize', function(){ size(); cur=-1; if(ready) draw(frameFromScroll()); }, {passive:true});
+  window.addEventListener('scroll', onScroll, {passive:true});
+  window.addEventListener('load', function(){ size(); cur=-1; if(ready) draw(frameFromScroll()); });
+})();
+</script></body></html>
