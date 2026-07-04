@@ -4,219 +4,178 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<title>Temporex / Fantastic Machines | Marketing Plan</title>
+<title>Temporex / Fantastic Machines · Marketing Plan</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-:root{--paper:#FBFAF8;--ink:#17161A;--muted:#6E6B75;--line:#E7E4DE;--red:#FD3737;--redsoft:#FFF1F1}
-html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
-body{background:var(--paper);color:var(--ink);font-family:'Inter',system-ui,-apple-system,sans-serif;line-height:1.55;font-size:16px;-webkit-font-smoothing:antialiased}
-.wrap{max-width:980px;margin:0 auto;padding:0 24px}
-h1,h2,h3,h4,.display{font-family:'Space Grotesk','Inter',sans-serif;letter-spacing:-.01em}
+@font-face{font-family:'N27';src:url('/brand/N27-Bold.otf') format('opentype');font-weight:700;font-display:swap}
+*{margin:0;padding:0;box-sizing:border-box;border-radius:0}
+:root{--bg:#0A0A0A;--ink:#FAFAFA;--sec:#E4E4E9;--muted:rgba(255,255,255,.56);--faint:rgba(255,255,255,.34);--red:#FD3737;--line:rgba(255,255,255,.10);--card:rgba(255,255,255,.035);--card2:rgba(255,255,255,.06)}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{background:var(--bg);color:var(--ink);font-family:'Work Sans',system-ui,-apple-system,sans-serif;font-weight:400;line-height:1.55;font-size:16px;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1000px;margin:0 auto;padding:0 26px}
+h1,h2,h3,h4{font-family:'N27','Work Sans',sans-serif;font-weight:700;letter-spacing:-.01em;line-height:1.05}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
 a{color:var(--red);text-decoration:none}
-.kicker{font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--red);font-weight:600}
+.kick{font-family:'JetBrains Mono',monospace;font-size:11.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--red);font-weight:500}
 .muted{color:var(--muted)}
-.mast{padding:52px 0 26px;border-bottom:1px solid var(--line)}
-.mast h1{font-size:clamp(34px,6vw,58px);line-height:1.02;font-weight:700;margin:12px 0 4px}
-.mast h1 .r{color:var(--red)}
-.mast .sub{font-size:clamp(15px,2.3vw,19px);color:var(--muted)}
-.mast .meta{margin-top:12px;font-size:13.5px;color:var(--muted)}
-.lede{font-size:clamp(16px,2.1vw,18.5px);line-height:1.62;margin:22px 0 0;max-width:72ch}
+/* masthead */
+.mast{padding:40px 0 30px}
+.logo{height:20px;width:auto;opacity:.9;display:block;margin-bottom:34px}
+.mast h1{font-size:clamp(52px,10vw,104px);line-height:.94;text-transform:uppercase;margin:14px 0 2px}
+.mast .alb{font-size:clamp(20px,3.4vw,34px);color:var(--red);font-family:'N27';font-weight:700;text-transform:uppercase;letter-spacing:.01em}
+.mast .meta{margin-top:16px;font-family:'JetBrains Mono',monospace;font-size:12.5px;color:var(--muted);letter-spacing:.04em}
+.lede{font-size:clamp(16px,2.1vw,18.5px);line-height:1.62;margin:26px 0 0;max-width:74ch;color:var(--sec)}
 .lede b{color:var(--ink);font-weight:600}
-.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin:26px 0 0}
-.stat{background:var(--paper);padding:15px 14px}
-.stat .n{font-family:'Space Grotesk';font-size:21px;font-weight:700}
-.stat .l{font-size:11.5px;color:var(--muted);margin-top:2px;line-height:1.3}
-section{padding:34px 0;border-bottom:1px solid var(--line)}
-.sec-h{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--red);font-weight:600;margin-bottom:8px}
-h2{font-size:clamp(21px,3.2vw,28px);font-weight:700;margin-bottom:16px}
-.two{display:grid;grid-template-columns:1fr 1fr;gap:18px}
-.card{border:1px solid var(--line);border-radius:12px;padding:18px;background:#fff}
-.card h4{font-size:15.5px;font-weight:700;margin-bottom:8px}
-.card p{font-size:13.5px;color:var(--muted);line-height:1.55}
+.lede .r{color:var(--red);font-weight:600}
+/* stat strip */
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--line);border:1px solid var(--line);margin:30px 0 0}
+.stat{background:var(--bg);padding:16px 15px}
+.stat .n{font-family:'N27';font-weight:700;font-size:23px}
+.stat .l{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--muted);margin-top:4px;line-height:1.35;letter-spacing:.02em}
+/* section */
+section{padding:40px 0;border-top:1px solid var(--line)}
+.sh{margin-bottom:22px}
+.sh .kick{margin-bottom:9px;display:block}
+h2{font-size:clamp(24px,3.6vw,34px)}
+.sub{color:var(--muted);font-size:15px;margin-top:8px;max-width:70ch}
+/* content engine */
+.engine{background:var(--card);border:1px solid var(--line);border-left:2px solid var(--red);padding:20px 22px;font-size:15px;color:var(--sec);line-height:1.6}
+/* calendar */
 .cal{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
-.cal .c{border:1px solid var(--line);border-radius:12px;padding:14px;background:#fff}
-.cal .c.alb{border-color:var(--red);background:var(--redsoft)}
-.cal .c .r{font-family:'Space Grotesk';font-weight:700;font-size:15px;color:var(--red)}
-.cal .c .t{font-size:14px;font-weight:600;margin-top:5px}
-.cal .c .n{font-size:12px;color:var(--muted);margin-top:2px}
+.cal .c{background:var(--card);border:1px solid var(--line);padding:15px}
+.cal .c.alb{border-color:var(--red);background:var(--card2)}
+.cal .c .m{font-family:'JetBrains Mono',monospace;font-weight:500;font-size:13px;color:var(--red);letter-spacing:.06em}
+.cal .c .t{font-size:15px;font-weight:600;margin-top:7px;line-height:1.2}
+.cal .c .r{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--muted);margin-top:5px;letter-spacing:.04em}
+/* single block */
 .single{padding:26px 0;border-top:1px solid var(--line)}
-.single:first-of-type{border-top:0;padding-top:6px}
-.sh{display:flex;align-items:baseline;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:14px}
-.sh .name{font-family:'Space Grotesk';font-size:21px;font-weight:700;display:flex;align-items:baseline;gap:11px;flex-wrap:wrap}
-.sh .name .num{color:var(--red);font-size:14px}
-.tag{font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;font-weight:600;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:3px 9px}
+.single:first-of-type{border-top:0;padding-top:4px}
+.shd{display:flex;align-items:baseline;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:16px}
+.shd .l{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.shd .num{font-family:'JetBrains Mono',monospace;color:var(--red);font-size:14px;font-weight:500}
+.shd .nm{font-family:'N27';font-weight:700;font-size:23px;text-transform:uppercase}
+.shd .mo{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--red);border:1px solid var(--red);padding:2px 9px;letter-spacing:.06em}
+.tag{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);border:1px solid var(--line);padding:3px 9px}
 .tag.vid{color:var(--red);border-color:var(--red)}
-.tag.alb{color:var(--red);border-color:var(--red)}
-.sh .spend{font-family:'Space Grotesk';font-size:21px;font-weight:700;color:var(--red)}
-.sgrid{display:grid;grid-template-columns:1.3fr 1fr;gap:26px}
-.lbl{font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:10px}
-table.sched{width:100%;border-collapse:collapse}
-table.sched td{padding:8px 0;border-top:1px solid var(--line);vertical-align:top;font-size:13.5px;line-height:1.5}
-table.sched tr:first-child td{border-top:0}
-table.sched .d{width:58px;color:var(--red);font-family:'Space Grotesk';font-weight:700;white-space:nowrap;padding-right:12px}
-ul.assets{list-style:none}
-ul.assets li{font-size:13px;padding:9px 0;border-top:1px solid var(--line);line-height:1.45}
-ul.assets li:first-child{border-top:0}
-ul.assets li .w{color:var(--muted);display:block;margin-top:2px}
-ul.assets li .w b{color:var(--red);font-weight:700}
-.spendline{margin-top:14px;font-size:12.5px;color:var(--muted);background:#fff;border:1px solid var(--line);border-left:3px solid var(--red);border-radius:8px;padding:11px 12px;line-height:1.5}
-.spendline b{color:var(--ink);font-weight:700}
-table.bud{width:100%;border-collapse:collapse;font-size:14px;background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden}
-table.bud th,table.bud td{text-align:left;padding:11px 14px;border-bottom:1px solid var(--line)}
-table.bud th{font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
-table.bud td.amt{text-align:right;font-family:'Space Grotesk';font-weight:700;white-space:nowrap}
-table.bud tr:last-child td{border-bottom:0}
-table.bud tr.total td{border-top:2px solid var(--ink);font-weight:700;background:var(--redsoft)}
-table.bud tr.total td.amt{color:var(--red);font-size:17px}
-.budgrid{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start}
-.note{font-size:12.5px;color:var(--muted);margin-top:16px;line-height:1.55}
-.acts{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
-.act{border:1px solid var(--line);border-radius:12px;padding:18px;background:#fff;display:flex;flex-direction:column}
-.act .k{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--red);font-weight:600;margin-bottom:8px}
-.act h4{font-size:16px;font-weight:700;margin-bottom:9px;line-height:1.2}
-.act p{font-size:12.5px;color:var(--muted);line-height:1.5}
-.act .why{margin-top:11px;padding-top:11px;border-top:1px solid var(--line);font-size:12.5px;color:var(--ink);line-height:1.5}
-footer{padding:32px 0 64px;color:var(--muted);font-size:13px;line-height:1.6}
-footer b{color:var(--ink)}
-@media(max-width:760px){.stats{grid-template-columns:repeat(2,1fr)}.cal{grid-template-columns:1fr 1fr}.two,.sgrid,.acts,.budgrid{grid-template-columns:1fr}}
-@media print{body{background:#fff}section,.single,.act{break-inside:avoid}a{color:var(--ink)}}
+.shd .spend{font-family:'N27';font-weight:700;font-size:23px;color:var(--red)}
+table.s{width:100%;border-collapse:collapse}
+table.s td{padding:9px 0;border-top:1px solid var(--line);vertical-align:top;font-size:14.5px;color:var(--sec);line-height:1.5}
+table.s tr:first-child td{border-top:0}
+table.s .d{width:96px;color:var(--red);font-family:'JetBrains Mono',monospace;font-weight:500;font-size:13px;white-space:nowrap;padding-right:14px}
+.spline{margin-top:14px;background:var(--card);border:1px solid var(--line);border-left:2px solid var(--red);padding:11px 13px;font-size:13px;color:var(--muted);line-height:1.5}
+.spline b{color:var(--ink);font-weight:600}
+/* budget */
+.budgrid{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+table.b{width:100%;border-collapse:collapse;font-size:14.5px;background:var(--card);border:1px solid var(--line)}
+table.b th,table.b td{text-align:left;padding:12px 15px;border-bottom:1px solid var(--line)}
+table.b th{font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:500}
+table.b td{color:var(--sec)}
+table.b td.amt{text-align:right;font-family:'N27';font-weight:700;color:var(--ink);white-space:nowrap}
+table.b tr:last-child td{border-bottom:0}
+table.b tr.tot td{border-top:2px solid var(--red);background:var(--card2);color:var(--ink);font-weight:600}
+table.b tr.tot td.amt{color:var(--red);font-size:17px}
+.blbl{font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.note{font-size:13px;color:var(--muted);margin-top:16px;line-height:1.6;max-width:80ch}
+/* activations */
+.acts{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.act{background:var(--card);border:1px solid var(--line);padding:20px;display:flex;flex-direction:column}
+.act .k{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--red);font-weight:500;margin-bottom:9px}
+.act h4{font-size:18px;margin-bottom:10px;line-height:1.15}
+.act p{font-size:13px;color:var(--muted);line-height:1.55}
+.act .why{margin-top:12px;padding-top:12px;border-top:1px solid var(--line);font-size:13px;color:var(--sec);line-height:1.55}
+.act .why b{color:var(--red);font-weight:600}
+/* footer */
+footer{padding:36px 0 64px;border-top:1px solid var(--line);color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.03em;line-height:1.8}
+footer img{height:22px;opacity:.85;display:block;margin-bottom:16px}
+footer b{color:var(--sec);font-weight:500}
+@media(max-width:820px){.stats{grid-template-columns:repeat(2,1fr)}.cal{grid-template-columns:1fr 1fr}.budgrid,.acts{grid-template-columns:1fr}}
+@media print{body{background:#fff;color:#111}section,.single,.act{break-inside:avoid}}
 </style>
 </head>
 <body>
 <div class="wrap">
   <header class="mast">
-    <div class="kicker">Crowd Control Digital · Album Marketing Plan</div>
-    <h1>Temporex <span class="r">/ Fantastic Machines</span></h1>
-    <div class="sub">Four singles cascading into the album. A single every ~4 weeks.</div>
-    <div class="meta">Prepared for Independent Co. · $14,000 media budget · July 2026</div>
-    <p class="lede">Temporex comes into this album with about <b>1.4M Spotify monthly listeners</b>, mostly catalog, and a social footprint a fraction of that size. That gap is a conversion problem, not an awareness one. This is the digital plan that converts it across four singles into the album <b>Fantastic Machines</b>: paid media behind the strongest asset on every drop, DSP conversion (per-single pre-save, Marquee, Showcase, and an album Countdown that opens at Single 2), Strive FM rideshare playlisting as the album's streaming hedge, and three world-building activations that capture owned audience. The <b>$14K</b> below is what CCD deploys, drop by drop.</p>
-    <div class="stats"><div class="stat"><div class="n">$14,000</div><div class="l">media budget</div></div><div class="stat"><div class="n">~$12,000</div><div class="l">deployed</div></div><div class="stat"><div class="n">~$2,000</div><div class="l">held in reserve</div></div><div class="stat"><div class="n">4 + 1</div><div class="l">singles into the album</div></div><div class="stat"><div class="n">~4 wks</div><div class="l">between drops</div></div></div>
+    <img class="logo" src="/brand/CC-LOGO-2024-WHITE.png" alt="Crowd Control Digital">
+    <div class="kick">Album Marketing Plan</div>
+    <h1>Temporex</h1>
+    <div class="alb">Fantastic Machines</div>
+    <div class="meta">Prepared for Independent Co. · $14,000 media budget · Jul–Nov 2026</div>
+    <p class="lede">Temporex comes into this album with about <b>1.4M Spotify monthly listeners</b>, mostly catalog, and a social footprint a fraction of that size. That gap is a conversion problem, not an awareness one. This is the digital plan that converts it across four singles into the album <span class="r">Fantastic Machines</span>: paid media behind the strongest asset on every drop, DSP conversion (per-single pre-save, Marquee, Showcase, and an album Countdown that opens at Real Time), Strive FM rideshare playlisting as the album's streaming hedge, and three world-building activations that capture owned audience. The <b>$14K</b> below is what CCD deploys, drop by drop.</p>
+    <div class="stats"><div class="stat"><div class="n">$14,000</div><div class="l">MEDIA BUDGET</div></div><div class="stat"><div class="n">~$12,000</div><div class="l">DEPLOYED</div></div><div class="stat"><div class="n">~$2,000</div><div class="l">RESERVE</div></div><div class="stat"><div class="n">4 + 1</div><div class="l">SINGLES → ALBUM</div></div><div class="stat"><div class="n">Jul–Nov</div><div class="l">ROLLOUT WINDOW</div></div></div>
   </header>
 
   <section>
-    <div class="sec-h">How it works</div>
-    <p class="lede" style="margin-top:0">Every single runs the same rhythm: pre-save live at D-14, the animated coming-soon asset at D-7, out-now on drop day, then live cutdowns through D+14. Deliverable base per single: 15s + 30s cutdowns in three CTA versions (vertical + square), a per-track Spotify Canvas (a 9:16 loop, no text), and the live footage from the 19th. The two video singles add a YouTube premiere and MV cutdowns. Below, each single is broken out with its own schedule, deliverables and spend.</p>
-    <div class="two" style="margin-top:20px">
-      <div class="card"><h4>Live performance · the hero content</h4><p>The live set filmed on the 19th is the hero content. Luis cuts it into ~250 vertical clips. Those run as the primary organic content on Reels and TikTok across the whole rollout; the best performers get paid amplification on Meta and TikTok; the full set goes to YouTube around release.</p></div>
-      <div class="card"><h4>The two music videos</h4><p>Two music videos. Real Time (Single 2) is Joseph + Luis in-house: a YouTube premiere of the full cut plus 8–12 vertical cutdowns to organic, paid and Shorts. Fantastic Machine (Single 4) is the big-budget title track: a YouTube premiere as the tentpole, 15–20 cutdowns, the biggest paid push of the campaign, and the lead-in to the album.</p></div>
-    </div>
+    <div class="sh"><span class="kick">Content engine</span><h2>How it runs</h2></div>
+    <div class="engine">The content engine is the live set filmed at the show as the hero footage, cut into a library of vertical clips that seed organic across the whole rollout, plus two music videos: Real Time (in-house) and the big-budget Fantastic Machine title track. Each single follows the same rhythm below, with a per-track Spotify Canvas (a 9:16 loop, no text) shipping with every drop.</div>
   </section>
 
   <section>
-    <div class="sec-h">Release calendar</div>
-    <h2>The cascade</h2>
-    <div class="cal"><div class="c"><div class="r">Lead</div><div class="t">Waterhole</div><div class="n">Single 1</div></div><div class="c"><div class="r">+4 wks</div><div class="t">Real Time <span style="color:var(--red)">▶</span></div><div class="n">Single 2</div></div><div class="c"><div class="r">+8 wks</div><div class="t">Somewhere I'm Better Now</div><div class="n">Single 3</div></div><div class="c"><div class="r">+12 wks</div><div class="t">Fantastic Machine <span style="color:var(--red)">▶</span></div><div class="n">Single 4</div></div><div class="c alb"><div class="r">+16 wks</div><div class="t">Fantastic Machines</div><div class="n">Album</div></div></div>
+    <div class="sh"><span class="kick">Release calendar</span><h2>The cascade</h2></div>
+    <div class="cal"><div class="c"><div class="m">Jul</div><div class="t">Waterhole</div><div class="r">Single 1</div></div><div class="c"><div class="m">Aug</div><div class="t">Real Time <span style="color:var(--red)">▶</span></div><div class="r">Single 2</div></div><div class="c"><div class="m">Sep</div><div class="t">Somewhere I'm Better Now</div><div class="r">Single 3</div></div><div class="c"><div class="m">Oct</div><div class="t">Fantastic Machine <span style="color:var(--red)">▶</span></div><div class="r">Single 4</div></div><div class="c alb"><div class="m">Nov</div><div class="t">Fantastic Machines</div><div class="r">Album</div></div></div>
   </section>
 
   <section>
-    <div class="sec-h">The plan</div>
-    <h2>Schedule + deliverables, per single</h2>
+    <div class="sh"><span class="kick">The plan</span><h2>Schedule, per single</h2>
+      <p class="sub">Each release, on relative days (T-14 through release and beyond). The album is worked for ~8 weeks post-release.</p></div>
     <div class="single">
-      <div class="sh">
-        <div class="name"><span class="num">01</span> Waterhole <span class="tag">Lead</span></div>
+      <div class="shd">
+        <div class="l"><span class="num">01</span> <span class="nm">Waterhole</span> <span class="mo">Jul</span> <span class="tag">Single 1</span></div>
         <div class="spend">$2,000</div>
       </div>
-      <div class="sgrid">
-        <div>
-          <div class="lbl">Schedule</div>
-          <table class="sched"><tr><td class="d">D-14</td><td>Pre-save live; single art posts as the coming-soon tease (link in every bio).</td></tr><tr><td class="d">D-10</td><td>Lore / BTS drop (organic Reels + TikTok, no CTA).</td></tr><tr><td class="d">D-7</td><td>Animated coming-soon asset live; Meta pre-save ads switch on.</td></tr><tr><td class="d">D-3</td><td>Hook clip to feeds; per-track Spotify Canvas delivered; Marquee scheduled.</td></tr><tr><td class="d">Drop</td><td>Out-now cutdowns (organic + Meta / TikTok paid); Canvas live in Spotify; Marquee fires; first live clip.</td></tr><tr><td class="d">D+3</td><td>Dark-post the best-performing clip (Meta + TikTok).</td></tr><tr><td class="d">D+7</td><td>Live-footage cutdown wave (organic) + micro-creator seeds.</td></tr><tr><td class="d">D+14</td><td>Sustain; roll into Real Time's D-14.</td></tr></table>
-        </div>
-        <div>
-          <div class="lbl">Deliverables &rarr; where they go</div>
-          <ul class="assets"><li>Single art (delivered)<span class="w"><b>→</b> Organic announce + pre-save cover</span></li><li>Animated coming-soon / pre-save asset, 15s + 30s, vert + square<span class="w"><b>→</b> Organic IG + TikTok, then Meta pre-save ads</span></li><li>Per-track Spotify Canvas (9:16 loop, no text)<span class="w"><b>→</b> Spotify Now Playing</span></li><li>Out-now cutdowns, 15s + 30s x 3 CTA, vert + square<span class="w"><b>→</b> Organic + Meta / TikTok paid</span></li><li>Live-performance clips (the 19th, cut by Luis)<span class="w"><b>→</b> Organic Reels + TikTok; winners boosted; full set on YouTube</span></li></ul>
-          <div class="spendline"><b>Spend:</b> <b>Meta $1,000</b> · TikTok $400 · Spotify Marquee $400 · YouTube $200. Lead single, full envelope to set the tone.</div>
-        </div>
-      </div>
+      <table class="s"><tr><td class="d">T-14</td><td>Announce; pre-save live; single art tease.</td></tr><tr><td class="d">T-10</td><td>Lore / teaser content begins.</td></tr><tr><td class="d">T-7</td><td>Animated pre-save push; pre-save ads live.</td></tr><tr><td class="d">T-3</td><td>Hook clip; Spotify Canvas delivered; Marquee scheduled.</td></tr><tr><td class="d">Release</td><td>Out now. Marquee fires. Canvas live. First live clips.</td></tr><tr><td class="d">T+3</td><td>Amplify the best-performing clip.</td></tr><tr><td class="d">T+7</td><td>Live-clip wave; creator seeds.</td></tr><tr><td class="d">T+14</td><td>Sustain; hand into Real Time.</td></tr></table>
+      <div class="spline"><b>Spend.</b> Meta $1,000 · TikTok $400 · Spotify Marquee $400 · YouTube $200. Full envelope, lead single.</div>
     </div><div class="single">
-      <div class="sh">
-        <div class="name"><span class="num">02</span> Real Time <span class="tag">+4 wks</span><span class="tag vid">music video</span></div>
+      <div class="shd">
+        <div class="l"><span class="num">02</span> <span class="nm">Real Time</span> <span class="mo">Aug</span> <span class="tag vid">music video</span></div>
         <div class="spend">$2,000</div>
       </div>
-      <div class="sgrid">
-        <div>
-          <div class="lbl">Schedule</div>
-          <table class="sched"><tr><td class="d">D-14</td><td>Pre-save live; single art tease. The album pre-save / Countdown opens here (bios + Meta).</td></tr><tr><td class="d">D-10</td><td>Lore / BTS; tease the music video.</td></tr><tr><td class="d">D-7</td><td>Animated pre-save asset; Meta pre-save ads; YouTube pre-roll warms up.</td></tr><tr><td class="d">D-3</td><td>Hook clip; per-track Canvas delivered; Marquee scheduled.</td></tr><tr><td class="d">Drop</td><td>Music video premieres on YouTube (full cut); out-now cutdowns; Canvas live; Marquee fires.</td></tr><tr><td class="d">D+1</td><td>8–12 vertical MV cutdowns to organic Reels / TikTok + Shorts.</td></tr><tr><td class="d">D+3</td><td>Paid behind the winning MV cutdowns (Meta + TikTok); YouTube pre-roll on the video.</td></tr><tr><td class="d">D+7</td><td>Live cutdown wave + creator seeds.</td></tr><tr><td class="d">D+14</td><td>Sustain; album Countdown running toward launch.</td></tr></table>
-        </div>
-        <div>
-          <div class="lbl">Deliverables &rarr; where they go</div>
-          <ul class="assets"><li>Music video (Joseph + Luis in-house, not ababa)<span class="w"><b>→</b> YouTube premiere (full cut)</span></li><li>8–12 vertical MV cutdowns<span class="w"><b>→</b> Organic Reels + TikTok + Shorts, then paid on the winners</span></li><li>Animated pre-save asset + per-track Canvas + out-now cutdowns<span class="w"><b>→</b> Organic + paid; Canvas on Spotify</span></li><li>Live-performance clips<span class="w"><b>→</b> Organic; winners boosted</span></li></ul>
-          <div class="spendline"><b>Spend:</b> <b>Meta $700</b> · YouTube $450 · TikTok $200 · Spotify Marquee $150. ~$1,500 live, ~$500 to reserve. First music video; the album pre-save opens here.</div>
-        </div>
-      </div>
+      <table class="s"><tr><td class="d">T-14</td><td>Pre-save live; single art tease. Album pre-save / Countdown opens.</td></tr><tr><td class="d">T-10</td><td>Lore; music-video teaser.</td></tr><tr><td class="d">T-7</td><td>Animated pre-save push; pre-save ads live.</td></tr><tr><td class="d">T-3</td><td>Hook clip; Canvas delivered; Marquee scheduled.</td></tr><tr><td class="d">Release</td><td>In-house music video premieres. Out now. Marquee fires. Canvas live.</td></tr><tr><td class="d">T+3</td><td>MV cutdowns; amplify the winners.</td></tr><tr><td class="d">T+7</td><td>Live-clip wave; creator seeds.</td></tr><tr><td class="d">T+14</td><td>Sustain; album Countdown running.</td></tr></table>
+      <div class="spline"><b>Spend.</b> Meta $700 · YouTube $450 · TikTok $200 · Spotify Marquee $150. ~$1,500 live, ~$500 to reserve.</div>
     </div><div class="single">
-      <div class="sh">
-        <div class="name"><span class="num">03</span> Somewhere I'm Better Now <span class="tag">+8 wks</span></div>
+      <div class="shd">
+        <div class="l"><span class="num">03</span> <span class="nm">Somewhere I'm Better Now</span> <span class="mo">Sep</span> <span class="tag">Single 3</span></div>
         <div class="spend">$2,000</div>
       </div>
-      <div class="sgrid">
-        <div>
-          <div class="lbl">Schedule</div>
-          <table class="sched"><tr><td class="d">D-14</td><td>Pre-save live; single art tease; push the album Countdown in bios.</td></tr><tr><td class="d">D-10</td><td>Lore / BTS drop (organic).</td></tr><tr><td class="d">D-7</td><td>Animated pre-save asset; Meta pre-save ads.</td></tr><tr><td class="d">D-3</td><td>Hook clip; per-track Canvas delivered; Marquee scheduled.</td></tr><tr><td class="d">Drop</td><td>Out-now cutdowns (organic + paid); Canvas live; Marquee fires; live clip.</td></tr><tr><td class="d">D+3</td><td>Dark-post the winner (Meta + TikTok).</td></tr><tr><td class="d">D+7</td><td>Live cutdown wave; creator seeds; keep the album Countdown CTA everywhere.</td></tr><tr><td class="d">D+14</td><td>Sustain; ramp toward Single 4.</td></tr></table>
-        </div>
-        <div>
-          <div class="lbl">Deliverables &rarr; where they go</div>
-          <ul class="assets"><li>Animated pre-save asset + per-track Canvas + out-now cutdowns<span class="w"><b>→</b> Organic + Meta / TikTok paid; Canvas on Spotify</span></li><li>Live-performance clips<span class="w"><b>→</b> Organic Reels + TikTok; winners boosted</span></li><li>Album Countdown push assets<span class="w"><b>→</b> Organic bios + Meta, driving album pre-saves</span></li></ul>
-          <div class="spendline"><b>Spend:</b> <b>Meta $700</b> · TikTok $350 · Spotify Marquee $250 · YouTube $200. ~$1,500 live, ~$500 to reserve. Mid-cycle; the album Countdown is already running.</div>
-        </div>
-      </div>
+      <table class="s"><tr><td class="d">T-14</td><td>Pre-save live; single art tease; push the album Countdown.</td></tr><tr><td class="d">T-10</td><td>Lore / teaser content.</td></tr><tr><td class="d">T-7</td><td>Animated pre-save push; pre-save ads live.</td></tr><tr><td class="d">T-3</td><td>Hook clip; Canvas delivered; Marquee scheduled.</td></tr><tr><td class="d">Release</td><td>Out now. Marquee fires. Canvas live. Live clips.</td></tr><tr><td class="d">T+3</td><td>Amplify the winner.</td></tr><tr><td class="d">T+7</td><td>Live-clip wave; creator seeds.</td></tr><tr><td class="d">T+14</td><td>Sustain; ramp toward Fantastic Machine.</td></tr></table>
+      <div class="spline"><b>Spend.</b> Meta $700 · TikTok $350 · Spotify Marquee $250 · YouTube $200. ~$1,500 live, ~$500 to reserve.</div>
     </div><div class="single">
-      <div class="sh">
-        <div class="name"><span class="num">04</span> Fantastic Machine <span class="tag">+12 wks</span><span class="tag vid">music video</span></div>
+      <div class="shd">
+        <div class="l"><span class="num">04</span> <span class="nm">Fantastic Machine</span> <span class="mo">Oct</span> <span class="tag vid">music video</span></div>
         <div class="spend">$2,000</div>
       </div>
-      <div class="sgrid">
-        <div>
-          <div class="lbl">Schedule</div>
-          <table class="sched"><tr><td class="d">D-14</td><td>Pre-save live; single art tease; MV teasers begin.</td></tr><tr><td class="d">D-10</td><td>Lore / BTS; MV-build teases.</td></tr><tr><td class="d">D-7</td><td>Animated pre-save asset; Meta pre-save ads; YouTube pre-roll warms up.</td></tr><tr><td class="d">D-3</td><td>Hook clip; per-track Canvas delivered; Marquee scheduled.</td></tr><tr><td class="d">Drop</td><td>Big-budget MV premieres on YouTube (the tentpole); out-now cutdowns; Canvas live; Marquee fires.</td></tr><tr><td class="d">D+1</td><td>15–20 vertical MV cutdowns across organic + Shorts.</td></tr><tr><td class="d">D+3</td><td>The campaign's biggest paid push behind the MV (Meta + TikTok + YouTube).</td></tr><tr><td class="d">D+7</td><td>Live cutdown wave; invite fans to recreate a shot; creator seeds.</td></tr><tr><td class="d">D+14</td><td>Hand straight into album launch; album pre-save peaks.</td></tr></table>
-        </div>
-        <div>
-          <div class="lbl">Deliverables &rarr; where they go</div>
-          <ul class="assets"><li>Big-budget title-track music video<span class="w"><b>→</b> YouTube premiere, the tentpole</span></li><li>15–20 vertical MV cutdowns<span class="w"><b>→</b> Organic + the biggest paid push + Shorts</span></li><li>Animated pre-save asset + per-track Canvas + out-now cutdowns<span class="w"><b>→</b> Organic + paid; Canvas on Spotify</span></li><li>Live-performance clips<span class="w"><b>→</b> Organic; winners boosted</span></li></ul>
-          <div class="spendline"><b>Spend:</b> <b>Meta $900</b> · YouTube $500 · TikTok $350 · Spotify Marquee $250. Pre-album tentpole; the title-track video leads the drop.</div>
-        </div>
-      </div>
+      <table class="s"><tr><td class="d">T-14</td><td>Pre-save live; single art tease; MV teasers begin.</td></tr><tr><td class="d">T-10</td><td>Lore; MV-build teasers.</td></tr><tr><td class="d">T-7</td><td>Animated pre-save push; pre-save ads live.</td></tr><tr><td class="d">T-3</td><td>Hook clip; Canvas delivered; Marquee scheduled.</td></tr><tr><td class="d">Release</td><td>Big-budget music video premieres. Out now. Marquee fires. Canvas live.</td></tr><tr><td class="d">T+3</td><td>MV cutdowns; the biggest paid push of the campaign.</td></tr><tr><td class="d">T+7</td><td>Live-clip wave; fan recreate-a-shot; creator seeds.</td></tr><tr><td class="d">T+14</td><td>Hand into album launch; album pre-save peaks.</td></tr></table>
+      <div class="spline"><b>Spend.</b> Meta $900 · YouTube $500 · TikTok $350 · Spotify Marquee $250. Pre-album tentpole.</div>
     </div><div class="single">
-      <div class="sh">
-        <div class="name"><span class="num">05</span> Fantastic Machines <span class="tag">+16 wks</span><span class="tag alb">album</span></div>
+      <div class="shd">
+        <div class="l"><span class="num">05</span> <span class="nm">Fantastic Machines</span> <span class="mo">Nov</span> <span class="tag vid">album</span></div>
         <div class="spend">$6,000</div>
       </div>
-      <div class="sgrid">
-        <div>
-          <div class="lbl">Schedule</div>
-          <table class="sched"><tr><td class="d">D-30+</td><td>Album pre-save / Countdown has been open since Single 2; ramp the CTA everywhere.</td></tr><tr><td class="d">D-7</td><td>Marquee + Showcase scheduled; queue Strive (the track must be live to ingest, so line it up).</td></tr><tr><td class="d">D-3</td><td>Per-track Canvas delivered for the key album tracks; hook clips to feeds.</td></tr><tr><td class="d">Drop</td><td>Album out; the Fantastic Machine video is the centerpiece; Canvas live; Marquee + Showcase fire; Strive rideshare starts (~$1,800 / ~150K streams).</td></tr><tr><td class="d">D+1–7</td><td>Daily out-now + live cutdowns through launch week (organic + Meta / TikTok paid).</td></tr><tr><td class="d">D+14</td><td>Sustain; hold the world; move new followers into Laylo; plan any tour / exhibit tie-in.</td></tr></table>
-        </div>
-        <div>
-          <div class="lbl">Deliverables &rarr; where they go</div>
-          <ul class="assets"><li>The Fantastic Machine video as album centerpiece<span class="w"><b>→</b> YouTube + cutdowns across organic + paid</span></li><li>Per-track Spotify Canvas on the key album tracks<span class="w"><b>→</b> Spotify Now Playing</span></li><li>Daily out-now + live cutdowns through launch week<span class="w"><b>→</b> Organic + Meta / TikTok paid</span></li><li>Strive FM rideshare playlisting (~$1,800 / ~150K real streams)<span class="w"><b>→</b> Spotify streams, the decay hedge</span></li><li>Marquee + Showcase<span class="w"><b>→</b> Spotify launch-week banners</span></li></ul>
-          <div class="spendline"><b>Spend:</b> <b>Strive FM $1,800</b> · Meta $1,800 · Marquee + Showcase $900 · YouTube $500. ~$5,000 live, ~$1,000 to reserve. The hero drop.</div>
-        </div>
-      </div>
+      <table class="s"><tr><td class="d">T-30</td><td>Album Countdown open since Real Time; ramp the CTA.</td></tr><tr><td class="d">T-7</td><td>Marquee + Showcase scheduled; Strive queued.</td></tr><tr><td class="d">T-3</td><td>Album-track Canvases delivered; hook clips ready.</td></tr><tr><td class="d">Release</td><td>Album out. The Fantastic Machine video is the centerpiece. Marquee + Showcase fire. Strive starts (~$1,800 / ~150K streams).</td></tr><tr><td class="d">Week 1</td><td>Daily launch content; paid amplification of the standout tracks.</td></tr><tr><td class="d">Week 2</td><td>Second creative wave; Strive continues; retarget pre-savers + first-week listeners.</td></tr><tr><td class="d">Weeks 3-4</td><td>Sustain; playlist + catalog pitching; keep the world alive.</td></tr><tr><td class="d">Weeks 5-8</td><td>Long-tail sustain; roll new fans into Laylo; tour / exhibit tie-in if booked.</td></tr></table>
+      <div class="spline"><b>Spend.</b> Strive FM $1,800 · Meta $1,800 · Marquee + Showcase $900 · YouTube $500. ~$5,000 live, ~$1,000 to reserve. Worked for ~8 weeks.</div>
     </div>
   </section>
 
   <section>
-    <div class="sec-h">Digital spend</div>
-    <h2>The $14K, two ways</h2>
+    <div class="sh"><span class="kick">Digital spend</span><h2>The $14K, two ways</h2></div>
     <div class="budgrid">
-      <div><div class="lbl">By release (envelope)</div><table class="bud"><tr><th>Release</th><th style="text-align:right">Amount</th></tr><tr><td>Waterhole</td><td class="amt">$2,000</td></tr><tr><td>Real Time</td><td class="amt">$2,000</td></tr><tr><td>Somewhere I'm Better Now</td><td class="amt">$2,000</td></tr><tr><td>Fantastic Machine</td><td class="amt">$2,000</td></tr><tr><td>Fantastic Machines (album)</td><td class="amt">$6,000</td></tr><tr class="total"><td>Total</td><td class="amt">$14,000</td></tr></table></div>
-      <div><div class="lbl">By channel (the ~$12K deployed) + reserve</div><table class="bud"><tr><th>Channel</th><th style="text-align:right">Amount</th></tr><tr><td>Meta (IG / FB) paid</td><td class="amt">$5,100</td></tr><tr><td>Spotify Marquee + Showcase</td><td class="amt">$1,950</td></tr><tr><td>YouTube (video singles + album)</td><td class="amt">$1,850</td></tr><tr><td>Strive FM rideshare</td><td class="amt">$1,800</td></tr><tr><td>TikTok promotion</td><td class="amt">$1,300</td></tr><tr><td>Reserve (held, not pre-committed)</td><td class="amt">$2,000</td></tr><tr class="total"><td>Total</td><td class="amt">$14,000</td></tr></table></div>
+      <div><div class="blbl">By release · envelope</div><table class="b"><tr><th>Release</th><th style="text-align:right">Amount</th></tr><tr><td>Waterhole</td><td class="amt">$2,000</td></tr><tr><td>Real Time</td><td class="amt">$2,000</td></tr><tr><td>Somewhere I'm Better Now</td><td class="amt">$2,000</td></tr><tr><td>Fantastic Machine</td><td class="amt">$2,000</td></tr><tr><td>Fantastic Machines · album</td><td class="amt">$6,000</td></tr><tr class="tot"><td>Total</td><td class="amt">$14,000</td></tr></table></div>
+      <div><div class="blbl">By channel · the ~$12K deployed + reserve</div><table class="b"><tr><th>Channel</th><th style="text-align:right">Amount</th></tr><tr><td>Meta (IG / FB) paid</td><td class="amt">$5,100</td></tr><tr><td>Spotify Marquee + Showcase</td><td class="amt">$1,950</td></tr><tr><td>YouTube</td><td class="amt">$1,850</td></tr><tr><td>Strive FM rideshare</td><td class="amt">$1,800</td></tr><tr><td>TikTok promotion</td><td class="amt">$1,300</td></tr><tr><td>Reserve · held</td><td class="amt">$2,000</td></tr><tr class="tot"><td>Total</td><td class="amt">$14,000</td></tr></table></div>
     </div>
-    <p class="note">Marketing only, and separate from production: the ababa animation retainer (~$6.5K / mo) and the music-video shoots ride the recording / production line, not this $14K. The ~$2,000 reserve is held centrally, released mid-cycle to double down on whichever single overperforms and to fund extra cutdowns off the live footage. The activations below are greenlight-later concepts, not costed against this $14K.</p>
+    <p class="note">Marketing only, and separate from production: the ababa animation retainer (~$6.5K / mo) and the music-video shoots ride the recording / production line, not this $14K. The ~$2,000 reserve is held centrally, released mid-cycle to double down on whichever single overperforms and to fund extra edits. The activations below are greenlight-later concepts, not costed against this $14K.</p>
   </section>
 
   <section>
-    <div class="sec-h">Creative activations</div>
-    <h2>Three greenlight-later plays</h2>
-    <p class="note" style="margin-top:0;margin-bottom:18px">World-building that captures owned audience. Pitch concepts, not costed against the $14K.</p>
-    <div class="acts"><div class="act"><div class="k">Web game + gamified pre-save</div><h4>The Machine Room</h4><p>A browser-playable room built from the album's Blender assets (the modular platforms, facades and engine-parts Joseph is already making). Players walk and parkour through the Fantastic Machines world; billboards along the route read “new single, out now,” FIFA-pitch-side style, so it never feels like an ad over the animation. A gamified gate unlocks the next room: “your phone number is your ticket to the ride.” Email / phone drops straight into Laylo.</p><div class="why"><b>Why.</b> The best answer to the core problem. It converts curiosity into an owned email / SMS list, the in-world billboards make promo immersive, and it reuses assets we're already building. Clip the playthrough for Reels and it doubles as the album's dark-ride content.</div></div><div class="act"><div class="k">Custom microsite</div><h4>Archive: the Machine repair manual</h4><p>A standalone site framed as a repair manual for a machine that never existed. Each page is one component, illustrated, with a made-up technical name and an unknown function. New parts get added across the rollout; the full machine is never shown until album day. Dr. Seuss meets Looney Toons, pure cartoon absurdism.</p><div class="why"><b>Why.</b> A collectible artifact fans share, the modern liner notes. Generates inbound press and “look at this” posts, and becomes the destination link from every Reel and every drop.</div></div><div class="act"><div class="k">IRL booth</div><h4>Collaborative Animation Booth</h4><p>A booth at the Heavy Manners show (and adjacent animated-shorts events) where attendees draw one component of the machine on an iPad. Each drawing joins a growing master illustration; the booth prints a personalized flier with the current machine and their piece in it. By album day the machine is fully assembled, built by strangers.</p><div class="why"><b>Why.</b> Turns every event into a content moment, a fan artifact, and a real piece of the album world. “Your drawing made it into the film” converts attendees into superfans.</div></div></div>
+    <div class="sh"><span class="kick">Creative activations</span><h2>Three greenlight-later plays</h2>
+      <p class="sub">World-building that captures owned audience. Pitch concepts, not costed against the $14K.</p></div>
+    <div class="acts"><div class="act"><div class="k">Web game</div><h4>The Machine Room</h4><p>A browser-playable room built from the album's Blender assets. Players walk and parkour through the Fantastic Machines world; billboards along the route read “new single, out now,” FIFA-pitch-side style, so it never feels like an ad over the animation. A gamified gate unlocks the next room: “your phone number is your ticket to the ride,” dropping email / phone straight into Laylo.</p><div class="why"><b>Why.</b> The best answer to the core problem: it converts curiosity into an owned email / SMS list, and it reuses assets we're already building. Clip the playthrough and it doubles as the album's dark-ride content.</div></div><div class="act"><div class="k">Custom microsite</div><h4>Archive: the Machine repair manual</h4><p>A standalone site framed as a repair manual for a machine that never existed. Each page is one component, illustrated, with a made-up technical name and an unknown function. New parts get added across the rollout; the full machine is never shown until album day. Dr. Seuss meets Looney Toons.</p><div class="why"><b>Why.</b> A collectible artifact fans share, the modern liner notes. Generates inbound press and becomes the destination link from every drop.</div></div><div class="act"><div class="k">IRL booth</div><h4>Collaborative Animation Booth</h4><p>A booth at the Heavy Manners show where attendees draw one component of the machine on an iPad. Each drawing joins a growing master illustration; the booth prints a personalized flier with the current machine and their piece in it. By album day the machine is fully assembled, built by strangers.</p><div class="why"><b>Why.</b> Turns every event into a content moment, a fan artifact, and a real piece of the album world. “Your drawing made it into the film” converts attendees into superfans.</div></div></div>
   </section>
 
   <footer>
+    <img src="/brand/CC-LOGO-2024-WHITE.png" alt="Crowd Control Digital">
     <b>Crowd Control Digital</b> · info@crowdcontroldigital.com<br>
-    Temporex / Fantastic Machines album marketing plan · generated July 4, 2026
+    Temporex / Fantastic Machines · album marketing plan · July 2026
   </footer>
 </div>
 </body>
