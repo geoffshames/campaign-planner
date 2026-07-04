@@ -123,8 +123,8 @@ export function TemporexWantingIsHaunting() {
 
   const nav = [
     ['diagnosis', 'Diagnosis'], ['comps', 'Comp Teardown'], ['video', 'Video Intel'],
-    ['strategy', 'Strategy'], ['system', 'Content System'], ['ideas', 'Ideas'], ['world', 'World-Building'], ['playbook', 'Playbook'],
-    ['channels', 'Channels'], ['clipping', 'Clipping'], ['swrm', 'SWRM'], ['dsp', 'DSP'],
+    ['strategy', 'Strategy'], ['assets', 'Asset Rollout'], ['system', 'Content System'], ['ideas', 'Ideas'], ['world', 'Activations'], ['playbook', 'Playbook'],
+    ['channels', 'Channels'], ['spend', 'Spend'], ['clipping', 'Clipping'], ['swrm', 'SWRM'], ['dsp', 'DSP'],
   ];
 
   return (
@@ -172,7 +172,7 @@ export function TemporexWantingIsHaunting() {
           </div>
           <h1 className="font-display text-5xl md:text-8xl leading-[0.95] text-[#FAFAFA]">{C.artist}</h1>
           <p className="font-display text-2xl md:text-4xl text-[#fd3737] mt-3 lowercase">{C.song}</p>
-          <p className="text-[#E4E4E9] text-base md:text-lg mt-6 max-w-2xl">Content strategy + EP rollout playbook. {C.campaignWindow}.</p>
+          <p className="text-[#E4E4E9] text-base md:text-lg mt-6 max-w-2xl">Full album rollout — creative assets, digital spend + activations. {C.campaignWindow}.</p>
           <div className="flex flex-wrap gap-x-8 gap-y-2 mt-8 text-sm text-[#B8B8C0]">
             <span>{C.homeBase}</span><span>·</span><span>{C.label}</span><span>·</span><span>Release: {C.releaseDate}</span>
           </div>
@@ -226,7 +226,7 @@ export function TemporexWantingIsHaunting() {
       <SectionDivider />
 
       {/* ═══ 03 COMP TEARDOWN ═══ */}
-      <Section id="comps" number="02" title="Comp Content Teardown" subtitle="How the reference artists actually post — cadence, hooks and the formats that win. Three dance benchmarks, plus two NYC / persona references.">
+      <Section id="comps" number="02" title="Comp Content Teardown" subtitle="How temporex’s own reference artists actually post — cadence, hooks and the formats that win in the indie / bedroom-pop lane.">
         <div className="grid lg:grid-cols-3 gap-6">
           {C.comps.map((a, i) => (
             <GlassCard key={i} className="p-7 flex flex-col">
@@ -292,7 +292,7 @@ export function TemporexWantingIsHaunting() {
       <SectionDivider />
 
       {/* ═══ 05 STRATEGY ═══ */}
-      <Section id="strategy" number="04" title="The Strategy" subtitle="One thesis, four phases.">
+      <Section id="strategy" number="04" title="The Strategy" subtitle="One thesis, six phases — a single every month into the November album.">
         <GlassCard className="p-8 md:p-12 mb-12 relative overflow-hidden" glow hover={false}>
           <div className="absolute top-0 left-0 w-1 h-full bg-[#fd3737]" />
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -312,6 +312,30 @@ export function TemporexWantingIsHaunting() {
               </GlassCard>
             ))}
           </div>
+        </div>
+        {/* Asset rollout ladder */}
+        <div id="assets" className="mb-12 scroll-mt-24">
+          <div className="text-[11px] uppercase tracking-wider text-[#fd3737] mb-4">Asset rollout · every single, in relative days</div>
+          <GlassCard className="p-6 md:p-8 mb-4" hover={false}>
+            <p className="text-[#E4E4E9] text-sm md:text-base leading-relaxed">{C.assetLadder.intro}</p>
+            <p className="text-[#B8B8C0] text-xs md:text-sm leading-relaxed mt-4 pt-4 border-t border-[#333333]/60"><span className="text-[#fd3737]">Deliverable base: </span>{C.assetLadder.spec}</p>
+          </GlassCard>
+          <div className="space-y-2">
+            {C.assetLadder.rows.map((r, i) => (
+              <GlassCard key={i} className="p-4 md:p-5" hover={false}>
+                <div className="flex items-start gap-4">
+                  <div className="font-display text-lg md:text-xl text-[#fd3737] w-16 md:w-24 shrink-0">{r.day}</div>
+                  <div className="flex-1">
+                    <div className="text-[#FAFAFA] text-sm md:text-base leading-snug">{r.asset}</div>
+                    <div className="text-[#B8B8C0] text-xs mt-1 leading-relaxed">{r.note}</div>
+                  </div>
+                </div>
+              </GlassCard>
+            ))}
+          </div>
+          <GlassCard className="p-5 mt-4 border-l-2 border-l-[#fd3737]" hover={false}>
+            <p className="text-[#E4E4E9] text-sm leading-relaxed"><span className="text-[#fd3737] font-semibold">Album: </span>{C.assetLadder.albumNote}</p>
+          </GlassCard>
         </div>
         {/* Visual Identity */}
         <div className="mb-12">
@@ -410,7 +434,7 @@ export function TemporexWantingIsHaunting() {
       <SectionDivider />
 
       {/* ═══ 07 WORLD-BUILDING ACTIVATIONS ═══ */}
-      <Section id="world" number="07" title="World-Building Activations" subtitle="Three big plays that build the Fantastic Machine universe outside the feed — owned, ownable, and tightly tied to the album narrative.">
+      <Section id="world" number="07" title="Creative Activations" subtitle="Four greenlight-later plays that build the Fantastic Machine world outside the feed — a web game, a custom microsite, an IRL booth and an owned Substack. Pitch concepts, not costed against the $14K media budget.">
         <div className="grid lg:grid-cols-3 gap-6">
           {C.worldBuilding.map((p, i) => (
             <GlassCard key={i} className="p-7 flex flex-col">
@@ -436,7 +460,7 @@ export function TemporexWantingIsHaunting() {
       <SectionDivider />
 
             {/* ═══ 07 PLAYBOOK ═══ */}
-      <Section id="playbook" number="08" title="Rollout Playbook" subtitle="A production calendar backing into the five release dates — a single every month into the Oct 2 EP.">
+      <Section id="playbook" number="08" title="Rollout Playbook" subtitle="A production calendar backing into the five release dates — a single every month into the November album.">
         <div className="relative">
           <div className="absolute left-[19px] md:left-6 top-2 bottom-2 w-px bg-gradient-to-b from-[#fd3737] via-[#333333] to-transparent" />
           <div className="space-y-5">
@@ -487,8 +511,8 @@ export function TemporexWantingIsHaunting() {
         </div>
 
         {/* Budget by drop */}
-        <div className="mt-10">
-          <div className="text-[11px] uppercase tracking-wider text-[#fd3737] mb-4">Budget by drop · {C.budgets.total}</div>
+        <div id="spend" className="mt-10 scroll-mt-24">
+          <div className="text-[11px] uppercase tracking-wider text-[#fd3737] mb-4">Digital spend by drop · {C.budgets.total}</div>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
             {C.budgets.perDrop.map((d, i) => (
               <GlassCard key={i} className="p-5">

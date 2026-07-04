@@ -12,8 +12,8 @@ export const temporex = {
   tier: 'Established · Streaming-Strong',
   label: 'Independent',
   homeBase: 'San Diego, CA',
-  campaignWindow: 'May 22 – November 2026 · four-single cascade into the album',
-  generatedDate: 'May 22, 2026',
+  campaignWindow: 'July – November 2026 · four-single cascade into the album',
+  generatedDate: 'July 4, 2026',
 
   // ── Release calendar ──
   calendar: [
@@ -21,8 +21,29 @@ export const temporex = {
     { date: 'Aug 14', label: 'Single 2 — Real Time (w/ video)', kind: 'single' },
     { date: 'Sep 18', label: 'Single 3 — Somewhere I’m Better Now', kind: 'single' },
     { date: 'Oct 23', label: 'Single 4 — Fantastic Machine (title track + big video)', kind: 'announce' },
-    { date: 'Nov TBD', label: 'Album · Fantastic Machine', kind: 'ep' },
+    { date: 'Nov TBD', label: 'Album · Fantastic Machine (working title T3)', kind: 'ep' },
   ],
+
+  // ── Asset rollout ladder (relative days, repeats per single) ──
+  assetLadder: {
+    intro:
+      'The tentative asset rollout, in relative days, that repeats for every single. It follows the asset priority ladder we locked on 7/2: single art first, then one animated “coming soon” / pre-save asset, then the Spotify Canvas, then “out now” last. One base, text swapped a few times, minimal waste.',
+    spec:
+      'Per-single deliverable base (6/29 spec): 15s + 30s cutdowns, each in three text/CTA versions, one Spotify Canvas, vertical + square. Build the base once, resize and swap the CTA. The live footage filmed on the 19th is the hero content that anchors the cutdowns.',
+    rows: [
+      { day: 'D-14', asset: 'Single art as “coming soon” tease + pre-save live', note: 'Single art is #1 and already delivered. Pre-save link into every bio.' },
+      { day: 'D-10', asset: 'Lore / BTS drop — organic, no CTA', note: 'A bedroom demo, tuning diary, or gnome / lore fragment. Warms the algorithm before the ask.' },
+      { day: 'D-7', asset: 'Animated “coming soon” / pre-save push (15s + 30s, vert + square)', note: 'The one animated asset that carries the pre-save. Meta pre-save ads go live.' },
+      { day: 'D-3', asset: 'Second hook clip + Spotify Canvas finalized', note: 'Lyric or loop-drop clip cut to the hook. Marquee scheduled for drop day.' },
+      { day: 'D-1', asset: '“Out tomorrow” Story + countdown sticker', note: 'Low-lift reminders across Stories; last pre-save nudge (SWRM follow / pre-save actions).' },
+      { day: 'Release', asset: '“Out now” set (15s + 30s × 3 CTA) + Canvas live + first live-footage clip', note: 'Marquee fires at drop, aimed first at lapsed listeners from the 1.4M base.' },
+      { day: 'D+3', asset: 'Paid amplification of the single best organic clip', note: 'Dark-post the winner on Meta + TikTok Spark. Optimize to saves / pre-saves, not views.' },
+      { day: 'D+7', asset: 'Cutdown wave off the live footage + creator seeds', note: 'Luis cuts the footage from the 19th; seed micro-creators on bedroom-pop / indie pages.' },
+      { day: 'D+14', asset: 'Sustain post → roll into the next single’s D-14 tease', note: 'Bridge the world forward so every drop hands off to the next.' },
+    ],
+    albumNote:
+      'The album runs the same ladder but longer: the Spotify Countdown page opens at Single 3 (~8–10 weeks out) and launch week stacks Marquee + Showcase + Strive rideshare + the Fantastic Machine video. Real Time (Single 2) and Fantastic Machine (Single 4) each add a music-video cutdown wave on release day.',
+  },
 
   // ── 02 The Diagnosis / Artist Position ──
   diagnosis: {
@@ -144,7 +165,7 @@ export const temporex = {
     { name: 'Single 1 · Waterhole', weeks: 'Jul 10 – Aug 13', objectives: ['Drop the gnome story publicly', 'Country-western imagery + Linn Drum demo', 'Friend cameo (Adrian) becomes a recurring beat'] },
     { name: 'Single 2 · Real Time (music video)', weeks: 'Aug 14 – Sep 17', objectives: ['Music video as the centerpiece — clip it 12 ways', 'Open the world wider (new location, new character)', 'Small clipping test off the MV'] },
     { name: 'Single 3 · Somewhere I’m Better Now', weeks: 'Sep 18 – Oct 22', objectives: ['Open the album Countdown page', 'Bridge: tie back to the gnome / the farm', 'Begin album sequencing teases'] },
-    { name: 'Single 4 · Fantastic Machine (title track + big video)', weeks: 'Oct 23 – early Nov', objectives: ['The big-budget video is the tentpole and the clipping quarry', 'Main paid clipping push from the $12K album budget', 'Pre-album press + creator seeding crescendos'] },
+    { name: 'Single 4 · Fantastic Machine (title track + big video)', weeks: 'Oct 23 – early Nov', objectives: ['The big-budget video is the tentpole and the clipping quarry', 'Main paid clipping push off the big-budget video (album line + reserve)', 'Pre-album press + creator seeding crescendos'] },
     { name: 'Album Launch · Fantastic Machine', weeks: 'November (TBD) +', objectives: ['Album drops; Marquee + Showcase on; Countdown converts', 'The title track Fantastic Machine is the centerpiece', 'Sustain the world for ≥4 weeks post-release'] },
   ],
 
@@ -207,23 +228,24 @@ export const temporex = {
 
   // ── Budgets by drop ──
   budgets: {
-    total: '$30,000 marketing across the rollout',
+    total: '$14,000 · ~$12K deployed, ~$2K reserve',
     perDrop: [
-      { drop: 'Single 1 · Waterhole', amount: '$6,000', allocation: 'Marquee + pre-save infrastructure, micro-creator seeding on bedroom-pop / indie pages, SWRM engagement to seed lore posts, paid social behind the best organic clips.' },
-      { drop: 'Single 2 · Real Time (MV)', amount: '$6,000', allocation: 'Same base stack + a small clipping test ($1-2K) off the Real Time music video to learn what hooks land.' },
-      { drop: 'Single 3', amount: '$6,000', allocation: 'Same base stack + open the Spotify Countdown page (Clips uploaded), creator seeding warms up for the album.' },
-      { drop: 'Single 4 + Album · Fantastic Machine', amount: '$12,000', allocation: 'Main paid clipping push ($3-5K) off the big-budget video, Marquee + Showcase at scale, macro + micro creator seeding, SWRM at launch, press push (Strive FM / Your Culture).' },
+      { drop: 'Single 1 · Waterhole', amount: '$2,000', allocation: 'Meta $900 (dark-post best clips + the pre-save asset) · TikTok Spark $350 · Spotify Marquee $350 (aimed at lapsed listeners from the 1.4M base) · YouTube pre-roll $200 · micro-creator seeding + cutdowns $200. Lead single — deploy the full envelope to set the tone.' },
+      { drop: 'Single 2 · Real Time (video)', amount: '$2,000', allocation: 'Meta $600 · YouTube pre-roll $350 (lean into the video) · TikTok Spark $250 · Spotify Marquee $200 · clipping test + edits $100. ~$1,500 live, ~$500 held to reserve. Video is Joseph + Luis in-house, not ababa.' },
+      { drop: 'Single 3 · Somewhere I’m Better Now', amount: '$2,000', allocation: 'Meta $600 · TikTok Spark $300 · Spotify Marquee + open the album Countdown page $300 · YouTube pre-roll $150 · creator seeding + edits $150. ~$1,500 live, ~$500 held to reserve.' },
+      { drop: 'Single 4 · Fantastic Machine (video)', amount: '$2,000', allocation: 'Meta $800 · YouTube pre-roll $400 (big video) · TikTok Spark $300 · clipping push off the video $300 · Spotify Marquee $200. Pre-album tentpole — the title-track video is the clipping quarry.' },
+      { drop: 'Album · Fantastic Machine (T3)', amount: '$6,000', allocation: 'Meta $1,800 (multi-format launch) · Strive FM rideshare playlisting $1,600 (~150K streams, decay hedge on the hero) · Spotify Marquee + Showcase $700 · YouTube pre-roll $500 · clipping + creator seeding $400. ~$5,000 live, ~$1,000 held to reserve. The hero drop.' },
     ],
-    note: 'Marketing only. The big-budget Fantastic Machine music video production is funded separately.',
+    note: 'Marketing only, and separate from production: the ababa animation retainer (~$6.5K/mo) and the music-video shoots ride the recording/production line, not this $14K. The ~$2,000 reserve is held centrally for extra live-footage cutdowns and to double down on whichever single overperforms. The creative activations below (microsite, web game, IRL booth) are greenlight-later concepts, not costed against this $14K.',
   },
 
   // ── 08 Rollout Playbook ──
   playbook: [
     { week: 'Now – Jul 9', phase: 'Lore Drop / Reset', objective: 'Turn the engine on. He has been radio silent — that ends now, but quietly and curated.', actions: ['Audit and archive any stale posts; reset the grid to the new visual palette', 'Establish the world: drop the first 3 "lore" posts (the farm, the gnome, the desert)', 'Batch 8-10 phone-shot bedroom demos + tuning diaries in one studio sit', 'Open Waterhole pre-save by ~Jun 12 (4 weeks out)'], signals: ['First lore post outperforms his recent baseline', 'Returning followers see "something is happening" without being told'] },
     { week: 'Jul 10 · Single 1 — Waterhole', phase: 'Single 1', objective: 'Drop the gnome story publicly. Country-western imagery, Linn Drum, mandolin. The lore goes live.', actions: ['Pre-save live in every bio (was up by Jun 12)', 'Drop day: Reel of the Linn Drum loop + the line "poisoned by a gnome" as the text-in-3s hook', 'Adrian (mandolin) cameo Reel during week 1', 'Marquee at drop, aimed at lapsed + recent listeners from the 1.4M base'], signals: ['First-week streams vs. his 2021 single baselines', '"who is the gnome" / "what is this album" comments appear'] },
-    { week: 'Aug 14 · Single 2 — Real Time (music video)', phase: 'Single 2 · Music video', objective: 'The music video IS the content asset. Clip it 12 ways.', actions: ['Pre-save up by ~Jul 17 (4 wks out); Marquee at drop', 'Music video drops alongside the single; immediately cut 8-12 vertical Reels off it', 'Small paid clipping test ($1-2K) — measure cost-per-save, not just views', 'Push the lore wider: new character or location enters the world'], signals: ['MV crosses 100K views in week 1', 'A clip / lyric line breaks out organically'] },
+    { week: 'Aug 14 · Single 2 — Real Time (music video)', phase: 'Single 2 · Music video', objective: 'The music video IS the content asset. Clip it 12 ways.', actions: ['Pre-save up by ~Jul 17 (4 wks out); Marquee at drop', 'Music video drops alongside the single; immediately cut 8-12 vertical Reels off it', 'Small paid clipping test (~$100 + reserve if it hits) — measure cost-per-save, not just views', 'Push the lore wider: new character or location enters the world'], signals: ['MV crosses 100K views in week 1', 'A clip / lyric line breaks out organically'] },
     { week: 'Sep 18 · Single 3 — Somewhere I’m Better Now', phase: 'Single 3 · Album Countdown opens', objective: 'Mid-rollout tentpole. Open the album Countdown page; bridge the world to the album.', actions: ['Open Spotify Countdown for the album with Clips (~2x pre-saves) — bio + every clip CTA', 'Announce the album: "this is the [name]verse" payoff', 'Pre-save up by ~Aug 21; Marquee at single drop', 'Begin seeding micro-creators on bedroom-pop / dream-pop / indie pages'], signals: ['Countdown pre-saves ramping', 'Announce is the highest-engagement post yet'] },
-    { week: 'Oct 23 · Single 4 — Fantastic Machine (big budget video)', phase: 'Single 4 · Big video tentpole', objective: 'Tentpole. Big video is the clipping quarry AND the visual climax of the world.', actions: ['Pre-save up by ~Sep 25 (4 wks out)', 'Drop the music video alongside the single', 'Main paid clipping push: $3-5K, tight brief tying clips to album pre-save', 'Fan-flip cycle peaks — invite fans to recreate one shot from the video'], signals: ['MV crosses 500K views in 2 weeks', 'Clip campaign CPM in the $1-5 range'] },
+    { week: 'Oct 23 · Single 4 — Fantastic Machine (big budget video)', phase: 'Single 4 · Big video tentpole', objective: 'Tentpole. Big video is the clipping quarry AND the visual climax of the world.', actions: ['Pre-save up by ~Sep 25 (4 wks out)', 'Drop the music video alongside the single', 'Paid clipping push (~$300 on this drop + first call on the $2K reserve), tight brief tying clips to the album pre-save', 'Fan-flip cycle peaks — invite fans to recreate one shot from the video'], signals: ['MV crosses 500K views in 2 weeks', 'Clip campaign CPM in the $1-5 range'] },
     { week: 'Nov · Album — Fantastic Machine', phase: 'Album Launch', objective: 'Album day. Convert the year-long lore audience.', actions: ['Album drops; Marquee + Showcase on; Countdown page converts', 'Drop the title-track Reel ("Fantastic Machine" text-in-3s, cartoon hook visual)', 'Daily Reels of the album’s standout moments across launch week', 'Push press, Your Culture, Strive FM, micro-creator seeding'], signals: ['Album first-week streams beat "Bowling" (2021) baseline by 50%+', 'Sound creates on the title track climbing on Reels and TikTok'] },
     { week: 'Nov + (sustain)', phase: 'Sustain', objective: 'Hold the world. Bank the audience.', actions: ['Resume the 5-format weekly rotation through year-end', 'Move new followers into Laylo email/SMS', 'Tour announce (if booked) tied to the world / characters', 'Plan visual-art exhibit or merch capsule extending the [name]verse'], signals: ['Streaming holds 70%+ of week 1 by week 4', 'Owned audience (email/SMS) standing up; tour-on-sale activity if relevant'] },
   ],
@@ -231,9 +253,9 @@ export const temporex = {
   // ── 09 Channel Allocation ──
   allocation: [
     { channel: 'Organic content engine (IG-Reels-led)', pct: 50, color: '#FD3737', rationale: 'IG is the lane platform — all four comps live here. Reels do 50% of IG time. The lo-fi format gets +20% on Reels, +32% on TikTok. Highest leverage and the only thing that fixes the underlying silence.' },
-    { channel: 'Paid clipping + social', pct: 20, color: '#D42D2D', rationale: 'Small test off the Real Time MV in August; main $3-5K push off the Fantastic Machine big-budget video in October, plus paid behind the best organic angles.' },
+    { channel: 'Paid clipping + social', pct: 20, color: '#D42D2D', rationale: 'Small test off the Real Time video in August; a focused push off the Fantastic Machine video in October (album line + reserve), plus paid dark-posts behind the best organic clips on every drop.' },
     { channel: 'Creator + SWRM engagement', pct: 20, color: '#A1A1AA', rationale: 'Micro-creators on bedroom-pop / dream-pop / indie pages + CCD-owned SWRM real-user engagement to seed lore posts so they clear the algorithm threshold.' },
-    { channel: 'DSP + experiential', pct: 10, color: '#71717A', rationale: 'Marquee, Showcase, Countdown page, Spotify Canvas (carry the @handle "follow for the lore" hook). Optional: tour / visual-art exhibit tie-ins.' },
+    { channel: 'DSP + experiential', pct: 10, color: '#71717A', rationale: 'Marquee at every drop, Showcase + Strive FM rideshare playlisting at album launch, the Countdown page, and Spotify Canvas carrying the @handle "follow for the lore" hook. Optional: tour / visual-art exhibit tie-ins.' },
   ],
   allocationPhases: [
     { phase: 'Lore Drop / Reset', split: 'Organic 80 · Seeding 15 · Paid 0 · DSP 5' },
@@ -244,12 +266,12 @@ export const temporex = {
 
   // ── 10 Clipping + Amplification ──
   clipping: {
-    intro: 'temporex has no recurring long-set asset to clip — the two music videos are the clipping quarries. Small test off the Real Time MV in August (out of the $6K Single 2 budget), main push off the Fantastic Machine big-budget video in October-November (out of the $12K album budget).',
+    intro: 'temporex has no recurring long-set asset to clip — the two music videos are the clipping quarries. Small test off the Real Time video in August (~$100 from the Single 2 line), main push off the Fantastic Machine video in October–November (~$300 from the album line + the $2K reserve). Kept deliberately lean on a $14K budget; scale only what proves out.',
     steps: [
       { step: 'Music video #1 (Aug 14)', detail: 'Real Time MV is the first clipping asset. Cut 8-12 vertical Reels off it on launch day.' },
-      { step: 'Small paid clipping test', detail: 'Test small (~$1-2K) on Real Time MV in August. Learn what hooks land. Measure cost-per-save and pre-save, not just views.' },
+      { step: 'Small paid clipping test', detail: 'Test small (~$100 + reserve) on the Real Time video in August. Learn what hooks land. Measure cost-per-save and pre-save, not just views.' },
       { step: 'Music video #2 (Oct 23)', detail: 'Fantastic Machine big-budget video is the tentpole. Cut 15-20 verticals. This is the year’s biggest visual asset.' },
-      { step: 'Main paid clipping push', detail: 'Scale to $3-5K at the Oct 23 release and through album launch (Nov). $1-5 CPM cap; tight brief tying every clip to the album pre-save and the lore.' },
+      { step: 'Main paid clipping push', detail: 'Scale using the album clipping line (~$300–400) plus the $2K reserve at the Oct 23 release and through album launch (Nov). $1–5 CPM cap; tight brief tying every clip to the album pre-save and the lore.' },
       { step: 'Lo-fi creator seeding', detail: 'Micro-creators on bedroom-pop / dream-pop / indie pages; lyric / lore clips suit them better than dance set clips.' },
     ],
   },
@@ -281,6 +303,15 @@ export const temporex = {
 
   // ── World-Building Activations (Substack / Microsite / Booth) ──
   worldBuilding: [
+    {
+      name: 'The Machine Room · explorable web game + gamified pre-save',
+      format: 'Web-based 3D world (WebGL / Blender) · custom domain',
+      bit:
+        'A browser-playable room built from the album’s Blender assets — the modular platforms, facades and engine-parts Joseph is already making. Players walk and parkour through the Fantastic Machine world (Mirror’s Edge-style), and the promo lives inside the world: billboards along the route read “new single — out now,” FIFA-pitch-side style, so it never feels like an ad slapped over the animation. A gamified gate unlocks the next room — “your phone number is your ticket to the ride.” Drop an email / phone to open a hidden track or the album countdown, captured straight into Laylo for email + SMS retargeting on future drops and shows.',
+      why:
+        'The single best answer to the core problem: 1.4M passive catalog streamers, almost none of them owned. The game converts curiosity into an owned email / SMS list (pull, not push), the in-world billboards make every single announcement immersive instead of salesy, and it reuses assets the artist + ababa are already building — so the incremental cost is mostly web dev. Clip the playthrough for Reels and it doubles as the album’s centerpiece “dark ride” content.',
+      refs: [] as { label: string; url: string }[],
+    },
     {
       name: 'Substack · "From inside the Machine"',
       format: 'Episodic narrative · owned email + on-platform',
