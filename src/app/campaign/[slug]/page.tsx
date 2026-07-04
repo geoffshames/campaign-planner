@@ -24,7 +24,7 @@ export function generateMetadata({ params }: { params: { slug: string } }): Meta
     return {
       ...noIndex,
       title: 'temporex — Fantastic Machine | Campaign Planner',
-      description: 'Album rollout strategy for temporex (Fantastic Machine, Nov 2026), backing into four singles. Lore-driven content system for the 1.4M-streaming dream-pop artist.',
+      description: 'Album rollout strategy for temporex (Fantastic Machine), backing into four singles. Lore-driven content system for the 1.4M-streaming dream-pop artist.',
       openGraph: {
         title: 'temporex — Fantastic Machine | Crowd Control Digital',
         description: 'Album rollout strategy for temporex.',

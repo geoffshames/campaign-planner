@@ -292,7 +292,7 @@ export function TemporexWantingIsHaunting() {
       <SectionDivider />
 
       {/* ═══ 05 STRATEGY ═══ */}
-      <Section id="strategy" number="04" title="The Strategy" subtitle="One thesis, six phases — a single every month into the November album.">
+      <Section id="strategy" number="04" title="The Strategy" subtitle="One thesis, six phases: a single every ~4 weeks into the album.">
         <GlassCard className="p-8 md:p-12 mb-12 relative overflow-hidden" glow hover={false}>
           <div className="absolute top-0 left-0 w-1 h-full bg-[#fd3737]" />
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -434,7 +434,7 @@ export function TemporexWantingIsHaunting() {
       <SectionDivider />
 
       {/* ═══ 07 WORLD-BUILDING ACTIVATIONS ═══ */}
-      <Section id="world" number="07" title="Creative Activations" subtitle="Four greenlight-later plays that build the Fantastic Machine world outside the feed — a web game, a custom microsite, an IRL booth and an owned Substack. Pitch concepts, not costed against the $14K media budget.">
+      <Section id="world" number="07" title="Creative Activations" subtitle="Three greenlight-later plays that build the Fantastic Machine world outside the feed: a web game, a custom microsite and an IRL booth. Pitch concepts, not costed against the $14K media budget.">
         <div className="grid lg:grid-cols-3 gap-6">
           {C.worldBuilding.map((p, i) => (
             <GlassCard key={i} className="p-7 flex flex-col">
@@ -460,7 +460,7 @@ export function TemporexWantingIsHaunting() {
       <SectionDivider />
 
             {/* ═══ 07 PLAYBOOK ═══ */}
-      <Section id="playbook" number="08" title="Rollout Playbook" subtitle="A production calendar backing into the five release dates — a single every month into the November album.">
+      <Section id="playbook" number="08" title="Rollout Playbook" subtitle="A production calendar backing into the five releases: a single every ~4 weeks into the album.">
         <div className="relative">
           <div className="absolute left-[19px] md:left-6 top-2 bottom-2 w-px bg-gradient-to-b from-[#fd3737] via-[#333333] to-transparent" />
           <div className="space-y-5">
