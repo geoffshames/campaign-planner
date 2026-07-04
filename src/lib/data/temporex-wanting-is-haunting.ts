@@ -39,7 +39,7 @@ export const temporex = {
   // ── Asset rollout ladder (relative days, repeats per single) ──
   assetLadder: {
     intro:
-      'The timing rhythm every single follows, in relative days (each single’s specific assets are broken out in the next section). It follows the asset priority ladder we locked on 7/2: single art first, then one animated “coming soon” / pre-save asset, then the per-track Spotify Canvas (a no-text loop that plays inside Spotify, not a feed post), then “out now” last. One base, text swapped a few times, minimal waste.',
+      'The timing rhythm every single follows, in relative days (each single’s full schedule and assets are in the next section). It follows the asset priority ladder we locked on 7/2: single art first, then one animated “coming soon” / pre-save asset, then the per-track Spotify Canvas (a no-text loop that plays inside Spotify, not a feed post), then “out now” last. One base, text swapped a few times, minimal waste.',
     spec:
       'Per-single deliverable base (6/29 spec): 15s + 30s cutdowns, each in three text/CTA versions, in vertical and square, plus a per-track Spotify Canvas (a 3–8s vertical 9:16 loop, no text or CTA — Spotify rejects those). Build the base once, resize and swap the CTA. The live footage filmed on the 19th is the hero content that anchors the cutdowns.',
     rows: [
@@ -69,6 +69,16 @@ export const temporex = {
   perSingle: [
     {
       name: 'Single 1 · Waterhole', timing: 'Lead', kind: 'single',
+      schedule: [
+        { day: 'D-14', do: 'Pre-save live; single art posts as the coming-soon tease (link in every bio).' },
+        { day: 'D-10', do: 'Lore / BTS drop (organic Reels + TikTok, no CTA).' },
+        { day: 'D-7', do: 'Animated pre-save asset live; Meta pre-save ads switch on.' },
+        { day: 'D-3', do: 'Hook clip to feeds; per-track Canvas delivered to Spotify; Marquee scheduled.' },
+        { day: 'Drop', do: 'Out-now cutdowns (organic + Meta / TikTok paid); Canvas live in Spotify; Marquee fires; first live clip.' },
+        { day: 'D+3', do: 'Dark-post the best-performing clip (Meta + TikTok).' },
+        { day: 'D+7', do: 'Live-footage cutdown wave (organic) + micro-creator seeds.' },
+        { day: 'D+14', do: 'Sustain; roll into Real Time’s D-14.' },
+      ],
       assets: [
         { a: 'Single art (delivered)', w: 'Organic announce + pre-save cover' },
         { a: 'Animated coming-soon / pre-save asset — 15s + 30s, vert + square (ababa)', w: 'Organic IG + TikTok, then Meta pre-save ads' },
@@ -80,6 +90,17 @@ export const temporex = {
     },
     {
       name: 'Single 2 · Real Time', timing: '+4 wks', kind: 'video',
+      schedule: [
+        { day: 'D-14', do: 'Pre-save live; single art tease. The album pre-save / Countdown opens here (bios + Meta).' },
+        { day: 'D-10', do: 'Lore / BTS; tease the music video.' },
+        { day: 'D-7', do: 'Animated pre-save asset; Meta pre-save ads; YouTube pre-roll warms up.' },
+        { day: 'D-3', do: 'Hook clip; per-track Canvas to Spotify; Marquee scheduled.' },
+        { day: 'Drop', do: 'Music video premieres on YouTube (full cut); out-now cutdowns; Canvas live; Marquee fires.' },
+        { day: 'D+1', do: '8–12 vertical MV cutdowns to organic Reels / TikTok + Shorts.' },
+        { day: 'D+3', do: 'Paid behind the winning MV cutdowns (Meta + TikTok); YouTube pre-roll on the video.' },
+        { day: 'D+7', do: 'Live cutdown wave + creator seeds.' },
+        { day: 'D+14', do: 'Sustain; album Countdown running toward launch.' },
+      ],
       assets: [
         { a: 'Music video (Joseph + Luis in-house)', w: 'YouTube premiere (full cut)' },
         { a: '8–12 vertical MV cutdowns', w: 'Organic Reels + TikTok + Shorts, then Meta / TikTok paid on the winners' },
@@ -90,6 +111,16 @@ export const temporex = {
     },
     {
       name: 'Single 3 · Somewhere I’m Better Now', timing: '+8 wks', kind: 'single',
+      schedule: [
+        { day: 'D-14', do: 'Pre-save live; single art tease; push the album Countdown in bios.' },
+        { day: 'D-10', do: 'Lore / BTS drop (organic).' },
+        { day: 'D-7', do: 'Animated pre-save asset; Meta pre-save ads.' },
+        { day: 'D-3', do: 'Hook clip; per-track Canvas to Spotify; Marquee scheduled.' },
+        { day: 'Drop', do: 'Out-now cutdowns (organic + paid); Canvas live; Marquee fires; live clip.' },
+        { day: 'D+3', do: 'Dark-post the winner (Meta + TikTok).' },
+        { day: 'D+7', do: 'Live cutdown wave; creator seeds; keep the album Countdown CTA everywhere.' },
+        { day: 'D+14', do: 'Sustain; ramp toward Single 4.' },
+      ],
       assets: [
         { a: 'Animated pre-save asset + per-track Canvas + out-now cutdowns', w: 'Organic + Meta / TikTok paid; Canvas on Spotify' },
         { a: 'Live-performance clips', w: 'Organic Reels + TikTok; winners boosted' },
@@ -99,6 +130,17 @@ export const temporex = {
     },
     {
       name: 'Single 4 · Fantastic Machine', timing: '+12 wks', kind: 'video',
+      schedule: [
+        { day: 'D-14', do: 'Pre-save live; single art tease; MV teasers begin.' },
+        { day: 'D-10', do: 'Lore / BTS; MV-build teases.' },
+        { day: 'D-7', do: 'Animated pre-save asset; Meta pre-save ads; YouTube pre-roll warms up.' },
+        { day: 'D-3', do: 'Hook clip; per-track Canvas to Spotify; Marquee scheduled.' },
+        { day: 'Drop', do: 'Big-budget MV premieres on YouTube (the tentpole); out-now cutdowns; Canvas live; Marquee fires.' },
+        { day: 'D+1', do: '15–20 vertical MV cutdowns across organic + Shorts.' },
+        { day: 'D+3', do: 'The campaign’s biggest paid push behind the MV (Meta + TikTok + YouTube).' },
+        { day: 'D+7', do: 'Live cutdown wave; invite fans to recreate a shot; creator seeds.' },
+        { day: 'D+14', do: 'Hand straight into album launch; album pre-save peaks.' },
+      ],
       assets: [
         { a: 'Big-budget title-track music video', w: 'YouTube premiere — the tentpole' },
         { a: '15–20 vertical MV cutdowns', w: 'Organic + the campaign’s biggest paid push (Meta / TikTok) + Shorts' },
@@ -109,6 +151,14 @@ export const temporex = {
     },
     {
       name: 'Album · Fantastic Machine (T3)', timing: '+16 wks', kind: 'ep',
+      schedule: [
+        { day: 'D-30+', do: 'Album pre-save / Countdown has been open since Single 2; ramp the CTA everywhere.' },
+        { day: 'D-7', do: 'Marquee + Showcase scheduled; queue Strive (the track must be live to ingest, so line it up).' },
+        { day: 'D-3', do: 'Per-track Canvas delivered for the key album tracks; hook clips to feeds.' },
+        { day: 'Drop', do: 'Album out; the Fantastic Machine video is the centerpiece; Canvas live; Marquee + Showcase fire; Strive rideshare starts (~$1,800 / ~150K streams).' },
+        { day: 'D+1–7', do: 'Daily out-now + live cutdowns through launch week (organic + Meta / TikTok paid).' },
+        { day: 'D+14', do: 'Sustain; hold the world; move new followers into Laylo; plan any tour / exhibit tie-in.' },
+      ],
       assets: [
         { a: 'The Fantastic Machine video as the album centerpiece', w: 'YouTube + cutdowns across organic + paid' },
         { a: 'Per-track Canvas on the key album tracks', w: 'Spotify Now Playing' },
