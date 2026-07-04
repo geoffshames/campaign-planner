@@ -122,7 +122,7 @@ export function TemporexWantingIsHaunting() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const nav = [
-    ['overview', 'Overview'], ['rollout', 'Rollout'], ['spend', 'Digital Spend'], ['activations', 'Activations'],
+    ['overview', 'Overview'], ['rollout', 'Rollout'], ['persingle', 'Per Single'], ['spend', 'Digital Spend'], ['activations', 'Activations'],
   ];
 
   return (
@@ -229,11 +229,50 @@ export function TemporexWantingIsHaunting() {
             <p className="text-[#E4E4E9] text-sm leading-relaxed"><span className="text-[#fd3737] font-semibold">Album: </span>{C.assetLadder.albumNote}</p>
           </GlassCard>
         </div>
+        <div className="mt-10">
+          <div className="text-[11px] uppercase tracking-wider text-[#fd3737] mb-4">Video + live footage — where it goes</div>
+          <div className="grid md:grid-cols-2 gap-4">
+            <GlassCard className="p-6" hover={false}>
+              <h4 className="font-display text-base text-[#FAFAFA] mb-2">Live performance · the hero content</h4>
+              <p className="text-[#E4E4E9] text-sm leading-relaxed">{C.videoFootage.live}</p>
+            </GlassCard>
+            <GlassCard className="p-6" hover={false}>
+              <h4 className="font-display text-base text-[#FAFAFA] mb-2">The two music videos</h4>
+              <p className="text-[#E4E4E9] text-sm leading-relaxed">{C.videoFootage.videos}</p>
+            </GlassCard>
+          </div>
+        </div>
       </Section>
       <SectionDivider />
 
-      {/* 03 DIGITAL SPEND */}
-      <Section id="spend" number="03" title="Digital Spend" subtitle="The full $14K, by drop and by channel. About $12K deployed now, ~$2K held in reserve.">
+      {/* 03 PER-SINGLE BREAKOUT */}
+      <Section id="persingle" number="03" title="Per-Single Breakout" subtitle="Every single, broken out: the exact assets and where each one goes.">
+        <div className="space-y-5">
+          {C.perSingle.map((sg, i) => (
+            <GlassCard key={i} className={`p-6 md:p-7 ${sg.kind === 'ep' ? 'border-l-2 border-l-[#fd3737]' : ''}`} hover={false}>
+              <div className="flex flex-wrap items-center gap-3 mb-4">
+                <h4 className="font-display text-lg md:text-xl text-[#FAFAFA]">{sg.name}</h4>
+                <Badge color="#A1A1AA">{sg.timing}</Badge>
+                {sg.kind === 'video' && <Badge>music video</Badge>}
+                {sg.kind === 'ep' && <Badge>album</Badge>}
+              </div>
+              <div>
+                {sg.assets.map((a, j) => (
+                  <div key={j} className="grid md:grid-cols-2 gap-1 md:gap-4 py-2 border-t border-[#333333]/50">
+                    <div className="text-[#FAFAFA] text-sm leading-snug">{a.a}</div>
+                    <div className="text-[#B8B8C0] text-sm leading-snug"><span className="text-[#fd3737]">→ </span>{a.w}</div>
+                  </div>
+                ))}
+              </div>
+              <p className="text-[#B8B8C0] text-xs italic mt-4">{sg.note}</p>
+            </GlassCard>
+          ))}
+        </div>
+      </Section>
+      <SectionDivider />
+
+      {/* 04 DIGITAL SPEND */}
+      <Section id="spend" number="04" title="Digital Spend" subtitle="The full $14K, by drop and by channel. About $12K deployed now, ~$2K held in reserve.">
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
           {C.budgets.perDrop.map((d, i) => (
             <GlassCard key={i} className="p-6">
@@ -262,7 +301,7 @@ export function TemporexWantingIsHaunting() {
       <SectionDivider />
 
       {/* 04 ACTIVATIONS */}
-      <Section id="activations" number="04" title="Creative Activations" subtitle="Three greenlight-later plays that build the Fantastic Machine world and capture owned audience. Pitch concepts, not costed against the $14K.">
+      <Section id="activations" number="05" title="Creative Activations" subtitle="Three greenlight-later plays that build the Fantastic Machine world and capture owned audience. Pitch concepts, not costed against the $14K.">
         <div className="grid lg:grid-cols-3 gap-6">
           {C.worldBuilding.map((p, i) => (
             <GlassCard key={i} className="p-7 flex flex-col">

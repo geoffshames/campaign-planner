@@ -39,7 +39,7 @@ export const temporex = {
   // ── Asset rollout ladder (relative days, repeats per single) ──
   assetLadder: {
     intro:
-      'The tentative asset rollout, in relative days, that repeats for every single. It follows the asset priority ladder we locked on 7/2: single art first, then one animated “coming soon” / pre-save asset, then the per-track Spotify Canvas (a no-text loop that plays inside Spotify, not a feed post), then “out now” last. One base, text swapped a few times, minimal waste.',
+      'The timing rhythm every single follows, in relative days (each single’s specific assets are broken out in the next section). It follows the asset priority ladder we locked on 7/2: single art first, then one animated “coming soon” / pre-save asset, then the per-track Spotify Canvas (a no-text loop that plays inside Spotify, not a feed post), then “out now” last. One base, text swapped a few times, minimal waste.',
     spec:
       'Per-single deliverable base (6/29 spec): 15s + 30s cutdowns, each in three text/CTA versions, in vertical and square, plus a per-track Spotify Canvas (a 3–8s vertical 9:16 loop, no text or CTA — Spotify rejects those). Build the base once, resize and swap the CTA. The live footage filmed on the 19th is the hero content that anchors the cutdowns.',
     rows: [
@@ -56,6 +56,69 @@ export const temporex = {
     albumNote:
       'The album runs the same ladder but longer: the album pre-save / Countdown opens at Single 2 (~12 weeks of lead-in) and launch week stacks Marquee + Showcase + Strive rideshare + the Fantastic Machine video. Real Time (Single 2) and Fantastic Machine (Single 4) each add a music-video cutdown wave on release day.',
   },
+
+  // ── Video + live footage distribution ──
+  videoFootage: {
+    live:
+      'The live performance filmed on the 19th is the hero content. Luis cuts it down to ~250 vertical clips (from the ~3K shot). Those run as the primary organic engine on IG Reels + TikTok across the whole rollout; the best performers get paid amplification on Meta + TikTok; the full set goes up on YouTube around release.',
+    videos:
+      'Two music videos. Real Time (Single 2) is Joseph + Luis in-house (not ababa): a YouTube premiere of the full cut, plus 8–12 vertical cutdowns to organic Reels / TikTok / Shorts and then paid on the winners. Fantastic Machine (Single 4) is the big-budget title track: a YouTube premiere as the tentpole, 15–20 cutdowns, the biggest paid push of the campaign, and the lead-in to the album.',
+  },
+
+  // ── Per-single asset breakout ──
+  perSingle: [
+    {
+      name: 'Single 1 · Waterhole', timing: 'Lead', kind: 'single',
+      assets: [
+        { a: 'Single art (delivered)', w: 'Organic announce + pre-save cover' },
+        { a: 'Animated coming-soon / pre-save asset — 15s + 30s, vert + square (ababa)', w: 'Organic IG + TikTok, then Meta pre-save ads' },
+        { a: 'Per-track Spotify Canvas — no-text loop', w: 'Spotify Now Playing (per track)' },
+        { a: 'Out-now cutdowns — 15s + 30s × 3 CTA, vert + square', w: 'Organic + Meta / TikTok paid' },
+        { a: 'Live-performance clips (the 19th, cut by Luis)', w: 'Organic Reels + TikTok; winners boosted; full set on YouTube' },
+      ],
+      note: 'Lead single sets the visual world. No music video — the live clips and the animated pre-save asset carry it.',
+    },
+    {
+      name: 'Single 2 · Real Time', timing: '+4 wks', kind: 'video',
+      assets: [
+        { a: 'Music video (Joseph + Luis in-house)', w: 'YouTube premiere (full cut)' },
+        { a: '8–12 vertical MV cutdowns', w: 'Organic Reels + TikTok + Shorts, then Meta / TikTok paid on the winners' },
+        { a: 'Animated pre-save asset + per-track Canvas + out-now cutdowns', w: 'Organic + paid; Canvas on Spotify' },
+        { a: 'Live-performance clips', w: 'Organic; winners boosted' },
+      ],
+      note: 'First music video, and the drop where the album pre-save / Countdown opens. YouTube spend points at the video.',
+    },
+    {
+      name: 'Single 3 · Somewhere I’m Better Now', timing: '+8 wks', kind: 'single',
+      assets: [
+        { a: 'Animated pre-save asset + per-track Canvas + out-now cutdowns', w: 'Organic + Meta / TikTok paid; Canvas on Spotify' },
+        { a: 'Live-performance clips', w: 'Organic Reels + TikTok; winners boosted' },
+        { a: 'Album Countdown push assets', w: 'Organic bios + Meta, driving album pre-saves' },
+      ],
+      note: 'Mid-cycle. No music video — leans on live clips and the album Countdown already running since Single 2.',
+    },
+    {
+      name: 'Single 4 · Fantastic Machine', timing: '+12 wks', kind: 'video',
+      assets: [
+        { a: 'Big-budget title-track music video', w: 'YouTube premiere — the tentpole' },
+        { a: '15–20 vertical MV cutdowns', w: 'Organic + the campaign’s biggest paid push (Meta / TikTok) + Shorts' },
+        { a: 'Animated pre-save asset + per-track Canvas + out-now cutdowns', w: 'Organic + paid; Canvas on Spotify' },
+        { a: 'Live-performance clips', w: 'Organic; winners boosted' },
+      ],
+      note: 'Pre-album tentpole. The big video leads the drop and hands straight into the album.',
+    },
+    {
+      name: 'Album · Fantastic Machine (T3)', timing: '+16 wks', kind: 'ep',
+      assets: [
+        { a: 'The Fantastic Machine video as the album centerpiece', w: 'YouTube + cutdowns across organic + paid' },
+        { a: 'Per-track Canvas on the key album tracks', w: 'Spotify Now Playing' },
+        { a: 'Daily out-now + live cutdowns through launch week', w: 'Organic + Meta / TikTok paid' },
+        { a: 'Strive FM rideshare playlisting (~$1,800 / ~150K streams)', w: 'Spotify streams — the decay hedge' },
+        { a: 'Marquee + Showcase', w: 'Spotify launch-week banners' },
+      ],
+      note: 'The hero drop. Launch week stacks the video, paid, Strive, and the Marquee + Showcase banners.',
+    },
+  ],
 
   // ── 02 The Diagnosis / Artist Position ──
   diagnosis: {
@@ -246,13 +309,13 @@ export const temporex = {
       { drop: 'Single 2 · Real Time (video)', amount: '$2,000', allocation: 'Meta $700 · YouTube $450 (lean into the video) · TikTok $200 · Spotify Marquee $150. ~$1,500 live, ~$500 held to reserve. Video is Joseph + Luis in-house, not ababa. The album pre-save / Countdown opens here.' },
       { drop: 'Single 3 · Somewhere I’m Better Now', amount: '$2,000', allocation: 'Meta $700 · TikTok $350 · Spotify Marquee $250 · YouTube $200. ~$1,500 live, ~$500 held to reserve.' },
       { drop: 'Single 4 · Fantastic Machine (video)', amount: '$2,000', allocation: 'Meta $900 · YouTube $500 (big video) · TikTok $350 · Spotify Marquee $250. Pre-album tentpole — the title-track video leads the drop.' },
-      { drop: 'Album · Fantastic Machine (T3)', amount: '$6,000', allocation: 'Meta $2,000 (multi-format launch) · Strive FM rideshare playlisting $1,600 (~150K streams, decay hedge on the hero) · Spotify Marquee + Showcase $900 · YouTube $500. ~$5,000 live, ~$1,000 held to reserve. The hero drop.' },
+      { drop: 'Album · Fantastic Machine (T3)', amount: '$6,000', allocation: 'Strive FM rideshare playlisting $1,800 (~150K real streams, the decay hedge on the hero) · Meta $1,800 (multi-format launch) · Spotify Marquee + Showcase $900 · YouTube $500. ~$5,000 live, ~$1,000 held to reserve. The hero drop.' },
     ],
     byChannel: [
-      { channel: 'Meta (IG / FB) paid', amount: '$5,300' },
+      { channel: 'Meta (IG / FB) paid', amount: '$5,100' },
       { channel: 'Spotify Marquee + Showcase', amount: '$1,950' },
       { channel: 'YouTube (video singles + album)', amount: '$1,850' },
-      { channel: 'Strive FM rideshare', amount: '$1,600' },
+      { channel: 'Strive FM rideshare', amount: '$1,800' },
       { channel: 'TikTok promotion', amount: '$1,300' },
     ],
     reserveNote: 'Held centrally, not pre-committed. Released mid-cycle to double down on whichever single overperforms, and to fund extra cutdowns off the live footage.',
