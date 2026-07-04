@@ -122,9 +122,7 @@ export function TemporexWantingIsHaunting() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const nav = [
-    ['diagnosis', 'Diagnosis'], ['comps', 'Comp Teardown'], ['video', 'Video Intel'],
-    ['strategy', 'Strategy'], ['assets', 'Asset Rollout'], ['system', 'Content System'], ['ideas', 'Ideas'], ['world', 'Activations'], ['playbook', 'Playbook'],
-    ['channels', 'Channels'], ['spend', 'Spend'], ['clipping', 'Clipping'], ['swrm', 'SWRM'], ['dsp', 'DSP'],
+    ['overview', 'Overview'], ['rollout', 'Rollout'], ['spend', 'Digital Spend'], ['activations', 'Activations'],
   ];
 
   return (
@@ -137,7 +135,7 @@ export function TemporexWantingIsHaunting() {
         <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/brand/CC-LOGO-2024-WHITE.png" alt="Crowd Control Digital" className="h-5 w-auto opacity-90" />
-          <div className="hidden lg:flex gap-5 text-[12px] text-[#B8B8C0]">
+          <div className="hidden lg:flex gap-6 text-[12px] text-[#B8B8C0]">
             {nav.map(([id, label]) => <a key={id} href={`#${id}`} className="uppercase tracking-wide hover:text-[#fd3737] transition-colors">{label}</a>)}
           </div>
           <button onClick={() => setMenuOpen((o) => !o)} aria-label="Toggle menu" aria-expanded={menuOpen} className="lg:hidden text-[#FAFAFA] p-2 -mr-2">
@@ -157,8 +155,8 @@ export function TemporexWantingIsHaunting() {
         )}
       </div>
 
-      {/* ═══ 01 HERO ═══ */}
-      <div ref={heroRef} className="relative h-[88vh] min-h-[600px] flex items-end overflow-hidden">
+      {/* HERO */}
+      <div ref={heroRef} className="relative h-[80vh] min-h-[560px] flex items-end overflow-hidden">
         <motion.div className="absolute inset-0 z-0" style={{ y: heroY }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/images/temporex-fantastic-machine/hero.png" alt="" className="w-full h-full object-cover" />
@@ -172,136 +170,31 @@ export function TemporexWantingIsHaunting() {
           </div>
           <h1 className="font-display text-5xl md:text-8xl leading-[0.95] text-[#FAFAFA]">{C.artist}</h1>
           <p className="font-display text-2xl md:text-4xl text-[#fd3737] mt-3 lowercase">{C.song}</p>
-          <p className="text-[#E4E4E9] text-base md:text-lg mt-6 max-w-2xl">Full album rollout — creative assets, digital spend + activations. {C.campaignWindow}.</p>
+          <p className="text-[#E4E4E9] text-base md:text-lg mt-6 max-w-2xl">Album marketing plan: creative-asset rollout, digital spend, and activation concepts. {C.campaignWindow}.</p>
           <div className="flex flex-wrap gap-x-8 gap-y-2 mt-8 text-sm text-[#B8B8C0]">
             <span>{C.homeBase}</span><span>·</span><span>{C.label}</span><span>·</span><span>Release: {C.releaseDate}</span>
           </div>
         </motion.div>
       </div>
 
-      {/* ═══ 02 DIAGNOSIS ═══ */}
-      <Section id="diagnosis" number="01" title="The Diagnosis" subtitle={C.diagnosis.headline}>
+      {/* 01 OVERVIEW */}
+      <Section id="overview" number="01" title="Overview" subtitle={C.overview.headline}>
         <GlassCard className="p-8 md:p-10 mb-10 border-l-2 border-l-[#fd3737]" glow hover={false}>
-          <p className="text-[#E4E4E9] text-base md:text-lg leading-relaxed">{C.diagnosis.body}</p>
+          <p className="text-[#E4E4E9] text-base md:text-lg leading-relaxed">{C.overview.body}</p>
         </GlassCard>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
-          {C.diagnosis.stats.map((s, i) => (
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {C.overview.stats.map((st, i) => (
             <GlassCard key={i} className="p-6">
-              <div className="font-display text-3xl md:text-4xl" style={{ color: s.tone === 'good' ? '#fd3737' : '#FAFAFA' }}>{s.value}</div>
-              <div className="text-[#B8B8C0] text-xs mt-2 leading-snug">{s.label}</div>
+              <div className="font-display text-3xl md:text-4xl" style={{ color: st.tone === 'good' ? '#fd3737' : '#FAFAFA' }}>{st.value}</div>
+              <div className="text-[#B8B8C0] text-xs mt-2 leading-snug">{st.label}</div>
             </GlassCard>
           ))}
-        </div>
-        <div className="grid md:grid-cols-2 gap-6 items-start">
-          <GlassCard className="p-8" hover={false}>
-            <h3 className="font-display text-lg text-[#FAFAFA] mb-6">Audience vs. reach</h3>
-            <div className="space-y-5">
-              {C.diagnosis.social.map((s, i) => (
-                <div key={i}>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="flex items-center gap-2 text-[#E4E4E9] text-sm"><PlatformIcon platform={s.platform} /> {s.platform}</span>
-                    <span className="font-display text-xl text-[#FAFAFA]">{s.value}</span>
-                  </div>
-                  <AnimatedBar pct={s.pct} color={i === 0 ? '#fd3737' : '#71717A'} />
-                  <div className="text-[#B8B8C0] text-xs mt-1">{s.sub}</div>
-                </div>
-              ))}
-            </div>
-            <p className="text-[#B8B8C0] text-xs mt-6 leading-relaxed">Bars scaled to the Spotify base. The streaming audience dwarfs the social footprint — that gap is the opportunity.</p>
-          </GlassCard>
-          <GlassCard className="p-8" hover={false}>
-            <h3 className="font-display text-lg text-[#FAFAFA] mb-5">Context</h3>
-            <ul className="space-y-4">
-              {C.diagnosis.context.map((c, i) => (
-                <li key={i} className="flex gap-3 text-[#E4E4E9] text-sm leading-relaxed"><span className="text-[#fd3737] mt-1">▹</span>{c}</li>
-              ))}
-            </ul>
-            <div className="mt-6 pt-6 border-t border-[#333333]/60">
-              <div className="text-[11px] uppercase tracking-wider text-[#B8B8C0] mb-3">Top live markets</div>
-              <div className="flex flex-wrap gap-2">{C.diagnosis.liveMarkets.map((m, i) => <span key={i} className="px-3 py-1 rounded-full bg-[#262626]/80 text-[#E4E4E9] text-xs border border-[#333333]/50">{m}</span>)}</div>
-            </div>
-          </GlassCard>
         </div>
       </Section>
       <SectionDivider />
 
-      {/* ═══ 03 COMP TEARDOWN ═══ */}
-      <Section id="comps" number="02" title="Comp Content Teardown" subtitle="How temporex’s own reference artists actually post — cadence, hooks and the formats that win in the indie / bedroom-pop lane.">
-        <div className="grid lg:grid-cols-3 gap-6">
-          {C.comps.map((a, i) => (
-            <GlassCard key={i} className="p-7 flex flex-col">
-              <div className="flex items-baseline justify-between">
-                <h3 className="font-display text-xl text-[#FAFAFA]">{a.name}</h3>
-                <span className="text-[#B8B8C0] text-xs">{a.handle}</span>
-              </div>
-              <div className="flex flex-wrap gap-2 mt-3 mb-4">
-                <Badge color="#A1A1AA">{a.followers}</Badge>
-              </div>
-              <div className="text-[#E4E4E9] text-xs space-y-1 mb-4">
-                <div><span className="text-[#B8B8C0]">Cadence:</span> {a.volume}</div>
-                <div><span className="text-[#B8B8C0]">Engagement:</span> {a.engagement}</div>
-              </div>
-              <div className="text-[11px] uppercase tracking-wider text-[#fd3737] mb-2">Winning formats</div>
-              <ul className="space-y-2 mb-4">
-                {a.formats.map((f, j) => <li key={j} className="flex gap-2 text-[#E4E4E9] text-sm leading-snug"><span className="text-[#fd3737] mt-0.5">▹</span>{f}</li>)}
-              </ul>
-              <div className="text-[#B8B8C0] text-xs mb-2"><span className="text-[#E4E4E9]">Signature:</span> {a.signature}</div>
-              <div className="rounded-xl bg-[#0A0A0A]/60 border border-[#333333]/50 p-3 text-xs text-[#E4E4E9] mb-4">★ {a.topPost}</div>
-              <div className="mt-auto pt-4 border-t border-[#333333]/60 text-sm text-[#E4E4E9] leading-relaxed"><span className="text-[#fd3737] font-semibold">Takeaway: </span>{a.takeaway}</div>
-            </GlassCard>
-          ))}
-        </div>
-        <GlassCard className="p-6 mt-6" hover={false}><p className="text-[#B8B8C0] text-sm">{C.compNote}</p></GlassCard>
-      </Section>
-      <SectionDivider />
-
-      {/* ═══ 04 VIDEO INTELLIGENCE ═══ */}
-      <Section id="video" number="03" title="Video Intelligence" subtitle={C.videoIntel.summary}>
-        <div className="flex items-center gap-3 mb-8">
-          <Badge>TwelveLabs Pegasus</Badge>
-          <span className="text-[#B8B8C0] text-sm">{C.videoIntel.analyzed > 0 ? `${C.videoIntel.analyzed} top comp videos analyzed frame-by-frame` : `Pattern library + lane data — comp deep-dive pending`}</span>
-        </div>
-        <div className="text-[11px] uppercase tracking-wider text-[#fd3737] mb-4">Cross-video patterns</div>
-        <div className="grid md:grid-cols-2 gap-5 mb-12">
-          {C.videoIntel.patterns.map((p, i) => (
-            <GlassCard key={i} className="p-7">
-              <div className="flex items-start justify-between gap-3 mb-2">
-                <h4 className="font-display text-lg text-[#FAFAFA]">{p.pattern}</h4>
-              </div>
-              <Badge color="#A1A1AA">{p.prevalence}</Badge>
-              <p className="text-[#E4E4E9] text-sm leading-relaxed mt-3">{p.implication}</p>
-            </GlassCard>
-          ))}
-        </div>
-        {C.videoIntel.videos.length > 0 && (
-          <>
-            <div className="text-[11px] uppercase tracking-wider text-[#fd3737] mb-4">Deep-dive · all {C.videoIntel.videos.length} posts</div>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
-              {C.videoIntel.videos.map((v, i) => (
-                <GlassCard key={i} className="p-6">
-                  <div className="text-[#B8B8C0] text-xs mb-1">{v.artist}</div>
-                  <h4 className="font-display text-base text-[#FAFAFA] leading-snug">{v.title}</h4>
-                  <div className="text-[#fd3737] text-xs font-semibold mt-2 mb-3">{v.plays}</div>
-                  <p className="text-[#E4E4E9] text-sm leading-relaxed">{v.insight}</p>
-                </GlassCard>
-              ))}
-            </div>
-          </>
-        )}
-      </Section>
-      <SectionDivider />
-
-      {/* ═══ 05 STRATEGY ═══ */}
-      <Section id="strategy" number="04" title="The Strategy" subtitle="One thesis, six phases: a single every ~4 weeks into the album.">
-        <GlassCard className="p-8 md:p-12 mb-12 relative overflow-hidden" glow hover={false}>
-          <div className="absolute top-0 left-0 w-1 h-full bg-[#fd3737]" />
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/images/temporex-fantastic-machine/strategy.png" alt="" className="absolute inset-0 w-full h-full object-cover opacity-10" />
-          <div className="relative">
-            <span className="text-[11px] tracking-[0.3em] uppercase text-[#fd3737] font-semibold">Campaign Thesis</span>
-            <p className="text-xl md:text-2xl text-[#FAFAFA] leading-relaxed mt-4">{C.thesis}</p>
-          </div>
-        </GlassCard>
+      {/* 02 ROLLOUT */}
+      <Section id="rollout" number="02" title="The Rollout" subtitle="The release cadence, and the asset ladder that repeats on every single.">
         <div className="mb-12">
           <div className="text-[11px] uppercase tracking-wider text-[#fd3737] mb-4">Release calendar</div>
           <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
@@ -313,8 +206,7 @@ export function TemporexWantingIsHaunting() {
             ))}
           </div>
         </div>
-        {/* Asset rollout ladder */}
-        <div id="assets" className="mb-12 scroll-mt-24">
+        <div id="assets" className="scroll-mt-24">
           <div className="text-[11px] uppercase tracking-wider text-[#fd3737] mb-4">Asset rollout · every single, in relative days</div>
           <GlassCard className="p-6 md:p-8 mb-4" hover={false}>
             <p className="text-[#E4E4E9] text-sm md:text-base leading-relaxed">{C.assetLadder.intro}</p>
@@ -337,104 +229,40 @@ export function TemporexWantingIsHaunting() {
             <p className="text-[#E4E4E9] text-sm leading-relaxed"><span className="text-[#fd3737] font-semibold">Album: </span>{C.assetLadder.albumNote}</p>
           </GlassCard>
         </div>
-        {/* Visual Identity */}
-        <div className="mb-12">
-          <div className="text-[11px] uppercase tracking-wider text-[#fd3737] mb-4">Visual identity</div>
-          <GlassCard className="p-8 mb-6" hover={false}>
-            <p className="text-[#E4E4E9] text-base md:text-lg leading-relaxed">{C.visualIdentity.lookAndFeel}</p>
-            <ul className="mt-6 space-y-3">
-              {C.visualIdentity.principles.map((p, i) => (
-                <li key={i} className="flex gap-3 text-[#E4E4E9] text-sm leading-snug"><span className="text-[#fd3737] mt-1">▹</span>{p}</li>
-              ))}
-            </ul>
-          </GlassCard>
-          <div className="text-[11px] uppercase tracking-wider text-[#B8B8C0] mb-3">Music video references</div>
-          <div className="grid sm:grid-cols-2 gap-2">
-            {C.visualIdentity.mvReferences.map((r, i) => (
-              <a key={i} href={r.url} target="_blank" rel="noopener noreferrer" className="rounded-lg bg-[#1A1A1A]/60 border border-[#333333]/60 px-4 py-3 text-[#E4E4E9] text-sm hover:border-[#fd3737]/40 hover:text-[#fd3737] transition-colors">{r.title} ↗</a>
-            ))}
-          </div>
-        </div>
+      </Section>
+      <SectionDivider />
 
-        {/* Production leads / collaborators */}
-        <div className="mb-12">
-          <div className="text-[11px] uppercase tracking-wider text-[#fd3737] mb-4">Production leads · video collaborators</div>
-          <div className="grid md:grid-cols-2 gap-4">
-            {C.collaborators.map((c, i) => (
-              <GlassCard key={i} className="p-6">
-                <div className="flex items-baseline justify-between mb-1">
-                  <h4 className="font-display text-base text-[#FAFAFA]">{c.name}</h4>
-                  <span className="text-[#B8B8C0] text-xs">{c.role}</span>
-                </div>
-                <p className="text-[#E4E4E9] text-sm leading-relaxed mt-2">{c.note}</p>
-              </GlassCard>
-            ))}
-          </div>
-        </div>
-
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5">
-          {C.phases.map((p, i) => (
+      {/* 03 DIGITAL SPEND */}
+      <Section id="spend" number="03" title="Digital Spend" subtitle="The full $14K, by drop and by channel. About $12K deployed now, ~$2K held in reserve.">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+          {C.budgets.perDrop.map((d, i) => (
             <GlassCard key={i} className="p-6">
-              <div className="font-display text-4xl text-[#fd3737]/30">{String(i + 1).padStart(2, '0')}</div>
-              <h4 className="font-display text-lg text-[#FAFAFA] mt-2">{p.name}</h4>
-              <div className="text-[#B8B8C0] text-xs mb-4">{p.weeks}</div>
-              <ul className="space-y-2">{p.objectives.map((o, j) => <li key={j} className="flex gap-2 text-[#E4E4E9] text-sm leading-snug"><span className="text-[#fd3737] mt-0.5">▹</span>{o}</li>)}</ul>
+              <div className="text-[#B8B8C0] text-xs mb-1">{d.drop}</div>
+              <div className="font-display text-3xl text-[#fd3737]">{d.amount}</div>
+              <p className="text-[#E4E4E9] text-xs leading-relaxed mt-3">{d.allocation}</p>
             </GlassCard>
           ))}
-        </div>
-      </Section>
-      <SectionDivider />
-
-      {/* ═══ 06 CONTENT SYSTEM ═══ */}
-      <Section id="system" number="05" title="The Content System" subtitle="Five rinse-and-repeat formats he can batch on a phone and rotate weekly — so he is never out of content.">
-        <div className="grid md:grid-cols-2 gap-5 mb-8">
-          {C.formats.map((f, i) => (
-            <GlassCard key={i} className="p-7">
-              <div className="flex items-center gap-3 mb-3">
-                <span className="font-display text-2xl text-[#fd3737]">{String(i + 1).padStart(2, '0')}</span>
-                <h4 className="font-display text-xl text-[#FAFAFA]">{f.name}</h4>
-              </div>
-              <p className="text-[#E4E4E9] text-sm leading-relaxed mb-3">{f.what}</p>
-              <div className="flex flex-wrap gap-2 mb-3">{f.platform.split(' · ').map((pl, j) => <Badge key={j} color="#A1A1AA">{pl}</Badge>)}</div>
-              <p className="text-[#B8B8C0] text-xs leading-relaxed mb-2"><span className="text-[#fd3737]">Why it works: </span>{f.why}</p>
-              <p className="text-[#B8B8C0] text-xs"><span className="text-[#E4E4E9]">Batch: </span>{f.batch}</p>
-            </GlassCard>
-          ))}
-        </div>
-        <div className="grid md:grid-cols-2 gap-5">
-          <GlassCard className="p-7 border-l-2 border-l-[#fd3737]" hover={false}>
-            <h4 className="font-display text-lg text-[#FAFAFA] mb-3">The algorithm play</h4>
-            <p className="text-[#E4E4E9] text-sm leading-relaxed">{C.algorithmNote}</p>
-          </GlassCard>
-          <GlassCard className="p-7 border-l-2 border-l-[#fd3737]" hover={false}>
-            <h4 className="font-display text-lg text-[#FAFAFA] mb-3">Cadence (the real fix)</h4>
-            <p className="text-[#E4E4E9] text-sm leading-relaxed">{C.cadence}</p>
+          <GlassCard className="p-6 border-l-2 border-l-[#fd3737]" hover={false}>
+            <div className="text-[#B8B8C0] text-xs mb-1">Reserve</div>
+            <div className="font-display text-3xl text-[#fd3737]">$2,000</div>
+            <p className="text-[#E4E4E9] text-xs leading-relaxed mt-3">{C.budgets.reserveNote}</p>
           </GlassCard>
         </div>
-      </Section>
-      <SectionDivider />
-
-      {/* ═══ 06 CONTENT IDEAS ═══ */}
-      <Section id="ideas" number="06" title="Content Ideas" subtitle="Specific, lo-fi, lore-driven bits to batch and rotate — built off temporex’s reference set and the indie / dream-pop lane.">
-        <div className="grid md:grid-cols-2 gap-5">
-          {C.ideas.map((idea, i) => (
-            <GlassCard key={i} className={`p-7 ${idea.top3 ? 'border-l-2 border-l-[#fd3737]' : ''}`}>
-              <div className="flex items-center gap-3 mb-3">
-                <span className="font-display text-2xl text-[#fd3737]">{String(i + 1).padStart(2, '0')}</span>
-                <h4 className="font-display text-lg text-[#FAFAFA]">{idea.name}</h4>
-                {idea.top3 && <span className="ml-auto"><Badge>Start here</Badge></span>}
-              </div>
-              <p className="text-[#E4E4E9] text-sm leading-relaxed mb-3">{idea.bit}</p>
-              <p className="text-[#B8B8C0] text-xs mb-1">Hook: <span className="text-[#E4E4E9]">{idea.hook}</span></p>
-              <p className="text-[#B8B8C0] text-xs"><span className="text-[#fd3737]">Why: </span>{idea.why}</p>
+        <div className="text-[11px] uppercase tracking-wider text-[#fd3737] mb-4">Where the $12K goes, by channel</div>
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
+          {C.budgets.byChannel.map((c, i) => (
+            <GlassCard key={i} className="p-5 text-center" hover={false}>
+              <div className="font-display text-2xl text-[#FAFAFA]">{c.amount}</div>
+              <div className="text-[#B8B8C0] text-xs mt-1 leading-snug">{c.channel}</div>
             </GlassCard>
           ))}
         </div>
+        <p className="text-[#B8B8C0] text-xs italic">{C.budgets.note}</p>
       </Section>
       <SectionDivider />
 
-      {/* ═══ 07 WORLD-BUILDING ACTIVATIONS ═══ */}
-      <Section id="world" number="07" title="Creative Activations" subtitle="Three greenlight-later plays that build the Fantastic Machine world outside the feed: a web game, a custom microsite and an IRL booth. Pitch concepts, not costed against the $14K media budget.">
+      {/* 04 ACTIVATIONS */}
+      <Section id="activations" number="04" title="Creative Activations" subtitle="Three greenlight-later plays that build the Fantastic Machine world and capture owned audience. Pitch concepts, not costed against the $14K.">
         <div className="grid lg:grid-cols-3 gap-6">
           {C.worldBuilding.map((p, i) => (
             <GlassCard key={i} className="p-7 flex flex-col">
@@ -447,8 +275,8 @@ export function TemporexWantingIsHaunting() {
                 <div className="mt-4 pt-4 border-t border-[#333333]/60">
                   <div className="text-[11px] uppercase tracking-wider text-[#B8B8C0] mb-2">References</div>
                   <div className="space-y-1">
-                    {p.refs.map((r, j) => (
-                      <a key={j} href={r.url} target="_blank" rel="noopener noreferrer" className="block text-[#E4E4E9] text-xs hover:text-[#fd3737] transition-colors">{r.label} ↗</a>
+                    {p.refs.map((r, k) => (
+                      <a key={k} href={r.url} target="_blank" rel="noopener noreferrer" className="block text-[#E4E4E9] text-xs hover:text-[#fd3737] transition-colors">{r.label} ↗</a>
                     ))}
                   </div>
                 </div>
@@ -457,121 +285,7 @@ export function TemporexWantingIsHaunting() {
           ))}
         </div>
       </Section>
-      <SectionDivider />
 
-            {/* ═══ 07 PLAYBOOK ═══ */}
-      <Section id="playbook" number="08" title="Rollout Playbook" subtitle="A production calendar backing into the five releases: a single every ~4 weeks into the album.">
-        <div className="relative">
-          <div className="absolute left-[19px] md:left-6 top-2 bottom-2 w-px bg-gradient-to-b from-[#fd3737] via-[#333333] to-transparent" />
-          <div className="space-y-5">
-            {C.playbook.map((w, i) => <PlaybookRow key={i} w={w} />)}
-          </div>
-        </div>
-      </Section>
-      <SectionDivider />
-
-      {/* ═══ 08 CHANNELS ═══ */}
-      <Section id="channels" number="09" title="Channel Allocation" subtitle="Where the effort and budget go. Organic content is the core because it is the only thing that fixes the underlying problem.">
-        <div className="grid lg:grid-cols-2 gap-8 items-center">
-          <GlassCard className="p-8" hover={false}>
-            <div className="h-[280px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie data={C.allocation as unknown as Record<string, unknown>[]} dataKey="pct" nameKey="channel" cx="50%" cy="50%" innerRadius={70} outerRadius={110} paddingAngle={2} stroke="none">
-                    {C.allocation.map((a, i) => <Cell key={i} fill={a.color} />)}
-                  </Pie>
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-            <div className="space-y-2 mt-4">
-              {C.allocation.map((a, i) => (
-                <div key={i} className="flex items-center justify-between text-sm">
-                  <span className="flex items-center gap-2 text-[#E4E4E9]"><span className="w-3 h-3 rounded-sm" style={{ background: a.color }} />{a.channel}</span>
-                  <span className="font-display text-[#FAFAFA]">{a.pct}%</span>
-                </div>
-              ))}
-            </div>
-          </GlassCard>
-          <div className="space-y-4">
-            {C.allocation.map((a, i) => (
-              <GlassCard key={i} className="p-5">
-                <div className="flex items-center justify-between mb-1"><span className="font-display text-[#FAFAFA]">{a.channel}</span><span className="font-display text-xl" style={{ color: a.color === '#A1A1AA' || a.color === '#71717A' ? '#E4E4E9' : a.color }}>{a.pct}%</span></div>
-                <p className="text-[#B8B8C0] text-xs leading-relaxed">{a.rationale}</p>
-              </GlassCard>
-            ))}
-          </div>
-        </div>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-8">
-          {C.allocationPhases.map((p, i) => (
-            <GlassCard key={i} className="p-5" hover={false}>
-              <div className="text-[#fd3737] text-xs uppercase tracking-wider mb-2">{p.phase}</div>
-              <div className="text-[#E4E4E9] text-sm leading-relaxed">{p.split}</div>
-            </GlassCard>
-          ))}
-        </div>
-
-        {/* Budget by drop */}
-        <div id="spend" className="mt-10 scroll-mt-24">
-          <div className="text-[11px] uppercase tracking-wider text-[#fd3737] mb-4">Digital spend by drop · {C.budgets.total}</div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-            {C.budgets.perDrop.map((d, i) => (
-              <GlassCard key={i} className="p-5">
-                <div className="text-[#B8B8C0] text-xs mb-1">{d.drop}</div>
-                <div className="font-display text-2xl text-[#fd3737]">{d.amount}</div>
-                <p className="text-[#E4E4E9] text-xs leading-relaxed mt-3">{d.allocation}</p>
-              </GlassCard>
-            ))}
-          </div>
-          <p className="text-[#B8B8C0] text-xs italic">{C.budgets.note}</p>
-        </div>
-      </Section>
-      <SectionDivider />
-
-      {/* ═══ 09 CLIPPING ═══ */}
-      <Section id="clipping" number="10" title="Clipping + Amplification" subtitle={C.clipping.intro}>
-        <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-4">
-          {C.clipping.steps.map((s, i) => (
-            <GlassCard key={i} className="p-6">
-              <div className="font-display text-3xl text-[#fd3737]/30 mb-2">{String(i + 1).padStart(2, '0')}</div>
-              <h4 className="font-display text-base text-[#FAFAFA] mb-2 leading-snug">{s.step}</h4>
-              <p className="text-[#E4E4E9] text-sm leading-relaxed">{s.detail}</p>
-            </GlassCard>
-          ))}
-        </div>
-      </Section>
-      <SectionDivider />
-
-      {/* ═══ 09 SWRM ═══ */}
-      <Section id="swrm" number="11" title="SWRM · Owned Engagement Layer" subtitle={C.swrm.intro}>
-        <GlassCard className="p-8 md:p-10 mb-8 border-l-2 border-l-[#fd3737]" glow hover={false}>
-          <p className="text-[#E4E4E9] text-base md:text-lg leading-relaxed">{C.swrm.why}</p>
-        </GlassCard>
-        <div className="grid md:grid-cols-2 gap-5">
-          {C.swrm.plays.map((p, i) => (
-            <GlassCard key={i} className="p-7">
-              <div className="flex items-center gap-3 mb-3">
-                <span className="font-display text-2xl text-[#fd3737]">{String(i + 1).padStart(2, '0')}</span>
-                <h4 className="font-display text-lg text-[#FAFAFA]">{p.name}</h4>
-              </div>
-              <p className="text-[#E4E4E9] text-sm leading-relaxed">{p.detail}</p>
-            </GlassCard>
-          ))}
-        </div>
-        <GlassCard className="p-6 mt-6" hover={false}><p className="text-[#B8B8C0] text-sm leading-relaxed">{C.swrm.note}</p></GlassCard>
-      </Section>
-      <SectionDivider />
-
-      {/* ═══ 10 DSP ═══ */}
-      <Section id="dsp" number="12" title="DSP Conversion" subtitle={C.dsp.intro}>
-        <div className="grid md:grid-cols-2 gap-5">
-          {C.dsp.items.map((d, i) => (
-            <GlassCard key={i} className="p-7">
-              <div className="flex items-center gap-2 mb-3"><PlatformIcon platform="spotify" size={20} /><h4 className="font-display text-lg text-[#FAFAFA]">{d.name}</h4></div>
-              <p className="text-[#E4E4E9] text-sm leading-relaxed">{d.detail}</p>
-            </GlassCard>
-          ))}
-        </div>
-      </Section>
       {/* footer */}
       <div className="relative mt-16 overflow-hidden">
         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -579,7 +293,7 @@ export function TemporexWantingIsHaunting() {
         <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-[#0A0A0A]/80 to-[#0A0A0A]/40" />
         <div className="relative max-w-6xl mx-auto px-6 py-20 text-center">
           <p className="font-display text-2xl md:text-3xl text-[#FAFAFA]">{C.artist} — <span className="text-[#fd3737] lowercase">{C.song}</span></p>
-          <p className="text-[#B8B8C0] text-sm mt-4">Sources: {C.sources.join(' · ')}</p>
+          <p className="text-[#B8B8C0] text-sm mt-4">Crowd Control Digital · Temporex album marketing plan</p>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/brand/CC-LOGO-2024-WHITE.png" alt="Crowd Control Digital" className="h-6 w-auto mx-auto mt-8 opacity-80" />
           <p className="text-[#71717A] text-xs mt-3">Crowd Control Digital · info@crowdcontroldigital.com · Generated {C.generatedDate}</p>

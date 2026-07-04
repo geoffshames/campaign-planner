@@ -15,6 +15,18 @@ export const temporex = {
   campaignWindow: 'four-single cascade into the album · a single every ~4 weeks',
   generatedDate: 'July 4, 2026',
 
+  overview: {
+    headline: 'A conversion play: turn ~1.4M passive catalog listeners into pre-savers, followers and first-week streams.',
+    body:
+      'Temporex enters this album with ~1.4M Spotify monthly listeners, mostly built on catalog, and a social footprint a fraction of that size. That gap is a conversion problem, not an awareness one. This is the digital plan to convert it across a four-single cascade into the album: paid media behind the strongest asset on every drop, DSP conversion (per-single pre-save, Marquee, Showcase, and an album Countdown that opens at Single 2), Strive FM rideshare playlisting as the album\u2019s streaming hedge, and a set of world-building activations that capture owned audience. The $14K below is what CCD deploys against each release, drop by drop.',
+    stats: [
+      { value: '1.4M', label: 'Spotify monthly listeners to convert', tone: 'good' },
+      { value: '32K', label: 'TikTok followers \u2014 the conversion gap', tone: 'bad' },
+      { value: '$14K', label: 'working media budget', tone: 'good' },
+      { value: '4 + 1', label: 'singles cascading into the album', tone: 'good' },
+    ],
+  },
+
   // ── Release calendar ──
   calendar: [
     { date: 'Lead', label: 'Waterhole — Single 1', kind: 'single' },
@@ -27,14 +39,14 @@ export const temporex = {
   // ── Asset rollout ladder (relative days, repeats per single) ──
   assetLadder: {
     intro:
-      'The tentative asset rollout, in relative days, that repeats for every single. It follows the asset priority ladder we locked on 7/2: single art first, then one animated “coming soon” / pre-save asset, then the Spotify Canvas (the looping visual inside Spotify, not a feed post), then “out now” last. One base, text swapped a few times, minimal waste.',
+      'The tentative asset rollout, in relative days, that repeats for every single. It follows the asset priority ladder we locked on 7/2: single art first, then one animated “coming soon” / pre-save asset, then the per-track Spotify Canvas (a no-text loop that plays inside Spotify, not a feed post), then “out now” last. One base, text swapped a few times, minimal waste.',
     spec:
-      'Per-single deliverable base (6/29 spec): 15s + 30s cutdowns, each in three text/CTA versions, one Spotify Canvas, vertical + square. Build the base once, resize and swap the CTA. The live footage filmed on the 19th is the hero content that anchors the cutdowns.',
+      'Per-single deliverable base (6/29 spec): 15s + 30s cutdowns, each in three text/CTA versions, in vertical and square, plus a per-track Spotify Canvas (a 3–8s vertical 9:16 loop, no text or CTA — Spotify rejects those). Build the base once, resize and swap the CTA. The live footage filmed on the 19th is the hero content that anchors the cutdowns.',
     rows: [
       { day: 'D-14', asset: 'Single art as “coming soon” tease + pre-save live', note: 'Single art is #1 and already delivered. Pre-save link into every bio.' },
       { day: 'D-10', asset: 'Lore / BTS drop — organic, no CTA', note: 'A bedroom demo, tuning diary, or gnome / lore fragment. Warms the algorithm before the ask.' },
       { day: 'D-7', asset: 'Animated “coming soon” / pre-save push (15s + 30s, vert + square)', note: 'The one animated asset that carries the pre-save. Meta pre-save ads go live.' },
-      { day: 'D-3', asset: 'Second hook clip (social) + Spotify Canvas delivered', note: 'A lyric or loop-drop clip cut to the hook for feeds. The Canvas is the loop that plays inside Spotify (not a post) — upload it with the track. Marquee scheduled for drop day.' },
+      { day: 'D-3', asset: 'Second hook clip (social) + per-track Spotify Canvas delivered', note: 'A lyric or loop-drop clip cut to the hook for feeds. The Canvas is the per-track no-text loop that plays inside Spotify (not a post) — upload it with the track. Marquee scheduled for drop day.' },
       { day: 'D-1', asset: '“Out tomorrow” Story + countdown sticker', note: 'Low-lift reminders across Stories; last pre-save nudge (SWRM follow / pre-save actions).' },
       { day: 'Release', asset: '“Out now” set (15s + 30s × 3 CTA) for social + first live-footage clip; Canvas live in Spotify', note: 'Marquee fires at drop, aimed first at lapsed listeners from the 1.4M base.' },
       { day: 'D+3', asset: 'Paid amplification of the single best organic clip', note: 'Dark-post the winner on Meta + TikTok Spark. Optimize to saves / pre-saves, not views.' },
@@ -42,7 +54,7 @@ export const temporex = {
       { day: 'D+14', asset: 'Sustain post → roll into the next single’s D-14 tease', note: 'Bridge the world forward so every drop hands off to the next.' },
     ],
     albumNote:
-      'The album runs the same ladder but longer: the Spotify Countdown page opens at Single 3 (~8–10 weeks out) and launch week stacks Marquee + Showcase + Strive rideshare + the Fantastic Machine video. Real Time (Single 2) and Fantastic Machine (Single 4) each add a music-video cutdown wave on release day.',
+      'The album runs the same ladder but longer: the album pre-save / Countdown opens at Single 2 (~12 weeks of lead-in) and launch week stacks Marquee + Showcase + Strive rideshare + the Fantastic Machine video. Real Time (Single 2) and Fantastic Machine (Single 4) each add a music-video cutdown wave on release day.',
   },
 
   // ── 02 The Diagnosis / Artist Position ──
@@ -230,13 +242,21 @@ export const temporex = {
   budgets: {
     total: '$14,000 · ~$12K deployed, ~$2K reserve',
     perDrop: [
-      { drop: 'Single 1 · Waterhole', amount: '$2,000', allocation: 'Meta $900 (dark-post best clips + the pre-save asset) · TikTok Spark $350 · Spotify Marquee $350 (aimed at lapsed listeners from the 1.4M base) · YouTube pre-roll $200 · micro-creator seeding + cutdowns $200. Lead single — deploy the full envelope to set the tone.' },
-      { drop: 'Single 2 · Real Time (video)', amount: '$2,000', allocation: 'Meta $600 · YouTube pre-roll $350 (lean into the video) · TikTok Spark $250 · Spotify Marquee $200 · clipping test + edits $100. ~$1,500 live, ~$500 held to reserve. Video is Joseph + Luis in-house, not ababa.' },
-      { drop: 'Single 3 · Somewhere I’m Better Now', amount: '$2,000', allocation: 'Meta $600 · TikTok Spark $300 · Spotify Marquee + open the album Countdown page $300 · YouTube pre-roll $150 · creator seeding + edits $150. ~$1,500 live, ~$500 held to reserve.' },
-      { drop: 'Single 4 · Fantastic Machine (video)', amount: '$2,000', allocation: 'Meta $800 · YouTube pre-roll $400 (big video) · TikTok Spark $300 · clipping push off the video $300 · Spotify Marquee $200. Pre-album tentpole — the title-track video is the clipping quarry.' },
-      { drop: 'Album · Fantastic Machine (T3)', amount: '$6,000', allocation: 'Meta $1,800 (multi-format launch) · Strive FM rideshare playlisting $1,600 (~150K streams, decay hedge on the hero) · Spotify Marquee + Showcase $700 · YouTube pre-roll $500 · clipping + creator seeding $400. ~$5,000 live, ~$1,000 held to reserve. The hero drop.' },
+      { drop: 'Single 1 · Waterhole', amount: '$2,000', allocation: 'Meta $1,000 (dark-post the best clips + the pre-save asset) · TikTok $400 · Spotify Marquee $400 (aimed at lapsed listeners from the 1.4M base) · YouTube $200. Lead single — deploy the full envelope to set the tone.' },
+      { drop: 'Single 2 · Real Time (video)', amount: '$2,000', allocation: 'Meta $700 · YouTube $450 (lean into the video) · TikTok $200 · Spotify Marquee $150. ~$1,500 live, ~$500 held to reserve. Video is Joseph + Luis in-house, not ababa. The album pre-save / Countdown opens here.' },
+      { drop: 'Single 3 · Somewhere I’m Better Now', amount: '$2,000', allocation: 'Meta $700 · TikTok $350 · Spotify Marquee $250 · YouTube $200. ~$1,500 live, ~$500 held to reserve.' },
+      { drop: 'Single 4 · Fantastic Machine (video)', amount: '$2,000', allocation: 'Meta $900 · YouTube $500 (big video) · TikTok $350 · Spotify Marquee $250. Pre-album tentpole — the title-track video leads the drop.' },
+      { drop: 'Album · Fantastic Machine (T3)', amount: '$6,000', allocation: 'Meta $2,000 (multi-format launch) · Strive FM rideshare playlisting $1,600 (~150K streams, decay hedge on the hero) · Spotify Marquee + Showcase $900 · YouTube $500. ~$5,000 live, ~$1,000 held to reserve. The hero drop.' },
     ],
-    note: 'Marketing only, and separate from production: the ababa animation retainer (~$6.5K/mo) and the music-video shoots ride the recording/production line, not this $14K. The ~$2,000 reserve is held centrally for extra live-footage cutdowns and to double down on whichever single overperforms. The creative activations below (microsite, web game, IRL booth) are greenlight-later concepts, not costed against this $14K.',
+    byChannel: [
+      { channel: 'Meta (IG / FB) paid', amount: '$5,300' },
+      { channel: 'Spotify Marquee + Showcase', amount: '$1,950' },
+      { channel: 'YouTube (video singles + album)', amount: '$1,850' },
+      { channel: 'Strive FM rideshare', amount: '$1,600' },
+      { channel: 'TikTok promotion', amount: '$1,300' },
+    ],
+    reserveNote: 'Held centrally, not pre-committed. Released mid-cycle to double down on whichever single overperforms, and to fund extra cutdowns off the live footage.',
+    note: 'Marketing only, and separate from production: the ababa animation retainer (~$6.5K/mo) and the music-video shoots ride the recording/production line, not this $14K. The activations section is greenlight-later concepts, not costed against this $14K.',
   },
 
   // ── 08 Rollout Playbook ──
