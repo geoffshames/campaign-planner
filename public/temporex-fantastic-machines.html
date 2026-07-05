@@ -187,7 +187,7 @@ footer img{height:22px;opacity:.85;display:block;margin-bottom:16px}footer b{col
   function size(){ cv.width=Math.floor(innerWidth*dpr); cv.height=Math.floor(innerHeight*dpr); }
   function cover(img){ if(!img||!img.naturalWidth) return; var cw=cv.width,ch=cv.height,iw=img.naturalWidth,ih=img.naturalHeight; var s=Math.max(cw/iw,ch/ih); var w=iw*s,h=ih*s; ctx.clearRect(0,0,cw,ch); ctx.drawImage(img,(cw-w)/2,(ch-h)/2,w,h); }
   function draw(f){ if(f===cur||!imgs[f]||!imgs[f].naturalWidth) return; cur=f; cover(imgs[f]); }
-  function frameFromScroll(){ var max=(document.documentElement.scrollHeight-innerHeight)||1; var p=Math.min(1,Math.max(0,(window.scrollY||window.pageYOffset)/max)); return Math.round(p*(N-1)); }
+  function frameFromScroll(){ var max=(document.documentElement.scrollHeight-innerHeight)||1; var p=Math.min(1,Math.max(0,(window.scrollY||window.pageYOffset)/max)); var CYCLES=3.5, u=p*CYCLES, frac=u-Math.floor(u), tri=frac<0.5?frac*2:2-frac*2; return Math.round(tri*(N-1)); }
   var ticking=false;
   function onScroll(){ if(ticking) return; ticking=true; requestAnimationFrame(function(){ if(ready) draw(frameFromScroll()); ticking=false; }); }
   for(var i=0;i<N;i++){ (function(i){ var im=new Image(); im.onload=function(){ loaded++; if(!ready && loaded>=6){ ready=true; size(); cur=-1; draw(frameFromScroll()); } }; im.src='/temporex-bg/c'+String(i+1).padStart(3,'0')+'.jpg'; imgs[i]=im; })(i); }
