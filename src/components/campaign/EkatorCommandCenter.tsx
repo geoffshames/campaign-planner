@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useRef } from 'react';
+import { useMemo, useRef, useState, useCallback } from 'react';
 import { motion, useScroll, useSpring } from 'framer-motion';
 import type { EkatorRegistrySnapshot } from '@/lib/ekator-dashboard';
 
@@ -258,22 +258,127 @@ function StatusStrip({ registry }: { registry: EkatorRegistrySnapshot }) {
   );
 }
 
+/** Channel matrix — compact 3-column visual: audience ring + activation bar + status */
+function ChannelMatrix() {
+  return (
+    <div className="grid grid-cols-3 gap-2">
+      {channels.map(ch => {
+        const pct = (ch.audience / 62_900) * 100;
+        const circ = 2 * Math.PI * 18;
+        return (
+          <div key={ch.name} className="flex flex-col items-center gap-2 rounded-lg bg-[#141414] p-3 text-center">
+            {/* Audience ring */}
+            <div className="relative h-16 w-16">
+              <svg viewBox="0 0 44 44" className="h-full w-full -rotate-90">
+                <circle cx="22" cy="22" r="18" fill="none" stroke={dim} strokeWidth="3" />
+                <circle
+                  cx="22" cy="22" r="18" fill="none"
+                  stroke={statusColor(ch.status) === light ? '#555' : statusColor(ch.status)}
+                  strokeWidth="3" strokeLinecap="round"
+                  strokeDasharray={circ}
+                  strokeDashoffset={circ * (1 - pct / 100)}
+                  style={{ transition: 'stroke-dashoffset 0.8s ease' }}
+                />
+              </svg>
+              <div className="absolute inset-0 flex items-center justify-center">
+                <span className="font-mono text-sm font-bold text-white">{compact(ch.audience)}</span>
+              </div>
+            </div>
+            {/* Channel name */}
+            <div className="text-xs font-bold text-white">{ch.name}</div>
+            {/* Status dot + label */}
+            <div className="flex items-center gap-1.5">
+              <span className="h-1.5 w-1.5 rounded-full" style={{ background: statusColor(ch.status) }} />
+              <span className="font-mono text-[10px] uppercase" style={{ color: statusColor(ch.status) }}>{statusLabel(ch.status)}</span>
+            </div>
+            {/* Activation bar — posts/videos */}
+            <div className="w-full">
+              <div className="h-1 overflow-hidden rounded-full bg-[#161616]">
+                <div
+                  className="h-full rounded-full"
+                  style={{ width: ch.views ? `${Math.min(100, (ch.views / youtubeTotalViews) * 100)}%` : ch.posts === '0 videos' ? '0%' : '30%', background: statusColor(ch.status) === light ? '#555' : statusColor(ch.status), opacity: 0.7 }}
+                />
+              </div>
+              <div className="mt-1 font-mono text-[9px] text-muted">{ch.posts}</div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+/** Refresh button — triggers agent pipeline via API route */
+function RefreshButton() {
+  const [state, setState] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
+
+  const handleRefresh = useCallback(async () => {
+    setState('sending');
+    try {
+      const resp = await fetch('/api/ekator/refresh', { method: 'POST' });
+      const data = await resp.json();
+      if (data.ok) {
+        setState('sent');
+        setTimeout(() => setState('idle'), 4000);
+      } else {
+        setState('error');
+        setTimeout(() => setState('idle'), 4000);
+      }
+    } catch {
+      setState('error');
+      setTimeout(() => setState('idle'), 4000);
+    }
+  }, []);
+
+  const labels = {
+    idle: 'Refresh Now',
+    sending: 'Sending…',
+    sent: 'Agents launched ✓',
+    error: 'Failed — try again',
+  };
+
+  const colors = {
+    idle: red,
+    sending: muted,
+    sent: '#4ADE80',
+    error: '#D42D2D',
+  };
+
+  return (
+    <button
+      onClick={handleRefresh}
+      disabled={state === 'sending'}
+      className="flex items-center gap-2 rounded-md border px-4 py-1.5 font-mono text-xs font-bold uppercase tracking-wider transition-all hover:bg-[#1A1A1A] disabled:opacity-50"
+      style={{ borderColor: colors[state], color: colors[state] }}
+    >
+      {state === 'sending' && (
+        <span className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-t-transparent" style={{ borderColor: muted, borderTopColor: 'transparent' }} />
+      )}
+      {state === 'sent' && <span style={{ color: '#4ADE80' }}>✓</span>}
+      {labels[state]}
+    </button>
+  );
+}
+
 /* ── COMMAND CENTER (above the fold) ──────────────────────────────── */
 
 function CommandCenter({ registry }: { registry: EkatorRegistrySnapshot }) {
   return (
     <div className="mx-auto max-w-[1400px] px-4 pt-20 pb-6 md:px-6 lg:px-8">
       {/* Title bar */}
-      <div className="mb-4 flex flex-wrap items-end justify-between gap-3 border-b border-[line] pb-3" style={{ borderColor: line }}>
+      <div className="mb-4 flex flex-wrap items-end justify-between gap-3 border-b pb-3" style={{ borderColor: line }}>
         <div>
           <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-muted">
             <span style={{ color: red }}>●</span> EKATOR Social Dashboard
           </div>
           <h1 className="mt-1 font-mono text-3xl font-black leading-none text-white md:text-4xl">EKATOR <span style={{ color: red }}>COMMAND CENTER</span></h1>
         </div>
-        <div className="text-right">
-          <div className="text-[10px] uppercase tracking-[0.2em] text-muted">Idol Till I Die</div>
-          <div className="font-mono text-xs text-light">Jul 8, 2026 · 12:00 PT</div>
+        <div className="flex items-end gap-4">
+          <RefreshButton />
+          <div className="text-right">
+            <div className="text-[10px] uppercase tracking-[0.2em] text-muted">Idol Till I Die</div>
+            <div className="font-mono text-xs text-light">Jul 8, 2026</div>
+          </div>
         </div>
       </div>
 
@@ -283,16 +388,13 @@ function CommandCenter({ registry }: { registry: EkatorRegistrySnapshot }) {
       {/* Main 3-column grid */}
       <div className="mb-3 grid gap-3 lg:grid-cols-[0.8fr_1.2fr_1fr]">
         {/* Radial gauge */}
-        <div className="rounded-lg border border-[line] bg-[#0E0E0E] p-4" style={{ borderColor: line }}>
+        <div className="rounded-lg border p-4" style={{ borderColor: line, background: '#0E0E0E' }}>
           <div className="mb-2 text-[10px] uppercase tracking-[0.2em]" style={{ color: red }}>EP1 Gravity</div>
           <RadialGauge value={83.3} max={100} label="83%" sublabel="of YT views" />
-          <div className="mt-2 border-t border-[line] pt-2 text-xs leading-relaxed text-light" style={{ borderColor: line }}>
-            EP1 alone accounts for 83.3% of all measured YouTube views. The longform story is the demand engine.
-          </div>
         </div>
 
         {/* Distribution gap */}
-        <div className="rounded-lg border border-[line] bg-[#0E0E0E] p-4" style={{ borderColor: line }}>
+        <div className="rounded-lg border p-4" style={{ borderColor: line, background: '#0E0E0E' }}>
           <div className="mb-3 flex items-center justify-between">
             <div className="text-[10px] uppercase tracking-[0.2em]" style={{ color: red }}>Distribution Gap</div>
             <div className="font-mono text-xs text-muted">views by format</div>
@@ -301,7 +403,7 @@ function CommandCenter({ registry }: { registry: EkatorRegistrySnapshot }) {
         </div>
 
         {/* Priority queue */}
-        <div className="rounded-lg border border-[line] bg-[#0E0E0E] p-4" style={{ borderColor: line }}>
+        <div className="rounded-lg border p-4" style={{ borderColor: line, background: '#0E0E0E' }}>
           <div className="mb-3 flex items-center justify-between">
             <div className="text-[10px] uppercase tracking-[0.2em]" style={{ color: red }}>72-Hour Queue</div>
             <div className="font-mono text-xs text-muted">do these first</div>
@@ -310,46 +412,18 @@ function CommandCenter({ registry }: { registry: EkatorRegistrySnapshot }) {
         </div>
       </div>
 
-      {/* Channel strip — horizontal bars, no cards */}
-      <div className="mb-3 rounded-lg border border-[line] bg-[#0E0E0E] p-4" style={{ borderColor: line }}>
+      {/* Channel matrix — 3 compact channel cards with rings */}
+      <div className="mb-3 rounded-lg border p-4" style={{ borderColor: line, background: '#0E0E0E' }}>
         <div className="mb-3 flex items-center justify-between">
           <div className="text-[10px] uppercase tracking-[0.2em]" style={{ color: red }}>Channel Pulse</div>
-          <div className="font-mono text-xs text-muted">audience vs activation</div>
+          <div className="font-mono text-xs text-muted">audience · status · activation</div>
         </div>
-        <div className="space-y-2.5">
-          {channels.map(ch => (
-            <div key={ch.name} className="flex items-center gap-3">
-              <div className="w-20 shrink-0">
-                <div className="text-sm font-bold text-white">{ch.name}</div>
-                <div className="font-mono text-[10px] text-muted">{ch.posts}</div>
-              </div>
-              <div className="relative h-6 flex-1 overflow-hidden rounded bg-[#161616]">
-                <div
-                  className="absolute left-0 top-0 h-full rounded transition-all duration-700"
-                  style={{ width: `${(ch.audience / 62_900) * 100}%`, background: statusColor(ch.status) === light ? '#333' : statusColor(ch.status), opacity: 0.85 }}
-                />
-                <div className="absolute inset-0 flex items-center justify-between px-2.5">
-                  <span className="font-mono text-xs font-bold text-white mix-blend-difference">{compact(ch.audience)}</span>
-                  <span className="font-mono text-[10px] uppercase tracking-wider" style={{ color: statusColor(ch.status) }}>{statusLabel(ch.status)}</span>
-                </div>
-              </div>
-              <div className="hidden w-32 shrink-0 text-right text-[10px] leading-tight text-muted md:block">{ch.action.slice(0, 48)}{ch.action.length > 48 ? '…' : ''}</div>
-            </div>
-          ))}
-        </div>
+        <ChannelMatrix />
       </div>
 
       {/* Status strip */}
-      <div className="rounded-lg border border-[line] bg-[#0E0E0E]" style={{ borderColor: line }}>
+      <div className="rounded-lg border" style={{ borderColor: line, background: '#0E0E0E' }}>
         <StatusStrip registry={registry} />
-      </div>
-
-      {/* Executive read — one line, no box */}
-      <div className="mt-4 text-center">
-        <p className="text-sm leading-relaxed text-light md:text-base">
-          <span className="font-bold" style={{ color: red }}>Read: </span>
-          The story is working; the short-form machine is not caught up yet. Convert EP1 into a measured cross-platform clip system over the next 72 hours, then decide which character lanes deserve scale.
-        </p>
       </div>
     </div>
   );
@@ -359,12 +433,12 @@ function CommandCenter({ registry }: { registry: EkatorRegistrySnapshot }) {
 
 function SectionHeader({ num, title, subtitle }: { num: string; title: string; subtitle: string }) {
   return (
-    <div className="mx-auto mb-8 max-w-[1400px] px-4 md:px-6 lg:px-8">
+    <div className="mx-auto mb-6 max-w-[1400px] px-4 md:px-6 lg:px-8">
       <div className="flex items-baseline gap-3">
         <span className="font-mono text-xs font-bold uppercase tracking-[0.2em]" style={{ color: red }}>{num}</span>
         <h2 className="font-mono text-2xl font-black text-white md:text-3xl">{title}</h2>
       </div>
-      <p className="mt-2 max-w-3xl text-sm leading-relaxed text-light">{subtitle}</p>
+      <p className="mt-1 max-w-2xl text-xs leading-snug text-muted">{subtitle}</p>
     </div>
   );
 }
@@ -401,7 +475,7 @@ function ChannelTable() {
                 <span className="h-1.5 w-1.5 rounded-full" style={{ background: statusColor(ch.status) }} />
                 <span className="font-mono text-[10px] uppercase tracking-wider" style={{ color: statusColor(ch.status) }}>{statusLabel(ch.status)}</span>
               </div>
-              <p className="text-xs leading-snug text-light">{ch.action}</p>
+              <p className="text-xs leading-snug text-light">{ch.action.length > 60 ? ch.action.slice(0, 60) + '…' : ch.action}</p>
             </div>
           </div>
         ))}
@@ -687,35 +761,35 @@ export function EkatorCommandCenter({ registry }: { registry: EkatorRegistrySnap
 
       {/* DETAIL SECTIONS — below the fold */}
       <section id="channels" className="py-12 md:py-16">
-        <SectionHeader num="01" title="Owned Channels" subtitle="Audience base, content output, measurable views, and the next action per official surface." />
+        <SectionHeader num="01" title="Owned Channels" subtitle="Audience, output, views, and next action per surface." />
         <ChannelTable />
       </section>
 
       <div className="mx-auto h-px max-w-[1400px]" style={{ background: line }} />
 
       <section id="assets" className="py-12 md:py-16">
-        <SectionHeader num="02" title="Asset Performance" subtitle="A visual read of where attention is concentrated and which assets should be cut, mirrored, or held." />
+        <SectionHeader num="02" title="Asset Performance" subtitle="Where attention is concentrated and which assets to cut, mirror, or hold." />
         <AssetBoard />
       </section>
 
       <div className="mx-auto h-px max-w-[1400px]" style={{ background: line }} />
 
       <section id="insights" className="py-12 md:py-16">
-        <SectionHeader num="03" title="Actionable Insights" subtitle="Metric, meaning, and decision — compressed into the current operating read." />
+        <SectionHeader num="03" title="Actionable Insights" subtitle="Metric, meaning, and decision." />
         <InsightBoard />
       </section>
 
       <div className="mx-auto h-px max-w-[1400px]" style={{ background: line }} />
 
       <section id="data" className="py-12 md:py-16">
-        <SectionHeader num="04" title="Measurement Layers" subtitle="Post-level performance, daily pacing, comment themes, follower lift, and future paid-media delivery." />
+        <SectionHeader num="04" title="Measurement Layers" subtitle="Post-level, pacing, sentiment, follower lift, and paid delivery." />
         <MeasurementTable />
       </section>
 
       <div className="mx-auto h-px max-w-[1400px]" style={{ background: line }} />
 
       <section id="moves" className="py-12 md:py-16">
-        <SectionHeader num="05" title="Ranked moves for the next 72 hours" subtitle="A prioritized operating queue based on the strongest available signal." />
+        <SectionHeader num="05" title="Ranked moves for the next 72 hours" subtitle="Prioritized operating queue." />
         <MovesTimeline />
       </section>
 
