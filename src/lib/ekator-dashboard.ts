@@ -3,7 +3,6 @@ export type EkatorRegistryItem = {
   platform: string;
   handle: string;
   status: string;
-  sourceUrl?: string;
 };
 
 export type EkatorRegistryHandle = {
@@ -15,12 +14,7 @@ export type EkatorRegistryHandle = {
 };
 
 export type EkatorRegistrySnapshot = {
-  status: 'live' | 'fallback';
-  clientId: string;
-  clientName: string;
-  knowledgeStoreId?: string | null;
-  lastIngest?: string | null;
-  lastChecked: string;
+  status: 'live' | 'pending';
   itemsCount: number;
   readyItemsCount: number;
   ownedItemsCount: number;
@@ -33,21 +27,14 @@ export type EkatorRegistrySnapshot = {
   responseCount: number;
   recentItems: EkatorRegistryItem[];
   topHandles: EkatorRegistryHandle[];
-  error?: string;
 };
 
 type SupabaseRow = Record<string, unknown>;
 
 const EKATOR_CLIENT_ID = '1159a218-5c5b-4373-8fb4-c7365bb81f4e';
-const FALLBACK_CHECKED_AT = '2026-07-08T23:59:00.000Z';
 
 export const fallbackEkatorRegistrySnapshot: EkatorRegistrySnapshot = {
-  status: 'fallback',
-  clientId: EKATOR_CLIENT_ID,
-  clientName: 'EKATOR',
-  knowledgeStoreId: 'ks_019f43ca-201c-7200-bd50-36f2daa114f5',
-  lastIngest: '2026-07-08T22:49:46.889509+00:00',
-  lastChecked: FALLBACK_CHECKED_AT,
+  status: 'pending',
   itemsCount: 16,
   readyItemsCount: 16,
   ownedItemsCount: 16,
@@ -59,7 +46,7 @@ export const fallbackEkatorRegistrySnapshot: EkatorRegistrySnapshot = {
   officialHandleCount: 2,
   responseCount: 1,
   recentItems: [
-    { caption: 'Idol Till I Die EP1', platform: 'youtube', handle: 'Idol Till I Die', status: 'ready', sourceUrl: 'https://youtu.be/fVWfwic5y-Y' },
+    { caption: 'Idol Till I Die EP1', platform: 'youtube', handle: 'Idol Till I Die', status: 'ready' },
     { caption: '0627 street eval - Matthew', platform: 'street-eval', handle: 'Matthew', status: 'ready' },
     { caption: '0627 street eval - Cai Jinxin', platform: 'street-eval', handle: 'Cai Jinxin', status: 'ready' },
   ],
@@ -68,7 +55,6 @@ export const fallbackEkatorRegistrySnapshot: EkatorRegistrySnapshot = {
     { displayName: '@ekator.lukas', handle: 'ekator.lukas', platforms: 'TT', kind: 'sns-viral', notes: 'Lukas fan signal' },
     { displayName: '@idoltillidie', handle: 'idoltillidie', platforms: 'IG,YTB,TT', kind: 'official', notes: 'Official account' },
   ],
-  error: 'Using last verified snapshot until Supabase env is available to this runtime.',
 };
 
 function asString(value: unknown, fallback = ''): string {
@@ -95,13 +81,6 @@ async function supabaseFetch<T>(baseUrl: string, key: string, path: string): Pro
   }
 
   return response.json() as Promise<T>;
-}
-
-function publicError(error: unknown): string {
-  if (error instanceof Error) {
-    return error.message.replace(/Bearer\s+[^\s]+/gi, 'Bearer [REDACTED]').slice(0, 220);
-  }
-  return 'Supabase read failed.';
 }
 
 export async function getEkatorRegistrySnapshot(): Promise<EkatorRegistrySnapshot> {
@@ -142,11 +121,6 @@ export async function getEkatorRegistrySnapshot(): Promise<EkatorRegistrySnapsho
 
     return {
       status: 'live',
-      clientId,
-      clientName: asString(client?.name, 'EKATOR'),
-      knowledgeStoreId: typeof client?.knowledge_store_id === 'string' ? client.knowledge_store_id : null,
-      lastIngest: typeof client?.last_ingest === 'string' ? client.last_ingest : null,
-      lastChecked: new Date().toISOString(),
       itemsCount: items.length,
       readyItemsCount: readyItems.length,
       ownedItemsCount: ownedItems.length,
@@ -158,11 +132,10 @@ export async function getEkatorRegistrySnapshot(): Promise<EkatorRegistrySnapsho
       officialHandleCount: officialHandles.length,
       responseCount: responses.length,
       recentItems: items.slice(0, 5).map((item) => ({
-        caption: asString(item.caption, 'Untitled registry item'),
+        caption: asString(item.caption, 'Untitled asset'),
         platform: asString(item.platform, 'unknown'),
         handle: asString(item.handle, 'unknown'),
         status: asString(item.status, 'unknown'),
-        sourceUrl: typeof item.source_url === 'string' ? item.source_url : undefined,
       })),
       topHandles: [
         ...officialHandles,
@@ -171,11 +144,7 @@ export async function getEkatorRegistrySnapshot(): Promise<EkatorRegistrySnapsho
         ...normalizedHandles,
       ].slice(0, 8),
     };
-  } catch (error) {
-    return {
-      ...fallbackEkatorRegistrySnapshot,
-      error: publicError(error),
-      lastChecked: new Date().toISOString(),
-    };
+  } catch {
+    return fallbackEkatorRegistrySnapshot;
   }
 }

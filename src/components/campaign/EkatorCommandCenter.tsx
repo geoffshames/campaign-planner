@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useRef, type ReactNode } from 'react';
 import { motion, useMotionValue, useScroll, useSpring, useTransform } from 'framer-motion';
 import type { EkatorRegistrySnapshot } from '@/lib/ekator-dashboard';
 
@@ -16,7 +16,6 @@ type Channel = {
   role: string;
   insight: string;
   action: string;
-  source: string;
 };
 type VideoSignal = {
   title: string;
@@ -53,13 +52,6 @@ type Benchmark = {
   outlier: string;
   pattern: string;
 };
-type SourceHealth = {
-  source: string;
-  status: Tone;
-  pulled: string;
-  coverage: string;
-  caveat: string;
-};
 
 const red = '#FD3737';
 const youtubeTotalViews = 136_552;
@@ -78,7 +70,6 @@ const channels: Channel[] = [
     role: 'Top-of-funnel audience reservoir',
     insight: 'Instagram owns nearly 80% of the known official audience, but the current measurable conversion event is YouTube EP1.',
     action: 'Every IG post/story should ladder into one clear behavior: watch EP1, save a trainee clip, or follow YouTube.',
-    source: 'Browser profile read; Tokscript Instagram endpoint returned a temporary 521.',
   },
   {
     name: 'YouTube',
@@ -91,7 +82,6 @@ const channels: Channel[] = [
     role: 'Documentary home + retargeting anchor',
     insight: 'EP1 is over-performing relative to subscriber base: 113.8K views on 5.28K subscribers implies discovery beyond owned subs.',
     action: 'Use YouTube as the source of truth for story beats, then force the short-form layer to carry those beats outward.',
-    source: 'YouTube channel + RSS + Tokscript transcript job.',
   },
   {
     name: 'TikTok',
@@ -104,7 +94,6 @@ const channels: Channel[] = [
     role: 'Dormant owned distribution',
     insight: 'There is a meaningful follower base but no official TikTok content, so the campaign is leaving algorithmic inventory unused.',
     action: 'Post the first three EP1 cuts immediately: Matthew leader arc, trainee pressure, and comedic dorm/rule clip.',
-    source: 'Tokscript TikTok profile pull.',
   },
 ];
 
@@ -269,7 +258,7 @@ const recommendations: Recommendation[] = [
   {
     rank: 4,
     title: 'Benchmark against member-interaction formats, not generic K-pop trend volume',
-    why: 'Sandcastles comps show giant upside for challenge/member-chat formats, but the relevant lesson is structure: group dynamics beat trailer language.',
+    why: 'Comparable short-form wins point to the same structural lesson: group dynamics beat trailer language.',
     move: 'Test duo/group clips with explicit relationship hooks before scaling performance-only cuts.',
     owner: 'Creative strategy',
     impact: 'Medium',
@@ -314,44 +303,7 @@ const benchmarks: Benchmark[] = [
   },
 ];
 
-const baseSourceHealth: SourceHealth[] = [
-  {
-    source: 'Tokscript',
-    status: 'strong',
-    pulled: '9 official YouTube URLs; 4 transcripts available; TikTok profile fetched.',
-    coverage: 'EP1 transcript, official YouTube metadata, official TikTok profile.',
-    caveat: 'Instagram API call returned 521, so IG profile stats are browser-verified fallback.',
-  },
-  {
-    source: 'Sandcastles',
-    status: 'watch',
-    pulled: 'K-pop/doc/comparable short-form benchmark search completed.',
-    coverage: 'External format/outlier context, especially KATSEYE/member-interaction comps.',
-    caveat: 'Official @idoltillidie is not indexed in Sandcastles yet; add it to watchlist for automated outlier tracking.',
-  },
-];
-
 const compactNumber = (value: number) => new Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: value >= 10_000 ? 1 : 0 }).format(value);
-
-function compactDateTime(value?: string | null) {
-  if (!value) return '—';
-  return value.replace('T', ' ').replace(/\.\d+/, '').replace(/\+00:00$/, ' UTC').slice(0, 22);
-}
-
-function supabaseSourceHealth(registry: EkatorRegistrySnapshot): SourceHealth {
-  const live = registry.status === 'live';
-  return {
-    source: 'Supabase',
-    status: live ? 'strong' : 'risk',
-    pulled: live
-      ? `Live registry read: ${registry.itemsCount} items, ${registry.monitoredHandlesCount} monitored handles, ${registry.responseCount} saved response.`
-      : 'Registry target identified; using last verified fallback snapshot until runtime env is available.',
-    coverage: `${registry.readyItemsCount} ready assets, ${registry.streetEvalItemsCount} street-eval cuts, ${registry.activeMonitoredHandlesCount} active monitored handles, ${registry.seedingNetworkCount} seeding-network nodes, ${registry.snsViralCount} SNS viral fan pages.`,
-    caveat: live
-      ? `Last registry ingest: ${compactDateTime(registry.lastIngest)}. Performance table is empty today, so channel/view metrics still come from Tokscript/YouTube snapshot.`
-      : registry.error || 'Supabase read unavailable in this runtime; visible metrics use the MCP-pulled snapshot.',
-  };
-}
 
 function toneColor(tone: Tone) {
   if (tone === 'strong') return '#22C55E';
@@ -465,7 +417,6 @@ function ChannelCard({ channel }: { channel: Channel }) {
           <p className="text-[#FAFAFA]">{channel.action}</p>
         </div>
       </div>
-      <p className="mt-5 border-t border-[#303030] pt-4 text-xs leading-relaxed text-[#71717A]">Source: {channel.source}</p>
     </GlassCard>
   );
 }
@@ -513,53 +464,29 @@ function InsightCard({ insight }: { insight: Insight }) {
   );
 }
 
-function SourceCard({ source }: { source: SourceHealth }) {
-  return (
-    <GlassCard className="p-5">
-      <div className="mb-4 flex items-start justify-between gap-3">
-        <h3 className="font-display text-2xl text-[#FAFAFA]">{source.source}</h3>
-        <Badge tone={toneColor(source.status)}>{toneLabel(source.status)}</Badge>
-      </div>
-      <div className="space-y-3 text-sm leading-relaxed text-[#E4E4E9]">
-        <p><span className="font-bold text-[#FD3737]">Pulled: </span>{source.pulled}</p>
-        <p><span className="font-bold text-[#FD3737]">Coverage: </span>{source.coverage}</p>
-        <p className="text-[#B8B8C0]"><span className="font-bold text-[#E4E4E9]">Caveat: </span>{source.caveat}</p>
-      </div>
-    </GlassCard>
-  );
-}
-
 function RegistryPanel({ registry }: { registry: EkatorRegistrySnapshot }) {
   const live = registry.status === 'live';
   const trackedNodes = registry.seedingNetworkCount + registry.snsViralCount + registry.officialHandleCount;
   return (
     <GlassCard className="mt-5 p-6" glow={live}>
-      <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
-        <div>
-          <div className="mb-3 flex flex-wrap items-center gap-3">
-            <Badge tone={live ? '#22C55E' : '#F59E0B'}>{live ? 'Supabase live' : 'Supabase fallback'}</Badge>
-            <span className="text-xs uppercase tracking-[0.22em] text-[#B8B8C0]">Creative Control registry</span>
-          </div>
-          <h3 className="font-display text-3xl text-[#FAFAFA] md:text-4xl">{registry.clientName} registry is now part of the page read.</h3>
-          <p className="mt-3 max-w-3xl text-sm leading-relaxed text-[#E4E4E9]">
-            Server-side registry snapshot from the EKATOR Supabase row. It does not expose credentials; it only renders counts, source freshness, and safe public asset/handle labels.
-          </p>
-        </div>
-        <div className="rounded-2xl border border-[#303030] bg-[#0C0C0C]/70 p-4 text-sm text-[#B8B8C0] lg:min-w-[280px]">
-          <div><span className="font-bold text-[#FAFAFA]">Last ingest:</span> {compactDateTime(registry.lastIngest)}</div>
-          <div className="mt-2"><span className="font-bold text-[#FAFAFA]">Checked:</span> {compactDateTime(registry.lastChecked)}</div>
-        </div>
+      <div className="mb-3 flex flex-wrap items-center gap-3">
+        <Badge tone={live ? '#22C55E' : '#F59E0B'}>{live ? 'Current data' : 'Data updating'}</Badge>
+        <span className="text-xs uppercase tracking-[0.22em] text-[#B8B8C0]">Campaign asset index</span>
       </div>
+      <h3 className="font-display text-3xl text-[#FAFAFA] md:text-4xl">EKATOR asset and audience map</h3>
+      <p className="mt-3 max-w-3xl text-sm leading-relaxed text-[#E4E4E9]">
+        Current inventory of owned assets, monitored social surfaces, and fan-network nodes shaping the campaign read.
+      </p>
       <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-        <MetricTile label="Registry items" value={String(registry.itemsCount)} note={`${registry.readyItemsCount} ready · ${registry.ownedItemsCount} owned`} tone={live ? 'strong' : 'risk'} />
-        <MetricTile label="Street-eval cuts" value={String(registry.streetEvalItemsCount)} note="Creative brain source inventory" tone="watch" />
-        <MetricTile label="Tracked handles" value={String(registry.monitoredHandlesCount)} note={`${registry.activeMonitoredHandlesCount} active monitored nodes`} tone={live ? 'strong' : 'risk'} />
-        <MetricTile label="Fan/social nodes" value={String(trackedNodes)} note="Seeding + SNS viral + official rows" tone="watch" />
-        <MetricTile label="Saved analyses" value={String(registry.responseCount)} note="Creative Control responses available" tone="strong" />
+        <MetricTile label="Indexed assets" value={String(registry.itemsCount)} note={`${registry.readyItemsCount} ready · ${registry.ownedItemsCount} owned`} tone={live ? 'strong' : 'risk'} />
+        <MetricTile label="Street-eval cuts" value={String(registry.streetEvalItemsCount)} note="Short-form creative assets" tone="watch" />
+        <MetricTile label="Monitored surfaces" value={String(registry.monitoredHandlesCount)} note={`${registry.activeMonitoredHandlesCount} active social surfaces`} tone={live ? 'strong' : 'risk'} />
+        <MetricTile label="Fan / social nodes" value={String(trackedNodes)} note="Official + fan-network surfaces" tone="watch" />
+        <MetricTile label="Analysis records" value={String(registry.responseCount)} note="Saved campaign reads" tone="strong" />
       </div>
       <div className="mt-6 grid gap-5 lg:grid-cols-2">
         <div>
-          <div className="mb-3 text-[10px] font-bold uppercase tracking-[0.24em] text-[#FD3737]">Recent registry assets</div>
+          <div className="mb-3 text-[10px] font-bold uppercase tracking-[0.24em] text-[#FD3737]">Recent assets</div>
           <div className="space-y-3">
             {registry.recentItems.slice(0, 4).map((item) => (
               <div key={`${item.caption}-${item.platform}-${item.handle}`} className="rounded-xl border border-[#303030] bg-[#111111] p-3">
@@ -570,7 +497,7 @@ function RegistryPanel({ registry }: { registry: EkatorRegistrySnapshot }) {
           </div>
         </div>
         <div>
-          <div className="mb-3 text-[10px] font-bold uppercase tracking-[0.24em] text-[#FD3737]">Tracked surfaces</div>
+          <div className="mb-3 text-[10px] font-bold uppercase tracking-[0.24em] text-[#FD3737]">Monitored social surfaces</div>
           <div className="grid gap-3 sm:grid-cols-2">
             {registry.topHandles.slice(0, 6).map((handle) => (
               <div key={`${handle.displayName}-${handle.kind}`} className="rounded-xl border border-[#303030] bg-[#111111] p-3">
@@ -594,15 +521,12 @@ export function EkatorCommandCenter({ registry }: { registry: EkatorRegistrySnap
   const mouseY = useMotionValue(-200);
   const glowX = useSpring(mouseX, { stiffness: 55, damping: 22 });
   const glowY = useSpring(mouseY, { stiffness: 55, damping: 22 });
-  const [lastUpdated, setLastUpdated] = useState('');
 
   const nav = useMemo(() => [
-    ['read', 'Read'], ['channels', 'Channels'], ['assets', 'Assets'], ['insights', 'Insights'], ['moves', 'Moves'], ['sources', 'Sources'],
+    ['read', 'Read'], ['channels', 'Channels'], ['assets', 'Assets'], ['insights', 'Insights'], ['moves', 'Moves'], ['benchmarks', 'Comps'],
   ], []);
-  const sourceHealth = useMemo(() => [...baseSourceHealth, supabaseSourceHealth(registry)], [registry]);
 
   useEffect(() => {
-    setLastUpdated(new Intl.DateTimeFormat('en-US', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date()));
     const move = (event: MouseEvent) => { mouseX.set(event.clientX); mouseY.set(event.clientY); };
     window.addEventListener('mousemove', move);
     return () => window.removeEventListener('mousemove', move);
@@ -633,23 +557,22 @@ export function EkatorCommandCenter({ registry }: { registry: EkatorRegistrySnap
         </motion.div>
         <motion.div className="relative z-10 mx-auto flex min-h-screen max-w-7xl flex-col justify-end px-6 pb-12 md:px-10 md:pb-16" style={{ opacity: heroOpacity }}>
           <div className="mb-5 flex flex-wrap gap-3">
-            <Badge>EKATOR</Badge><Badge tone="#E4E4E9">Idol Till I Die</Badge><Badge tone="#E4E4E9">Owned social intelligence</Badge><Badge tone="#E4E4E9">MCP-pulled</Badge>
+            <Badge>EKATOR</Badge><Badge tone="#E4E4E9">Idol Till I Die</Badge><Badge tone="#E4E4E9">Owned social intelligence</Badge>
           </div>
           <h1 className="font-display max-w-6xl text-6xl leading-[0.88] tracking-tight text-[#FAFAFA] md:text-8xl lg:text-9xl">EKATOR <span className="block text-[#FD3737]">SOCIAL DASHBOARD</span></h1>
           <p className="mt-7 max-w-4xl text-lg leading-relaxed text-[#E4E4E9] md:text-xl">A living read on the owned “Idol Till I Die” channels: what is growing, what is underused, which assets are moving, and what Crowd Control should do next. The page shows signal, interpretation, and action.</p>
           <div className="mt-8 grid gap-3 md:grid-cols-2 lg:grid-cols-4">
             <MetricTile label="Known owned audience" value={compactNumber(ownedAudience)} note="IG + YouTube + TikTok official surfaces" tone="strong" />
-            <MetricTile label="Measured YouTube views" value={compactNumber(youtubeTotalViews)} note="9 official videos pulled from YouTube/Tokscript" tone="watch" />
+            <MetricTile label="Measured YouTube views" value={compactNumber(youtubeTotalViews)} note="9 official videos measured" tone="watch" />
             <MetricTile label="EP1 gravity" value="83.3%" note="Share of measured YouTube views from EP1 alone" tone="watch" />
             <MetricTile label="TikTok content gap" value="0 posts" note="10.5K followers waiting on official clips" tone="risk" />
           </div>
-          <p className="mt-5 text-xs text-[#71717A]">Last dashboard render: {lastUpdated || 'loading'} · data pull: Tokscript + Sandcastles + Supabase {registry.status === 'live' ? 'live registry' : 'fallback registry'} · no fabricated metrics.</p>
         </motion.div>
       </header>
 
       <Section id="read" kicker="01 / executive read" title="The story is working; distribution is not yet caught up." subtitle="EP1 has already proven interest beyond the subscriber base. The immediate opportunity is not more planning — it is turning the longform story into a measured cross-platform clip system.">
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <MetricTile label="EP1 views" value={compactNumber(113_809)} note="Tokscript YouTube pull · transcript available" tone="strong" />
+          <MetricTile label="EP1 views" value={compactNumber(113_809)} note="Transcript available" tone="strong" />
           <MetricTile label="EP1 vs teaser" value="7.4×" note="EP1 has already outpaced teaser views by a wide margin" tone="strong" />
           <MetricTile label="YouTube Shorts total" value={compactNumber(shortsViews)} note="Current official short-form YouTube layer" tone="risk" />
           <MetricTile label="Longform concentration" value="94.7%" note="EP1 + teaser share of measured YouTube views" tone="watch" />
@@ -659,7 +582,7 @@ export function EkatorCommandCenter({ registry }: { registry: EkatorRegistrySnap
 
       <div className="mx-auto h-px max-w-7xl bg-gradient-to-r from-transparent via-[#303030] to-transparent" />
 
-      <Section id="channels" kicker="02 / owned channels" title="Owned-channel health" subtitle="This is the part that should refresh daily: audience base, content output, measurable views, and the next action per official surface.">
+      <Section id="channels" kicker="02 / owned channels" title="Owned-channel health" subtitle="Audience base, content output, measurable views, and the next action per official surface.">
         <div className="grid gap-5 lg:grid-cols-3">
           {channels.map((channel) => <ChannelCard key={channel.name} channel={channel} />)}
         </div>
@@ -673,7 +596,7 @@ export function EkatorCommandCenter({ registry }: { registry: EkatorRegistrySnap
 
       <div className="mx-auto h-px max-w-7xl bg-gradient-to-r from-transparent via-[#303030] to-transparent" />
 
-      <Section id="insights" kicker="04 / interpretation" title="Actionable insights" subtitle="Dashboard logic: metric → meaning → decision. These are the current reads from the owned social pull and the Master Brain creative context.">
+      <Section id="insights" kicker="04 / interpretation" title="Actionable insights" subtitle="Dashboard logic: metric → meaning → decision. These are the current reads from the owned social and creative context.">
         <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
           {insights.map((insight) => <InsightCard key={insight.label} insight={insight} />)}
         </div>
@@ -699,7 +622,7 @@ export function EkatorCommandCenter({ registry }: { registry: EkatorRegistrySnap
 
       <div className="mx-auto h-px max-w-7xl bg-gradient-to-r from-transparent via-[#303030] to-transparent" />
 
-      <Section id="benchmarks" kicker="06 / external pattern watch" title="Sandcastles benchmark read" subtitle="Sandcastles did not have the official Idol Till I Die channel indexed yet, so the useful current role is comp-format detection: what kinds of K-pop/social structures are producing outsized short-form response.">
+      <Section id="benchmarks" kicker="06 / comparable patterns" title="Comparable short-form patterns" subtitle="Current K-pop and group-content benchmarks show which social structures are producing outsized response: member personality, simple repeatable challenges, and behind-the-scenes intimacy.">
         <div className="grid gap-5 lg:grid-cols-3">
           {benchmarks.map((bench) => (
             <GlassCard key={bench.title} className="p-6">
@@ -714,26 +637,10 @@ export function EkatorCommandCenter({ registry }: { registry: EkatorRegistrySnap
         </div>
       </Section>
 
-      <div className="mx-auto h-px max-w-7xl bg-gradient-to-r from-transparent via-[#303030] to-transparent" />
-
-      <Section id="sources" kicker="07 / data freshness" title="What is live, what is fallback, what needs access" subtitle="The page shows source confidence and gaps only where they affect decision quality.">
-        <div className="grid gap-5 lg:grid-cols-3">
-          {sourceHealth.map((source) => <SourceCard key={source.source} source={source} />)}
-        </div>
-        <GlassCard className="mt-6 p-7" glow>
-          <h3 className="font-display text-3xl text-[#FAFAFA]">Next live-data upgrade</h3>
-          <p className="mt-4 max-w-4xl text-sm leading-relaxed text-[#E4E4E9]">
-            {registry.status === 'live'
-              ? 'Supabase is connected server-side. The next upgrade is to write the daily Tokscript/Sandcastles refresh into cc_performance so the channel and asset cards hydrate beyond the current MCP-pulled snapshot.'
-              : 'Connect Supabase credentials in the deployment/runtime environment, add official @idoltillidie to Sandcastles watchlist, and schedule the Tokscript owned-channel pull into the registry. Once that is connected, these same cards can render fresh values instead of the current MCP-pulled snapshot.'}
-          </p>
-        </GlassCard>
-      </Section>
-
       <footer className="relative px-6 py-16 md:px-10">
         <div className="mx-auto max-w-7xl text-center">
           <div className="font-display text-3xl text-[#FAFAFA] md:text-5xl">EKATOR <span className="text-[#FD3737]">×</span> Crowd Control</div>
-          <p className="mx-auto mt-5 max-w-3xl text-sm leading-relaxed text-[#B8B8C0]">Owned-social intelligence dashboard for the Idol Till I Die campaign. Built from Tokscript, Sandcastles, Supabase, YouTube, Instagram browser fallback, TikTok profile data, and Master Brain context.</p>
+          <p className="mx-auto mt-5 max-w-3xl text-sm leading-relaxed text-[#B8B8C0]">Owned-social intelligence dashboard for the Idol Till I Die campaign.</p>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/brand/CC-LOGO-2024-WHITE.png" alt="Crowd Control" className="mx-auto mt-8 h-6 w-auto opacity-80" />
         </div>
