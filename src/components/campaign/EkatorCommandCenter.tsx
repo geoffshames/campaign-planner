@@ -2,6 +2,12 @@
 
 import { useMemo, useRef, useState, useCallback } from 'react';
 import { motion, useScroll, useSpring } from 'framer-motion';
+import { Gauge } from '@/components/charts/gauge';
+import { RingChart } from '@/components/charts/ring-chart';
+import { Ring } from '@/components/charts/ring';
+import { RingCenter } from '@/components/charts/ring-center';
+import { BarChart } from '@/components/charts/bar-chart';
+import { Bar } from '@/components/charts/bar';
 import type { EkatorRegistrySnapshot, EkatorAssetSnapshot, EkatorAsset } from '@/lib/ekator-dashboard';
 
 /* ── DATA ─────────────────────────────────────────────────────────── */
@@ -127,55 +133,23 @@ function statusLabel(s: string) {
   return 'Quiet';
 }
 
-/** EP1 Gravity — notched arc gauge (bklit-inspired) with center stat */
+/** EP1 Gravity — bklit notched arc gauge */
 function Ep1GravityCard() {
   const ep1Pct = (longformViews / youtubeTotalViews) * 100;
-  const totalNotches = 40;
-  const activeNotches = Math.round((ep1Pct / 100) * totalNotches);
-  const startAngle = 135;
-  const endAngle = 405;
-  const sweep = endAngle - startAngle;
-  const cx = 100;
-  const cy = 100;
-  const r = 72;
-  const notchWidth = 4;
-  const notchHeight = 14;
-
-  // Generate notch positions around the arc
-  const notches = Array.from({ length: totalNotches }, (_, i) => {
-    const angle = startAngle + (sweep * i) / (totalNotches - 1);
-    const rad = (angle * Math.PI) / 180;
-    const x1 = cx + (r - notchHeight / 2) * Math.cos(rad);
-    const y1 = cy + (r - notchHeight / 2) * Math.sin(rad);
-    const x2 = cx + (r + notchHeight / 2) * Math.cos(rad);
-    const y2 = cy + (r + notchHeight / 2) * Math.sin(rad);
-    return { x1, y1, x2, y2, active: i < activeNotches };
-  });
-
   return (
     <div className="flex h-full flex-col items-center justify-center gap-3">
-      {/* Notched arc gauge */}
-      <div className="relative">
-        <svg viewBox="0 0 200 160" className="w-full max-w-[220px]">
-          {notches.map((n, i) => (
-            <line
-              key={i}
-              x1={n.x1} y1={n.y1} x2={n.x2} y2={n.y2}
-              stroke={n.active ? red : '#2A2A2A'}
-              strokeWidth={notchWidth}
-              strokeLinecap="round"
-              style={{ opacity: n.active ? 1 : 0.5, transition: `stroke 0.3s ease ${i * 15}ms` }}
-            />
-          ))}
-        </svg>
-        {/* Center label overlay */}
-        <div className="absolute inset-0 flex flex-col items-center justify-center pt-4">
-          <div className="font-mono text-4xl font-black leading-none" style={{ color: red }}>{ep1Pct.toFixed(0)}%</div>
-          <div className="mt-1 text-[10px] uppercase tracking-wider text-muted">EP1 share</div>
-        </div>
-      </div>
-
-      {/* Mini legend */}
+      <Gauge
+        value={ep1Pct}
+        totalNotches={40}
+        spacing={25}
+        activeFill={red}
+        inactiveFill="#2A2A2A"
+        inactiveFillOpacity={0.5}
+        centerValue={Number(ep1Pct.toFixed(0))}
+        suffix="%"
+        defaultLabel="EP1 share"
+        className="w-full max-w-[220px]"
+      />
       <div className="flex w-full items-center justify-between gap-3 border-t pt-2" style={{ borderColor: line }}>
         <div className="flex items-center gap-1.5">
           <span className="h-2 w-2 rounded-full" style={{ background: red }} />
@@ -193,64 +167,29 @@ function Ep1GravityCard() {
   );
 }
 
-/** View Concentration — concentric ring chart (bklit-inspired) */
+/** View Concentration — bklit concentric ring chart */
 function ViewConcentrationCard() {
   const segments = [
     { label: 'EP1 (longform)', value: longformViews, color: red, pct: (longformViews / youtubeTotalViews) * 100 },
     { label: 'Teaser', value: teaserViews, color: '#B03030', pct: (teaserViews / youtubeTotalViews) * 100 },
     { label: 'Shorts (7 clips)', value: shortsViews, color: '#7A2A2A', pct: (shortsViews / youtubeTotalViews) * 100 },
   ];
-  const cx = 100;
-  const cy = 100;
-  const baseR = 28;
-  const ringGap = 14;
-  const strokeW = 10;
-
+  const ringData = segments.map(s => ({ label: s.label, value: s.value, maxValue: youtubeTotalViews, color: s.color }));
   return (
     <div className="flex h-full flex-col items-center justify-center gap-3">
-      {/* Concentric rings */}
-      <div className="relative">
-        <svg viewBox="0 0 200 200" className="w-full max-w-[200px]">
-          {segments.map((seg, i) => {
-            const r = baseR + i * (strokeW + ringGap);
-            const circ = 2 * Math.PI * r;
-            const dashLen = (seg.pct / 100) * circ;
-            return (
-              <g key={seg.label}>
-                {/* Track */}
-                <circle cx={cx} cy={cy} r={r} fill="none" stroke="#1C1C1C" strokeWidth={strokeW} />
-                {/* Progress */}
-                <circle
-                  cx={cx} cy={cy} r={r} fill="none"
-                  stroke={seg.color}
-                  strokeWidth={strokeW}
-                  strokeLinecap="round"
-                  strokeDasharray={`${dashLen} ${circ}`}
-                  strokeDashoffset={circ * 0.25}
-                  style={{ transition: 'stroke-dasharray 0.8s ease' }}
-                  transform={`rotate(-90 ${cx} ${cy})`}
-                />
-                {/* Label on ring */}
-                <text
-                  x={cx + r + 16} y={cy + 3}
-                  fontSize="9" fill={seg.color} fontFamily="monospace" fontWeight="bold"
-                >
-                  {seg.pct.toFixed(0)}%
-                </text>
-              </g>
-            );
-          })}
-          {/* Center */}
-          <text x={cx} y={cy - 5} textAnchor="middle" fontSize="20" fontWeight="900" fill={white} fontFamily="monospace">
-            {compact(youtubeTotalViews)}
-          </text>
-          <text x={cx} y={cy + 12} textAnchor="middle" fontSize="8" fill={muted} letterSpacing="1.5">
-            TOTAL VIEWS
-          </text>
-        </svg>
-      </div>
-
-      {/* Legend rows */}
+      <RingChart data={ringData} size={200} strokeWidth={10} ringGap={6} baseInnerRadius={28}>
+        {ringData.map((item, index) => (
+          <Ring key={item.label} index={index} />
+        ))}
+        <RingCenter defaultLabel="Total views">
+          {() => (
+            <div className="text-center">
+              <div className="font-mono text-xl font-black text-white">{compact(youtubeTotalViews)}</div>
+              <div className="mt-0.5 text-[8px] uppercase tracking-wider text-muted">TOTAL VIEWS</div>
+            </div>
+          )}
+        </RingCenter>
+      </RingChart>
       <div className="w-full space-y-1.5 border-t pt-2" style={{ borderColor: line }}>
         {segments.map(seg => (
           <div key={seg.label} className="flex items-center gap-2">
@@ -343,40 +282,29 @@ function StatusStrip({ registry }: { registry: EkatorRegistrySnapshot }) {
   );
 }
 
-/** Channel matrix — larger 3-column visual: audience ring + engagement + status */
+/** Channel matrix — bklit ring chart per channel */
 function ChannelMatrix() {
   return (
     <div className="grid grid-cols-3 gap-3">
       {channels.map(ch => {
-        const pct = (ch.audience / 62_900) * 100;
-        const circ = 2 * Math.PI * 32;
+        const ringData = [{ label: ch.name, value: ch.audience, maxValue: 62_900, color: statusColor(ch.status) === light ? '#555' : statusColor(ch.status) }];
         return (
-          <div key={ch.name} className="flex flex-col items-center gap-3 rounded-lg bg-[#141414] p-5 text-center">
-            {/* Audience ring — 80px */}
-            <div className="relative h-20 w-20">
-              <svg viewBox="0 0 76 76" className="h-full w-full -rotate-90">
-                <circle cx="38" cy="38" r="32" fill="none" stroke={dim} strokeWidth="4" />
-                <circle
-                  cx="38" cy="38" r="32" fill="none"
-                  stroke={statusColor(ch.status) === light ? '#555' : statusColor(ch.status)}
-                  strokeWidth="4" strokeLinecap="round"
-                  strokeDasharray={circ}
-                  strokeDashoffset={circ * (1 - pct / 100)}
-                  style={{ transition: 'stroke-dashoffset 0.8s ease' }}
-                />
-              </svg>
-              <div className="absolute inset-0 flex items-center justify-center">
-                <span className="font-mono text-lg font-bold text-white">{compact(ch.audience)}</span>
-              </div>
-            </div>
-            {/* Channel name */}
+          <div key={ch.name} className="flex flex-col items-center gap-2 rounded-lg bg-[#141414] p-5 text-center">
+            <RingChart data={ringData} size={80} strokeWidth={8} ringGap={0} baseInnerRadius={26}>
+              <Ring index={0} animate showGlow={false} />
+              <RingCenter defaultLabel={ch.name}>
+                {() => (
+                  <div className="text-center">
+                    <div className="font-mono text-lg font-bold text-white">{compact(ch.audience)}</div>
+                  </div>
+                )}
+              </RingCenter>
+            </RingChart>
             <div className="text-base font-bold text-white">{ch.name}</div>
-            {/* Status dot + label */}
             <div className="flex items-center gap-2">
               <span className="h-2 w-2 rounded-full" style={{ background: statusColor(ch.status) }} />
               <span className="font-mono text-xs uppercase" style={{ color: statusColor(ch.status) }}>{statusLabel(ch.status)}</span>
             </div>
-            {/* Activation bar — posts/videos */}
             <div className="w-full">
               <div className="h-1.5 overflow-hidden rounded-full bg-[#161616]">
                 <div
@@ -386,7 +314,6 @@ function ChannelMatrix() {
               </div>
               <div className="mt-1.5 font-mono text-[10px] text-muted">{ch.posts}</div>
             </div>
-            {/* Engagement rate */}
             <div className="w-full border-t pt-2" style={{ borderColor: line }}>
               <div className="text-[9px] uppercase tracking-wider text-muted">Engagement</div>
               <div className="mt-0.5 font-mono text-sm font-bold" style={{ color: ch.engagement === '—' ? muted : white }}>{ch.engagement}</div>
@@ -937,16 +864,25 @@ function MeasurementTable() {
             <div className="font-mono text-[11px] text-muted">views/day · baseline Jul 8</div>
           </div>
           <div className="space-y-3">
+            {(() => {
+              const velData = videos.slice(0, 6).map(v => {
+                const vel = v.views / daysSince(v.published);
+                return { name: v.title.length > 20 ? v.title.slice(0, 20) + '…' : v.title, velocity: Math.round(vel) };
+              });
+              return (
+                <BarChart data={velData} xDataKey="name" aspectRatio="3/1" barGap={0.3} animationDuration={800}>
+                  <Bar dataKey="velocity" fill={red} lineCap={4} />
+                </BarChart>
+              );
+            })()}
+          </div>
+          <div className="mt-3 space-y-1.5">
             {videos.slice(0, 6).map(v => {
               const vel = v.views / daysSince(v.published);
-              const maxVel = Math.max(...videos.map(vv => vv.views / daysSince(vv.published)));
               return (
-                <div key={v.title} className="flex items-center gap-3">
-                  <div className="w-32 shrink-0 truncate text-sm font-semibold text-white">{v.title.length > 28 ? v.title.slice(0, 28) + '…' : v.title}</div>
-                  <div className="h-7 flex-1 overflow-hidden rounded-sm bg-[#161616]">
-                    <div className="h-full rounded-sm" style={{ width: `${(vel / maxVel) * 100}%`, background: v.type === 'Longform' ? red : '#7A2A2A' }} />
-                  </div>
-                  <div className="w-16 shrink-0 text-right font-mono text-sm" style={{ color: white }}>{compact(Math.round(vel))}/d</div>
+                <div key={v.title} className="flex items-center gap-3 text-xs">
+                  <span className="flex-1 truncate text-light">{v.title.length > 28 ? v.title.slice(0, 28) + '…' : v.title}</span>
+                  <span className="font-mono font-bold text-white">{compact(Math.round(vel))}/d</span>
                 </div>
               );
             })}
