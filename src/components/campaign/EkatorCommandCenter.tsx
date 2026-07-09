@@ -60,17 +60,9 @@ type SentimentTheme = {
   status: string;
 };
 
-type PaidTestMetric = {
+type PaidReportingField = {
   metric: string;
-  read: string;
-  gate: string;
-};
-
-type PaidTestCell = {
-  lane: string;
-  platform: string;
-  audience: string;
-  decision: string;
+  reportUse: string;
 };
 
 const red = '#FD3737';
@@ -285,10 +277,10 @@ const recommendations: Recommendation[] = [
   },
   {
     rank: 5,
-    title: 'Do not scale paid until clip attribution is clean',
-    why: 'The $50K budget can move fast, but the clip layer must prove which member/hook/platform is generating lift.',
-    move: 'Gate discretionary boosts behind paid-specific rules: a cell must produce qualified attention, efficient engaged views, and a meaningful follower/subscriber conversion signal.',
-    owner: 'Paid / ops',
+    title: 'Keep paid reporting separate from owned performance',
+    why: 'The dashboard should not blend paid-media delivery with YouTube, Instagram, or TikTok organic reads.',
+    move: 'Once campaigns launch, report spend, delivery, efficiency, click-through, and follower conversion in the paid module only.',
+    owner: 'Paid reporting',
     impact: 'Medium',
   },
 ];
@@ -348,18 +340,15 @@ const sentimentThemes: SentimentTheme[] = [
   },
 ];
 
-const paidTestMetrics: PaidTestMetric[] = [
-  { metric: 'Thumbstop / 3s hold', read: 'First-second hook strength by paid creative.', gate: 'Cut any ad that fails to hold attention in the first three seconds.' },
-  { metric: 'Cost per engaged view', read: 'The efficiency read after viewers stay past the opening.', gate: 'Shift budget toward the lane with the lowest cost for qualified attention.' },
-  { metric: 'Follower conversion', read: 'Whether paid reach becomes owned audience.', gate: 'Scale only where follows per 1K paid views are materially better than the other cells.' },
-  { metric: 'EP1 click-through', read: 'Whether paid short-form feeds the anchor episode.', gate: 'Broaden only after the ad produces measurable EP1 traffic, not just passive views.' },
-];
-
-const paidTestCells: PaidTestCell[] = [
-  { lane: 'Matthew leader arc', platform: 'TikTok + Reels', audience: 'K-pop survival-show engagers', decision: 'Can one protagonist carry cold-audience attention?' },
-  { lane: 'Group stakes', platform: 'TikTok + YouTube Shorts', audience: 'International K-pop / trainee-story viewers', decision: 'Does the premise convert better than member-led clips?' },
-  { lane: 'Dorm / rule comedy', platform: 'Reels', audience: 'Casual entertainment + reality-TV engagers', decision: 'Can low-context daily-life clips create cheap reach?' },
-  { lane: 'Cai / origin lane', platform: 'TikTok', audience: 'Member-fandom and redemption-story clusters', decision: 'Is there a second protagonist worth isolating?' },
+const paidReportingFields: PaidReportingField[] = [
+  { metric: 'Spend', reportUse: 'Daily and cumulative spend by platform, campaign, audience, and creative.' },
+  { metric: 'Reach / impressions', reportUse: 'Paid delivery volume separated from owned-channel views.' },
+  { metric: 'CPM / CPV', reportUse: 'Efficiency read by platform and creative once delivery begins.' },
+  { metric: 'Thumbstop / hold rate', reportUse: 'Opening-frame performance by cut, tracked from paid delivery only.' },
+  { metric: 'Completion rate', reportUse: 'Whether the paid audience stays through the story, not just the hook.' },
+  { metric: 'Follower conversion', reportUse: 'New followers or subscribers generated per 1K paid views.' },
+  { metric: 'EP1 click-through', reportUse: 'Whether paid clips create traffic to the anchor episode.' },
+  { metric: 'Creative winner / loser', reportUse: 'Best and weakest paid cuts by platform, audience, and day.' },
 ];
 
 const followerBaselines = [
@@ -767,35 +756,26 @@ function DataLayerPanel() {
         <GlassCard className="p-5 md:p-7">
           <div className="mb-5 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
             <div>
-              <div className="text-sm font-bold uppercase tracking-[0.2em] text-[#FD3737]">Paid media test layer</div>
-              <h3 className="font-display mt-2 text-3xl leading-none text-[#FAFAFA]">Test cells before scale</h3>
+              <div className="text-sm font-bold uppercase tracking-[0.2em] text-[#FD3737]">Paid media reporting</div>
+              <h3 className="font-display mt-2 text-3xl leading-none text-[#FAFAFA]">Ready once media launches</h3>
             </div>
             <div className="text-right">
-              <div className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#B8B8C0]">Paid test cells</div>
-              <div className="font-display mt-1 text-3xl text-[#FD3737]">{paidTestCells.length} lanes</div>
+              <div className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#B8B8C0]">Current paid delivery</div>
+              <div className="font-display mt-1 text-3xl text-[#FD3737]">Awaiting launch</div>
             </div>
           </div>
-          <p className="mb-5 text-sm leading-relaxed text-[#E4E4E9]">This layer should read paid media like an experiment: creative lane, platform, audience, spend gate, and scale decision. The section judges delivery with campaign metrics only.</p>
+          <p className="mb-5 text-sm leading-relaxed text-[#E4E4E9]">This section will populate from campaign delivery once paid media is live. Until spend begins, the dashboard keeps paid performance blank rather than mixing in owned-channel views or modeled assumptions.</p>
 
-          <div className="mb-5 grid gap-3 md:grid-cols-2">
-            {paidTestCells.map((cell) => (
-              <div key={cell.lane} className="rounded-xl border border-[#303030] bg-[#101010] p-4">
-                <div className="font-display text-2xl leading-tight text-[#FAFAFA]">{cell.lane}</div>
-                <div className="mt-3 grid gap-2 text-sm text-[#E4E4E9]">
-                  <div><span className="font-bold text-[#FD3737]">Platform: </span>{cell.platform}</div>
-                  <div><span className="font-bold text-[#FD3737]">Audience: </span>{cell.audience}</div>
-                  <div><span className="font-bold text-[#FD3737]">Decision: </span>{cell.decision}</div>
-                </div>
-              </div>
-            ))}
+          <div className="mb-5 rounded-2xl border border-[#FD3737]/30 bg-[#FD3737]/8 p-4">
+            <div className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#FD3737]">Reporting status</div>
+            <p className="mt-2 text-sm leading-relaxed text-[#FAFAFA]">No paid spend, delivery, or conversion rows are shown here yet. Once launch data is available, this module becomes the paid-media performance read.</p>
           </div>
 
           <div className="grid gap-3 md:grid-cols-2">
-            {paidTestMetrics.map((item) => (
+            {paidReportingFields.map((item) => (
               <div key={item.metric} className="rounded-xl border border-[#303030] bg-[#101010] p-4">
                 <div className="font-display text-2xl leading-tight text-[#FAFAFA]">{item.metric}</div>
-                <p className="mt-3 text-sm leading-relaxed text-[#E4E4E9]">{item.read}</p>
-                <div className="mt-4 border-t border-[#303030] pt-3 text-sm leading-relaxed text-[#FAFAFA]"><span className="font-bold text-[#FD3737]">Gate: </span>{item.gate}</div>
+                <p className="mt-3 text-sm leading-relaxed text-[#E4E4E9]">{item.reportUse}</p>
               </div>
             ))}
           </div>
@@ -949,7 +929,7 @@ export function EkatorCommandCenter({ registry }: { registry: EkatorRegistrySnap
 
       <div className="mx-auto h-px max-w-7xl bg-gradient-to-r from-transparent via-[#303030] to-transparent" />
 
-      <Section id="data" kicker="05 / measurement layers" title="The next reads for the dashboard" subtitle="Post-level performance, daily pacing, comment themes, follower lift, and paid-test gates — shown with confirmed baselines and clear open slots.">
+      <Section id="data" kicker="05 / measurement layers" title="The next reads for the dashboard" subtitle="Post-level performance, daily pacing, comment themes, follower lift, and paid reporting fields — shown with confirmed baselines and clear open slots.">
         <DataLayerPanel />
       </Section>
 
