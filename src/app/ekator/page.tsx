@@ -3,11 +3,11 @@ import { EkatorCommandCenter } from '@/components/campaign/EkatorCommandCenter';
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
-  title: 'EKATOR Command Center | Crowd Control',
-  description: 'Bespoke live campaign dashboard for EKATOR\'s pre-debut documentary-led awareness campaign.',
+  title: 'EKATOR Social Dashboard | Crowd Control',
+  description: 'Owned-channel social analytics and action dashboard for EKATOR / Idol Till I Die.',
   openGraph: {
-    title: 'EKATOR Command Center | Crowd Control',
-    description: 'Live command dashboard for EKATOR\'s pre-debut awareness campaign.',
+    title: 'EKATOR Social Dashboard | Crowd Control',
+    description: 'Living owned-social analytics dashboard for EKATOR / Idol Till I Die.',
     images: ['/images/ekator/hero.png'],
   },
 };
