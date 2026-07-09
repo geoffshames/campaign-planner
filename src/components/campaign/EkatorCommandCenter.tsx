@@ -757,9 +757,12 @@ function DataLayerPanel() {
               <div className="text-sm font-bold uppercase tracking-[0.2em] text-[#FD3737]">Paid test layer</div>
               <h3 className="font-display mt-2 text-3xl leading-none text-[#FAFAFA]">Spend gates before scale</h3>
             </div>
-            <div className="font-display text-3xl text-[#FD3737]">{compactNumber(shortMedian)}</div>
+            <div className="text-right">
+              <div className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#B8B8C0]">Short median</div>
+              <div className="font-display mt-1 text-3xl text-[#FD3737]">{compactNumber(shortMedian)} views</div>
+            </div>
           </div>
-          <p className="mb-5 text-sm leading-relaxed text-[#E4E4E9]">Current short median is the first organic hurdle. Paid tests should beat this before broadening spend.</p>
+          <p className="mb-5 text-sm leading-relaxed text-[#E4E4E9]">Current official YouTube Shorts median is the first organic hurdle. Paid tests should beat this before broadening spend.</p>
           <div className="grid gap-3 md:grid-cols-2">
             {paidTestMetrics.map((item) => (
               <div key={item.metric} className="rounded-xl border border-[#303030] bg-[#101010] p-4">
