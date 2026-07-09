@@ -4,6 +4,7 @@ import { CampaignPage as CampaignPageComponent } from '@/components/campaign/Cam
 import { BadTunerForeverLove } from '@/components/campaign/BadTunerForeverLove';
 import { TemporexWantingIsHaunting } from '@/components/campaign/TemporexWantingIsHaunting';
 import { MiguelDamned } from '@/components/campaign/MiguelDamned';
+import { EkatorCommandCenter } from '@/components/campaign/EkatorCommandCenter';
 import type { Metadata } from 'next';
 
 export function generateStaticParams() {
@@ -14,12 +15,25 @@ export function generateStaticParams() {
     { slug: 'temporex-fantastic-machine' },
     { slug: 'miguel-damned' },
     { slug: 'kodoku-he-lives' },
+    { slug: 'ekator' },
   ];
 }
 
 const noIndex = { robots: { index: false, follow: false } } as const;
 
 export function generateMetadata({ params }: { params: { slug: string } }): Metadata {
+  if (params.slug === 'ekator') {
+    return {
+      ...noIndex,
+      title: 'EKATOR Command Center | Crowd Control',
+      description: 'Bespoke live campaign dashboard for EKATOR\'s pre-debut documentary-led awareness campaign.',
+      openGraph: {
+        title: 'EKATOR Command Center | Crowd Control',
+        description: 'Live command dashboard for EKATOR\'s pre-debut awareness campaign.',
+        images: ['/images/ekator/hero.png'],
+      },
+    };
+  }
   if (params.slug === 'temporex-wanting-is-haunting' || params.slug === 'temporex-fantastic-machine') {
     return {
       ...noIndex,
@@ -35,10 +49,10 @@ export function generateMetadata({ params }: { params: { slug: string } }): Meta
   if (params.slug === 'kodoku-he-lives') {
     return {
       ...noIndex,
-      title: 'KODOKU \u2014 He Lives | Campaign Planner',
-      description: 'Album campaign playbook for KODOKU\u2019s He Lives (Aug 2026): riding the Christian R&B wave, RSVP YOUR CITY worship nights, and the pivot story from 65M secular streams to the faith lane.',
+      title: 'KODOKU — He Lives | Campaign Planner',
+      description: 'Album campaign playbook for KODOKU’s He Lives (Aug 2026): riding the Christian R&B wave, RSVP YOUR CITY worship nights, and the pivot story from 65M secular streams to the faith lane.',
       openGraph: {
-        title: 'KODOKU \u2014 He Lives | Crowd Control Digital',
+        title: 'KODOKU — He Lives | Crowd Control Digital',
         description: 'Album campaign playbook for He Lives.',
         images: ['/images/kodoku-he-lives/hero.png'],
       },
@@ -48,7 +62,7 @@ export function generateMetadata({ params }: { params: { slug: string } }): Meta
     return {
       ...noIndex,
       title: 'Miguel — damned | Campaign Planner',
-      description: '30-day catalog sprint for Miguel\u2019s damned: re-ignite the TikTok wave, convert 172M views into streams, open the LATAM front. Chartmetric + Cobrand grounded.',
+      description: '30-day catalog sprint for Miguel’s damned: re-ignite the TikTok wave, convert 172M views into streams, open the LATAM front. Chartmetric + Cobrand grounded.',
       openGraph: {
         title: 'Miguel — damned | Crowd Control Digital',
         description: '30-day sprint playbook for the damned viral moment.',
@@ -76,6 +90,9 @@ export function generateMetadata({ params }: { params: { slug: string } }): Meta
 }
 
 export default function CampaignPageServer({ params }: { params: { slug: string } }) {
+  if (params.slug === 'ekator') {
+    return <EkatorCommandCenter />;
+  }
   if (params.slug === 'temporex-wanting-is-haunting' || params.slug === 'temporex-fantastic-machine') {
     return <TemporexWantingIsHaunting />;
   }

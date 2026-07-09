@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { motion, useScroll, useSpring, useTransform, useMotionValue } from 'framer-motion';
-import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import { temporex as C } from '@/lib/data/temporex-wanting-is-haunting';
 
 /* ── hooks ── */
@@ -27,7 +26,6 @@ function useInView(opts: { threshold?: number; rootMargin?: string; once?: boole
 
 const fadeUp = { hidden: { opacity: 0, y: 28 }, visible: { opacity: 1, y: 0, transition: { duration: 0.6 } } };
 const stagger = { hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.07, delayChildren: 0.05 } } };
-const scaleIn = { hidden: { opacity: 0, scale: 0.94 }, visible: { opacity: 1, scale: 1, transition: { duration: 0.5 } } };
 
 /* ── primitives ── */
 function ScrollProgress() {
@@ -58,52 +56,8 @@ function GlassCard({ children, className = '', glow = false, hover = true }: { c
     <motion.div variants={fadeUp} className={`relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#1A1A1A]/80 to-[#141414]/50 border border-[#333333]/60 ${hover ? 'hover:border-[#fd3737]/40 hover:shadow-lg hover:shadow-[#fd3737]/5 transition-all duration-500' : ''} ${glow ? 'shadow-lg shadow-[#fd3737]/5 border-[#fd3737]/20' : ''} ${className}`}>{children}</motion.div>
   );
 }
-function AnimatedBar({ pct, color = '#fd3737' }: { pct: number; color?: string }) {
-  const { ref, inView } = useInView();
-  return (
-    <div ref={ref} className="h-2 w-full rounded-full bg-[#262626] overflow-hidden">
-      <motion.div className="h-full rounded-full" style={{ background: color }} initial={{ width: 0 }} animate={{ width: inView ? `${pct}%` : 0 }} transition={{ duration: 1, ease: 'easeOut' }} />
-    </div>
-  );
-}
-function PlatformIcon({ platform, size = 18 }: { platform: string; size?: number }) {
-  const p = platform.toLowerCase();
-  const c = '#E4E4E9';
-  if (p.includes('tiktok')) return <svg width={size} height={size} viewBox="0 0 24 24" fill={c}><path d="M16.6 5.82a4.28 4.28 0 0 1-1.05-2.82h-3.1v12.4a2.6 2.6 0 1 1-2.6-2.6c.27 0 .53.04.78.12V9.78a5.7 5.7 0 1 0 4.92 5.64V9.01a7.3 7.3 0 0 0 4.05 1.22V7.13a4.28 4.28 0 0 1-3-1.31z"/></svg>;
-  if (p.includes('insta')) return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill={c} stroke="none"/></svg>;
-  if (p.includes('spotify')) return <svg width={size} height={size} viewBox="0 0 24 24" fill={c}><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm4.6 14.4a.62.62 0 0 1-.86.21c-2.35-1.44-5.3-1.76-8.79-.96a.62.62 0 1 1-.28-1.21c3.81-.87 7.08-.5 9.72 1.11.3.18.39.57.21.85zm1.23-2.74a.78.78 0 0 1-1.07.26c-2.69-1.65-6.79-2.13-9.97-1.17a.78.78 0 1 1-.45-1.49c3.63-1.1 8.15-.56 11.23 1.33.37.22.49.7.26 1.07zm.11-2.85C14.83 8.95 9.5 8.76 6.42 9.7a.93.93 0 1 1-.54-1.79c3.53-1.07 9.42-.86 13.13 1.34a.94.94 0 0 1-.96 1.61z"/></svg>;
-  if (p.includes('youtube')) return <svg width={size} height={size} viewBox="0 0 24 24" fill={c}><path d="M23 12s0-3.2-.4-4.7a2.5 2.5 0 0 0-1.77-1.77C19.3 5.13 12 5.13 12 5.13s-7.3 0-8.83.4A2.5 2.5 0 0 0 1.4 7.3C1 8.8 1 12 1 12s0 3.2.4 4.7a2.5 2.5 0 0 0 1.77 1.77c1.53.4 8.83.4 8.83.4s7.3 0 8.83-.4a2.5 2.5 0 0 0 1.77-1.77C23 15.2 23 12 23 12zM9.75 15.02V8.98L15.5 12z"/></svg>;
-  return null;
-}
 function Badge({ children, color = '#fd3737' }: { children: React.ReactNode; color?: string }) {
   return <span className="px-3 py-1 rounded-full text-[11px] font-semibold" style={{ background: `${color}22`, color }}>{children}</span>;
-}
-function levelColor(v: string) { return v === 'High' ? '#EF4444' : v === 'Medium' ? '#F59E0B' : '#22C55E'; }
-
-function PlaybookRow({ w }: { w: (typeof C)['playbook'][number] }) {
-  const { ref, inView } = useInView({ threshold: 0.2, rootMargin: '-20px' });
-  return (
-    <motion.div ref={ref} initial={{ opacity: 0, y: 16 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.45 }} className="relative pl-12 md:pl-16">
-      <div className="absolute left-[11px] md:left-[18px] top-6 w-3 h-3 rounded-full bg-[#fd3737] ring-4 ring-[#0A0A0A]" />
-      <GlassCard className="p-6 md:p-7" hover={false}>
-        <div className="flex flex-wrap items-center gap-3 mb-3">
-          <span className="font-display text-lg text-[#FAFAFA]">{w.week}</span>
-          <Badge color="#71717A">{w.phase}</Badge>
-        </div>
-        <p className="text-[#fd3737] text-sm font-semibold mb-4">{w.objective}</p>
-        <div className="grid md:grid-cols-2 gap-5">
-          <div>
-            <div className="text-[11px] uppercase tracking-wider text-[#B8B8C0] mb-2">Actions</div>
-            <ul className="space-y-2">{w.actions.map((a, j) => <li key={j} className="flex gap-2 text-[#E4E4E9] text-sm leading-snug"><span className="text-[#fd3737] mt-0.5">▹</span>{a}</li>)}</ul>
-          </div>
-          <div>
-            <div className="text-[11px] uppercase tracking-wider text-[#B8B8C0] mb-2">Success signals</div>
-            <ul className="space-y-2">{w.signals.map((sig, j) => <li key={j} className="flex gap-2 text-[#E4E4E9] text-sm leading-snug"><span className="text-[#22C55E] mt-0.5">✓</span>{sig}</li>)}</ul>
-          </div>
-        </div>
-      </GlassCard>
-    </motion.div>
-  );
 }
 
 /* ── page ── */

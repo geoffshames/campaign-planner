@@ -27,7 +27,6 @@ function useInView(opts: { threshold?: number; rootMargin?: string; once?: boole
 
 const fadeUp = { hidden: { opacity: 0, y: 28 }, visible: { opacity: 1, y: 0, transition: { duration: 0.6 } } };
 const stagger = { hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.07, delayChildren: 0.05 } } };
-const scaleIn = { hidden: { opacity: 0, scale: 0.94 }, visible: { opacity: 1, scale: 1, transition: { duration: 0.5 } } };
 
 /* ── primitives ── */
 function ScrollProgress() {
@@ -78,8 +77,6 @@ function PlatformIcon({ platform, size = 18 }: { platform: string; size?: number
 function Badge({ children, color = '#fd3737' }: { children: React.ReactNode; color?: string }) {
   return <span className="px-3 py-1 rounded-full text-[11px] font-semibold" style={{ background: `${color}22`, color }}>{children}</span>;
 }
-function levelColor(v: string) { return v === 'High' ? '#EF4444' : v === 'Medium' ? '#F59E0B' : '#22C55E'; }
-
 function PlaybookRow({ w }: { w: (typeof C)['playbook'][number] }) {
   const { ref, inView } = useInView({ threshold: 0.2, rootMargin: '-20px' });
   return (
