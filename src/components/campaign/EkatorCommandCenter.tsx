@@ -44,6 +44,28 @@ type Recommendation = {
   impact: 'High' | 'Medium';
 };
 
+type MeasurementLayer = {
+  platform: string;
+  audience: string;
+  coverage: string;
+  currentRead: string;
+  nextData: string;
+  tone: Tone;
+};
+
+type SentimentTheme = {
+  theme: string;
+  whatToTag: string;
+  decisionUse: string;
+  status: string;
+};
+
+type PaidTestMetric = {
+  metric: string;
+  read: string;
+  gate: string;
+};
+
 const red = '#FD3737';
 const youtubeTotalViews = 136_552;
 const ownedAudience = 78_680;
@@ -263,6 +285,86 @@ const recommendations: Recommendation[] = [
     impact: 'Medium',
   },
 ];
+
+
+const measurementLayers: MeasurementLayer[] = [
+  {
+    platform: 'YouTube',
+    audience: '5.28K subs',
+    coverage: '9 videos with views',
+    currentRead: 'Post-level views are live here; EP1 is the anchor and shorts are the distribution gap.',
+    nextData: 'Add likes, comments, retention, average view duration, and subscriber delta by video.',
+    tone: 'strong',
+  },
+  {
+    platform: 'Instagram',
+    audience: '62.9K followers',
+    coverage: '8 posts counted',
+    currentRead: 'Largest owned audience, but post-level engagement and story-click data are not in the read yet.',
+    nextData: 'Capture views, likes, comments, saves, shares, story taps, link clicks, and follower delta per post.',
+    tone: 'watch',
+  },
+  {
+    platform: 'TikTok',
+    audience: '10.5K followers',
+    coverage: '0 official posts',
+    currentRead: 'No post-level layer can exist until the first official clips go up.',
+    nextData: 'Start with first-hour, 24-hour, and 72-hour views, profile visits, follows, comments, saves, and shares.',
+    tone: 'risk',
+  },
+];
+
+const sentimentThemes: SentimentTheme[] = [
+  {
+    theme: 'Matthew leadership arc',
+    whatToTag: 'Leader, pressure, responsibility, sympathy, international-fan clarity.',
+    decisionUse: 'Decides whether Matthew remains the first paid/social variable.',
+    status: 'Ready to tag',
+  },
+  {
+    theme: 'Group stakes',
+    whatToTag: 'Together-or-fail framing, team tension, “can they debut?” reactions.',
+    decisionUse: 'Decides if hooks should lead with the show premise instead of one member.',
+    status: 'Ready to tag',
+  },
+  {
+    theme: 'Dorm / rule comedy',
+    whatToTag: 'Funny rules, daily-life moments, meme comments, low-context shareability.',
+    decisionUse: 'Decides which casual-fandom clips can scale beyond existing viewers.',
+    status: 'Ready to tag',
+  },
+  {
+    theme: 'Confusion / context gaps',
+    whatToTag: 'Questions about who, what show, voting, episode order, subtitles, where to watch.',
+    decisionUse: 'Decides what on-screen text must be added before paid spend.',
+    status: 'Needs comments',
+  },
+];
+
+const paidTestMetrics: PaidTestMetric[] = [
+  { metric: 'Thumbstop / 3s hold', read: 'First-second hook strength by cut.', gate: 'Only scale if the first frame beats the current short median.' },
+  { metric: 'Cost per engaged view', read: 'Efficiency after people stay past the opening.', gate: 'Compare Matthew, group-stakes, dorm/rules, and Cai lanes side-by-side.' },
+  { metric: 'Follower conversion', read: 'Whether paid views become owned audience.', gate: 'Track follows per 1K views on IG, TikTok, and YouTube separately.' },
+  { metric: 'EP1 click-through', read: 'Whether short-form actually feeds the anchor episode.', gate: 'Require a measurable click/save lift before broadening budget.' },
+];
+
+const followerBaselines = [
+  { platform: 'Instagram', baseline: '62.9K', afterEpisode: 'Track T+24h / T+72h / T+7d after each episode post.' },
+  { platform: 'YouTube', baseline: '5.28K', afterEpisode: 'Track subscriber delta against EP1 and each short release.' },
+  { platform: 'TikTok', baseline: '10.5K', afterEpisode: 'Start delta tracking the day the first official TikTok clip posts.' },
+];
+
+const currentReadDate = new Date('2026-07-08T12:00:00-07:00');
+const monthIndex: Record<string, number> = { Jun: 5, Jul: 6 };
+
+function daysSincePublished(published: string) {
+  const [month, dayText] = published.split(' ');
+  const day = Number.parseInt(dayText, 10);
+  const monthNumber = monthIndex[month] ?? 6;
+  const publishedDate = new Date(2026, monthNumber, day, 12, 0, 0);
+  const diff = Math.round((currentReadDate.getTime() - publishedDate.getTime()) / 86_400_000);
+  return Math.max(1, diff);
+}
 
 const compactNumber = (value: number) => new Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: value >= 10_000 ? 1 : 0 }).format(value);
 
@@ -540,6 +642,139 @@ function VideoSignalBoard() {
   );
 }
 
+
+function DataLayerPanel() {
+  const maxVelocity = Math.max(...videos.map((video) => video.views / daysSincePublished(video.published)));
+  const shortMedian = [...videos.filter((video) => video.type === 'Short').map((video) => video.views)].sort((a, b) => a - b)[Math.floor(videos.filter((video) => video.type === 'Short').length / 2)] ?? 0;
+  return (
+    <div className="space-y-5">
+      <GlassCard className="p-5 md:p-7">
+        <div className="mb-6 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+          <div>
+            <div className="text-sm font-bold uppercase tracking-[0.2em] text-[#FD3737]">Post-level by platform</div>
+            <h3 className="font-display mt-2 text-3xl leading-none text-[#FAFAFA] md:text-4xl">Every surface gets a per-post read</h3>
+          </div>
+          <Badge tone="#E4E4E9">Confirmed baseline</Badge>
+        </div>
+        <div className="grid gap-4 lg:grid-cols-3">
+          {measurementLayers.map((layer) => (
+            <div key={layer.platform} className="rounded-xl border border-[#303030] bg-[#101010] p-4">
+              <div className="mb-4 flex items-start justify-between gap-4">
+                <div>
+                  <div className="font-display text-3xl text-[#FAFAFA]">{layer.platform}</div>
+                  <div className="mt-1 text-sm text-[#B8B8C0]">{layer.audience}</div>
+                </div>
+                <span className="mt-2 h-2.5 w-2.5 rounded-full" style={{ backgroundColor: toneColor(layer.tone) }} />
+              </div>
+              <div className="mb-4 rounded-lg border border-[#303030] bg-[#141414] p-3">
+                <div className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#B8B8C0]">Coverage</div>
+                <div className="mt-1 font-display text-2xl text-[#FD3737]">{layer.coverage}</div>
+              </div>
+              <p className="text-sm leading-relaxed text-[#E4E4E9]">{layer.currentRead}</p>
+              <div className="mt-4 border-t border-[#303030] pt-4 text-sm leading-relaxed text-[#FAFAFA]"><span className="font-bold text-[#FD3737]">Add next: </span>{layer.nextData}</div>
+            </div>
+          ))}
+        </div>
+      </GlassCard>
+
+      <div className="grid gap-5 lg:grid-cols-[1.2fr_0.8fr]">
+        <GlassCard className="p-5 md:p-7">
+          <div className="mb-5 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+            <div>
+              <div className="text-sm font-bold uppercase tracking-[0.2em] text-[#FD3737]">Daily velocity curves</div>
+              <h3 className="font-display mt-2 text-3xl leading-none text-[#FAFAFA]">Start with current views/day proxy</h3>
+            </div>
+            <div className="text-right text-xs uppercase tracking-[0.18em] text-[#B8B8C0]">Baseline Jul 8</div>
+          </div>
+          <div className="space-y-4">
+            {videos.slice(0, 6).map((video) => {
+              const days = daysSincePublished(video.published);
+              const velocity = video.views / days;
+              return (
+                <div key={video.title} className="rounded-xl border border-[#303030] bg-[#101010] p-4">
+                  <div className="mb-3 grid gap-3 md:grid-cols-[1fr_auto_auto] md:items-center">
+                    <div>
+                      <div className="font-semibold leading-tight text-[#FAFAFA]">{video.title}</div>
+                      <div className="mt-1 text-sm text-[#B8B8C0]">{video.type} · {video.published} · {days}d live</div>
+                    </div>
+                    <div className="font-display text-2xl text-[#FD3737]">{compactNumber(Math.round(velocity))}/day</div>
+                    <div className="text-right text-sm text-[#E4E4E9]">{compactNumber(video.views)} total</div>
+                  </div>
+                  <Bar value={velocity} max={maxVelocity} color={video.type === 'Longform' ? red : '#D42D2D'} />
+                </div>
+              );
+            })}
+          </div>
+          <p className="mt-5 text-sm leading-relaxed text-[#B8B8C0]">This is a current pacing proxy. True curves need daily snapshots at the same time each day.</p>
+        </GlassCard>
+
+        <GlassCard className="p-5 md:p-7">
+          <div className="text-sm font-bold uppercase tracking-[0.2em] text-[#FD3737]">Follower delta after episode</div>
+          <h3 className="font-display mt-2 text-3xl leading-none text-[#FAFAFA]">Baselines are set; deltas come next</h3>
+          <div className="mt-6 space-y-4">
+            {followerBaselines.map((item) => (
+              <div key={item.platform} className="rounded-xl border border-[#303030] bg-[#101010] p-4">
+                <div className="flex items-center justify-between gap-4">
+                  <div>
+                    <div className="font-semibold text-[#FAFAFA]">{item.platform}</div>
+                    <div className="mt-1 text-sm text-[#B8B8C0]">Baseline audience</div>
+                  </div>
+                  <div className="font-display text-3xl text-[#FD3737]">{item.baseline}</div>
+                </div>
+                <div className="mt-4 grid grid-cols-3 gap-2 text-center text-xs font-bold uppercase tracking-[0.16em] text-[#E4E4E9]">
+                  <div className="rounded-lg bg-[#262626] px-2 py-2">T+24h</div>
+                  <div className="rounded-lg bg-[#262626] px-2 py-2">T+72h</div>
+                  <div className="rounded-lg bg-[#262626] px-2 py-2">T+7d</div>
+                </div>
+                <p className="mt-3 text-sm leading-relaxed text-[#B8B8C0]">{item.afterEpisode}</p>
+              </div>
+            ))}
+          </div>
+        </GlassCard>
+      </div>
+
+      <div className="grid gap-5 lg:grid-cols-[0.95fr_1.05fr]">
+        <GlassCard className="p-5 md:p-7">
+          <div className="text-sm font-bold uppercase tracking-[0.2em] text-[#FD3737]">Comment + sentiment themes</div>
+          <h3 className="font-display mt-2 text-3xl leading-none text-[#FAFAFA]">Tag comments by creative decision</h3>
+          <div className="mt-6 grid gap-3">
+            {sentimentThemes.map((theme) => (
+              <div key={theme.theme} className="rounded-xl border border-[#303030] bg-[#101010] p-4">
+                <div className="mb-2 flex items-start justify-between gap-3">
+                  <div className="font-semibold text-[#FAFAFA]">{theme.theme}</div>
+                  <Badge tone={theme.status === 'Needs comments' ? '#D42D2D' : '#E4E4E9'}>{theme.status}</Badge>
+                </div>
+                <p className="text-sm leading-relaxed text-[#E4E4E9]"><span className="font-bold text-[#FD3737]">Tag: </span>{theme.whatToTag}</p>
+                <p className="mt-2 text-sm leading-relaxed text-[#B8B8C0]"><span className="font-bold text-[#FAFAFA]">Use: </span>{theme.decisionUse}</p>
+              </div>
+            ))}
+          </div>
+        </GlassCard>
+
+        <GlassCard className="p-5 md:p-7">
+          <div className="mb-5 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+            <div>
+              <div className="text-sm font-bold uppercase tracking-[0.2em] text-[#FD3737]">Paid test layer</div>
+              <h3 className="font-display mt-2 text-3xl leading-none text-[#FAFAFA]">Spend gates before scale</h3>
+            </div>
+            <div className="font-display text-3xl text-[#FD3737]">{compactNumber(shortMedian)}</div>
+          </div>
+          <p className="mb-5 text-sm leading-relaxed text-[#E4E4E9]">Current short median is the first organic hurdle. Paid tests should beat this before broadening spend.</p>
+          <div className="grid gap-3 md:grid-cols-2">
+            {paidTestMetrics.map((item) => (
+              <div key={item.metric} className="rounded-xl border border-[#303030] bg-[#101010] p-4">
+                <div className="font-display text-2xl leading-tight text-[#FAFAFA]">{item.metric}</div>
+                <p className="mt-3 text-sm leading-relaxed text-[#E4E4E9]">{item.read}</p>
+                <div className="mt-4 border-t border-[#303030] pt-3 text-sm leading-relaxed text-[#FAFAFA]"><span className="font-bold text-[#FD3737]">Gate: </span>{item.gate}</div>
+              </div>
+            ))}
+          </div>
+        </GlassCard>
+      </div>
+    </div>
+  );
+}
+
 function InsightCard({ insight }: { insight: Insight }) {
   return (
     <GlassCard className="p-6">
@@ -610,7 +845,7 @@ export function EkatorCommandCenter({ registry }: { registry: EkatorRegistrySnap
   const heroY = useTransform(scrollYProgress, [0, 1], [0, 140]);
   const heroOpacity = useTransform(scrollYProgress, [0, 0.85], [1, 0]);
   const nav = useMemo(() => [
-    ['read', 'Read'], ['channels', 'Channels'], ['assets', 'Assets'], ['insights', 'Insights'], ['moves', 'Moves'],
+    ['read', 'Read'], ['channels', 'Channels'], ['assets', 'Assets'], ['insights', 'Insights'], ['data', 'Data'], ['moves', 'Moves'],
   ], []);
 
   return (
@@ -684,7 +919,13 @@ export function EkatorCommandCenter({ registry }: { registry: EkatorRegistrySnap
 
       <div className="mx-auto h-px max-w-7xl bg-gradient-to-r from-transparent via-[#303030] to-transparent" />
 
-      <Section id="moves" kicker="05 / recommended moves" title="Ranked moves for the next 72 hours" subtitle="A prioritized operating queue based on the strongest available signal.">
+      <Section id="data" kicker="05 / measurement layers" title="The next reads for the dashboard" subtitle="Post-level performance, daily pacing, comment themes, follower lift, and paid-test gates — shown with confirmed baselines and clear open slots.">
+        <DataLayerPanel />
+      </Section>
+
+      <div className="mx-auto h-px max-w-7xl bg-gradient-to-r from-transparent via-[#303030] to-transparent" />
+
+      <Section id="moves" kicker="06 / recommended moves" title="Ranked moves for the next 72 hours" subtitle="A prioritized operating queue based on the strongest available signal.">
         <div className="space-y-4">
           {recommendations.map((rec) => (
             <GlassCard key={rec.rank} className="p-5">
