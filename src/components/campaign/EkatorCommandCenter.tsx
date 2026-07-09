@@ -145,11 +145,15 @@ function Ep1GravityCard() {
         activeFill={red}
         inactiveFill="#2A2A2A"
         inactiveFillOpacity={0.5}
-        centerValue={Number(ep1Pct.toFixed(0))}
-        suffix="%"
-        defaultLabel="EP1 share"
+        useGradient
+        activeGradient={[red, '#B03030']}
+        inactiveGradient={['#2A2A2A', '#1C1C1C']}
         className="w-full max-w-[220px]"
       />
+      <div className="text-center -mt-12">
+        <div className="font-mono text-4xl font-black" style={{ color: red }}>{ep1Pct.toFixed(0)}%</div>
+        <div className="text-[10px] uppercase tracking-wider text-muted">EP1 share</div>
+      </div>
       <div className="flex w-full items-center justify-between gap-3 border-t pt-2" style={{ borderColor: line }}>
         <div className="flex items-center gap-1.5">
           <span className="h-2 w-2 rounded-full" style={{ background: red }} />
