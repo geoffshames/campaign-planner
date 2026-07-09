@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useMemo, useRef, type ReactNode } from 'react';
-import { motion, useMotionValue, useScroll, useSpring, useTransform } from 'framer-motion';
+import { useMemo, useRef, type ReactNode } from 'react';
+import { motion, useScroll, useSpring, useTransform } from 'framer-motion';
 import type { EkatorRegistrySnapshot } from '@/lib/ekator-dashboard';
 
 type Tone = 'strong' | 'watch' | 'risk' | 'quiet' | 'offline';
@@ -42,15 +42,6 @@ type Recommendation = {
   move: string;
   owner: string;
   impact: 'High' | 'Medium';
-};
-type Benchmark = {
-  title: string;
-  handle: string;
-  platform: string;
-  views: number;
-  engagement: string;
-  outlier: string;
-  pattern: string;
 };
 
 const red = '#FD3737';
@@ -150,8 +141,8 @@ const videos: VideoSignal[] = [
     published: 'Jul 7',
     type: 'Short',
     transcript: 'Yes',
-    signal: 'Matthew leader narrative aligns with prior creative-brain priority.',
-    action: 'Make this the first paid/SWRM test once social pixel + clip tracker are live.',
+    signal: 'Matthew leader narrative is the cleanest member-led hook in the current short set.',
+    action: 'Make this the first paid/SWRM test once clip tracking is clean.',
   },
   {
     title: '[미공개] 소파 부신 범인 공개',
@@ -224,7 +215,7 @@ const insights: Insight[] = [
   {
     label: 'Matthew remains the cleanest first protagonist',
     stat: 'Priority 1',
-    read: 'Vault/Jockey notes and the first short-form test both point toward Matthew’s leader arc as the clearest hook for international audiences.',
+    read: 'The available short-form read points toward Matthew’s leader arc as the clearest hook for international audiences.',
     action: 'Make Matthew the first controlled variable: 3 edits, 3 hooks, 3 platforms, same 24-hour read window.',
     tone: 'strong',
   },
@@ -257,15 +248,15 @@ const recommendations: Recommendation[] = [
   },
   {
     rank: 4,
-    title: 'Benchmark against member-interaction formats, not generic K-pop trend volume',
-    why: 'Comparable short-form wins point to the same structural lesson: group dynamics beat trailer language.',
-    move: 'Test duo/group clips with explicit relationship hooks before scaling performance-only cuts.',
+    title: 'Test member-pair dynamics before scaling performance-only cuts',
+    why: 'The clearest clips are character-led. Relationship hooks make the show easier to understand for new viewers than formal trailer language.',
+    move: 'Build a small batch around pairings and conflicts: Matthew/Cai, dorm rules, group stakes, and “can they debut together?” pressure.',
     owner: 'Creative strategy',
     impact: 'Medium',
   },
   {
     rank: 5,
-    title: 'Do not scale paid until source attribution is live',
+    title: 'Do not scale paid until clip attribution is clean',
     why: 'The $50K budget can move fast, but the clip layer must prove which member/hook/platform is generating lift.',
     move: 'Gate discretionary boosts behind one rule: a clip must beat the current short median or create a meaningful follower/subscriber conversion signal.',
     owner: 'Paid / ops',
@@ -273,44 +264,14 @@ const recommendations: Recommendation[] = [
   },
 ];
 
-const benchmarks: Benchmark[] = [
-  {
-    title: 'Gnarly chan haiiiii',
-    handle: '@katseyeworld',
-    platform: 'TikTok',
-    views: 57_800_000,
-    engagement: '14%',
-    outlier: '7.7×',
-    pattern: 'Member/personality clip, not formal trailer language.',
-  },
-  {
-    title: 'watch us go…',
-    handle: '@katseyeworld',
-    platform: 'TikTok',
-    views: 41_600_000,
-    engagement: '15%',
-    outlier: '4.1×',
-    pattern: 'Simple repeatable challenge with member pairing.',
-  },
-  {
-    title: 'group chat lore unlocked',
-    handle: '@instagram + @katseyeworld',
-    platform: 'Instagram',
-    views: 87_102_503,
-    engagement: '1%',
-    outlier: '1.8×',
-    pattern: 'Behind-the-scenes intimacy packaged as friend-group access.',
-  },
-];
-
 const compactNumber = (value: number) => new Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: value >= 10_000 ? 1 : 0 }).format(value);
 
 function toneColor(tone: Tone) {
-  if (tone === 'strong') return '#22C55E';
+  if (tone === 'strong') return '#E4E4E9';
   if (tone === 'watch') return red;
-  if (tone === 'risk') return '#F59E0B';
-  if (tone === 'quiet') return '#A1A1AA';
-  return '#71717A';
+  if (tone === 'risk') return '#D42D2D';
+  if (tone === 'quiet') return '#B8B8C0';
+  return '#8A8A91';
 }
 
 function toneLabel(tone: Tone) {
@@ -323,15 +284,15 @@ function toneLabel(tone: Tone) {
 
 function Badge({ children, tone = red }: { children: ReactNode; tone?: string }) {
   return (
-    <span className="inline-flex items-center rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em]" style={{ color: tone, backgroundColor: `${tone}18`, border: `1px solid ${tone}35` }}>
+    <span className="inline-flex items-center rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-[0.16em]" style={{ color: tone, backgroundColor: `${tone}18`, border: `1px solid ${tone}35` }}>
       {children}
     </span>
   );
 }
 
-function GlassCard({ children, className = '', glow = false }: { children: ReactNode; className?: string; glow?: boolean }) {
+function GlassCard({ children, className = '' }: { children: ReactNode; className?: string }) {
   return (
-    <div className={`relative overflow-hidden rounded-2xl border border-[#303030] bg-gradient-to-br from-[#1A1A1A]/94 to-[#101010]/78 ${glow ? 'shadow-2xl shadow-[#FD3737]/10 ring-1 ring-[#FD3737]/20' : ''} ${className}`}>
+    <div className={`relative overflow-hidden rounded-[1.35rem] border border-[#3A3A3A] bg-[#141414]/96 shadow-[inset_0_1px_0_rgba(255,255,255,0.045)] ${className}`}>
       {children}
     </div>
   );
@@ -362,7 +323,7 @@ function MetricTile({ label, value, note, tone = 'watch' }: { label: string; val
   return (
     <GlassCard className="p-5 md:p-6">
       <div className="mb-4 flex items-center justify-between gap-3">
-        <div className="text-[10px] font-bold uppercase tracking-[0.24em] text-[#B8B8C0]">{label}</div>
+        <div className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#B8B8C0]">{label}</div>
         <span className="h-2 w-2 rounded-full" style={{ backgroundColor: toneColor(tone) }} />
       </div>
       <div className="font-display text-3xl leading-none text-[#FAFAFA] md:text-4xl">{value}</div>
@@ -373,16 +334,114 @@ function MetricTile({ label, value, note, tone = 'watch' }: { label: string; val
 
 function Bar({ value, max, color = red }: { value: number; max: number; color?: string }) {
   const pct = Math.max(0, Math.min(100, max ? (value / max) * 100 : 0));
+  return <div className="h-3 overflow-hidden rounded-full" style={{ background: `linear-gradient(90deg, ${color} 0%, ${color} ${pct}%, #262626 ${pct}%, #262626 100%)` }} />;
+}
+
+type ChartSegment = { label: string; value: number; color: string; note: string };
+
+const chartPalette = ['#FD3737', '#D42D2D', '#E4E4E9'];
+
+function DonutChart({ segments, center, sublabel }: { segments: ChartSegment[]; center: string; sublabel: string }) {
+  let cursor = 0;
+  const gradient = segments.map((segment) => {
+    const start = cursor;
+    cursor += segment.value;
+    return `${segment.color} ${start}% ${cursor}%`;
+  }).join(', ');
+
   return (
-    <div className="h-2 overflow-hidden rounded-full bg-[#262626]">
-      <motion.div className="h-full rounded-full" style={{ backgroundColor: color }} initial={{ width: 0 }} whileInView={{ width: `${pct}%` }} viewport={{ once: true }} transition={{ duration: 0.9, ease: 'easeOut' }} />
+    <div className="flex flex-col gap-6 md:flex-row md:items-center">
+      <div className="relative mx-auto h-44 w-44 shrink-0 rounded-full" style={{ background: `conic-gradient(${gradient})` }}>
+        <div className="absolute inset-5 flex flex-col items-center justify-center rounded-full border border-[#3A3A3A] bg-[#141414] text-center">
+          <div className="font-display text-3xl text-[#FAFAFA]">{center}</div>
+          <div className="mt-1 text-xs uppercase tracking-[0.2em] text-[#B8B8C0]">{sublabel}</div>
+        </div>
+      </div>
+      <div className="min-w-0 flex-1 space-y-3">
+        {segments.map((segment) => (
+          <div key={segment.label}>
+            <div className="mb-1 flex items-center justify-between gap-3 text-sm">
+              <span className="flex items-center gap-2 font-semibold text-[#FAFAFA]"><span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: segment.color }} />{segment.label}</span>
+              <span className="font-display text-lg text-[#FAFAFA]">{segment.value.toFixed(segment.value % 1 ? 1 : 0)}%</span>
+            </div>
+            <p className="text-sm leading-snug text-[#E4E4E9]">{segment.note}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function StackedBar({ segments }: { segments: ChartSegment[] }) {
+  let cursor = 0;
+  const stops = segments.map((segment) => {
+    const start = cursor;
+    cursor += segment.value;
+    return `${segment.color} ${start}% ${cursor}%`;
+  }).join(', ');
+  const background = `linear-gradient(90deg, ${stops}, #262626 ${cursor}% 100%)`;
+  return (
+    <div>
+      <div className="h-6 overflow-hidden rounded-full" style={{ background }} />
+      <div className="mt-4 grid gap-3 md:grid-cols-3">
+        {segments.map((segment) => (
+          <div key={segment.label} className="rounded-xl border border-[#303030] bg-[#101010] p-3">
+            <div className="text-sm font-semibold text-[#FAFAFA]">{segment.label}</div>
+            <div className="font-display mt-1 text-2xl text-[#FD3737]">{segment.value.toFixed(1)}%</div>
+            <p className="mt-1 text-sm leading-snug text-[#E4E4E9]">{segment.note}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function VisualSnapshot() {
+  const audienceSegments = channels.map((channel, index) => ({
+    label: channel.name,
+    value: channel.share,
+    color: chartPalette[index],
+    note: channel.role,
+  }));
+  const viewSegments = [
+    { label: 'EP1', value: (113_809 / youtubeTotalViews) * 100, color: red, note: 'Primary demand asset' },
+    { label: 'Teaser', value: (15_434 / youtubeTotalViews) * 100, color: '#D42D2D', note: 'Setup asset now outpaced' },
+    { label: 'Shorts', value: (shortsViews / youtubeTotalViews) * 100, color: '#E4E4E9', note: 'Distribution layer to fix' },
+  ];
+  return (
+    <div className="mt-5 grid gap-5 lg:grid-cols-[1fr_1fr_0.9fr]">
+      <GlassCard className="p-6 md:p-7">
+        <div className="mb-5 text-sm font-bold uppercase tracking-[0.2em] text-[#FD3737]">Audience mix</div>
+        <DonutChart segments={audienceSegments} center={compactNumber(ownedAudience)} sublabel="known audience" />
+      </GlassCard>
+      <GlassCard className="p-6 md:p-7">
+        <div className="mb-5 text-sm font-bold uppercase tracking-[0.2em] text-[#FD3737]">View mix</div>
+        <StackedBar segments={viewSegments} />
+      </GlassCard>
+      <GlassCard className="p-6 md:p-7">
+        <div className="mb-5 text-sm font-bold uppercase tracking-[0.2em] text-[#FD3737]">Channel activation</div>
+        <div className="space-y-5">
+          {channels.map((channel) => (
+            <div key={channel.name}>
+              <div className="mb-2 flex items-center justify-between gap-3">
+                <div>
+                  <div className="font-semibold text-[#FAFAFA]">{channel.name}</div>
+                  <div className="text-sm text-[#B8B8C0]">{channel.posts}</div>
+                </div>
+                <div className="font-display text-2xl text-[#FD3737]">{channel.share}%</div>
+              </div>
+              <Bar value={channel.share} max={100} color={channel.status === 'risk' ? '#D42D2D' : red} />
+            </div>
+          ))}
+        </div>
+      </GlassCard>
     </div>
   );
 }
 
 function ChannelCard({ channel }: { channel: Channel }) {
   return (
-    <GlassCard className="p-6" glow={channel.status === 'risk'}>
+    <GlassCard className="p-6">
       <div className="mb-6 flex items-start justify-between gap-4">
         <div>
           <h3 className="font-display text-3xl text-[#FAFAFA]">{channel.name}</h3>
@@ -392,15 +451,15 @@ function ChannelCard({ channel }: { channel: Channel }) {
       </div>
       <div className="grid gap-4 md:grid-cols-3">
         <div>
-          <div className="text-[10px] font-bold uppercase tracking-[0.24em] text-[#B8B8C0]">Audience</div>
+          <div className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#B8B8C0]">Audience</div>
           <div className="font-display mt-2 text-4xl text-[#FAFAFA]">{compactNumber(channel.audience)}</div>
         </div>
         <div>
-          <div className="text-[10px] font-bold uppercase tracking-[0.24em] text-[#B8B8C0]">Known share</div>
+          <div className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#B8B8C0]">Known share</div>
           <div className="font-display mt-2 text-4xl text-[#FD3737]">{channel.share}%</div>
         </div>
         <div>
-          <div className="text-[10px] font-bold uppercase tracking-[0.24em] text-[#B8B8C0]">Measured views</div>
+          <div className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#B8B8C0]">Measured views</div>
           <div className="font-display mt-2 text-4xl text-[#FAFAFA]">{channel.measuredViews === null ? '—' : compactNumber(channel.measuredViews)}</div>
         </div>
       </div>
@@ -409,11 +468,11 @@ function ChannelCard({ channel }: { channel: Channel }) {
       </div>
       <div className="mt-6 grid gap-4 text-sm leading-relaxed md:grid-cols-2">
         <div>
-          <div className="mb-1 text-[10px] font-bold uppercase tracking-[0.24em] text-[#B8B8C0]">Read</div>
+          <div className="mb-1 text-[11px] font-bold uppercase tracking-[0.18em] text-[#B8B8C0]">Read</div>
           <p className="text-[#E4E4E9]">{channel.insight}</p>
         </div>
         <div>
-          <div className="mb-1 text-[10px] font-bold uppercase tracking-[0.24em] text-[#FD3737]">Action</div>
+          <div className="mb-1 text-[11px] font-bold uppercase tracking-[0.18em] text-[#FD3737]">Action</div>
           <p className="text-[#FAFAFA]">{channel.action}</p>
         </div>
       </div>
@@ -421,38 +480,71 @@ function ChannelCard({ channel }: { channel: Channel }) {
   );
 }
 
-function VideoTable() {
+function VideoSignalBoard() {
   const max = Math.max(...videos.map((v) => v.views));
+  const priority = videos.slice(0, 4);
+  const secondary = videos.slice(4);
   return (
-    <GlassCard className="overflow-hidden">
-      <div className="hidden grid-cols-[1.8fr_0.5fr_0.5fr_0.55fr_1.1fr_1.1fr] gap-4 border-b border-[#303030] bg-[#0C0C0C] px-5 py-4 text-[10px] font-bold uppercase tracking-[0.22em] text-[#B8B8C0] lg:grid">
-        <div>Asset</div><div>Views</div><div>Type</div><div>Transcript</div><div>Signal</div><div>Next action</div>
-      </div>
-      {videos.map((video) => (
-        <div key={video.title} className="grid gap-4 border-b border-[#303030] px-5 py-5 last:border-b-0 lg:grid-cols-[1.8fr_0.5fr_0.5fr_0.55fr_1.1fr_1.1fr] lg:items-start">
-          <div>
-            <div className="font-semibold leading-snug text-[#FAFAFA]">{video.title}</div>
-            <div className="mt-2 flex flex-wrap gap-2 text-xs text-[#B8B8C0]"><span>{video.platform}</span><span>·</span><span>{video.duration}</span><span>·</span><span>{video.published}</span></div>
+    <GlassCard className="p-5 md:p-7">
+      <div className="grid gap-8 lg:grid-cols-[1.05fr_0.95fr]">
+        <div>
+          <div className="mb-4 flex items-end justify-between gap-4">
+            <div>
+              <div className="text-sm font-bold uppercase tracking-[0.2em] text-[#FD3737]">View distribution</div>
+              <h3 className="font-display mt-2 text-3xl leading-none text-[#FAFAFA]">EP1 carries the system</h3>
+            </div>
+            <div className="font-display text-4xl text-[#FD3737]">83%</div>
           </div>
-          <div>
-            <div className="font-display text-2xl text-[#FD3737]">{compactNumber(video.views)}</div>
-            <div className="mt-2 max-w-[120px]"><Bar value={video.views} max={max} color={video.type === 'Longform' ? red : '#A1A1AA'} /></div>
+          <div className="space-y-4">
+            {videos.slice(0, 6).map((video) => (
+              <div key={video.title} className="rounded-xl border border-[#303030] bg-[#101010] p-4">
+                <div className="mb-3 flex items-start justify-between gap-4">
+                  <div>
+                    <div className="font-semibold leading-snug text-[#FAFAFA]">{video.title}</div>
+                    <div className="mt-1 text-sm text-[#B8B8C0]">{video.type} · {video.duration} · {video.published}</div>
+                  </div>
+                  <div className="font-display shrink-0 text-2xl text-[#FD3737]">{compactNumber(video.views)}</div>
+                </div>
+                <Bar value={video.views} max={max} color={video.type === 'Longform' ? red : '#D42D2D'} />
+              </div>
+            ))}
           </div>
-          <div><Badge tone={video.type === 'Longform' ? red : '#E4E4E9'}>{video.type}</Badge></div>
-          <div><Badge tone={video.transcript === 'Yes' ? '#22C55E' : '#71717A'}>{video.transcript}</Badge></div>
-          <p className="text-sm leading-relaxed text-[#E4E4E9]">{video.signal}</p>
-          <p className="text-sm leading-relaxed text-[#FAFAFA]">{video.action}</p>
         </div>
-      ))}
+        <div>
+          <div className="mb-4 text-sm font-bold uppercase tracking-[0.2em] text-[#FD3737]">Priority clip cards</div>
+          <div className="grid gap-4">
+            {priority.map((video, index) => (
+              <div key={video.title} className="rounded-xl border border-[#303030] bg-[#101010] p-4">
+                <div className="mb-3 flex items-center justify-between gap-3">
+                  <span className="font-display text-3xl text-[#FD3737]">0{index + 1}</span>
+                  <Badge tone={video.transcript === 'Yes' ? red : '#E4E4E9'}>{video.transcript === 'Yes' ? 'Transcript' : video.type}</Badge>
+                </div>
+                <h4 className="font-display text-2xl leading-tight text-[#FAFAFA]">{video.type === 'Longform' ? 'Anchor episode' : video.type === 'Teaser' ? 'Retargeting asset' : 'Short-form test'}</h4>
+                <p className="mt-3 text-sm leading-relaxed text-[#E4E4E9]">{video.signal}</p>
+                <div className="mt-4 border-t border-[#303030] pt-4 text-sm leading-relaxed text-[#FAFAFA]"><span className="font-bold text-[#FD3737]">Move: </span>{video.action}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+      <div className="mt-7 grid gap-3 md:grid-cols-2 lg:grid-cols-5">
+        {secondary.map((video) => (
+          <div key={video.title} className="rounded-xl border border-[#303030] bg-[#101010] p-4">
+            <div className="font-display text-2xl text-[#FD3737]">{compactNumber(video.views)}</div>
+            <div className="mt-2 min-h-12 text-sm font-semibold leading-tight text-[#FAFAFA]">{video.title}</div>
+            <div className="mt-3"><Bar value={video.views} max={shortsViews} color="#E4E4E9" /></div>
+          </div>
+        ))}
+      </div>
     </GlassCard>
   );
 }
 
 function InsightCard({ insight }: { insight: Insight }) {
   return (
-    <GlassCard className="p-6" glow={insight.tone === 'risk'}>
+    <GlassCard className="p-6">
       <div className="mb-5 flex items-start justify-between gap-4">
-        <div className="text-[10px] font-bold uppercase tracking-[0.24em] text-[#B8B8C0]">{insight.label}</div>
+        <div className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#B8B8C0]">{insight.label}</div>
         <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: toneColor(insight.tone) }} />
       </div>
       <div className="font-display text-5xl text-[#FD3737]">{insight.stat}</div>
@@ -468,9 +560,9 @@ function RegistryPanel({ registry }: { registry: EkatorRegistrySnapshot }) {
   const live = registry.status === 'live';
   const trackedNodes = registry.seedingNetworkCount + registry.snsViralCount + registry.officialHandleCount;
   return (
-    <GlassCard className="mt-5 p-6" glow={live}>
+    <GlassCard className="mt-5 p-6">
       <div className="mb-3 flex flex-wrap items-center gap-3">
-        <Badge tone={live ? '#22C55E' : '#F59E0B'}>{live ? 'Current data' : 'Data updating'}</Badge>
+        <Badge tone={live ? red : '#D42D2D'}>{live ? 'Current data' : 'Data updating'}</Badge>
         <span className="text-xs uppercase tracking-[0.22em] text-[#B8B8C0]">Campaign asset index</span>
       </div>
       <h3 className="font-display text-3xl text-[#FAFAFA] md:text-4xl">EKATOR asset and audience map</h3>
@@ -486,7 +578,7 @@ function RegistryPanel({ registry }: { registry: EkatorRegistrySnapshot }) {
       </div>
       <div className="mt-6 grid gap-5 lg:grid-cols-2">
         <div>
-          <div className="mb-3 text-[10px] font-bold uppercase tracking-[0.24em] text-[#FD3737]">Recent assets</div>
+          <div className="mb-3 text-[11px] font-bold uppercase tracking-[0.18em] text-[#FD3737]">Recent assets</div>
           <div className="space-y-3">
             {registry.recentItems.slice(0, 4).map((item) => (
               <div key={`${item.caption}-${item.platform}-${item.handle}`} className="rounded-xl border border-[#303030] bg-[#111111] p-3">
@@ -497,7 +589,7 @@ function RegistryPanel({ registry }: { registry: EkatorRegistrySnapshot }) {
           </div>
         </div>
         <div>
-          <div className="mb-3 text-[10px] font-bold uppercase tracking-[0.24em] text-[#FD3737]">Monitored social surfaces</div>
+          <div className="mb-3 text-[11px] font-bold uppercase tracking-[0.18em] text-[#FD3737]">Monitored social surfaces</div>
           <div className="grid gap-3 sm:grid-cols-2">
             {registry.topHandles.slice(0, 6).map((handle) => (
               <div key={`${handle.displayName}-${handle.kind}`} className="rounded-xl border border-[#303030] bg-[#111111] p-3">
@@ -517,26 +609,13 @@ export function EkatorCommandCenter({ registry }: { registry: EkatorRegistrySnap
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ['start start', 'end start'] });
   const heroY = useTransform(scrollYProgress, [0, 1], [0, 140]);
   const heroOpacity = useTransform(scrollYProgress, [0, 0.85], [1, 0]);
-  const mouseX = useMotionValue(-200);
-  const mouseY = useMotionValue(-200);
-  const glowX = useSpring(mouseX, { stiffness: 55, damping: 22 });
-  const glowY = useSpring(mouseY, { stiffness: 55, damping: 22 });
-
   const nav = useMemo(() => [
-    ['read', 'Read'], ['channels', 'Channels'], ['assets', 'Assets'], ['insights', 'Insights'], ['moves', 'Moves'], ['benchmarks', 'Comps'],
+    ['read', 'Read'], ['channels', 'Channels'], ['assets', 'Assets'], ['insights', 'Insights'], ['moves', 'Moves'],
   ], []);
-
-  useEffect(() => {
-    const move = (event: MouseEvent) => { mouseX.set(event.clientX); mouseY.set(event.clientY); };
-    window.addEventListener('mousemove', move);
-    return () => window.removeEventListener('mousemove', move);
-  }, [mouseX, mouseY]);
 
   return (
     <main className="min-h-screen overflow-x-hidden bg-[#0A0A0A] text-[#FAFAFA]">
       <ScrollProgress />
-      <motion.div aria-hidden className="pointer-events-none fixed z-0 h-[480px] w-[480px] rounded-full bg-[#FD3737]/10 blur-[135px]" style={{ left: glowX, top: glowY, x: '-50%', y: '-50%' }} />
-
       <nav className="fixed left-0 right-0 top-[3px] z-50 border-b border-[#303030]/70 bg-[#0A0A0A]/82 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6 md:px-10">
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -577,6 +656,7 @@ export function EkatorCommandCenter({ registry }: { registry: EkatorRegistrySnap
           <MetricTile label="YouTube Shorts total" value={compactNumber(shortsViews)} note="Current official short-form YouTube layer" tone="risk" />
           <MetricTile label="Longform concentration" value="94.7%" note="EP1 + teaser share of measured YouTube views" tone="watch" />
         </div>
+        <VisualSnapshot />
         <RegistryPanel registry={registry} />
       </Section>
 
@@ -590,13 +670,13 @@ export function EkatorCommandCenter({ registry }: { registry: EkatorRegistrySnap
 
       <div className="mx-auto h-px max-w-7xl bg-gradient-to-r from-transparent via-[#303030] to-transparent" />
 
-      <Section id="assets" kicker="03 / asset performance" title="Official video signal board" subtitle="Every row answers the operating question: what is the asset telling us, and what should the team do with it next?">
-        <VideoTable />
+      <Section id="assets" kicker="03 / asset performance" title="Official video signal board" subtitle="A visual read of where attention is concentrated and which assets should be cut, mirrored, or held.">
+        <VideoSignalBoard />
       </Section>
 
       <div className="mx-auto h-px max-w-7xl bg-gradient-to-r from-transparent via-[#303030] to-transparent" />
 
-      <Section id="insights" kicker="04 / interpretation" title="Actionable insights" subtitle="Dashboard logic: metric → meaning → decision. These are the current reads from the owned social and creative context.">
+      <Section id="insights" kicker="04 / interpretation" title="Actionable insights" subtitle="Metric, meaning, and decision — compressed into the current operating read.">
         <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
           {insights.map((insight) => <InsightCard key={insight.label} insight={insight} />)}
         </div>
@@ -607,7 +687,7 @@ export function EkatorCommandCenter({ registry }: { registry: EkatorRegistrySnap
       <Section id="moves" kicker="05 / recommended moves" title="Ranked moves for the next 72 hours" subtitle="A prioritized operating queue based on the strongest available signal.">
         <div className="space-y-4">
           {recommendations.map((rec) => (
-            <GlassCard key={rec.rank} className="p-5" glow={rec.rank <= 2}>
+            <GlassCard key={rec.rank} className="p-5">
               <div className="grid gap-4 lg:grid-cols-[0.2fr_1.1fr_1fr_1fr_0.4fr] lg:items-start">
                 <div className="font-display text-4xl text-[#FD3737]">{rec.rank}</div>
                 <div><h3 className="font-display text-2xl leading-tight text-[#FAFAFA]">{rec.title}</h3><p className="mt-2 text-xs uppercase tracking-[0.22em] text-[#B8B8C0]">{rec.owner}</p></div>
@@ -615,23 +695,6 @@ export function EkatorCommandCenter({ registry }: { registry: EkatorRegistrySnap
                 <p className="text-sm leading-relaxed text-[#FAFAFA]"><span className="font-bold text-[#FD3737]">Move: </span>{rec.move}</p>
                 <div className="lg:text-right"><Badge tone={rec.impact === 'High' ? red : '#E4E4E9'}>{rec.impact}</Badge></div>
               </div>
-            </GlassCard>
-          ))}
-        </div>
-      </Section>
-
-      <div className="mx-auto h-px max-w-7xl bg-gradient-to-r from-transparent via-[#303030] to-transparent" />
-
-      <Section id="benchmarks" kicker="06 / comparable patterns" title="Comparable short-form patterns" subtitle="Current K-pop and group-content benchmarks show which social structures are producing outsized response: member personality, simple repeatable challenges, and behind-the-scenes intimacy.">
-        <div className="grid gap-5 lg:grid-cols-3">
-          {benchmarks.map((bench) => (
-            <GlassCard key={bench.title} className="p-6">
-              <div className="mb-4 flex items-start justify-between gap-4"><div><h3 className="font-display text-2xl text-[#FAFAFA]">{bench.title}</h3><p className="mt-1 text-xs text-[#B8B8C0]">{bench.handle} · {bench.platform}</p></div><Badge>{bench.outlier}</Badge></div>
-              <div className="grid grid-cols-2 gap-4">
-                <div><div className="text-[10px] font-bold uppercase tracking-[0.24em] text-[#B8B8C0]">Views</div><div className="font-display mt-2 text-4xl text-[#FD3737]">{compactNumber(bench.views)}</div></div>
-                <div><div className="text-[10px] font-bold uppercase tracking-[0.24em] text-[#B8B8C0]">Engagement</div><div className="font-display mt-2 text-4xl text-[#FAFAFA]">{bench.engagement}</div></div>
-              </div>
-              <p className="mt-5 text-sm leading-relaxed text-[#E4E4E9]"><span className="font-bold text-[#FD3737]">Pattern to steal: </span>{bench.pattern}</p>
             </GlassCard>
           ))}
         </div>
