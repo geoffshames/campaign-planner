@@ -437,6 +437,176 @@ function MetricTile({ label, value, note, tone = 'watch' }: { label: string; val
   );
 }
 
+function CommandMetricTile({ label, value, note, tone = 'watch' }: { label: string; value: string; note: string; tone?: Tone }) {
+  return (
+    <div className="rounded-2xl border border-[#303030] bg-[#0F0F0F]/92 p-3.5 md:p-4">
+      <div className="mb-2 flex items-center justify-between gap-3">
+        <div className="text-[10px] font-bold uppercase tracking-[0.17em] text-[#B8B8C0]">{label}</div>
+        <span className="h-2 w-2 rounded-full" style={{ backgroundColor: toneColor(tone) }} />
+      </div>
+      <div className="font-display text-3xl leading-none text-[#FAFAFA] lg:text-[2.15rem]">{value}</div>
+      <p className="mt-2 text-xs leading-snug text-[#E4E4E9]">{note}</p>
+    </div>
+  );
+}
+
+function CommandQueue() {
+  return (
+    <GlassCard className="p-4 md:p-5">
+      <div className="mb-4 flex items-start justify-between gap-4">
+        <div>
+          <div className="text-xs font-bold uppercase tracking-[0.22em] text-[#FD3737]">72-hour queue</div>
+          <h2 className="font-display mt-1 text-3xl leading-none text-[#FAFAFA]">Do these first</h2>
+        </div>
+        <Badge tone="#E4E4E9">Priority</Badge>
+      </div>
+      <div className="space-y-3">
+        {recommendations.slice(0, 3).map((rec) => (
+          <div key={rec.rank} className="rounded-2xl border border-[#303030] bg-[#101010] p-3.5">
+            <div className="flex items-start gap-3">
+              <div className="font-display min-w-8 text-3xl leading-none text-[#FD3737]">0{rec.rank}</div>
+              <div className="min-w-0">
+                <h3 className="font-display text-xl leading-tight text-[#FAFAFA]">{rec.title}</h3>
+                <p className="mt-2 text-xs leading-relaxed text-[#E4E4E9]"><span className="font-bold text-[#FD3737]">Move: </span>{rec.move}</p>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </GlassCard>
+  );
+}
+
+function CommandChannelPulse() {
+  return (
+    <GlassCard className="p-4 md:p-5">
+      <div className="mb-4 flex items-center justify-between gap-3">
+        <div>
+          <div className="text-xs font-bold uppercase tracking-[0.22em] text-[#FD3737]">Channel pulse</div>
+          <h2 className="font-display mt-1 text-2xl leading-none text-[#FAFAFA]">Audience vs. action</h2>
+        </div>
+        <div className="font-display text-3xl text-[#FD3737]">3</div>
+      </div>
+      <div className="space-y-3">
+        {channels.map((channel) => (
+          <div key={channel.name} className="rounded-2xl border border-[#303030] bg-[#101010] p-3">
+            <div className="mb-2 flex items-center justify-between gap-3">
+              <div>
+                <div className="font-semibold text-[#FAFAFA]">{channel.name}</div>
+                <div className="text-xs text-[#B8B8C0]">{compactNumber(channel.audience)} · {channel.posts}</div>
+              </div>
+              <Badge tone={toneColor(channel.status)}>{toneLabel(channel.status)}</Badge>
+            </div>
+            <Bar value={channel.share} max={100} color={channel.status === 'risk' ? '#D42D2D' : red} />
+            <p className="mt-2 text-xs leading-snug text-[#E4E4E9]">{channel.action}</p>
+          </div>
+        ))}
+      </div>
+    </GlassCard>
+  );
+}
+
+function CommandAssetPulse() {
+  const max = Math.max(...videos.map((v) => v.views));
+  return (
+    <GlassCard className="p-4 md:p-5">
+      <div className="mb-4 flex items-center justify-between gap-3">
+        <div>
+          <div className="text-xs font-bold uppercase tracking-[0.22em] text-[#FD3737]">Asset pulse</div>
+          <h2 className="font-display mt-1 text-2xl leading-none text-[#FAFAFA]">EP1 is the engine</h2>
+        </div>
+        <div className="font-display text-3xl text-[#FD3737]">83%</div>
+      </div>
+      <div className="rounded-2xl border border-[#303030] bg-[#101010] p-3.5">
+        <div className="mb-3 flex items-start justify-between gap-3">
+          <div>
+            <div className="font-semibold leading-tight text-[#FAFAFA]">{videos[0].title}</div>
+            <div className="mt-1 text-xs text-[#B8B8C0]">Anchor episode · {videos[0].duration} · transcript ready</div>
+          </div>
+          <div className="font-display shrink-0 text-3xl text-[#FD3737]">{compactNumber(videos[0].views)}</div>
+        </div>
+        <Bar value={videos[0].views} max={max} />
+      </div>
+      <div className="mt-3 grid grid-cols-2 gap-3">
+        {videos.slice(2, 6).map((video) => (
+          <div key={video.title} className="rounded-xl border border-[#303030] bg-[#101010] p-3">
+            <div className="font-display text-2xl text-[#FD3737]">{compactNumber(video.views)}</div>
+            <div className="mt-1 line-clamp-2 text-xs font-semibold leading-tight text-[#FAFAFA]">{video.title}</div>
+          </div>
+        ))}
+      </div>
+      <div className="mt-3 rounded-2xl border border-[#FD3737]/25 bg-[#FD3737]/8 p-3 text-xs leading-relaxed text-[#FAFAFA]">
+        <span className="font-bold text-[#FD3737]">Read: </span>Short-form distribution is the bottleneck, not demand.
+      </div>
+    </GlassCard>
+  );
+}
+
+function CommandDataStatus({ registry }: { registry: EkatorRegistrySnapshot }) {
+  const live = registry.status === 'live';
+  const trackedNodes = registry.seedingNetworkCount + registry.snsViralCount + registry.officialHandleCount;
+  return (
+    <GlassCard className="p-4 md:p-5">
+      <div className="mb-4 flex items-center justify-between gap-3">
+        <div>
+          <div className="text-xs font-bold uppercase tracking-[0.22em] text-[#FD3737]">Operating status</div>
+          <h2 className="font-display mt-1 text-2xl leading-none text-[#FAFAFA]">Live read map</h2>
+        </div>
+        <Badge tone={live ? '#E4E4E9' : '#D42D2D'}>{live ? 'Current data' : 'Data updating'}</Badge>
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        <CommandMetricTile label="Asset index" value={String(registry.itemsCount)} note={`${registry.readyItemsCount} ready`} tone={live ? 'strong' : 'risk'} />
+        <CommandMetricTile label="Social nodes" value={String(trackedNodes)} note={`${registry.activeMonitoredHandlesCount} monitored`} tone="watch" />
+        <CommandMetricTile label="Paid media" value="Not live yet" note="Delivery fields open after launch" tone="quiet" />
+        <CommandMetricTile label="Fastest fix" value="TikTok" note="10.5K followers, 0 posts" tone="risk" />
+      </div>
+      <div className="mt-3 rounded-2xl border border-[#303030] bg-[#101010] p-3.5">
+        <div className="text-[10px] font-bold uppercase tracking-[0.17em] text-[#B8B8C0]">Main decision</div>
+        <p className="mt-2 text-sm leading-relaxed text-[#FAFAFA]">Turn the proven longform demand into a daily clip ladder before adding scale.</p>
+      </div>
+    </GlassCard>
+  );
+}
+
+function CommandCenterHero({ registry }: { registry: EkatorRegistrySnapshot }) {
+  return (
+    <div className="grid gap-4 xl:grid-cols-[1.05fr_0.95fr]">
+      <GlassCard className="p-4 md:p-6 lg:p-7">
+        <div className="mb-4 flex flex-wrap items-center gap-3">
+          <Badge>EKATOR</Badge>
+          <Badge tone="#E4E4E9">Idol Till I Die</Badge>
+          <Badge tone="#E4E4E9">EKATOR SOCIAL DASHBOARD</Badge>
+        </div>
+        <div>
+          <h1 className="font-display text-5xl leading-[0.86] tracking-tight text-[#FAFAFA] md:text-7xl lg:text-7xl">EKATOR <span className="block text-[#FD3737]">COMMAND CENTER</span></h1>
+          <p className="mt-4 max-w-4xl text-base leading-relaxed text-[#E4E4E9] md:text-lg">One-screen operating read: EP1 has demand, YouTube is carrying the system, Instagram has the audience pool, and TikTok is the immediate distribution gap.</p>
+        </div>
+        <div className="mt-4 rounded-[1.2rem] border border-[#FD3737]/30 bg-[#FD3737]/8 p-4">
+          <div className="text-xs font-bold uppercase tracking-[0.22em] text-[#FD3737]">Executive read</div>
+          <div className="mt-3 grid gap-3 lg:grid-cols-[0.7fr_1.3fr] lg:items-start">
+            <p className="text-lg font-semibold leading-snug text-[#FAFAFA]">The story is working; the short-form machine is not caught up yet.</p>
+            <p className="text-sm leading-relaxed text-[#E4E4E9]">Use the next 72 hours to convert EP1 into a measured cross-platform clip system, then decide which character lanes deserve scale.</p>
+          </div>
+        </div>
+        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <CommandMetricTile label="Known audience" value={compactNumber(ownedAudience)} note="IG + YouTube + TikTok" tone="strong" />
+          <CommandMetricTile label="YouTube views" value={compactNumber(youtubeTotalViews)} note="9 official videos measured" tone="watch" />
+          <CommandMetricTile label="EP1 gravity" value="83.3%" note="Share of measured YouTube views" tone="watch" />
+          <CommandMetricTile label="Shorts total" value={compactNumber(shortsViews)} note="Current YouTube short-form layer" tone="risk" />
+          <CommandMetricTile label="TikTok gap" value="0 posts" note="10.5K followers waiting" tone="risk" />
+          <CommandMetricTile label="Paid media" value="Not live yet" note="Ready after launch" tone="quiet" />
+        </div>
+      </GlassCard>
+      <CommandQueue />
+      <div className="xl:col-span-2 grid gap-4 lg:grid-cols-3">
+        <CommandChannelPulse />
+        <CommandAssetPulse />
+        <CommandDataStatus registry={registry} />
+      </div>
+    </div>
+  );
+}
+
 function Bar({ value, max, color = red }: { value: number; max: number; color?: string }) {
   const pct = Math.max(0, Math.min(100, max ? (value / max) * 100 : 0));
   return <div className="h-3 overflow-hidden rounded-full" style={{ background: `linear-gradient(90deg, ${color} 0%, ${color} ${pct}%, #262626 ${pct}%, #262626 100%)` }} />;
@@ -875,22 +1045,13 @@ export function EkatorCommandCenter({ registry }: { registry: EkatorRegistrySnap
       <header ref={heroRef} className="relative min-h-screen overflow-hidden pt-16">
         <motion.div className="absolute inset-0" style={{ y: heroY }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/images/ekator/hero.png" alt="" className="h-full w-full object-cover opacity-64" />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-[#0A0A0A]/68 to-[#0A0A0A]/20" />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#0A0A0A]/94 via-[#0A0A0A]/56 to-transparent" />
+          <img src="/images/ekator/hero.png" alt="" className="h-full w-full object-cover opacity-30" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_8%,rgba(253,55,55,0.24),transparent_30%),radial-gradient(circle_at_78%_18%,rgba(255,255,255,0.10),transparent_24%)]" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#0A0A0A]/82 via-[#0A0A0A]/88 to-[#0A0A0A]" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#0A0A0A]/92 via-[#0A0A0A]/70 to-[#0A0A0A]/88" />
         </motion.div>
-        <motion.div className="relative z-10 mx-auto flex min-h-screen max-w-7xl flex-col justify-end px-6 pb-12 md:px-10 md:pb-16" style={{ opacity: heroOpacity }}>
-          <div className="mb-5 flex flex-wrap gap-3">
-            <Badge>EKATOR</Badge><Badge tone="#E4E4E9">Idol Till I Die</Badge><Badge tone="#E4E4E9">Owned social intelligence</Badge>
-          </div>
-          <h1 className="font-display max-w-6xl text-6xl leading-[0.88] tracking-tight text-[#FAFAFA] md:text-8xl lg:text-9xl">EKATOR <span className="block text-[#FD3737]">SOCIAL DASHBOARD</span></h1>
-          <p className="mt-7 max-w-4xl text-lg leading-relaxed text-[#E4E4E9] md:text-xl">A living read on the owned “Idol Till I Die” channels: what is growing, what is underused, which assets are moving, and what Crowd Control should do next. The page shows signal, interpretation, and action.</p>
-          <div className="mt-8 grid gap-3 md:grid-cols-2 lg:grid-cols-4">
-            <MetricTile label="Known owned audience" value={compactNumber(ownedAudience)} note="IG + YouTube + TikTok official surfaces" tone="strong" />
-            <MetricTile label="Measured YouTube views" value={compactNumber(youtubeTotalViews)} note="9 official videos measured" tone="watch" />
-            <MetricTile label="EP1 gravity" value="83.3%" note="Share of measured YouTube views from EP1 alone" tone="watch" />
-            <MetricTile label="TikTok content gap" value="0 posts" note="10.5K followers waiting on official clips" tone="risk" />
-          </div>
+        <motion.div className="relative z-10 mx-auto flex min-h-[calc(100svh-4rem)] max-w-[1500px] flex-col justify-center px-4 py-5 md:px-8 lg:px-10 lg:py-7" style={{ opacity: heroOpacity }}>
+          <CommandCenterHero registry={registry} />
         </motion.div>
       </header>
 
