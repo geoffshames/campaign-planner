@@ -138,33 +138,37 @@ function Ep1GravityCard() {
   const ep1Pct = (longformViews / youtubeTotalViews) * 100;
   return (
     <div className="flex h-full flex-col items-center justify-center gap-3">
-      <Gauge
-        value={ep1Pct}
-        totalNotches={40}
-        spacing={25}
-        activeFill={red}
-        inactiveFill="#2A2A2A"
-        inactiveFillOpacity={0.5}
-        useGradient
-        activeGradient={[red, '#B03030']}
-        inactiveGradient={['#2A2A2A', '#1C1C1C']}
-        className="w-full max-w-[220px]"
-      />
-      <div className="text-center -mt-12">
-        <div className="font-mono text-4xl font-black" style={{ color: red }}>{ep1Pct.toFixed(0)}%</div>
-        <div className="text-[10px] uppercase tracking-wider text-muted">EP1 share</div>
+      <div className="relative w-full max-w-[220px]">
+        <Gauge
+          value={ep1Pct}
+          totalNotches={40}
+          spacing={25}
+          activeFill={red}
+          inactiveFill="#2A2A2A"
+          inactiveFillOpacity={0.5}
+          useGradient
+          activeGradient={[red, '#B03030']}
+          inactiveGradient={['#2A2A2A', '#1C1C1C']}
+          className="w-full"
+        />
+        <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+          <div className="text-center">
+            <div className="font-mono text-2xl font-black leading-none" style={{ color: red }}>{ep1Pct.toFixed(0)}%</div>
+            <div className="mt-1 text-[9px] uppercase tracking-wider text-[#8A8A94]">EP1 share</div>
+          </div>
+        </div>
       </div>
       <div className="flex w-full items-center justify-between gap-3 border-t pt-2" style={{ borderColor: line }}>
         <div className="flex items-center gap-1.5">
           <span className="h-2 w-2 rounded-full" style={{ background: red }} />
-          <span className="font-mono text-[10px] text-light">EP1 · {compact(longformViews)}</span>
+          <span className="font-mono text-[10px] text-[#E4E4E9]">EP1 · {compact(longformViews)}</span>
         </div>
         <div className="flex items-center gap-1.5">
           <span className="h-2 w-2 rounded-full" style={{ background: '#2A2A2A' }} />
-          <span className="font-mono text-[10px] text-muted">Rest · {compact(youtubeTotalViews - longformViews)}</span>
+          <span className="font-mono text-[10px] text-[#8A8A94]">Rest · {compact(youtubeTotalViews - longformViews)}</span>
         </div>
       </div>
-      <div className="text-xs leading-relaxed text-muted">
+      <div className="text-xs leading-relaxed text-[#8A8A94]">
         One video carries the channel. Cut it into clips.
       </div>
     </div>
@@ -181,26 +185,24 @@ function ViewConcentrationCard() {
   const ringData = segments.map(s => ({ label: s.label, value: s.value, maxValue: youtubeTotalViews, color: s.color }));
   return (
     <div className="flex h-full flex-col items-center justify-center gap-3">
-      <RingChart data={ringData} size={200} strokeWidth={10} ringGap={6} baseInnerRadius={28}>
+      <RingChart data={ringData} size={210} strokeWidth={11} ringGap={7} baseInnerRadius={46}>
         {ringData.map((item, index) => (
           <Ring key={item.label} index={index} />
         ))}
-        <RingCenter defaultLabel="Total views">
-          {() => (
-            <div className="text-center">
-              <div className="font-mono text-xl font-black text-white">{compact(youtubeTotalViews)}</div>
-              <div className="mt-0.5 text-[8px] uppercase tracking-wider text-muted">TOTAL VIEWS</div>
-            </div>
-          )}
-        </RingCenter>
+        <RingCenter
+          defaultLabel="Total views"
+          formatOptions={{ notation: 'compact', maximumFractionDigits: 1 }}
+          valueClassName="font-mono text-xl font-black text-white"
+          labelClassName="text-[9px] uppercase tracking-wider text-[#8A8A94]"
+        />
       </RingChart>
       <div className="w-full space-y-1.5 border-t pt-2" style={{ borderColor: line }}>
         {segments.map(seg => (
           <div key={seg.label} className="flex items-center gap-2">
             <span className="h-2.5 w-2.5 shrink-0 rounded-sm" style={{ background: seg.color }} />
-            <span className="flex-1 text-xs text-light">{seg.label}</span>
+            <span className="flex-1 text-xs text-[#E4E4E9]">{seg.label}</span>
             <span className="font-mono text-xs font-bold text-white">{compact(seg.value)}</span>
-            <span className="font-mono text-[10px] text-muted w-10 text-right">{seg.pct.toFixed(1)}%</span>
+            <span className="font-mono text-[10px] text-[#8A8A94] w-10 text-right">{seg.pct.toFixed(1)}%</span>
           </div>
         ))}
       </div>
@@ -223,7 +225,7 @@ function PriorityTimeline() {
           </div>
           <div className="min-w-0 flex-1">
             <div className="text-sm font-semibold leading-tight text-white">{rec.title}</div>
-            <div className="mt-1 text-xs leading-relaxed text-light">{rec.move}</div>
+            <div className="mt-1 text-xs leading-relaxed text-[#E4E4E9]">{rec.move}</div>
           </div>
           <div className="shrink-0 text-right">
             <span className="rounded-sm px-2 py-0.5 font-mono text-[10px] font-bold uppercase" style={{ color: rec.impact === 'High' ? red : muted, border: `1px solid ${rec.impact === 'High' ? red : line}` }}>
@@ -250,9 +252,9 @@ function KpiRail() {
     <div className="grid grid-cols-3 gap-px overflow-hidden rounded-lg bg-[#1A1A1A] sm:grid-cols-6">
       {items.map((item, i) => (
         <div key={item.label} className="bg-[#0E0E0E] px-3 py-2.5">
-          <div className="text-[9px] uppercase tracking-[0.15em] text-muted">{item.label}</div>
+          <div className="text-[9px] uppercase tracking-[0.15em] text-[#8A8A94]">{item.label}</div>
           <div className="mt-0.5 font-mono text-xl font-bold leading-none" style={{ color: i === 2 ? red : i === 3 || i === 4 ? '#D42D2D' : white }}>{item.value}</div>
-          <div className="mt-0.5 text-[9px] text-muted">{item.sub}</div>
+          <div className="mt-0.5 text-[9px] text-[#8A8A94]">{item.sub}</div>
         </div>
       ))}
     </div>
@@ -278,7 +280,7 @@ function StatusStrip({ registry }: { registry: EkatorRegistrySnapshot }) {
       </div>
       {items.map(item => (
         <div key={item.label} className="flex items-baseline gap-1">
-          <span className="text-muted">{item.label}</span>
+          <span className="text-[#8A8A94]">{item.label}</span>
           <span className="font-bold" style={{ color: item.label === 'Paid' ? '#D42D2D' : white }}>{item.value}</span>
         </div>
       ))}
@@ -291,18 +293,18 @@ function ChannelMatrix() {
   return (
     <div className="grid grid-cols-3 gap-3">
       {channels.map(ch => {
-        const ringData = [{ label: ch.name, value: ch.audience, maxValue: 62_900, color: statusColor(ch.status) === light ? '#555' : statusColor(ch.status) }];
+        const ringColor = ch.status === 'strong' ? '#E4E4E9' : statusColor(ch.status);
+        const ringData = [{ label: ch.name, value: ch.audience, maxValue: 62_900, color: ringColor }];
         return (
           <div key={ch.name} className="flex flex-col items-center gap-2 rounded-lg bg-[#141414] p-5 text-center">
-            <RingChart data={ringData} size={80} strokeWidth={8} ringGap={0} baseInnerRadius={26}>
+            <RingChart data={ringData} size={104} strokeWidth={9} ringGap={0} baseInnerRadius={38}>
               <Ring index={0} animate showGlow={false} />
-              <RingCenter defaultLabel={ch.name}>
-                {() => (
-                  <div className="text-center">
-                    <div className="font-mono text-lg font-bold text-white">{compact(ch.audience)}</div>
-                  </div>
-                )}
-              </RingCenter>
+              <RingCenter
+                defaultLabel=""
+                formatOptions={{ notation: 'compact', maximumFractionDigits: 1 }}
+                valueClassName="font-mono text-base font-bold text-white"
+                labelClassName="hidden"
+              />
             </RingChart>
             <div className="text-base font-bold text-white">{ch.name}</div>
             <div className="flex items-center gap-2">
@@ -310,17 +312,17 @@ function ChannelMatrix() {
               <span className="font-mono text-xs uppercase" style={{ color: statusColor(ch.status) }}>{statusLabel(ch.status)}</span>
             </div>
             <div className="w-full">
-              <div className="h-1.5 overflow-hidden rounded-full bg-[#161616]">
+              <div className="h-1.5 overflow-hidden rounded-full bg-[#262626]">
                 <div
                   className="h-full rounded-full"
-                  style={{ width: ch.views ? `${Math.min(100, (ch.views / youtubeTotalViews) * 100)}%` : ch.posts === '0 videos' ? '0%' : '30%', background: statusColor(ch.status) === light ? '#555' : statusColor(ch.status), opacity: 0.7 }}
+                  style={{ width: ch.views ? `${Math.min(100, (ch.views / youtubeTotalViews) * 100)}%` : ch.posts === '0 videos' ? '0%' : '30%', background: ringColor, opacity: 0.85 }}
                 />
               </div>
-              <div className="mt-1.5 font-mono text-[10px] text-muted">{ch.posts}</div>
+              <div className="mt-1.5 font-mono text-[10px] text-[#8A8A94]">{ch.posts}</div>
             </div>
             <div className="w-full border-t pt-2" style={{ borderColor: line }}>
-              <div className="text-[9px] uppercase tracking-wider text-muted">Engagement</div>
-              <div className="mt-0.5 font-mono text-sm font-bold" style={{ color: ch.engagement === '—' ? muted : white }}>{ch.engagement}</div>
+              <div className="text-[9px] uppercase tracking-wider text-[#8A8A94]">Engagement</div>
+              <div className="mt-0.5 font-mono text-sm font-bold" style={{ color: ch.engagement === '—' ? '#8A8A94' : white }}>{ch.engagement}</div>
             </div>
           </div>
         );
@@ -389,7 +391,7 @@ function CommandCenter({ registry }: { registry: EkatorRegistrySnapshot }) {
       {/* Title bar */}
       <div className="mb-4 flex flex-wrap items-end justify-between gap-3 border-b pb-3" style={{ borderColor: line }}>
         <div>
-          <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-muted">
+          <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-[#8A8A94]">
             <span style={{ color: red }}>●</span> EKATOR Social Dashboard
           </div>
           <h1 className="mt-1 font-mono text-3xl font-black leading-none text-white md:text-4xl">EKATOR <span style={{ color: red }}>COMMAND CENTER</span></h1>
@@ -397,8 +399,8 @@ function CommandCenter({ registry }: { registry: EkatorRegistrySnapshot }) {
         <div className="flex items-end gap-4">
           <RefreshButton />
           <div className="text-right">
-            <div className="text-[10px] uppercase tracking-[0.2em] text-muted">Idol Till I Die</div>
-            <div className="font-mono text-xs text-light">Jul 8, 2026</div>
+            <div className="text-[10px] uppercase tracking-[0.2em] text-[#8A8A94]">Idol Till I Die</div>
+            <div className="font-mono text-xs text-[#E4E4E9]">Jul 8, 2026</div>
           </div>
         </div>
       </div>
@@ -418,7 +420,7 @@ function CommandCenter({ registry }: { registry: EkatorRegistrySnapshot }) {
         <div className="rounded-lg border p-5" style={{ borderColor: line, background: '#0E0E0E' }}>
           <div className="mb-3 flex items-center justify-between">
             <div className="text-[10px] uppercase tracking-[0.2em]" style={{ color: red }}>View Concentration</div>
-            <div className="font-mono text-xs text-muted">where views are by format</div>
+            <div className="font-mono text-xs text-[#8A8A94]">where views are by format</div>
           </div>
           <ViewConcentrationCard />
         </div>
@@ -427,7 +429,7 @@ function CommandCenter({ registry }: { registry: EkatorRegistrySnapshot }) {
         <div className="rounded-lg border p-4" style={{ borderColor: line, background: '#0E0E0E' }}>
           <div className="mb-3 flex items-center justify-between">
             <div className="text-[10px] uppercase tracking-[0.2em]" style={{ color: red }}>72-Hour Queue</div>
-            <div className="font-mono text-xs text-muted">do these first</div>
+            <div className="font-mono text-xs text-[#8A8A94]">do these first</div>
           </div>
           <PriorityTimeline />
         </div>
@@ -437,7 +439,7 @@ function CommandCenter({ registry }: { registry: EkatorRegistrySnapshot }) {
       <div className="mb-3 rounded-lg border p-4" style={{ borderColor: line, background: '#0E0E0E' }}>
         <div className="mb-3 flex items-center justify-between">
           <div className="text-[10px] uppercase tracking-[0.2em]" style={{ color: red }}>Channel Pulse</div>
-          <div className="font-mono text-xs text-muted">audience · status · activation</div>
+          <div className="font-mono text-xs text-[#8A8A94]">audience · status · activation</div>
         </div>
         <ChannelMatrix />
       </div>
@@ -459,7 +461,7 @@ function SectionHeader({ num, title, subtitle }: { num: string; title: string; s
         <span className="font-mono text-xs font-bold uppercase tracking-[0.2em]" style={{ color: red }}>{num}</span>
         <h2 className="font-mono text-2xl font-black text-white md:text-3xl">{title}</h2>
       </div>
-      <p className="mt-1 max-w-2xl text-xs leading-snug text-muted">{subtitle}</p>
+      <p className="mt-1 max-w-2xl text-xs leading-snug text-[#8A8A94]">{subtitle}</p>
     </div>
   );
 }
@@ -485,11 +487,11 @@ function ChannelModal({ channel, onClose }: { channel: Channel; onClose: () => v
               <span className="font-mono text-xs uppercase" style={{ color: statusColor(channel.status) }}>{statusLabel(channel.status)}</span>
             </div>
             <h3 className="mt-2 font-mono text-2xl font-black text-white">{channel.name}</h3>
-            <div className="mt-1 font-mono text-xs text-muted">{channel.handle}</div>
+            <div className="mt-1 font-mono text-xs text-[#8A8A94]">{channel.handle}</div>
           </div>
           <button
             onClick={onClose}
-            className="flex h-8 w-8 items-center justify-center rounded-md border text-lg text-muted transition-colors hover:bg-[#1A1A1A]"
+            className="flex h-8 w-8 items-center justify-center rounded-md border text-lg text-[#8A8A94] transition-colors hover:bg-[#1A1A1A]"
             style={{ borderColor: line }}
           >
             ✕
@@ -498,34 +500,34 @@ function ChannelModal({ channel, onClose }: { channel: Channel; onClose: () => v
 
         {/* Role */}
         <div className="mb-4 rounded-lg p-3" style={{ background: '#141414' }}>
-          <div className="text-[10px] uppercase tracking-wider text-muted">Role</div>
+          <div className="text-[10px] uppercase tracking-wider text-[#8A8A94]">Role</div>
           <div className="mt-1 text-sm font-semibold text-white">{channel.role}</div>
         </div>
 
         {/* Stats grid */}
         <div className="mb-4 grid grid-cols-3 gap-2">
           <div className="rounded-lg p-3" style={{ background: '#141414' }}>
-            <div className="text-[10px] uppercase tracking-wider text-muted">Audience</div>
+            <div className="text-[10px] uppercase tracking-wider text-[#8A8A94]">Audience</div>
             <div className="mt-1 font-mono text-xl font-bold text-white">{compact(channel.audience)}</div>
           </div>
           <div className="rounded-lg p-3" style={{ background: '#141414' }}>
-            <div className="text-[10px] uppercase tracking-wider text-muted">Share</div>
+            <div className="text-[10px] uppercase tracking-wider text-[#8A8A94]">Share</div>
             <div className="mt-1 font-mono text-xl font-bold" style={{ color: statusColor(channel.status) }}>{channel.share}%</div>
           </div>
           <div className="rounded-lg p-3" style={{ background: '#141414' }}>
-            <div className="text-[10px] uppercase tracking-wider text-muted">Engagement</div>
+            <div className="text-[10px] uppercase tracking-wider text-[#8A8A94]">Engagement</div>
             <div className="mt-1 font-mono text-xl font-bold text-white">{channel.engagement}</div>
           </div>
           <div className="rounded-lg p-3" style={{ background: '#141414' }}>
-            <div className="text-[10px] uppercase tracking-wider text-muted">Views</div>
+            <div className="text-[10px] uppercase tracking-wider text-[#8A8A94]">Views</div>
             <div className="mt-1 font-mono text-xl font-bold text-white">{channel.views === null ? '—' : compact(channel.views)}</div>
           </div>
           <div className="rounded-lg p-3" style={{ background: '#141414' }}>
-            <div className="text-[10px] uppercase tracking-wider text-muted">Posts</div>
+            <div className="text-[10px] uppercase tracking-wider text-[#8A8A94]">Posts</div>
             <div className="mt-1 font-mono text-xl font-bold text-white">{channel.posts}</div>
           </div>
           <div className="rounded-lg p-3" style={{ background: '#141414' }}>
-            <div className="text-[10px] uppercase tracking-wider text-muted">Content</div>
+            <div className="text-[10px] uppercase tracking-wider text-[#8A8A94]">Content</div>
             <div className="mt-1 font-mono text-xl font-bold text-white">{channel.posts}</div>
           </div>
         </div>
@@ -533,7 +535,7 @@ function ChannelModal({ channel, onClose }: { channel: Channel; onClose: () => v
         {/* Insight */}
         <div className="mb-4">
           <div className="text-[10px] uppercase tracking-wider" style={{ color: red }}>Read</div>
-          <p className="mt-1.5 text-sm leading-relaxed text-light">{channel.insight}</p>
+          <p className="mt-1.5 text-sm leading-relaxed text-[#E4E4E9]">{channel.insight}</p>
         </div>
 
         {/* Action */}
@@ -554,7 +556,7 @@ function ChannelTable() {
       <div className="mx-auto max-w-[1400px] px-4 md:px-6 lg:px-8">
         <div className="overflow-hidden rounded-lg border" style={{ borderColor: line }}>
           {/* Header row */}
-          <div className="grid grid-cols-[1.2fr_1fr_1fr_1fr_0.8fr_0.6fr] gap-2 bg-[#141414] px-4 py-3 font-mono text-[10px] uppercase tracking-[0.15em] text-muted">
+          <div className="grid grid-cols-[1.2fr_1fr_1fr_1fr_0.8fr_0.6fr] gap-2 bg-[#141414] px-4 py-3 font-mono text-[10px] uppercase tracking-[0.15em] text-[#8A8A94]">
             <div>Channel</div>
             <div>Audience</div>
             <div>Share</div>
@@ -566,7 +568,7 @@ function ChannelTable() {
             <div key={ch.name} className={`grid grid-cols-[1.2fr_1fr_1fr_1fr_0.8fr_0.6fr] items-center gap-2 px-4 py-4 ${i > 0 ? 'border-t' : ''}`} style={{ borderColor: line }}>
               <div>
                 <div className="text-sm font-bold text-white">{ch.name}</div>
-                <div className="font-mono text-[10px] text-muted">{ch.handle}</div>
+                <div className="font-mono text-[10px] text-[#8A8A94]">{ch.handle}</div>
               </div>
               <div className="font-mono text-lg font-bold text-white">{compact(ch.audience)}</div>
               <div>
@@ -621,13 +623,13 @@ function AssetShadowbox({ asset, onClose }: { asset: EkatorAsset; onClose: () =>
           <div className="min-w-0">
             <div className="flex items-center gap-2">
               <span className="rounded-sm px-2 py-0.5 font-mono text-[10px] font-bold uppercase" style={{ color: red, border: `1px solid ${red}` }}>{asset.platform}</span>
-              <span className="font-mono text-[10px] text-muted">{asset.handle}</span>
+              <span className="font-mono text-[10px] text-[#8A8A94]">{asset.handle}</span>
             </div>
             <div className="mt-1.5 text-sm font-bold text-white">{asset.caption}</div>
           </div>
           <button
             onClick={onClose}
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border text-lg text-muted transition-colors hover:bg-[#1A1A1A]"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border text-lg text-[#8A8A94] transition-colors hover:bg-[#1A1A1A]"
             style={{ borderColor: line }}
           >
             ✕
@@ -652,7 +654,7 @@ function AssetShadowbox({ asset, onClose }: { asset: EkatorAsset; onClose: () =>
               autoPlay
             />
           ) : (
-            <div className="flex h-full items-center justify-center font-mono text-sm text-muted">
+            <div className="flex h-full items-center justify-center font-mono text-sm text-[#8A8A94]">
               No embed available
             </div>
           )}
@@ -661,25 +663,25 @@ function AssetShadowbox({ asset, onClose }: { asset: EkatorAsset; onClose: () =>
         {/* Stats */}
         <div className="grid grid-cols-2 gap-px bg-[#1A1A1A] sm:grid-cols-4">
           <div className="bg-[#0E0E0E] px-4 py-3">
-            <div className="text-[10px] uppercase tracking-wider text-muted">Views</div>
+            <div className="text-[10px] uppercase tracking-wider text-[#8A8A94]">Views</div>
             <div className="mt-0.5 font-mono text-lg font-bold text-white">{asset.views !== null ? compact(asset.views) : '—'}</div>
           </div>
           <div className="bg-[#0E0E0E] px-4 py-3">
-            <div className="text-[10px] uppercase tracking-wider text-muted">Likes</div>
+            <div className="text-[10px] uppercase tracking-wider text-[#8A8A94]">Likes</div>
             <div className="mt-0.5 font-mono text-lg font-bold text-white">{asset.likes !== null ? compact(asset.likes) : '—'}</div>
           </div>
           <div className="bg-[#0E0E0E] px-4 py-3">
-            <div className="text-[10px] uppercase tracking-wider text-muted">Comments</div>
+            <div className="text-[10px] uppercase tracking-wider text-[#8A8A94]">Comments</div>
             <div className="mt-0.5 font-mono text-lg font-bold text-white">{asset.comments !== null ? compact(asset.comments) : '—'}</div>
           </div>
           <div className="bg-[#0E0E0E] px-4 py-3">
-            <div className="text-[10px] uppercase tracking-wider text-muted">Engagement</div>
+            <div className="text-[10px] uppercase tracking-wider text-[#8A8A94]">Engagement</div>
             <div className="mt-0.5 font-mono text-lg font-bold" style={{ color: red }}>{asset.engagementRate !== null ? `${asset.engagementRate.toFixed(1)}%` : '—'}</div>
           </div>
         </div>
 
         {/* Footer */}
-        <div className="border-t px-5 py-3 font-mono text-[10px] text-muted" style={{ borderColor: line }}>
+        <div className="border-t px-5 py-3 font-mono text-[10px] text-[#8A8A94]" style={{ borderColor: line }}>
           {asset.sourceUrl ? (
             <a href={asset.sourceUrl} target="_blank" rel="noopener noreferrer" className="hover:text-white" style={{ color: muted }}>
               Open original ↗
@@ -749,7 +751,7 @@ function AssetBoard({ assets }: { assets: EkatorAssetSnapshot }) {
               ))}
             </div>
             <div className="flex items-center gap-2">
-              <span className="font-mono text-[10px] uppercase tracking-wider text-muted">Sort</span>
+              <span className="font-mono text-[10px] uppercase tracking-wider text-[#8A8A94]">Sort</span>
               <select
                 value={sort}
                 onChange={(e) => setSort(e.target.value as typeof sort)}
@@ -776,7 +778,7 @@ function AssetBoard({ assets }: { assets: EkatorAssetSnapshot }) {
                 >
                   <div className="min-w-0">
                     <div className="truncate text-xs font-semibold text-white">{asset.caption}</div>
-                    <div className="mt-0.5 font-mono text-[10px] text-muted">{asset.platform} · {asset.handle}{asset.postDate ? ` · ${asset.postDate}` : ''}</div>
+                    <div className="mt-0.5 font-mono text-[10px] text-[#8A8A94]">{asset.platform} · {asset.handle}{asset.postDate ? ` · ${asset.postDate}` : ''}</div>
                   </div>
                   <div className="text-right">
                     <div className="font-mono text-lg font-bold text-white">{views > 0 ? compact(views) : '—'}</div>
@@ -794,7 +796,7 @@ function AssetBoard({ assets }: { assets: EkatorAssetSnapshot }) {
               );
             })}
             {sorted.length === 0 && (
-              <div className="px-4 py-12 text-center font-mono text-sm text-muted">
+              <div className="px-4 py-12 text-center font-mono text-sm text-[#8A8A94]">
                 {allAssets.length === 0 ? 'No assets indexed yet. Run Refresh Now to collect.' : 'No assets match this filter.'}
               </div>
             )}
@@ -814,7 +816,7 @@ function InsightBoard() {
         {insights.map((ins, i) => (
           <div key={ins.label} className="relative overflow-hidden rounded-lg border border-[line] bg-[#0E0E0E] p-4" style={{ borderColor: line }}>
             <div className="absolute left-0 top-0 h-full w-1" style={{ background: statusColor(ins.tone) }} />
-            <div className="text-[10px] uppercase tracking-[0.15em] text-muted">{ins.label}</div>
+            <div className="text-[10px] uppercase tracking-[0.15em] text-[#8A8A94]">{ins.label}</div>
             <div className="mt-2 font-mono text-3xl font-black" style={{ color: i === 3 ? red : white }}>{ins.stat}</div>
             {/* Mini bar accent */}
             <div className="mt-3 flex gap-0.5">
@@ -822,7 +824,7 @@ function InsightBoard() {
                 <div key={j} className="h-4 flex-1 rounded-sm" style={{ background: j < (ins.tone === 'risk' ? 2 : ins.tone === 'watch' ? 6 : 10) ? statusColor(ins.tone) : dim, opacity: 0.6 }} />
               ))}
             </div>
-            <p className="mt-3 text-xs leading-relaxed text-light">{ins.read}</p>
+            <p className="mt-3 text-xs leading-relaxed text-[#E4E4E9]">{ins.read}</p>
             <div className="mt-3 border-t border-[line] pt-2 text-xs leading-snug text-white" style={{ borderColor: line }}>
               <span className="font-bold" style={{ color: red }}>Do next: </span>{ins.action}
             </div>
@@ -839,7 +841,7 @@ function MeasurementTable() {
     <div className="mx-auto max-w-[1400px] px-4 md:px-6 lg:px-8 space-y-5">
       {/* Post-level table */}
       <div className="overflow-hidden rounded-lg border" style={{ borderColor: line }}>
-        <div className="grid grid-cols-[1fr_1fr_1fr_2fr] gap-2 bg-[#141414] px-5 py-3 font-mono text-[11px] uppercase tracking-[0.15em] text-muted">
+        <div className="grid grid-cols-[1fr_1fr_1fr_2fr] gap-2 bg-[#141414] px-5 py-3 font-mono text-[11px] uppercase tracking-[0.15em] text-[#8A8A94]">
           <div>Platform</div><div>Audience</div><div>Coverage</div><div>Current read → Next data</div>
         </div>
         {measurementLayers.map((layer, i) => (
@@ -850,10 +852,10 @@ function MeasurementTable() {
                 <span className="text-base font-bold text-white">{layer.platform}</span>
               </div>
             </div>
-            <div className="font-mono text-sm text-light">{layer.audience}</div>
-            <div className="font-mono text-sm text-light">{layer.coverage}</div>
+            <div className="font-mono text-sm text-[#E4E4E9]">{layer.audience}</div>
+            <div className="font-mono text-sm text-[#E4E4E9]">{layer.coverage}</div>
             <div>
-              <p className="text-sm leading-relaxed text-light">{layer.read}</p>
+              <p className="text-sm leading-relaxed text-[#E4E4E9]">{layer.read}</p>
               <p className="mt-1.5 text-sm leading-relaxed text-white"><span className="font-bold" style={{ color: red }}>Add next: </span>{layer.next}</p>
             </div>
           </div>
@@ -865,13 +867,21 @@ function MeasurementTable() {
         <div className="rounded-lg border p-5" style={{ borderColor: line, background: '#0E0E0E' }}>
           <div className="mb-4 flex items-center justify-between">
             <div className="text-[11px] uppercase tracking-[0.2em]" style={{ color: red }}>Daily Velocity</div>
-            <div className="font-mono text-[11px] text-muted">views/day · baseline Jul 8</div>
+            <div className="font-mono text-[11px] text-[#8A8A94]">views/day · baseline Jul 8</div>
+          </div>
+          {/* EP1 outlier called out separately so the clip bars stay readable */}
+          <div className="mb-4 flex items-center justify-between rounded-md px-4 py-3" style={{ background: '#140A0A' }}>
+            <div>
+              <div className="text-xs font-semibold text-white">{videos[0].title.length > 34 ? videos[0].title.slice(0, 34) + '…' : videos[0].title}</div>
+              <div className="font-mono text-[10px] text-[#8A8A94]">Anchor episode — charted separately</div>
+            </div>
+            <div className="font-mono text-2xl font-black" style={{ color: red }}>{compact(Math.round(videos[0].views / daysSince(videos[0].published)))}/d</div>
           </div>
           <div className="space-y-3">
             {(() => {
-              const velData = videos.slice(0, 6).map(v => {
+              const velData = videos.slice(1, 6).map((v, i) => {
                 const vel = v.views / daysSince(v.published);
-                return { name: v.title.length > 20 ? v.title.slice(0, 20) + '…' : v.title, velocity: Math.round(vel) };
+                return { name: `#${i + 1}`, velocity: Math.round(vel) };
               });
               return (
                 <BarChart data={velData} xDataKey="name" aspectRatio="3/1" barGap={0.3} animationDuration={800}>
@@ -881,11 +891,12 @@ function MeasurementTable() {
             })()}
           </div>
           <div className="mt-3 space-y-1.5">
-            {videos.slice(0, 6).map(v => {
+            {videos.slice(1, 6).map((v, i) => {
               const vel = v.views / daysSince(v.published);
               return (
                 <div key={v.title} className="flex items-center gap-3 text-xs">
-                  <span className="flex-1 truncate text-light">{v.title.length > 28 ? v.title.slice(0, 28) + '…' : v.title}</span>
+                  <span className="w-7 shrink-0 font-mono font-bold" style={{ color: red }}>#{i + 1}</span>
+                  <span className="flex-1 truncate text-[#E4E4E9]">{v.title.length > 30 ? v.title.slice(0, 30) + '…' : v.title}</span>
                   <span className="font-mono font-bold text-white">{compact(Math.round(vel))}/d</span>
                 </div>
               );
@@ -900,17 +911,17 @@ function MeasurementTable() {
               <div key={fb.platform} className="flex items-center justify-between gap-2 border-b pb-3" style={{ borderColor: line }}>
                 <div>
                   <div className="text-sm font-semibold text-white">{fb.platform}</div>
-                  <div className="font-mono text-xs text-muted">baseline {fb.baseline}</div>
+                  <div className="font-mono text-xs text-[#8A8A94]">baseline {fb.baseline}</div>
                 </div>
                 <div className="flex gap-1 font-mono text-[10px]">
-                  <span className="rounded-sm bg-[#1A1A1A] px-2 py-1 text-muted">T+24h</span>
-                  <span className="rounded-sm bg-[#1A1A1A] px-2 py-1 text-muted">T+72h</span>
-                  <span className="rounded-sm bg-[#1A1A1A] px-2 py-1 text-muted">T+7d</span>
+                  <span className="rounded-sm bg-[#1A1A1A] px-2 py-1 text-[#8A8A94]">T+24h</span>
+                  <span className="rounded-sm bg-[#1A1A1A] px-2 py-1 text-[#8A8A94]">T+72h</span>
+                  <span className="rounded-sm bg-[#1A1A1A] px-2 py-1 text-[#8A8A94]">T+7d</span>
                 </div>
               </div>
             ))}
           </div>
-          <p className="mt-3 text-xs leading-snug text-muted">Deltas populate after each episode post.</p>
+          <p className="mt-3 text-xs leading-snug text-[#8A8A94]">Deltas populate after each episode post.</p>
         </div>
       </div>
 
@@ -924,8 +935,8 @@ function MeasurementTable() {
                 <span className={`mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full ${theme.status === 'Needs comments' ? 'bg-[#D42D2D]' : 'bg-[#4ADE80]'}`} />
                 <div className="min-w-0 flex-1">
                   <div className="text-sm font-semibold text-white">{theme.theme}</div>
-                  <div className="mt-1 text-xs leading-relaxed text-light"><span className="font-bold" style={{ color: red }}>Tag: </span>{theme.tags}</div>
-                  <div className="text-xs leading-relaxed text-muted"><span className="font-bold text-white">Use: </span>{theme.use}</div>
+                  <div className="mt-1 text-xs leading-relaxed text-[#E4E4E9]"><span className="font-bold" style={{ color: red }}>Tag: </span>{theme.tags}</div>
+                  <div className="text-xs leading-relaxed text-[#8A8A94]"><span className="font-bold text-white">Use: </span>{theme.use}</div>
                 </div>
                 <span className="shrink-0 rounded-sm px-2 py-1 font-mono text-[10px] uppercase" style={{ color: theme.status === 'Needs comments' ? '#D42D2D' : light, border: `1px solid ${theme.status === 'Needs comments' ? '#D42D2D' : line}` }}>{theme.status === 'Needs comments' ? 'Need' : 'Ready'}</span>
               </div>
@@ -944,10 +955,10 @@ function MeasurementTable() {
           <div className="grid grid-cols-2 gap-2">
             {paidFields.map(field => (
               <div key={field.metric} className="flex items-baseline gap-2 border-b py-2" style={{ borderColor: line }}>
-                <span className="font-mono text-sm font-bold text-muted">·</span>
+                <span className="font-mono text-sm font-bold text-[#8A8A94]">·</span>
                 <div>
                   <span className="text-sm font-semibold text-white">{field.metric}</span>
-                  <p className="text-xs leading-tight text-light">{field.use.slice(0, 50)}{field.use.length > 50 ? '…' : ''}</p>
+                  <p className="text-xs leading-tight text-[#E4E4E9]">{field.use.slice(0, 50)}{field.use.length > 50 ? '…' : ''}</p>
                 </div>
               </div>
             ))}
@@ -975,14 +986,14 @@ function MovesTimeline() {
                 <div className="flex items-start justify-between gap-3">
                   <h3 className="text-sm font-bold text-white">{rec.title}</h3>
                   <div className="flex shrink-0 items-center gap-2">
-                    <span className="font-mono text-[10px] uppercase tracking-wider text-muted">{rec.owner}</span>
+                    <span className="font-mono text-[10px] uppercase tracking-wider text-[#8A8A94]">{rec.owner}</span>
                     <span className="rounded-sm px-2 py-0.5 font-mono text-[10px] font-bold uppercase" style={{ color: rec.impact === 'High' ? red : muted, border: `1px solid ${rec.impact === 'High' ? red : line}` }}>{rec.impact}</span>
                   </div>
                 </div>
                 <div className="mt-3 grid gap-3 md:grid-cols-2">
                   <div>
                     <div className="font-mono text-[10px] uppercase tracking-wider" style={{ color: red }}>Why</div>
-                    <p className="mt-0.5 text-xs leading-relaxed text-light">{rec.why}</p>
+                    <p className="mt-0.5 text-xs leading-relaxed text-[#E4E4E9]">{rec.why}</p>
                   </div>
                   <div>
                     <div className="font-mono text-[10px] uppercase tracking-wider" style={{ color: red }}>Move</div>
@@ -1020,7 +1031,7 @@ export function EkatorCommandCenter({ registry, assets }: { registry: EkatorRegi
           <img src="/brand/CC-LOGO-2024-WHITE.png" alt="Crowd Control" className="h-4 w-auto opacity-90" />
           <div className="hidden items-center gap-5 lg:flex">
             {nav.map(([id, label]) => (
-              <a key={id} href={`#${id}`} className="font-mono text-[10px] uppercase tracking-[0.15em] text-muted transition-colors hover:text-[#FD3737]">{label}</a>
+              <a key={id} href={`#${id}`} className="font-mono text-[10px] uppercase tracking-[0.15em] text-[#8A8A94] transition-colors hover:text-[#FD3737]">{label}</a>
             ))}
           </div>
           <span className="font-mono text-[10px] uppercase tracking-[0.15em]" style={{ color: red }}>Living Dashboard</span>
@@ -1073,7 +1084,7 @@ export function EkatorCommandCenter({ registry, assets }: { registry: EkatorRegi
       <footer className="border-t border-[#2A2A2A] py-12">
         <div className="mx-auto max-w-[1400px] px-4 text-center md:px-6 lg:px-8">
           <div className="font-mono text-2xl font-black text-white">EKATOR <span style={{ color: red }}>×</span> Crowd Control</div>
-          <p className="mx-auto mt-3 max-w-2xl text-xs leading-relaxed text-muted">Owned-social intelligence dashboard for the Idol Till I Die campaign.</p>
+          <p className="mx-auto mt-3 max-w-2xl text-xs leading-relaxed text-[#8A8A94]">Owned-social intelligence dashboard for the Idol Till I Die campaign.</p>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/brand/CC-LOGO-2024-WHITE.png" alt="Crowd Control" className="mx-auto mt-6 h-5 w-auto opacity-60" />
         </div>
