@@ -262,7 +262,7 @@ const recommendations: Recommendation[] = [
   {
     rank: 3,
     title: 'Use Instagram as the fan reservoir, not a passive poster',
-    why: 'Instagram holds ~80% of the official audience. The dashboard should judge IG by YouTube conversion and saves, not vanity follower count.',
+    why: 'Instagram holds ~80% of the official audience. The strongest next read is whether that audience can move toward EP1, saves, and follow-through instead of staying passive.',
     move: 'Add pinned EP1 CTA, story link stack, and a recurring “choose the trainee” interactive sticker for each protagonist lane.',
     owner: 'Owned social',
     impact: 'High',
@@ -277,10 +277,10 @@ const recommendations: Recommendation[] = [
   },
   {
     rank: 5,
-    title: 'Keep paid reporting separate from owned performance',
-    why: 'The dashboard should not blend paid-media delivery with YouTube, Instagram, or TikTok organic reads.',
-    move: 'Once campaigns launch, report spend, delivery, efficiency, click-through, and follower conversion in the paid module only.',
-    owner: 'Paid reporting',
+    title: 'Close context gaps before the next clip wave',
+    why: 'New viewers still need fast answers: who is onscreen, what the stakes are, where to watch, and why this moment matters.',
+    move: 'Add one-line context to every next cut so casual viewers can understand the story without already knowing the show.',
+    owner: 'Content clarity',
     impact: 'Medium',
   },
 ];
@@ -756,19 +756,19 @@ function DataLayerPanel() {
         <GlassCard className="p-5 md:p-7">
           <div className="mb-5 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
             <div>
-              <div className="text-sm font-bold uppercase tracking-[0.2em] text-[#FD3737]">Paid media reporting</div>
-              <h3 className="font-display mt-2 text-3xl leading-none text-[#FAFAFA]">Ready once media launches</h3>
+              <div className="text-sm font-bold uppercase tracking-[0.2em] text-[#FD3737]">Paid media</div>
+              <h3 className="font-display mt-2 text-3xl leading-none text-[#FAFAFA]">Ready once campaigns launch</h3>
             </div>
             <div className="text-right">
-              <div className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#B8B8C0]">Current paid delivery</div>
-              <div className="font-display mt-1 text-3xl text-[#FD3737]">Awaiting launch</div>
+              <div className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#B8B8C0]">Current delivery</div>
+              <div className="font-display mt-1 text-3xl text-[#FD3737]">Not live yet</div>
             </div>
           </div>
-          <p className="mb-5 text-sm leading-relaxed text-[#E4E4E9]">This section will populate from campaign delivery once paid media is live. Until spend begins, the dashboard keeps paid performance blank rather than mixing in owned-channel views or modeled assumptions.</p>
+          <p className="mb-5 text-sm leading-relaxed text-[#E4E4E9]">No paid campaigns are live yet. Once campaigns launch, this section will show confirmed delivery, efficiency, and conversion data.</p>
 
           <div className="mb-5 rounded-2xl border border-[#FD3737]/30 bg-[#FD3737]/8 p-4">
-            <div className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#FD3737]">Reporting status</div>
-            <p className="mt-2 text-sm leading-relaxed text-[#FAFAFA]">No paid spend, delivery, or conversion rows are shown here yet. Once launch data is available, this module becomes the paid-media performance read.</p>
+            <div className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#FD3737]">Launch status</div>
+            <p className="mt-2 text-sm leading-relaxed text-[#FAFAFA]">No spend, delivery, or conversion rows are available yet. This panel will update when paid campaigns begin.</p>
           </div>
 
           <div className="grid gap-3 md:grid-cols-2">
@@ -929,7 +929,7 @@ export function EkatorCommandCenter({ registry }: { registry: EkatorRegistrySnap
 
       <div className="mx-auto h-px max-w-7xl bg-gradient-to-r from-transparent via-[#303030] to-transparent" />
 
-      <Section id="data" kicker="05 / measurement layers" title="The next reads for the dashboard" subtitle="Post-level performance, daily pacing, comment themes, follower lift, and paid reporting fields — shown with confirmed baselines and clear open slots.">
+      <Section id="data" kicker="05 / measurement layers" title="The next reads for the dashboard" subtitle="Post-level performance, daily pacing, comment themes, follower lift, and future paid-media delivery — shown with confirmed baselines and clear open slots.">
         <DataLayerPanel />
       </Section>
 
