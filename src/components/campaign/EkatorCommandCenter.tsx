@@ -66,6 +66,13 @@ type PaidTestMetric = {
   gate: string;
 };
 
+type PaidTestCell = {
+  lane: string;
+  platform: string;
+  audience: string;
+  decision: string;
+};
+
 const red = '#FD3737';
 const youtubeTotalViews = 136_552;
 const ownedAudience = 78_680;
@@ -280,7 +287,7 @@ const recommendations: Recommendation[] = [
     rank: 5,
     title: 'Do not scale paid until clip attribution is clean',
     why: 'The $50K budget can move fast, but the clip layer must prove which member/hook/platform is generating lift.',
-    move: 'Gate discretionary boosts behind one rule: a clip must beat the current short median or create a meaningful follower/subscriber conversion signal.',
+    move: 'Gate discretionary boosts behind paid-specific rules: a cell must produce qualified attention, efficient engaged views, and a meaningful follower/subscriber conversion signal.',
     owner: 'Paid / ops',
     impact: 'Medium',
   },
@@ -342,10 +349,17 @@ const sentimentThemes: SentimentTheme[] = [
 ];
 
 const paidTestMetrics: PaidTestMetric[] = [
-  { metric: 'Thumbstop / 3s hold', read: 'First-second hook strength by cut.', gate: 'Only scale if the first frame beats the current short median.' },
-  { metric: 'Cost per engaged view', read: 'Efficiency after people stay past the opening.', gate: 'Compare Matthew, group-stakes, dorm/rules, and Cai lanes side-by-side.' },
-  { metric: 'Follower conversion', read: 'Whether paid views become owned audience.', gate: 'Track follows per 1K views on IG, TikTok, and YouTube separately.' },
-  { metric: 'EP1 click-through', read: 'Whether short-form actually feeds the anchor episode.', gate: 'Require a measurable click/save lift before broadening budget.' },
+  { metric: 'Thumbstop / 3s hold', read: 'First-second hook strength by paid creative.', gate: 'Cut any ad that fails to hold attention in the first three seconds.' },
+  { metric: 'Cost per engaged view', read: 'The efficiency read after viewers stay past the opening.', gate: 'Shift budget toward the lane with the lowest cost for qualified attention.' },
+  { metric: 'Follower conversion', read: 'Whether paid reach becomes owned audience.', gate: 'Scale only where follows per 1K paid views are materially better than the other cells.' },
+  { metric: 'EP1 click-through', read: 'Whether paid short-form feeds the anchor episode.', gate: 'Broaden only after the ad produces measurable EP1 traffic, not just passive views.' },
+];
+
+const paidTestCells: PaidTestCell[] = [
+  { lane: 'Matthew leader arc', platform: 'TikTok + Reels', audience: 'K-pop survival-show engagers', decision: 'Can one protagonist carry cold-audience attention?' },
+  { lane: 'Group stakes', platform: 'TikTok + YouTube Shorts', audience: 'International K-pop / trainee-story viewers', decision: 'Does the premise convert better than member-led clips?' },
+  { lane: 'Dorm / rule comedy', platform: 'Reels', audience: 'Casual entertainment + reality-TV engagers', decision: 'Can low-context daily-life clips create cheap reach?' },
+  { lane: 'Cai / origin lane', platform: 'TikTok', audience: 'Member-fandom and redemption-story clusters', decision: 'Is there a second protagonist worth isolating?' },
 ];
 
 const followerBaselines = [
@@ -645,7 +659,6 @@ function VideoSignalBoard() {
 
 function DataLayerPanel() {
   const maxVelocity = Math.max(...videos.map((video) => video.views / daysSincePublished(video.published)));
-  const shortMedian = [...videos.filter((video) => video.type === 'Short').map((video) => video.views)].sort((a, b) => a - b)[Math.floor(videos.filter((video) => video.type === 'Short').length / 2)] ?? 0;
   return (
     <div className="space-y-5">
       <GlassCard className="p-5 md:p-7">
@@ -754,15 +767,29 @@ function DataLayerPanel() {
         <GlassCard className="p-5 md:p-7">
           <div className="mb-5 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
             <div>
-              <div className="text-sm font-bold uppercase tracking-[0.2em] text-[#FD3737]">Paid test layer</div>
-              <h3 className="font-display mt-2 text-3xl leading-none text-[#FAFAFA]">Spend gates before scale</h3>
+              <div className="text-sm font-bold uppercase tracking-[0.2em] text-[#FD3737]">Paid media test layer</div>
+              <h3 className="font-display mt-2 text-3xl leading-none text-[#FAFAFA]">Test cells before scale</h3>
             </div>
             <div className="text-right">
-              <div className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#B8B8C0]">Short median</div>
-              <div className="font-display mt-1 text-3xl text-[#FD3737]">{compactNumber(shortMedian)} views</div>
+              <div className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#B8B8C0]">Paid test cells</div>
+              <div className="font-display mt-1 text-3xl text-[#FD3737]">{paidTestCells.length} lanes</div>
             </div>
           </div>
-          <p className="mb-5 text-sm leading-relaxed text-[#E4E4E9]">Current official YouTube Shorts median is the first organic hurdle. Paid tests should beat this before broadening spend.</p>
+          <p className="mb-5 text-sm leading-relaxed text-[#E4E4E9]">This layer should read paid media like an experiment: creative lane, platform, audience, spend gate, and scale decision. The section judges delivery with campaign metrics only.</p>
+
+          <div className="mb-5 grid gap-3 md:grid-cols-2">
+            {paidTestCells.map((cell) => (
+              <div key={cell.lane} className="rounded-xl border border-[#303030] bg-[#101010] p-4">
+                <div className="font-display text-2xl leading-tight text-[#FAFAFA]">{cell.lane}</div>
+                <div className="mt-3 grid gap-2 text-sm text-[#E4E4E9]">
+                  <div><span className="font-bold text-[#FD3737]">Platform: </span>{cell.platform}</div>
+                  <div><span className="font-bold text-[#FD3737]">Audience: </span>{cell.audience}</div>
+                  <div><span className="font-bold text-[#FD3737]">Decision: </span>{cell.decision}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+
           <div className="grid gap-3 md:grid-cols-2">
             {paidTestMetrics.map((item) => (
               <div key={item.metric} className="rounded-xl border border-[#303030] bg-[#101010] p-4">
