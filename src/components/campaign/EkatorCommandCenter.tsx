@@ -127,70 +127,131 @@ function statusLabel(s: string) {
   return 'Quiet';
 }
 
-/** EP1 Gravity — big number + proportion bar showing EP1 share of all YT views */
+/** EP1 Gravity — notched arc gauge (bklit-inspired) with center stat */
 function Ep1GravityCard() {
   const ep1Pct = (longformViews / youtubeTotalViews) * 100;
-  const restPct = 100 - ep1Pct;
+  const totalNotches = 40;
+  const activeNotches = Math.round((ep1Pct / 100) * totalNotches);
+  const startAngle = 135;
+  const endAngle = 405;
+  const sweep = endAngle - startAngle;
+  const cx = 100;
+  const cy = 100;
+  const r = 72;
+  const notchWidth = 4;
+  const notchHeight = 14;
+
+  // Generate notch positions around the arc
+  const notches = Array.from({ length: totalNotches }, (_, i) => {
+    const angle = startAngle + (sweep * i) / (totalNotches - 1);
+    const rad = (angle * Math.PI) / 180;
+    const x1 = cx + (r - notchHeight / 2) * Math.cos(rad);
+    const y1 = cy + (r - notchHeight / 2) * Math.sin(rad);
+    const x2 = cx + (r + notchHeight / 2) * Math.cos(rad);
+    const y2 = cy + (r + notchHeight / 2) * Math.sin(rad);
+    return { x1, y1, x2, y2, active: i < activeNotches };
+  });
+
   return (
-    <div className="flex h-full flex-col justify-center gap-3">
-      {/* Big number */}
-      <div>
-        <div className="font-mono text-5xl font-black leading-none" style={{ color: red }}>{ep1Pct.toFixed(0)}%</div>
-        <div className="mt-1.5 text-xs text-light">of all YouTube views come from EP1 alone</div>
-      </div>
-      {/* Proportion bar — EP1 vs everything else */}
-      <div>
-        <div className="flex h-6 overflow-hidden rounded-md">
-          <div className="flex items-center justify-center" style={{ width: `${ep1Pct}%`, background: red }}>
-            <span className="font-mono text-[10px] font-bold text-white">EP1</span>
-          </div>
-          <div className="flex items-center justify-center" style={{ width: `${restPct}%`, background: '#2A2A2A' }}>
-            <span className="font-mono text-[10px] font-bold text-muted">All other videos</span>
-          </div>
-        </div>
-        {/* Legend */}
-        <div className="mt-2 flex items-center justify-between text-[10px]">
-          <div className="flex items-center gap-1.5">
-            <span className="h-2 w-2 rounded-full" style={{ background: red }} />
-            <span className="font-mono text-light">EP1 · {compact(longformViews)} views</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <span className="h-2 w-2 rounded-full" style={{ background: '#2A2A2A' }} />
-            <span className="font-mono text-muted">{compact(youtubeTotalViews - longformViews)} views</span>
-          </div>
+    <div className="flex h-full flex-col items-center justify-center gap-3">
+      {/* Notched arc gauge */}
+      <div className="relative">
+        <svg viewBox="0 0 200 160" className="w-full max-w-[220px]">
+          {notches.map((n, i) => (
+            <line
+              key={i}
+              x1={n.x1} y1={n.y1} x2={n.x2} y2={n.y2}
+              stroke={n.active ? red : '#2A2A2A'}
+              strokeWidth={notchWidth}
+              strokeLinecap="round"
+              style={{ opacity: n.active ? 1 : 0.5, transition: `stroke 0.3s ease ${i * 15}ms` }}
+            />
+          ))}
+        </svg>
+        {/* Center label overlay */}
+        <div className="absolute inset-0 flex flex-col items-center justify-center pt-4">
+          <div className="font-mono text-4xl font-black leading-none" style={{ color: red }}>{ep1Pct.toFixed(0)}%</div>
+          <div className="mt-1 text-[10px] uppercase tracking-wider text-muted">EP1 share</div>
         </div>
       </div>
-      {/* One-liner */}
+
+      {/* Mini legend */}
+      <div className="flex w-full items-center justify-between gap-3 border-t pt-2" style={{ borderColor: line }}>
+        <div className="flex items-center gap-1.5">
+          <span className="h-2 w-2 rounded-full" style={{ background: red }} />
+          <span className="font-mono text-[10px] text-light">EP1 · {compact(longformViews)}</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <span className="h-2 w-2 rounded-full" style={{ background: '#2A2A2A' }} />
+          <span className="font-mono text-[10px] text-muted">Rest · {compact(youtubeTotalViews - longformViews)}</span>
+        </div>
+      </div>
       <div className="text-xs leading-relaxed text-muted">
-        One video is carrying the entire channel. Cut it into clips before adding anything new.
+        One video carries the channel. Cut it into clips.
       </div>
     </div>
   );
 }
 
-/** View Concentration — stacked bar showing where views actually are by format */
+/** View Concentration — concentric ring chart (bklit-inspired) */
 function ViewConcentrationCard() {
   const segments = [
     { label: 'EP1 (longform)', value: longformViews, color: red, pct: (longformViews / youtubeTotalViews) * 100 },
     { label: 'Teaser', value: teaserViews, color: '#B03030', pct: (teaserViews / youtubeTotalViews) * 100 },
     { label: 'Shorts (7 clips)', value: shortsViews, color: '#7A2A2A', pct: (shortsViews / youtubeTotalViews) * 100 },
   ];
+  const cx = 100;
+  const cy = 100;
+  const baseR = 28;
+  const ringGap = 14;
+  const strokeW = 10;
+
   return (
-    <div className="flex h-full flex-col justify-center gap-3">
-      {/* Single stacked bar */}
-      <div className="flex h-7 overflow-hidden rounded-md">
-        {segments.map(seg => (
-          <div
-            key={seg.label}
-            className="flex items-center justify-center"
-            style={{ width: `${seg.pct}%`, background: seg.color }}
-          >
-            {seg.pct > 8 && <span className="font-mono text-[10px] font-bold text-white">{seg.pct.toFixed(0)}%</span>}
-          </div>
-        ))}
+    <div className="flex h-full flex-col items-center justify-center gap-3">
+      {/* Concentric rings */}
+      <div className="relative">
+        <svg viewBox="0 0 200 200" className="w-full max-w-[200px]">
+          {segments.map((seg, i) => {
+            const r = baseR + i * (strokeW + ringGap);
+            const circ = 2 * Math.PI * r;
+            const dashLen = (seg.pct / 100) * circ;
+            return (
+              <g key={seg.label}>
+                {/* Track */}
+                <circle cx={cx} cy={cy} r={r} fill="none" stroke="#1C1C1C" strokeWidth={strokeW} />
+                {/* Progress */}
+                <circle
+                  cx={cx} cy={cy} r={r} fill="none"
+                  stroke={seg.color}
+                  strokeWidth={strokeW}
+                  strokeLinecap="round"
+                  strokeDasharray={`${dashLen} ${circ}`}
+                  strokeDashoffset={circ * 0.25}
+                  style={{ transition: 'stroke-dasharray 0.8s ease' }}
+                  transform={`rotate(-90 ${cx} ${cy})`}
+                />
+                {/* Label on ring */}
+                <text
+                  x={cx + r + 16} y={cy + 3}
+                  fontSize="9" fill={seg.color} fontFamily="monospace" fontWeight="bold"
+                >
+                  {seg.pct.toFixed(0)}%
+                </text>
+              </g>
+            );
+          })}
+          {/* Center */}
+          <text x={cx} y={cy - 5} textAnchor="middle" fontSize="20" fontWeight="900" fill={white} fontFamily="monospace">
+            {compact(youtubeTotalViews)}
+          </text>
+          <text x={cx} y={cy + 12} textAnchor="middle" fontSize="8" fill={muted} letterSpacing="1.5">
+            TOTAL VIEWS
+          </text>
+        </svg>
       </div>
+
       {/* Legend rows */}
-      <div className="space-y-1.5">
+      <div className="w-full space-y-1.5 border-t pt-2" style={{ borderColor: line }}>
         {segments.map(seg => (
           <div key={seg.label} className="flex items-center gap-2">
             <span className="h-2.5 w-2.5 shrink-0 rounded-sm" style={{ background: seg.color }} />
@@ -200,9 +261,8 @@ function ViewConcentrationCard() {
           </div>
         ))}
       </div>
-      {/* One-liner */}
-      <div className="border-t pt-2 text-xs leading-relaxed" style={{ borderColor: line, color: red }}>
-        <span className="font-bold">Gap: </span>TikTok has 0 views. Shorts are only 5%. The story is working — distribution isn&apos;t.
+      <div className="text-xs leading-relaxed" style={{ color: red }}>
+        <span className="font-bold">Gap: </span>TikTok 0. Shorts 5%. Story works — distribution doesn&apos;t.
       </div>
     </div>
   );
