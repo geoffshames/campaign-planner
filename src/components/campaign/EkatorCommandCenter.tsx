@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { motion, useMotionValue, useScroll, useSpring, useTransform } from 'framer-motion';
+import type { EkatorRegistrySnapshot } from '@/lib/ekator-dashboard';
 
 type Tone = 'strong' | 'watch' | 'risk' | 'quiet' | 'offline';
 type Channel = {
@@ -313,7 +314,7 @@ const benchmarks: Benchmark[] = [
   },
 ];
 
-const sourceHealth: SourceHealth[] = [
+const baseSourceHealth: SourceHealth[] = [
   {
     source: 'Tokscript',
     status: 'strong',
@@ -328,16 +329,29 @@ const sourceHealth: SourceHealth[] = [
     coverage: 'External format/outlier context, especially KATSEYE/member-interaction comps.',
     caveat: 'Official @idoltillidie is not indexed in Sandcastles yet; add it to watchlist for automated outlier tracking.',
   },
-  {
-    source: 'Supabase',
-    status: 'risk',
-    pulled: 'Project ref verified from Master Brain: wwqqjzxejgfmwkyafqqx / EKATOR client row target.',
-    coverage: 'Target registry tables: cc_clients, cc_items, cc_performance, cc_responses, cc_monitored_handles.',
-    caveat: 'Current runtime has a Supabase key name, but REST probes to the EKATOR project returned 401 invalid key. Needs the matching anon/service key before live reads can hydrate.',
-  },
 ];
 
 const compactNumber = (value: number) => new Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: value >= 10_000 ? 1 : 0 }).format(value);
+
+function compactDateTime(value?: string | null) {
+  if (!value) return '—';
+  return value.replace('T', ' ').replace(/\.\d+/, '').replace(/\+00:00$/, ' UTC').slice(0, 22);
+}
+
+function supabaseSourceHealth(registry: EkatorRegistrySnapshot): SourceHealth {
+  const live = registry.status === 'live';
+  return {
+    source: 'Supabase',
+    status: live ? 'strong' : 'risk',
+    pulled: live
+      ? `Live registry read: ${registry.itemsCount} items, ${registry.monitoredHandlesCount} monitored handles, ${registry.responseCount} saved response.`
+      : 'Registry target identified; using last verified fallback snapshot until runtime env is available.',
+    coverage: `${registry.readyItemsCount} ready assets, ${registry.streetEvalItemsCount} street-eval cuts, ${registry.activeMonitoredHandlesCount} active monitored handles, ${registry.seedingNetworkCount} seeding-network nodes, ${registry.snsViralCount} SNS viral fan pages.`,
+    caveat: live
+      ? `Last registry ingest: ${compactDateTime(registry.lastIngest)}. Performance table is empty today, so channel/view metrics still come from Tokscript/YouTube snapshot.`
+      : registry.error || 'Supabase read unavailable in this runtime; visible metrics use the MCP-pulled snapshot.',
+  };
+}
 
 function toneColor(tone: Tone) {
   if (tone === 'strong') return '#22C55E';
@@ -515,7 +529,63 @@ function SourceCard({ source }: { source: SourceHealth }) {
   );
 }
 
-export function EkatorCommandCenter() {
+function RegistryPanel({ registry }: { registry: EkatorRegistrySnapshot }) {
+  const live = registry.status === 'live';
+  const trackedNodes = registry.seedingNetworkCount + registry.snsViralCount + registry.officialHandleCount;
+  return (
+    <GlassCard className="mt-5 p-6" glow={live}>
+      <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+        <div>
+          <div className="mb-3 flex flex-wrap items-center gap-3">
+            <Badge tone={live ? '#22C55E' : '#F59E0B'}>{live ? 'Supabase live' : 'Supabase fallback'}</Badge>
+            <span className="text-xs uppercase tracking-[0.22em] text-[#B8B8C0]">Creative Control registry</span>
+          </div>
+          <h3 className="font-display text-3xl text-[#FAFAFA] md:text-4xl">{registry.clientName} registry is now part of the page read.</h3>
+          <p className="mt-3 max-w-3xl text-sm leading-relaxed text-[#E4E4E9]">
+            Server-side registry snapshot from the EKATOR Supabase row. It does not expose credentials; it only renders counts, source freshness, and safe public asset/handle labels.
+          </p>
+        </div>
+        <div className="rounded-2xl border border-[#303030] bg-[#0C0C0C]/70 p-4 text-sm text-[#B8B8C0] lg:min-w-[280px]">
+          <div><span className="font-bold text-[#FAFAFA]">Last ingest:</span> {compactDateTime(registry.lastIngest)}</div>
+          <div className="mt-2"><span className="font-bold text-[#FAFAFA]">Checked:</span> {compactDateTime(registry.lastChecked)}</div>
+        </div>
+      </div>
+      <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+        <MetricTile label="Registry items" value={String(registry.itemsCount)} note={`${registry.readyItemsCount} ready · ${registry.ownedItemsCount} owned`} tone={live ? 'strong' : 'risk'} />
+        <MetricTile label="Street-eval cuts" value={String(registry.streetEvalItemsCount)} note="Creative brain source inventory" tone="watch" />
+        <MetricTile label="Tracked handles" value={String(registry.monitoredHandlesCount)} note={`${registry.activeMonitoredHandlesCount} active monitored nodes`} tone={live ? 'strong' : 'risk'} />
+        <MetricTile label="Fan/social nodes" value={String(trackedNodes)} note="Seeding + SNS viral + official rows" tone="watch" />
+        <MetricTile label="Saved analyses" value={String(registry.responseCount)} note="Creative Control responses available" tone="strong" />
+      </div>
+      <div className="mt-6 grid gap-5 lg:grid-cols-2">
+        <div>
+          <div className="mb-3 text-[10px] font-bold uppercase tracking-[0.24em] text-[#FD3737]">Recent registry assets</div>
+          <div className="space-y-3">
+            {registry.recentItems.slice(0, 4).map((item) => (
+              <div key={`${item.caption}-${item.platform}-${item.handle}`} className="rounded-xl border border-[#303030] bg-[#111111] p-3">
+                <div className="font-semibold text-[#FAFAFA]">{item.caption}</div>
+                <div className="mt-1 text-xs text-[#B8B8C0]">{item.platform} · {item.handle} · {item.status}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div>
+          <div className="mb-3 text-[10px] font-bold uppercase tracking-[0.24em] text-[#FD3737]">Tracked surfaces</div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            {registry.topHandles.slice(0, 6).map((handle) => (
+              <div key={`${handle.displayName}-${handle.kind}`} className="rounded-xl border border-[#303030] bg-[#111111] p-3">
+                <div className="font-semibold text-[#FAFAFA]">{handle.displayName}</div>
+                <div className="mt-1 text-xs text-[#B8B8C0]">{handle.platforms} · {handle.kind}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </GlassCard>
+  );
+}
+
+export function EkatorCommandCenter({ registry }: { registry: EkatorRegistrySnapshot }) {
   const heroRef = useRef<HTMLDivElement | null>(null);
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ['start start', 'end start'] });
   const heroY = useTransform(scrollYProgress, [0, 1], [0, 140]);
@@ -529,6 +599,7 @@ export function EkatorCommandCenter() {
   const nav = useMemo(() => [
     ['read', 'Read'], ['channels', 'Channels'], ['assets', 'Assets'], ['insights', 'Insights'], ['moves', 'Moves'], ['sources', 'Sources'],
   ], []);
+  const sourceHealth = useMemo(() => [...baseSourceHealth, supabaseSourceHealth(registry)], [registry]);
 
   useEffect(() => {
     setLastUpdated(new Intl.DateTimeFormat('en-US', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date()));
@@ -565,14 +636,14 @@ export function EkatorCommandCenter() {
             <Badge>EKATOR</Badge><Badge tone="#E4E4E9">Idol Till I Die</Badge><Badge tone="#E4E4E9">Owned social intelligence</Badge><Badge tone="#E4E4E9">MCP-pulled</Badge>
           </div>
           <h1 className="font-display max-w-6xl text-6xl leading-[0.88] tracking-tight text-[#FAFAFA] md:text-8xl lg:text-9xl">EKATOR <span className="block text-[#FD3737]">SOCIAL DASHBOARD</span></h1>
-          <p className="mt-7 max-w-4xl text-lg leading-relaxed text-[#E4E4E9] md:text-xl">A living read on the owned “Idol Till I Die” channels: what is growing, what is underused, which assets are moving, and what Crowd Control should do next. Internal orchestration is hidden; the page shows signal, interpretation, and action.</p>
+          <p className="mt-7 max-w-4xl text-lg leading-relaxed text-[#E4E4E9] md:text-xl">A living read on the owned “Idol Till I Die” channels: what is growing, what is underused, which assets are moving, and what Crowd Control should do next. The page shows signal, interpretation, and action.</p>
           <div className="mt-8 grid gap-3 md:grid-cols-2 lg:grid-cols-4">
             <MetricTile label="Known owned audience" value={compactNumber(ownedAudience)} note="IG + YouTube + TikTok official surfaces" tone="strong" />
             <MetricTile label="Measured YouTube views" value={compactNumber(youtubeTotalViews)} note="9 official videos pulled from YouTube/Tokscript" tone="watch" />
             <MetricTile label="EP1 gravity" value="83.3%" note="Share of measured YouTube views from EP1 alone" tone="watch" />
             <MetricTile label="TikTok content gap" value="0 posts" note="10.5K followers waiting on official clips" tone="risk" />
           </div>
-          <p className="mt-5 text-xs text-[#71717A]">Last dashboard render: {lastUpdated || 'loading'} · data pull: Tokscript + Sandcastles + browser fallback · no fabricated metrics.</p>
+          <p className="mt-5 text-xs text-[#71717A]">Last dashboard render: {lastUpdated || 'loading'} · data pull: Tokscript + Sandcastles + Supabase {registry.status === 'live' ? 'live registry' : 'fallback registry'} · no fabricated metrics.</p>
         </motion.div>
       </header>
 
@@ -583,6 +654,7 @@ export function EkatorCommandCenter() {
           <MetricTile label="YouTube Shorts total" value={compactNumber(shortsViews)} note="Current official short-form YouTube layer" tone="risk" />
           <MetricTile label="Longform concentration" value="94.7%" note="EP1 + teaser share of measured YouTube views" tone="watch" />
         </div>
+        <RegistryPanel registry={registry} />
       </Section>
 
       <div className="mx-auto h-px max-w-7xl bg-gradient-to-r from-transparent via-[#303030] to-transparent" />
@@ -644,20 +716,24 @@ export function EkatorCommandCenter() {
 
       <div className="mx-auto h-px max-w-7xl bg-gradient-to-r from-transparent via-[#303030] to-transparent" />
 
-      <Section id="sources" kicker="07 / data freshness" title="What is live, what is fallback, what needs access" subtitle="This replaces the internal job map. The page only shows source confidence and gaps that affect decision quality.">
+      <Section id="sources" kicker="07 / data freshness" title="What is live, what is fallback, what needs access" subtitle="The page shows source confidence and gaps only where they affect decision quality.">
         <div className="grid gap-5 lg:grid-cols-3">
           {sourceHealth.map((source) => <SourceCard key={source.source} source={source} />)}
         </div>
         <GlassCard className="mt-6 p-7" glow>
           <h3 className="font-display text-3xl text-[#FAFAFA]">Next live-data upgrade</h3>
-          <p className="mt-4 max-w-4xl text-sm leading-relaxed text-[#E4E4E9]">Connect Supabase credentials in the deployment/runtime environment, add official @idoltillidie to Sandcastles watchlist, and schedule the Tokscript owned-channel pull into the registry. Once that is connected, these same cards can render fresh values instead of the current MCP-pulled snapshot.</p>
+          <p className="mt-4 max-w-4xl text-sm leading-relaxed text-[#E4E4E9]">
+            {registry.status === 'live'
+              ? 'Supabase is connected server-side. The next upgrade is to write the daily Tokscript/Sandcastles refresh into cc_performance so the channel and asset cards hydrate beyond the current MCP-pulled snapshot.'
+              : 'Connect Supabase credentials in the deployment/runtime environment, add official @idoltillidie to Sandcastles watchlist, and schedule the Tokscript owned-channel pull into the registry. Once that is connected, these same cards can render fresh values instead of the current MCP-pulled snapshot.'}
+          </p>
         </GlassCard>
       </Section>
 
       <footer className="relative px-6 py-16 md:px-10">
         <div className="mx-auto max-w-7xl text-center">
           <div className="font-display text-3xl text-[#FAFAFA] md:text-5xl">EKATOR <span className="text-[#FD3737]">×</span> Crowd Control</div>
-          <p className="mx-auto mt-5 max-w-3xl text-sm leading-relaxed text-[#B8B8C0]">Owned-social intelligence dashboard for the Idol Till I Die campaign. Built from Tokscript, Sandcastles, YouTube, Instagram browser fallback, TikTok profile data, and Master Brain context.</p>
+          <p className="mx-auto mt-5 max-w-3xl text-sm leading-relaxed text-[#B8B8C0]">Owned-social intelligence dashboard for the Idol Till I Die campaign. Built from Tokscript, Sandcastles, Supabase, YouTube, Instagram browser fallback, TikTok profile data, and Master Brain context.</p>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/brand/CC-LOGO-2024-WHITE.png" alt="Crowd Control" className="mx-auto mt-8 h-6 w-auto opacity-80" />
         </div>

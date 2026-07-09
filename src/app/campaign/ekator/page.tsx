@@ -16,7 +16,7 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function EkatorPage() {
+export default async function CampaignEkatorPage() {
   const registry = await getEkatorRegistrySnapshot();
   return <EkatorCommandCenter registry={registry} />;
 }
