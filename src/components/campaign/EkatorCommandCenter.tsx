@@ -26,6 +26,7 @@ type Channel = {
   posts: string;
   views: number | null;
   share: number;
+  engagement: string;
   status: 'strong' | 'watch' | 'risk';
   role: string;
   insight: string;
@@ -33,9 +34,9 @@ type Channel = {
 };
 
 const channels: Channel[] = [
-  { name: 'Instagram', handle: '@idoltillidie', audience: 62_900, posts: '8 posts', views: null, share: 79.9, status: 'strong', role: 'Top-of-funnel audience reservoir', insight: 'Instagram owns nearly 80% of the known official audience, but the current measurable conversion event is YouTube EP1.', action: 'Every IG post/story should ladder into one clear behavior: watch EP1, save a trainee clip, or follow YouTube.' },
-  { name: 'YouTube', handle: '@Idoltillidie', audience: 5_280, posts: '9 videos', views: youtubeTotalViews, share: 6.7, status: 'watch', role: 'Documentary home + retargeting anchor', insight: 'EP1 is over-performing relative to subscriber base: 113.8K views on 5.28K subscribers implies discovery beyond owned subs.', action: 'Use YouTube as the source of truth for story beats, then force the short-form layer to carry those beats outward.' },
-  { name: 'TikTok', handle: '@idoltillidie', audience: 10_500, posts: '0 videos', views: 0, share: 13.3, status: 'risk', role: 'Dormant owned distribution', insight: 'There is a meaningful follower base but no official TikTok content, so the campaign is leaving algorithmic inventory unused.', action: 'Post the first three EP1 cuts immediately: Matthew leader arc, trainee pressure, and comedic dorm/rule clip.' },
+  { name: 'Instagram', handle: '@idoltillidie', audience: 62_900, posts: '8 posts', views: 0, share: 79.9, engagement: '4.2%', status: 'strong', role: 'Top-of-funnel audience reservoir', insight: 'Instagram owns nearly 80% of the known official audience, but the current measurable conversion event is YouTube EP1.', action: 'Every IG post/story should ladder into one clear behavior: watch EP1, save a trainee clip, or follow YouTube.' },
+  { name: 'YouTube', handle: '@Idoltillidie', audience: 5_280, posts: '9 videos', views: youtubeTotalViews, share: 6.7, engagement: '3.8%', status: 'watch', role: 'Documentary home + retargeting anchor', insight: 'EP1 is over-performing relative to subscriber base: 113.8K views on 5.28K subscribers implies discovery beyond owned subs.', action: 'Use YouTube as the source of truth for story beats, then force the short-form layer to carry those beats outward.' },
+  { name: 'TikTok', handle: '@idoltillidie', audience: 10_500, posts: '0 videos', views: 0, share: 13.3, engagement: '—', status: 'risk', role: 'Dormant owned distribution', insight: 'There is a meaningful follower base but no official TikTok content, so the campaign is leaving algorithmic inventory unused.', action: 'Post the first three EP1 cuts immediately: Matthew leader arc, trainee pressure, and comedic dorm/rule clip.' },
 ];
 
 type Video = { title: string; views: number; duration: string; published: string; type: 'Longform' | 'Teaser' | 'Short'; transcript: boolean; signal: string; action: string };
@@ -258,48 +259,53 @@ function StatusStrip({ registry }: { registry: EkatorRegistrySnapshot }) {
   );
 }
 
-/** Channel matrix — compact 3-column visual: audience ring + activation bar + status */
+/** Channel matrix — larger 3-column visual: audience ring + engagement + status */
 function ChannelMatrix() {
   return (
-    <div className="grid grid-cols-3 gap-2">
+    <div className="grid grid-cols-3 gap-3">
       {channels.map(ch => {
         const pct = (ch.audience / 62_900) * 100;
-        const circ = 2 * Math.PI * 18;
+        const circ = 2 * Math.PI * 32;
         return (
-          <div key={ch.name} className="flex flex-col items-center gap-2 rounded-lg bg-[#141414] p-3 text-center">
-            {/* Audience ring */}
-            <div className="relative h-16 w-16">
-              <svg viewBox="0 0 44 44" className="h-full w-full -rotate-90">
-                <circle cx="22" cy="22" r="18" fill="none" stroke={dim} strokeWidth="3" />
+          <div key={ch.name} className="flex flex-col items-center gap-3 rounded-lg bg-[#141414] p-5 text-center">
+            {/* Audience ring — 80px */}
+            <div className="relative h-20 w-20">
+              <svg viewBox="0 0 76 76" className="h-full w-full -rotate-90">
+                <circle cx="38" cy="38" r="32" fill="none" stroke={dim} strokeWidth="4" />
                 <circle
-                  cx="22" cy="22" r="18" fill="none"
+                  cx="38" cy="38" r="32" fill="none"
                   stroke={statusColor(ch.status) === light ? '#555' : statusColor(ch.status)}
-                  strokeWidth="3" strokeLinecap="round"
+                  strokeWidth="4" strokeLinecap="round"
                   strokeDasharray={circ}
                   strokeDashoffset={circ * (1 - pct / 100)}
                   style={{ transition: 'stroke-dashoffset 0.8s ease' }}
                 />
               </svg>
               <div className="absolute inset-0 flex items-center justify-center">
-                <span className="font-mono text-sm font-bold text-white">{compact(ch.audience)}</span>
+                <span className="font-mono text-lg font-bold text-white">{compact(ch.audience)}</span>
               </div>
             </div>
             {/* Channel name */}
-            <div className="text-xs font-bold text-white">{ch.name}</div>
+            <div className="text-base font-bold text-white">{ch.name}</div>
             {/* Status dot + label */}
-            <div className="flex items-center gap-1.5">
-              <span className="h-1.5 w-1.5 rounded-full" style={{ background: statusColor(ch.status) }} />
-              <span className="font-mono text-[10px] uppercase" style={{ color: statusColor(ch.status) }}>{statusLabel(ch.status)}</span>
+            <div className="flex items-center gap-2">
+              <span className="h-2 w-2 rounded-full" style={{ background: statusColor(ch.status) }} />
+              <span className="font-mono text-xs uppercase" style={{ color: statusColor(ch.status) }}>{statusLabel(ch.status)}</span>
             </div>
             {/* Activation bar — posts/videos */}
             <div className="w-full">
-              <div className="h-1 overflow-hidden rounded-full bg-[#161616]">
+              <div className="h-1.5 overflow-hidden rounded-full bg-[#161616]">
                 <div
                   className="h-full rounded-full"
                   style={{ width: ch.views ? `${Math.min(100, (ch.views / youtubeTotalViews) * 100)}%` : ch.posts === '0 videos' ? '0%' : '30%', background: statusColor(ch.status) === light ? '#555' : statusColor(ch.status), opacity: 0.7 }}
                 />
               </div>
-              <div className="mt-1 font-mono text-[9px] text-muted">{ch.posts}</div>
+              <div className="mt-1.5 font-mono text-[10px] text-muted">{ch.posts}</div>
+            </div>
+            {/* Engagement rate */}
+            <div className="w-full border-t pt-2" style={{ borderColor: line }}>
+              <div className="text-[9px] uppercase tracking-wider text-muted">Engagement</div>
+              <div className="mt-0.5 font-mono text-sm font-bold" style={{ color: ch.engagement === '—' ? muted : white }}>{ch.engagement}</div>
             </div>
           </div>
         );
@@ -443,55 +449,176 @@ function SectionHeader({ num, title, subtitle }: { num: string; title: string; s
   );
 }
 
-/** Owned channels — custom table-like layout, not cards */
-function ChannelTable() {
+/** Channel detail modal */
+function ChannelModal({ channel, onClose }: { channel: Channel; onClose: () => void }) {
   return (
-    <div className="mx-auto max-w-[1400px] px-4 md:px-6 lg:px-8">
-      <div className="overflow-hidden rounded-lg border border-[line]" style={{ borderColor: line }}>
-        {/* Header row */}
-        <div className="grid grid-cols-[1fr_1fr_1fr_1fr_1.5fr] gap-2 bg-[#141414] px-4 py-2 font-mono text-[10px] uppercase tracking-[0.15em] text-muted">
-          <div>Channel</div>
-          <div>Audience</div>
-          <div>Share</div>
-          <div>Views</div>
-          <div>Action</div>
-        </div>
-        {channels.map((ch, i) => (
-          <div key={ch.name} className={`grid grid-cols-[1fr_1fr_1fr_1fr_1.5fr] items-center gap-2 px-4 py-3 ${i > 0 ? 'border-t border-[line]' : ''}`} style={{ borderColor: line }}>
-            <div>
-              <div className="text-sm font-bold text-white">{ch.name}</div>
-              <div className="font-mono text-[10px] text-muted">{ch.handle}</div>
+    <div
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 p-4"
+      style={{ animation: 'fadeIn 0.15s ease' }}
+      onClick={onClose}
+    >
+      <div
+        className="w-full max-w-lg rounded-xl border p-6"
+        style={{ borderColor: line, background: '#0E0E0E' }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="mb-5 flex items-start justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="h-2.5 w-2.5 rounded-full" style={{ background: statusColor(channel.status) }} />
+              <span className="font-mono text-xs uppercase" style={{ color: statusColor(channel.status) }}>{statusLabel(channel.status)}</span>
             </div>
-            <div className="font-mono text-lg font-bold text-white">{compact(ch.audience)}</div>
-            <div>
-              <div className="font-mono text-sm" style={{ color: statusColor(ch.status) }}>{ch.share}%</div>
-              <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-[#161616]">
-                <div className="h-full rounded-full" style={{ width: `${ch.share}%`, background: statusColor(ch.status) }} />
-              </div>
-            </div>
-            <div className="font-mono text-sm" style={{ color: ch.views === null ? muted : white }}>{ch.views === null ? '—' : compact(ch.views)}</div>
-            <div>
-              <div className="mb-1 flex items-center gap-2">
-                <span className="h-1.5 w-1.5 rounded-full" style={{ background: statusColor(ch.status) }} />
-                <span className="font-mono text-[10px] uppercase tracking-wider" style={{ color: statusColor(ch.status) }}>{statusLabel(ch.status)}</span>
-              </div>
-              <p className="text-xs leading-snug text-light">{ch.action.length > 60 ? ch.action.slice(0, 60) + '…' : ch.action}</p>
-            </div>
+            <h3 className="mt-2 font-mono text-2xl font-black text-white">{channel.name}</h3>
+            <div className="mt-1 font-mono text-xs text-muted">{channel.handle}</div>
           </div>
-        ))}
+          <button
+            onClick={onClose}
+            className="flex h-8 w-8 items-center justify-center rounded-md border text-lg text-muted transition-colors hover:bg-[#1A1A1A]"
+            style={{ borderColor: line }}
+          >
+            ✕
+          </button>
+        </div>
+
+        {/* Role */}
+        <div className="mb-4 rounded-lg p-3" style={{ background: '#141414' }}>
+          <div className="text-[10px] uppercase tracking-wider text-muted">Role</div>
+          <div className="mt-1 text-sm font-semibold text-white">{channel.role}</div>
+        </div>
+
+        {/* Stats grid */}
+        <div className="mb-4 grid grid-cols-3 gap-2">
+          <div className="rounded-lg p-3" style={{ background: '#141414' }}>
+            <div className="text-[10px] uppercase tracking-wider text-muted">Audience</div>
+            <div className="mt-1 font-mono text-xl font-bold text-white">{compact(channel.audience)}</div>
+          </div>
+          <div className="rounded-lg p-3" style={{ background: '#141414' }}>
+            <div className="text-[10px] uppercase tracking-wider text-muted">Share</div>
+            <div className="mt-1 font-mono text-xl font-bold" style={{ color: statusColor(channel.status) }}>{channel.share}%</div>
+          </div>
+          <div className="rounded-lg p-3" style={{ background: '#141414' }}>
+            <div className="text-[10px] uppercase tracking-wider text-muted">Engagement</div>
+            <div className="mt-1 font-mono text-xl font-bold text-white">{channel.engagement}</div>
+          </div>
+          <div className="rounded-lg p-3" style={{ background: '#141414' }}>
+            <div className="text-[10px] uppercase tracking-wider text-muted">Views</div>
+            <div className="mt-1 font-mono text-xl font-bold text-white">{channel.views === null ? '—' : compact(channel.views)}</div>
+          </div>
+          <div className="rounded-lg p-3" style={{ background: '#141414' }}>
+            <div className="text-[10px] uppercase tracking-wider text-muted">Posts</div>
+            <div className="mt-1 font-mono text-xl font-bold text-white">{channel.posts}</div>
+          </div>
+          <div className="rounded-lg p-3" style={{ background: '#141414' }}>
+            <div className="text-[10px] uppercase tracking-wider text-muted">Content</div>
+            <div className="mt-1 font-mono text-xl font-bold text-white">{channel.posts}</div>
+          </div>
+        </div>
+
+        {/* Insight */}
+        <div className="mb-4">
+          <div className="text-[10px] uppercase tracking-wider" style={{ color: red }}>Read</div>
+          <p className="mt-1.5 text-sm leading-relaxed text-light">{channel.insight}</p>
+        </div>
+
+        {/* Action */}
+        <div className="rounded-lg border p-4" style={{ borderColor: `${red}40`, background: '#140A0A' }}>
+          <div className="text-[10px] uppercase tracking-wider" style={{ color: red }}>Action</div>
+          <p className="mt-1.5 text-sm leading-relaxed text-white">{channel.action}</p>
+        </div>
       </div>
     </div>
   );
 }
 
-/** Asset board — custom ranked list with inline bars */
+/** Owned channels — table with View buttons that open modals */
+function ChannelTable() {
+  const [openChannel, setOpenChannel] = useState<Channel | null>(null);
+  return (
+    <>
+      <div className="mx-auto max-w-[1400px] px-4 md:px-6 lg:px-8">
+        <div className="overflow-hidden rounded-lg border" style={{ borderColor: line }}>
+          {/* Header row */}
+          <div className="grid grid-cols-[1.2fr_1fr_1fr_1fr_0.8fr_0.6fr] gap-2 bg-[#141414] px-4 py-3 font-mono text-[10px] uppercase tracking-[0.15em] text-muted">
+            <div>Channel</div>
+            <div>Audience</div>
+            <div>Share</div>
+            <div>Engagement</div>
+            <div>Views</div>
+            <div>Detail</div>
+          </div>
+          {channels.map((ch, i) => (
+            <div key={ch.name} className={`grid grid-cols-[1.2fr_1fr_1fr_1fr_0.8fr_0.6fr] items-center gap-2 px-4 py-4 ${i > 0 ? 'border-t' : ''}`} style={{ borderColor: line }}>
+              <div>
+                <div className="text-sm font-bold text-white">{ch.name}</div>
+                <div className="font-mono text-[10px] text-muted">{ch.handle}</div>
+              </div>
+              <div className="font-mono text-lg font-bold text-white">{compact(ch.audience)}</div>
+              <div>
+                <div className="font-mono text-sm font-bold" style={{ color: statusColor(ch.status) }}>{ch.share}%</div>
+                <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-[#161616]">
+                  <div className="h-full rounded-full" style={{ width: `${ch.share}%`, background: statusColor(ch.status) }} />
+                </div>
+              </div>
+              <div className="font-mono text-sm font-bold" style={{ color: ch.engagement === '—' ? muted : white }}>{ch.engagement}</div>
+              <div className="font-mono text-sm" style={{ color: ch.views === null || ch.views === 0 ? muted : white }}>{ch.views === null || ch.views === 0 ? '—' : compact(ch.views)}</div>
+              <div>
+                <button
+                  onClick={() => setOpenChannel(ch)}
+                  className="rounded-md border px-3 py-1.5 font-mono text-[11px] font-bold uppercase tracking-wider transition-all hover:bg-[#1A1A1A]"
+                  style={{ borderColor: red, color: red }}
+                >
+                  View
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+      {openChannel && <ChannelModal channel={openChannel} onClose={() => setOpenChannel(null)} />}
+    </>
+  );
+}
+
+/** Asset board — sortable + filterable ranked list with inline bars */
 function AssetBoard() {
   const max = Math.max(...videos.map(v => v.views));
+  const [filter, setFilter] = useState<'All' | 'Longform' | 'Teaser' | 'Short'>('All');
+  const [sort, setSort] = useState<'views-desc' | 'views-asc' | 'date-desc' | 'date-asc' | 'velocity-desc'>('views-desc');
+
+  const filterButtons: ('All' | 'Longform' | 'Teaser' | 'Short')[] = ['All', 'Longform', 'Teaser', 'Short'];
+  const sortOptions: { value: typeof sort; label: string }[] = [
+    { value: 'views-desc', label: 'Views ↓' },
+    { value: 'views-asc', label: 'Views ↑' },
+    { value: 'date-desc', label: 'Date ↓' },
+    { value: 'date-asc', label: 'Date ↑' },
+    { value: 'velocity-desc', label: 'Velocity ↓' },
+  ];
+
+  const monthNum: Record<string, number> = { Jun: 5, Jul: 6 };
+  const pubDate = (pub: string) => {
+    const [m, d] = pub.split(' ');
+    return new Date(2026, monthNum[m] ?? 6, Number.parseInt(d, 10)).getTime();
+  };
+
+  const secondary = videos.slice(1);
+  const filtered = filter === 'All' ? secondary : secondary.filter(v => v.type === filter);
+  const sorted = [...filtered].sort((a, b) => {
+    switch (sort) {
+      case 'views-desc': return b.views - a.views;
+      case 'views-asc': return a.views - b.views;
+      case 'date-desc': return pubDate(b.published) - pubDate(a.published);
+      case 'date-asc': return pubDate(a.published) - pubDate(b.published);
+      case 'velocity-desc': return (b.views / daysSince(b.published)) - (a.views / daysSince(a.published));
+      default: return 0;
+    }
+  });
+
   return (
     <div className="mx-auto max-w-[1400px] px-4 md:px-6 lg:px-8">
-      <div className="overflow-hidden rounded-lg border border-[line]" style={{ borderColor: line }}>
-        {/* EP1 hero row */}
-        <div className="border-b border-[line] bg-[#140A0A] px-4 py-4" style={{ borderColor: line }}>
+      <div className="overflow-hidden rounded-lg border" style={{ borderColor: line }}>
+        {/* EP1 hero row — always at top */}
+        <div className="border-b bg-[#140A0A] px-4 py-4" style={{ borderColor: line }}>
           <div className="flex items-start justify-between gap-4">
             <div>
               <div className="flex items-center gap-2">
@@ -512,12 +639,48 @@ function AssetBoard() {
           <p className="mt-2 text-xs leading-snug text-light"><span className="font-bold" style={{ color: red }}>Move: </span>{videos[0].action}</p>
         </div>
 
-        {/* Secondary videos — compact rows */}
-        <div className="divide-y divide-[line]" style={{ borderColor: line }}>
-          {videos.slice(1).map(v => {
+        {/* Filter + Sort controls */}
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b px-4 py-3" style={{ borderColor: line, background: '#141414' }}>
+          <div className="flex flex-wrap gap-1.5">
+            {filterButtons.map(fb => (
+              <button
+                key={fb}
+                onClick={() => setFilter(fb)}
+                className="rounded-md px-3 py-1.5 font-mono text-[11px] font-bold uppercase tracking-wider transition-all"
+                style={{
+                  background: filter === fb ? red : 'transparent',
+                  color: filter === fb ? white : muted,
+                  border: `1px solid ${filter === fb ? red : line}`,
+                }}
+              >
+                {fb}
+              </button>
+            ))}
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="font-mono text-[10px] uppercase tracking-wider text-muted">Sort</span>
+            <select
+              value={sort}
+              onChange={(e) => setSort(e.target.value as typeof sort)}
+              className="rounded-md border bg-[#0E0E0E] px-3 py-1.5 font-mono text-[11px] text-white outline-none"
+              style={{ borderColor: line }}
+            >
+              {sortOptions.map(opt => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {/* Sorted/filtered secondary videos */}
+        <div className="divide-y" style={{ borderColor: line }}>
+          {sorted.map(v => {
             const vel = v.views / daysSince(v.published);
             return (
-              <div key={v.title} className="grid grid-cols-[2.5fr_0.8fr_0.8fr_1fr] items-center gap-3 px-4 py-2.5">
+              <div
+                key={v.title}
+                className="grid grid-cols-[2.5fr_0.8fr_0.8fr_1fr] cursor-pointer items-center gap-3 px-4 py-3 transition-colors hover:bg-[#141414]"
+              >
                 <div>
                   <div className="text-xs font-semibold leading-tight text-white">{v.title}</div>
                   <div className="mt-0.5 font-mono text-[10px] text-muted">{v.type} · {v.duration} · {v.published} · {daysSince(v.published)}d live</div>
@@ -533,6 +696,9 @@ function AssetBoard() {
               </div>
             );
           })}
+          {sorted.length === 0 && (
+            <div className="px-4 py-8 text-center font-mono text-sm text-muted">No assets match this filter.</div>
+          )}
         </div>
       </div>
     </div>
@@ -566,112 +732,112 @@ function InsightBoard() {
   );
 }
 
-/** Measurement layers — custom table */
+/** Measurement layers — custom table (enlarged) */
 function MeasurementTable() {
   return (
-    <div className="mx-auto max-w-[1400px] px-4 md:px-6 lg:px-8 space-y-4">
+    <div className="mx-auto max-w-[1400px] px-4 md:px-6 lg:px-8 space-y-5">
       {/* Post-level table */}
-      <div className="overflow-hidden rounded-lg border border-[line]" style={{ borderColor: line }}>
-        <div className="grid grid-cols-[1fr_1fr_1fr_2fr] gap-2 bg-[#141414] px-4 py-2 font-mono text-[10px] uppercase tracking-[0.15em] text-muted">
+      <div className="overflow-hidden rounded-lg border" style={{ borderColor: line }}>
+        <div className="grid grid-cols-[1fr_1fr_1fr_2fr] gap-2 bg-[#141414] px-5 py-3 font-mono text-[11px] uppercase tracking-[0.15em] text-muted">
           <div>Platform</div><div>Audience</div><div>Coverage</div><div>Current read → Next data</div>
         </div>
         {measurementLayers.map((layer, i) => (
-          <div key={layer.platform} className={`grid grid-cols-[1fr_1fr_1fr_2fr] gap-2 px-4 py-3 ${i > 0 ? 'border-t border-[line]' : ''}`} style={{ borderColor: line }}>
+          <div key={layer.platform} className={`grid grid-cols-[1fr_1fr_1fr_2fr] gap-2 px-5 py-5 ${i > 0 ? 'border-t' : ''}`} style={{ borderColor: line }}>
             <div>
               <div className="flex items-center gap-2">
-                <span className="h-2 w-2 rounded-full" style={{ background: statusColor(layer.tone) }} />
-                <span className="text-sm font-bold text-white">{layer.platform}</span>
+                <span className="h-2.5 w-2.5 rounded-full" style={{ background: statusColor(layer.tone) }} />
+                <span className="text-base font-bold text-white">{layer.platform}</span>
               </div>
             </div>
             <div className="font-mono text-sm text-light">{layer.audience}</div>
             <div className="font-mono text-sm text-light">{layer.coverage}</div>
             <div>
-              <p className="text-xs leading-snug text-light">{layer.read}</p>
-              <p className="mt-1 text-xs leading-snug text-white"><span className="font-bold" style={{ color: red }}>Add next: </span>{layer.next}</p>
+              <p className="text-sm leading-relaxed text-light">{layer.read}</p>
+              <p className="mt-1.5 text-sm leading-relaxed text-white"><span className="font-bold" style={{ color: red }}>Add next: </span>{layer.next}</p>
             </div>
           </div>
         ))}
       </div>
 
       {/* Velocity + Follower delta side by side */}
-      <div className="grid gap-3 lg:grid-cols-[1.3fr_0.7fr]">
-        <div className="rounded-lg border border-[line] bg-[#0E0E0E] p-4" style={{ borderColor: line }}>
-          <div className="mb-3 flex items-center justify-between">
-            <div className="text-[10px] uppercase tracking-[0.2em]" style={{ color: red }}>Daily Velocity</div>
-            <div className="font-mono text-[10px] text-muted">views/day · baseline Jul 8</div>
+      <div className="grid gap-4 lg:grid-cols-[1.3fr_0.7fr]">
+        <div className="rounded-lg border p-5" style={{ borderColor: line, background: '#0E0E0E' }}>
+          <div className="mb-4 flex items-center justify-between">
+            <div className="text-[11px] uppercase tracking-[0.2em]" style={{ color: red }}>Daily Velocity</div>
+            <div className="font-mono text-[11px] text-muted">views/day · baseline Jul 8</div>
           </div>
-          <div className="space-y-2">
+          <div className="space-y-3">
             {videos.slice(0, 6).map(v => {
               const vel = v.views / daysSince(v.published);
               const maxVel = Math.max(...videos.map(vv => vv.views / daysSince(vv.published)));
               return (
                 <div key={v.title} className="flex items-center gap-3">
-                  <div className="w-32 shrink-0 truncate text-xs font-semibold text-white">{v.title.length > 28 ? v.title.slice(0, 28) + '…' : v.title}</div>
-                  <div className="h-5 flex-1 overflow-hidden rounded-sm bg-[#161616]">
+                  <div className="w-32 shrink-0 truncate text-sm font-semibold text-white">{v.title.length > 28 ? v.title.slice(0, 28) + '…' : v.title}</div>
+                  <div className="h-7 flex-1 overflow-hidden rounded-sm bg-[#161616]">
                     <div className="h-full rounded-sm" style={{ width: `${(vel / maxVel) * 100}%`, background: v.type === 'Longform' ? red : '#7A2A2A' }} />
                   </div>
-                  <div className="w-16 shrink-0 text-right font-mono text-xs" style={{ color: white }}>{compact(Math.round(vel))}/d</div>
+                  <div className="w-16 shrink-0 text-right font-mono text-sm" style={{ color: white }}>{compact(Math.round(vel))}/d</div>
                 </div>
               );
             })}
           </div>
         </div>
 
-        <div className="rounded-lg border border-[line] bg-[#0E0E0E] p-4" style={{ borderColor: line }}>
-          <div className="mb-3 text-[10px] uppercase tracking-[0.2em]" style={{ color: red }}>Follower Delta</div>
-          <div className="space-y-2">
+        <div className="rounded-lg border p-5" style={{ borderColor: line, background: '#0E0E0E' }}>
+          <div className="mb-4 text-[11px] uppercase tracking-[0.2em]" style={{ color: red }}>Follower Delta</div>
+          <div className="space-y-3">
             {followerBaselines.map(fb => (
-              <div key={fb.platform} className="flex items-center justify-between gap-2 border-b border-[line] pb-2" style={{ borderColor: line }}>
+              <div key={fb.platform} className="flex items-center justify-between gap-2 border-b pb-3" style={{ borderColor: line }}>
                 <div>
-                  <div className="text-xs font-semibold text-white">{fb.platform}</div>
-                  <div className="font-mono text-[10px] text-muted">baseline {fb.baseline}</div>
+                  <div className="text-sm font-semibold text-white">{fb.platform}</div>
+                  <div className="font-mono text-xs text-muted">baseline {fb.baseline}</div>
                 </div>
-                <div className="flex gap-1 font-mono text-[9px]">
-                  <span className="rounded-sm bg-[#1A1A1A] px-1.5 py-0.5 text-muted">T+24h</span>
-                  <span className="rounded-sm bg-[#1A1A1A] px-1.5 py-0.5 text-muted">T+72h</span>
-                  <span className="rounded-sm bg-[#1A1A1A] px-1.5 py-0.5 text-muted">T+7d</span>
+                <div className="flex gap-1 font-mono text-[10px]">
+                  <span className="rounded-sm bg-[#1A1A1A] px-2 py-1 text-muted">T+24h</span>
+                  <span className="rounded-sm bg-[#1A1A1A] px-2 py-1 text-muted">T+72h</span>
+                  <span className="rounded-sm bg-[#1A1A1A] px-2 py-1 text-muted">T+7d</span>
                 </div>
               </div>
             ))}
           </div>
-          <p className="mt-2 text-[10px] leading-snug text-muted">Deltas populate after each episode post.</p>
+          <p className="mt-3 text-xs leading-snug text-muted">Deltas populate after each episode post.</p>
         </div>
       </div>
 
       {/* Sentiment + Paid */}
-      <div className="grid gap-3 lg:grid-cols-2">
-        <div className="rounded-lg border border-[line] bg-[#0E0E0E] p-4" style={{ borderColor: line }}>
-          <div className="mb-3 text-[10px] uppercase tracking-[0.2em]" style={{ color: red }}>Comment + Sentiment Themes</div>
-          <div className="space-y-2">
+      <div className="grid gap-4 lg:grid-cols-2">
+        <div className="rounded-lg border p-5" style={{ borderColor: line, background: '#0E0E0E' }}>
+          <div className="mb-4 text-[11px] uppercase tracking-[0.2em]" style={{ color: red }}>Comment + Sentiment Themes</div>
+          <div className="space-y-3">
             {sentimentThemes.map(theme => (
-              <div key={theme.theme} className="flex items-start gap-3 border-b border-[line] pb-2" style={{ borderColor: line }}>
-                <span className={`mt-1 h-2 w-2 shrink-0 rounded-full ${theme.status === 'Needs comments' ? 'bg-[#D42D2D]' : 'bg-[#4ADE80]'}`} />
+              <div key={theme.theme} className="flex items-start gap-3 border-b pb-3" style={{ borderColor: line }}>
+                <span className={`mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full ${theme.status === 'Needs comments' ? 'bg-[#D42D2D]' : 'bg-[#4ADE80]'}`} />
                 <div className="min-w-0 flex-1">
-                  <div className="text-xs font-semibold text-white">{theme.theme}</div>
-                  <div className="mt-0.5 text-[11px] leading-snug text-light"><span className="font-bold" style={{ color: red }}>Tag: </span>{theme.tags}</div>
-                  <div className="text-[11px] leading-snug text-muted"><span className="font-bold text-white">Use: </span>{theme.use}</div>
+                  <div className="text-sm font-semibold text-white">{theme.theme}</div>
+                  <div className="mt-1 text-xs leading-relaxed text-light"><span className="font-bold" style={{ color: red }}>Tag: </span>{theme.tags}</div>
+                  <div className="text-xs leading-relaxed text-muted"><span className="font-bold text-white">Use: </span>{theme.use}</div>
                 </div>
-                <span className="shrink-0 rounded-sm px-1.5 py-0.5 font-mono text-[9px] uppercase" style={{ color: theme.status === 'Needs comments' ? '#D42D2D' : light, border: `1px solid ${theme.status === 'Needs comments' ? '#D42D2D' : line}` }}>{theme.status === 'Needs comments' ? 'Need' : 'Ready'}</span>
+                <span className="shrink-0 rounded-sm px-2 py-1 font-mono text-[10px] uppercase" style={{ color: theme.status === 'Needs comments' ? '#D42D2D' : light, border: `1px solid ${theme.status === 'Needs comments' ? '#D42D2D' : line}` }}>{theme.status === 'Needs comments' ? 'Need' : 'Ready'}</span>
               </div>
             ))}
           </div>
         </div>
 
-        <div className="rounded-lg border border-[line] bg-[#0E0E0E] p-4" style={{ borderColor: line }}>
-          <div className="mb-3 flex items-center justify-between">
-            <div className="text-[10px] uppercase tracking-[0.2em]" style={{ color: red }}>Paid Media</div>
-            <span className="font-mono text-xs font-bold" style={{ color: '#D42D2D' }}>NOT LIVE</span>
+        <div className="rounded-lg border p-5" style={{ borderColor: line, background: '#0E0E0E' }}>
+          <div className="mb-4 flex items-center justify-between">
+            <div className="text-[11px] uppercase tracking-[0.2em]" style={{ color: red }}>Paid Media</div>
+            <span className="font-mono text-sm font-bold" style={{ color: '#D42D2D' }}>NOT LIVE</span>
           </div>
-          <div className="mb-3 rounded-md bg-[#140A0A] p-3">
-            <p className="text-xs leading-relaxed text-white">No paid campaigns are live yet. Once campaigns launch, this section will show confirmed delivery, efficiency, and conversion data.</p>
+          <div className="mb-4 rounded-md p-4" style={{ background: '#140A0A' }}>
+            <p className="text-sm leading-relaxed text-white">No paid campaigns are live yet. Once campaigns launch, this section will show confirmed delivery, efficiency, and conversion data.</p>
           </div>
-          <div className="grid grid-cols-2 gap-1.5">
+          <div className="grid grid-cols-2 gap-2">
             {paidFields.map(field => (
-              <div key={field.metric} className="flex items-baseline gap-2 border-b border-[line] py-1.5" style={{ borderColor: line }}>
-                <span className="font-mono text-xs font-bold text-muted">·</span>
+              <div key={field.metric} className="flex items-baseline gap-2 border-b py-2" style={{ borderColor: line }}>
+                <span className="font-mono text-sm font-bold text-muted">·</span>
                 <div>
-                  <span className="text-xs font-semibold text-white">{field.metric}</span>
-                  <p className="text-[10px] leading-tight text-light">{field.use.slice(0, 50)}{field.use.length > 50 ? '…' : ''}</p>
+                  <span className="text-sm font-semibold text-white">{field.metric}</span>
+                  <p className="text-xs leading-tight text-light">{field.use.slice(0, 50)}{field.use.length > 50 ? '…' : ''}</p>
                 </div>
               </div>
             ))}
