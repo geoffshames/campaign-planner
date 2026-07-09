@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { EkatorCommandCenter } from '@/components/campaign/EkatorCommandCenter';
-import { getEkatorRegistrySnapshot } from '@/lib/ekator-dashboard';
+import { getEkatorFullSnapshot } from '@/lib/ekator-dashboard';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -17,6 +17,6 @@ export const metadata: Metadata = {
 };
 
 export default async function EkatorPage() {
-  const registry = await getEkatorRegistrySnapshot();
-  return <EkatorCommandCenter registry={registry} />;
+  const { registry, assets } = await getEkatorFullSnapshot();
+  return <EkatorCommandCenter registry={registry} assets={assets} />;
 }

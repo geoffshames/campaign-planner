@@ -29,6 +29,43 @@ export type EkatorRegistrySnapshot = {
   topHandles: EkatorRegistryHandle[];
 };
 
+export type EkatorAsset = {
+  itemId: string;
+  platform: 'youtube' | 'street-eval' | 'instagram' | 'tiktok';
+  handle: string;
+  caption: string;
+  sourceUrl: string | null;
+  isOwned: boolean;
+  postDate: string | null;
+  status: string;
+  // Performance (from cc_performance, latest snapshot)
+  views: number | null;
+  likes: number | null;
+  comments: number | null;
+  shares: number | null;
+  engagementRate: number | null;
+};
+
+export type EkatorAssetSnapshot = {
+  status: 'live' | 'pending';
+  assets: EkatorAsset[];
+};
+
+export type EkatorChannelMetrics = {
+  platform: string;
+  audience: number;
+  posts: number;
+  views: number | null;
+  engagementRate: number | null;
+};
+
+export type EkatorMetricsSnapshot = {
+  status: 'live' | 'pending';
+  channels: EkatorChannelMetrics[];
+  totalViews: number;
+  totalAudience: number;
+};
+
 type SupabaseRow = Record<string, unknown>;
 
 const EKATOR_CLIENT_ID = '1159a218-5c5b-4373-8fb4-c7365bb81f4e';
@@ -57,12 +94,33 @@ export const fallbackEkatorRegistrySnapshot: EkatorRegistrySnapshot = {
   ],
 };
 
+export const fallbackEkatorAssetSnapshot: EkatorAssetSnapshot = {
+  status: 'pending',
+  assets: [],
+};
+
+export const fallbackEkatorMetricsSnapshot: EkatorMetricsSnapshot = {
+  status: 'pending',
+  channels: [],
+  totalViews: 0,
+  totalAudience: 0,
+};
+
 function asString(value: unknown, fallback = ''): string {
   return typeof value === 'string' ? value : fallback;
 }
 
 function asBoolean(value: unknown): boolean {
   return value === true || value === 'true';
+}
+
+function asNumber(value: unknown): number | null {
+  if (typeof value === 'number') return value;
+  if (typeof value === 'string' && value.trim() !== '') {
+    const n = Number(value);
+    return Number.isFinite(n) ? n : null;
+  }
+  return null;
 }
 
 async function supabaseFetch<T>(baseUrl: string, key: string, path: string): Promise<T> {
@@ -147,4 +205,115 @@ export async function getEkatorRegistrySnapshot(): Promise<EkatorRegistrySnapsho
   } catch {
     return fallbackEkatorRegistrySnapshot;
   }
+}
+
+export async function getEkatorAssetSnapshot(): Promise<EkatorAssetSnapshot> {
+  const baseUrl = process.env.SUPABASE_EKATOR_URL || process.env.SUPABASE_SINCERITY_STUDIOS_URL;
+  const key = process.env.SUPABASE_EKATOR_SERVICE_ROLE_KEY || process.env.SUPABASE_SINCERITY_STUDIOS_SERVICE_ROLE_KEY;
+
+  if (!baseUrl || !key) {
+    return fallbackEkatorAssetSnapshot;
+  }
+
+  try {
+    const encodedClientId = encodeURIComponent(EKATOR_CLIENT_ID);
+    const [items, performance] = await Promise.all([
+      supabaseFetch<SupabaseRow[]>(baseUrl, key, `/rest/v1/cc_items?select=*&client_id=eq.${encodedClientId}&limit=200`),
+      supabaseFetch<SupabaseRow[]>(baseUrl, key, `/rest/v1/cc_performance?select=*&order=captured_at.desc&limit=200`),
+    ]);
+
+    // Build a map of latest performance per item_id
+    const perfByItem = new Map<string, SupabaseRow>();
+    for (const row of performance) {
+      const itemId = asString(row.item_id);
+      if (itemId && !perfByItem.has(itemId)) {
+        perfByItem.set(itemId, row); // first occurrence = latest (ordered desc)
+      }
+    }
+
+    const assets: EkatorAsset[] = items.map((item) => {
+      const itemId = asString(item.item_id);
+      const perf = perfByItem.get(itemId);
+      return {
+        itemId,
+        platform: asString(item.platform, 'unknown') as EkatorAsset['platform'],
+        handle: asString(item.handle, 'unknown'),
+        caption: asString(item.caption, 'Untitled'),
+        sourceUrl: typeof item.source_url === 'string' ? item.source_url : null,
+        isOwned: asBoolean(item.is_owned),
+        postDate: typeof item.post_date === 'string' ? item.post_date : null,
+        status: asString(item.status, 'unknown'),
+        views: perf ? asNumber(perf.views) : null,
+        likes: perf ? asNumber(perf.likes) : null,
+        comments: perf ? asNumber(perf.comments) : null,
+        shares: perf ? asNumber(perf.shares) : null,
+        engagementRate: perf ? asNumber(perf.engagement_rate) : null,
+      };
+    });
+
+    return { status: 'live', assets };
+  } catch {
+    return fallbackEkatorAssetSnapshot;
+  }
+}
+
+export async function getEkatorMetricsSnapshot(): Promise<EkatorMetricsSnapshot> {
+  const baseUrl = process.env.SUPABASE_EKATOR_URL || process.env.SUPABASE_SINCERITY_STUDIOS_URL;
+  const key = process.env.SUPABASE_EKATOR_SERVICE_ROLE_KEY || process.env.SUPABASE_SINCERITY_STUDIOS_SERVICE_ROLE_KEY;
+
+  if (!baseUrl || !key) {
+    return fallbackEkatorMetricsSnapshot;
+  }
+
+  try {
+    const assetSnap = await getEkatorAssetSnapshot();
+    const assets = assetSnap.assets;
+
+    // Group by platform
+    const platformMap = new Map<string, { audience: number; posts: number; views: number; engagementSum: number; engagementCount: number }>();
+
+    for (const asset of assets) {
+      const p = asset.platform;
+      if (!platformMap.has(p)) {
+        platformMap.set(p, { audience: 0, posts: 0, views: 0, engagementSum: 0, engagementCount: 0 });
+      }
+      const entry = platformMap.get(p)!;
+      entry.posts += 1;
+      if (asset.views !== null) entry.views += asset.views;
+      if (asset.engagementRate !== null) {
+        entry.engagementSum += asset.engagementRate;
+        entry.engagementCount += 1;
+      }
+    }
+
+    const channels: EkatorChannelMetrics[] = Array.from(platformMap.entries()).map(([platform, data]) => ({
+      platform,
+      audience: data.audience,
+      posts: data.posts,
+      views: data.views > 0 ? data.views : null,
+      engagementRate: data.engagementCount > 0 ? data.engagementSum / data.engagementCount : null,
+    }));
+
+    return {
+      status: 'live',
+      channels,
+      totalViews: channels.reduce((sum, ch) => sum + (ch.views ?? 0), 0),
+      totalAudience: channels.reduce((sum, ch) => sum + ch.audience, 0),
+    };
+  } catch {
+    return fallbackEkatorMetricsSnapshot;
+  }
+}
+
+export type EkatorFullSnapshot = {
+  registry: EkatorRegistrySnapshot;
+  assets: EkatorAssetSnapshot;
+};
+
+export async function getEkatorFullSnapshot(): Promise<EkatorFullSnapshot> {
+  const [registry, assets] = await Promise.all([
+    getEkatorRegistrySnapshot(),
+    getEkatorAssetSnapshot(),
+  ]);
+  return { registry, assets };
 }

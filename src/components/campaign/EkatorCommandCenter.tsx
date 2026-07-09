@@ -2,7 +2,7 @@
 
 import { useMemo, useRef, useState, useCallback } from 'react';
 import { motion, useScroll, useSpring } from 'framer-motion';
-import type { EkatorRegistrySnapshot } from '@/lib/ekator-dashboard';
+import type { EkatorRegistrySnapshot, EkatorAssetSnapshot, EkatorAsset } from '@/lib/ekator-dashboard';
 
 /* ── DATA ─────────────────────────────────────────────────────────── */
 
@@ -604,128 +604,214 @@ function ChannelTable() {
   );
 }
 
-/** Asset board — sortable + filterable ranked list with inline bars */
-function AssetBoard() {
-  const max = Math.max(...videos.map(v => v.views));
-  const [filter, setFilter] = useState<'All' | 'Longform' | 'Teaser' | 'Short'>('All');
-  const [sort, setSort] = useState<'views-desc' | 'views-asc' | 'date-desc' | 'date-asc' | 'velocity-desc'>('views-desc');
+/** Video shadowbox — embeds YouTube iframe or plays raw mp4 */
+function AssetShadowbox({ asset, onClose }: { asset: EkatorAsset; onClose: () => void }) {
+  const isYouTube = asset.sourceUrl?.includes('youtu.be') || asset.sourceUrl?.includes('youtube.com');
+  const isMp4 = asset.sourceUrl?.endsWith('.mp4');
 
-  const filterButtons: ('All' | 'Longform' | 'Teaser' | 'Short')[] = ['All', 'Longform', 'Teaser', 'Short'];
+  // Convert youtu.be/VIDEOID to embed URL
+  const embedUrl = isYouTube && asset.sourceUrl
+    ? asset.sourceUrl.replace('youtu.be/', 'youtube.com/embed/').replace('watch?v=', 'embed/')
+    : null;
+
+  return (
+    <div
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/85 p-4"
+      style={{ animation: 'fadeIn 0.15s ease' }}
+      onClick={onClose}
+    >
+      <div
+        className="w-full max-w-3xl overflow-hidden rounded-xl border"
+        style={{ borderColor: line, background: '#0E0E0E' }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="flex items-start justify-between gap-4 border-b px-5 py-4" style={{ borderColor: line }}>
+          <div className="min-w-0">
+            <div className="flex items-center gap-2">
+              <span className="rounded-sm px-2 py-0.5 font-mono text-[10px] font-bold uppercase" style={{ color: red, border: `1px solid ${red}` }}>{asset.platform}</span>
+              <span className="font-mono text-[10px] text-muted">{asset.handle}</span>
+            </div>
+            <div className="mt-1.5 text-sm font-bold text-white">{asset.caption}</div>
+          </div>
+          <button
+            onClick={onClose}
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border text-lg text-muted transition-colors hover:bg-[#1A1A1A]"
+            style={{ borderColor: line }}
+          >
+            ✕
+          </button>
+        </div>
+
+        {/* Video embed */}
+        <div className="aspect-video w-full bg-black">
+          {embedUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <iframe
+              src={embedUrl}
+              className="h-full w-full"
+              allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            />
+          ) : isMp4 && asset.sourceUrl ? (
+            <video
+              src={asset.sourceUrl}
+              className="h-full w-full"
+              controls
+              autoPlay
+            />
+          ) : (
+            <div className="flex h-full items-center justify-center font-mono text-sm text-muted">
+              No embed available
+            </div>
+          )}
+        </div>
+
+        {/* Stats */}
+        <div className="grid grid-cols-2 gap-px bg-[#1A1A1A] sm:grid-cols-4">
+          <div className="bg-[#0E0E0E] px-4 py-3">
+            <div className="text-[10px] uppercase tracking-wider text-muted">Views</div>
+            <div className="mt-0.5 font-mono text-lg font-bold text-white">{asset.views !== null ? compact(asset.views) : '—'}</div>
+          </div>
+          <div className="bg-[#0E0E0E] px-4 py-3">
+            <div className="text-[10px] uppercase tracking-wider text-muted">Likes</div>
+            <div className="mt-0.5 font-mono text-lg font-bold text-white">{asset.likes !== null ? compact(asset.likes) : '—'}</div>
+          </div>
+          <div className="bg-[#0E0E0E] px-4 py-3">
+            <div className="text-[10px] uppercase tracking-wider text-muted">Comments</div>
+            <div className="mt-0.5 font-mono text-lg font-bold text-white">{asset.comments !== null ? compact(asset.comments) : '—'}</div>
+          </div>
+          <div className="bg-[#0E0E0E] px-4 py-3">
+            <div className="text-[10px] uppercase tracking-wider text-muted">Engagement</div>
+            <div className="mt-0.5 font-mono text-lg font-bold" style={{ color: red }}>{asset.engagementRate !== null ? `${asset.engagementRate.toFixed(1)}%` : '—'}</div>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="border-t px-5 py-3 font-mono text-[10px] text-muted" style={{ borderColor: line }}>
+          {asset.sourceUrl ? (
+            <a href={asset.sourceUrl} target="_blank" rel="noopener noreferrer" className="hover:text-white" style={{ color: muted }}>
+              Open original ↗
+            </a>
+          ) : 'No source URL'}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** Asset board — dynamic, sortable, filterable, with shadowbox */
+function AssetBoard({ assets }: { assets: EkatorAssetSnapshot }) {
+  const [filter, setFilter] = useState<string>('All');
+  const [sort, setSort] = useState<'views-desc' | 'views-asc' | 'date-desc' | 'date-asc' | 'engagement-desc'>('views-desc');
+  const [selected, setSelected] = useState<EkatorAsset | null>(null);
+
+  const allAssets = assets.assets;
+  const platforms = ['All', ...Array.from(new Set(allAssets.map(a => a.platform)))];
   const sortOptions: { value: typeof sort; label: string }[] = [
     { value: 'views-desc', label: 'Views ↓' },
     { value: 'views-asc', label: 'Views ↑' },
     { value: 'date-desc', label: 'Date ↓' },
     { value: 'date-asc', label: 'Date ↑' },
-    { value: 'velocity-desc', label: 'Velocity ↓' },
+    { value: 'engagement-desc', label: 'Engagement ↓' },
   ];
 
-  const monthNum: Record<string, number> = { Jun: 5, Jul: 6 };
-  const pubDate = (pub: string) => {
-    const [m, d] = pub.split(' ');
-    return new Date(2026, monthNum[m] ?? 6, Number.parseInt(d, 10)).getTime();
-  };
-
-  const secondary = videos.slice(1);
-  const filtered = filter === 'All' ? secondary : secondary.filter(v => v.type === filter);
+  const filtered = filter === 'All' ? allAssets : allAssets.filter(a => a.platform === filter);
+  const maxViews = Math.max(1, ...filtered.map(a => a.views ?? 0));
   const sorted = [...filtered].sort((a, b) => {
+    const av = a.views ?? 0;
+    const bv = b.views ?? 0;
+    const ae = a.engagementRate ?? 0;
+    const be = b.engagementRate ?? 0;
+    const ad = a.postDate ? new Date(a.postDate).getTime() : 0;
+    const bd = b.postDate ? new Date(b.postDate).getTime() : 0;
     switch (sort) {
-      case 'views-desc': return b.views - a.views;
-      case 'views-asc': return a.views - b.views;
-      case 'date-desc': return pubDate(b.published) - pubDate(a.published);
-      case 'date-asc': return pubDate(a.published) - pubDate(b.published);
-      case 'velocity-desc': return (b.views / daysSince(b.published)) - (a.views / daysSince(a.published));
+      case 'views-desc': return bv - av;
+      case 'views-asc': return av - bv;
+      case 'date-desc': return bd - ad;
+      case 'date-asc': return ad - bd;
+      case 'engagement-desc': return be - ae;
       default: return 0;
     }
   });
 
   return (
-    <div className="mx-auto max-w-[1400px] px-4 md:px-6 lg:px-8">
-      <div className="overflow-hidden rounded-lg border" style={{ borderColor: line }}>
-        {/* EP1 hero row — always at top */}
-        <div className="border-b bg-[#140A0A] px-4 py-4" style={{ borderColor: line }}>
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="rounded-sm px-2 py-0.5 font-mono text-[10px] font-bold uppercase" style={{ color: red, border: `1px solid ${red}` }}>Anchor</span>
-                <span className="font-mono text-[10px] text-muted">Longform · {videos[0].duration} · {videos[0].published}</span>
-              </div>
-              <div className="mt-1.5 text-sm font-bold text-white">{videos[0].title}</div>
-              <p className="mt-1 text-xs leading-relaxed text-light">{videos[0].signal}</p>
-            </div>
-            <div className="text-right">
-              <div className="font-mono text-3xl font-black" style={{ color: red }}>{compact(videos[0].views)}</div>
-              <div className="font-mono text-[10px] text-muted">{((videos[0].views / youtubeTotalViews) * 100).toFixed(1)}% of all YT</div>
-            </div>
-          </div>
-          <div className="mt-3 h-2 overflow-hidden rounded-full bg-[#161616]">
-            <div className="h-full rounded-full" style={{ width: '83.3%', background: red }} />
-          </div>
-          <p className="mt-2 text-xs leading-snug text-light"><span className="font-bold" style={{ color: red }}>Move: </span>{videos[0].action}</p>
-        </div>
-
-        {/* Filter + Sort controls */}
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b px-4 py-3" style={{ borderColor: line, background: '#141414' }}>
-          <div className="flex flex-wrap gap-1.5">
-            {filterButtons.map(fb => (
-              <button
-                key={fb}
-                onClick={() => setFilter(fb)}
-                className="rounded-md px-3 py-1.5 font-mono text-[11px] font-bold uppercase tracking-wider transition-all"
-                style={{
-                  background: filter === fb ? red : 'transparent',
-                  color: filter === fb ? white : muted,
-                  border: `1px solid ${filter === fb ? red : line}`,
-                }}
-              >
-                {fb}
-              </button>
-            ))}
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="font-mono text-[10px] uppercase tracking-wider text-muted">Sort</span>
-            <select
-              value={sort}
-              onChange={(e) => setSort(e.target.value as typeof sort)}
-              className="rounded-md border bg-[#0E0E0E] px-3 py-1.5 font-mono text-[11px] text-white outline-none"
-              style={{ borderColor: line }}
-            >
-              {sortOptions.map(opt => (
-                <option key={opt.value} value={opt.value}>{opt.label}</option>
+    <>
+      <div className="mx-auto max-w-[1400px] px-4 md:px-6 lg:px-8">
+        <div className="overflow-hidden rounded-lg border" style={{ borderColor: line }}>
+          {/* Filter + Sort controls */}
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b px-4 py-3" style={{ borderColor: line, background: '#141414' }}>
+            <div className="flex flex-wrap gap-1.5">
+              {platforms.map(fb => (
+                <button
+                  key={fb}
+                  onClick={() => setFilter(fb)}
+                  className="rounded-md px-3 py-1.5 font-mono text-[11px] font-bold uppercase tracking-wider transition-all"
+                  style={{
+                    background: filter === fb ? red : 'transparent',
+                    color: filter === fb ? white : muted,
+                    border: `1px solid ${filter === fb ? red : line}`,
+                  }}
+                >
+                  {fb}
+                </button>
               ))}
-            </select>
-          </div>
-        </div>
-
-        {/* Sorted/filtered secondary videos */}
-        <div className="divide-y" style={{ borderColor: line }}>
-          {sorted.map(v => {
-            const vel = v.views / daysSince(v.published);
-            return (
-              <div
-                key={v.title}
-                className="grid grid-cols-[2.5fr_0.8fr_0.8fr_1fr] cursor-pointer items-center gap-3 px-4 py-3 transition-colors hover:bg-[#141414]"
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="font-mono text-[10px] uppercase tracking-wider text-muted">Sort</span>
+              <select
+                value={sort}
+                onChange={(e) => setSort(e.target.value as typeof sort)}
+                className="rounded-md border bg-[#0E0E0E] px-3 py-1.5 font-mono text-[11px] text-white outline-none"
+                style={{ borderColor: line }}
               >
-                <div>
-                  <div className="text-xs font-semibold leading-tight text-white">{v.title}</div>
-                  <div className="mt-0.5 font-mono text-[10px] text-muted">{v.type} · {v.duration} · {v.published} · {daysSince(v.published)}d live</div>
-                </div>
-                <div className="text-right">
-                  <div className="font-mono text-lg font-bold text-white">{compact(v.views)}</div>
-                  <div className="h-1 mt-0.5 overflow-hidden rounded-full bg-[#161616]">
-                    <div className="h-full rounded-full" style={{ width: `${(v.views / max) * 100}%`, background: v.type === 'Teaser' ? '#B03030' : '#7A2A2A' }} />
+                {sortOptions.map(opt => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {/* Asset rows */}
+          <div className="divide-y" style={{ borderColor: line }}>
+            {sorted.map(asset => {
+              const views = asset.views ?? 0;
+              const engagement = asset.engagementRate;
+              return (
+                <div
+                  key={asset.itemId}
+                  onClick={() => setSelected(asset)}
+                  className="grid cursor-pointer grid-cols-[2.5fr_1fr_1fr_0.8fr] items-center gap-3 px-4 py-3 transition-colors hover:bg-[#141414]"
+                >
+                  <div className="min-w-0">
+                    <div className="truncate text-xs font-semibold text-white">{asset.caption}</div>
+                    <div className="mt-0.5 font-mono text-[10px] text-muted">{asset.platform} · {asset.handle}{asset.postDate ? ` · ${asset.postDate}` : ''}</div>
+                  </div>
+                  <div className="text-right">
+                    <div className="font-mono text-lg font-bold text-white">{views > 0 ? compact(views) : '—'}</div>
+                    <div className="mt-0.5 h-1 overflow-hidden rounded-full bg-[#161616]">
+                      <div className="h-full rounded-full" style={{ width: `${(views / maxViews) * 100}%`, background: asset.platform === 'youtube' ? red : '#7A2A2A' }} />
+                    </div>
+                  </div>
+                  <div className="text-right font-mono text-sm font-bold" style={{ color: engagement !== null ? white : muted }}>
+                    {engagement !== null ? `${engagement.toFixed(1)}%` : '—'}
+                  </div>
+                  <div className="text-right">
+                    <span className="rounded-sm px-2 py-0.5 font-mono text-[10px] font-bold uppercase" style={{ color: red, border: `1px solid ${red}` }}>Play</span>
                   </div>
                 </div>
-                <div className="text-right font-mono text-xs" style={{ color: muted }}>{compact(Math.round(vel))}/day</div>
-                <div className="text-right text-[10px] leading-tight text-muted">{v.action.slice(0, 40)}{v.action.length > 40 ? '…' : ''}</div>
+              );
+            })}
+            {sorted.length === 0 && (
+              <div className="px-4 py-12 text-center font-mono text-sm text-muted">
+                {allAssets.length === 0 ? 'No assets indexed yet. Run Refresh Now to collect.' : 'No assets match this filter.'}
               </div>
-            );
-          })}
-          {sorted.length === 0 && (
-            <div className="px-4 py-8 text-center font-mono text-sm text-muted">No assets match this filter.</div>
-          )}
+            )}
+          </div>
         </div>
       </div>
-    </div>
+      {selected && <AssetShadowbox asset={selected} onClose={() => setSelected(null)} />}
+    </>
   );
 }
 
@@ -914,7 +1000,7 @@ function MovesTimeline() {
 
 /* ── MAIN COMPONENT ────────────────────────────────────────────────── */
 
-export function EkatorCommandCenter({ registry }: { registry: EkatorRegistrySnapshot }) {
+export function EkatorCommandCenter({ registry, assets }: { registry: EkatorRegistrySnapshot; assets: EkatorAssetSnapshot }) {
   const heroRef = useRef<HTMLDivElement | null>(null);
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, { stiffness: 120, damping: 30, restDelta: 0.001 });
@@ -959,7 +1045,7 @@ export function EkatorCommandCenter({ registry }: { registry: EkatorRegistrySnap
 
       <section id="assets" className="py-12 md:py-16">
         <SectionHeader num="02" title="Asset Performance" subtitle="Where attention is concentrated and which assets to cut, mirror, or hold." />
-        <AssetBoard />
+        <AssetBoard assets={assets} />
       </section>
 
       <div className="mx-auto h-px max-w-[1400px]" style={{ background: line }} />
