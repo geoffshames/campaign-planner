@@ -66,6 +66,11 @@ RENDERED_ONLY_FORBIDDEN = [
 # Minimal public-facing anchors expected on both routes.
 REQUIRED = [
     "EKATOR SOCIAL DASHBOARD",
+    "EKATOR COMMAND CENTER",
+    "72-hour queue",
+    "Channel pulse",
+    "Asset pulse",
+    "Live read map",
     "Owned-channel health",
     "Official video signal board",
     "Actionable insights",
