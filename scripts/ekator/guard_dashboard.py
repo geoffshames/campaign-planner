@@ -70,7 +70,7 @@ REQUIRED = [
     "Official video signal board",
     "Actionable insights",
     "The next reads for the dashboard",
-    "Ranked next moves",
+    "Ranked moves for the next 72 hours",
     "Paid media",
     "Not live yet",
 ]
