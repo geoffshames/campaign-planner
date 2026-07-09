@@ -127,32 +127,83 @@ function statusLabel(s: string) {
   return 'Quiet';
 }
 
-/** Radial gauge — semicircle arc with value in center */
-function RadialGauge({ value, max, label, sublabel, color = red }: { value: number; max: number; label: string; sublabel: string; color?: string }) {
-  const pct = Math.max(0, Math.min(1, max ? value / max : 0));
-  const degrees = 180 * pct;
-  const r = 70;
-  const cx = 90;
-  const cy = 90;
-  const circumference = Math.PI * r;
+/** EP1 Gravity — big number + proportion bar showing EP1 share of all YT views */
+function Ep1GravityCard() {
+  const ep1Pct = (longformViews / youtubeTotalViews) * 100;
+  const restPct = 100 - ep1Pct;
   return (
-    <div className="flex flex-col items-center">
-      <svg viewBox="0 0 180 110" className="w-full max-w-[200px]">
-        <path d={`M 20 90 A ${r} ${r} 0 0 1 160 90`} fill="none" stroke={dim} strokeWidth="10" strokeLinecap="round" />
-        <path
-          d={`M 20 90 A ${r} ${r} 0 0 1 160 90`}
-          fill="none"
-          stroke={color}
-          strokeWidth="10"
-          strokeLinecap="round"
-          strokeDasharray={circumference}
-          strokeDashoffset={circumference * (1 - pct)}
-          style={{ transition: 'stroke-dashoffset 0.8s ease' }}
-        />
-        <text x={cx} y={cy - 4} textAnchor="middle" fontSize="28" fontWeight="800" fill={white} fontFamily="monospace">{label}</text>
-        <text x={cx} y={cy + 16} textAnchor="middle" fontSize="9" fill={muted} letterSpacing="2">{sublabel.toUpperCase()}</text>
-      </svg>
-      <div className="-mt-1 text-[10px] uppercase tracking-[0.2em]" style={{ color }}>{degrees.toFixed(0)}° of pull</div>
+    <div className="flex h-full flex-col justify-center gap-3">
+      {/* Big number */}
+      <div>
+        <div className="font-mono text-5xl font-black leading-none" style={{ color: red }}>{ep1Pct.toFixed(0)}%</div>
+        <div className="mt-1.5 text-xs text-light">of all YouTube views come from EP1 alone</div>
+      </div>
+      {/* Proportion bar — EP1 vs everything else */}
+      <div>
+        <div className="flex h-6 overflow-hidden rounded-md">
+          <div className="flex items-center justify-center" style={{ width: `${ep1Pct}%`, background: red }}>
+            <span className="font-mono text-[10px] font-bold text-white">EP1</span>
+          </div>
+          <div className="flex items-center justify-center" style={{ width: `${restPct}%`, background: '#2A2A2A' }}>
+            <span className="font-mono text-[10px] font-bold text-muted">All other videos</span>
+          </div>
+        </div>
+        {/* Legend */}
+        <div className="mt-2 flex items-center justify-between text-[10px]">
+          <div className="flex items-center gap-1.5">
+            <span className="h-2 w-2 rounded-full" style={{ background: red }} />
+            <span className="font-mono text-light">EP1 · {compact(longformViews)} views</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="h-2 w-2 rounded-full" style={{ background: '#2A2A2A' }} />
+            <span className="font-mono text-muted">{compact(youtubeTotalViews - longformViews)} views</span>
+          </div>
+        </div>
+      </div>
+      {/* One-liner */}
+      <div className="text-xs leading-relaxed text-muted">
+        One video is carrying the entire channel. Cut it into clips before adding anything new.
+      </div>
+    </div>
+  );
+}
+
+/** View Concentration — stacked bar showing where views actually are by format */
+function ViewConcentrationCard() {
+  const segments = [
+    { label: 'EP1 (longform)', value: longformViews, color: red, pct: (longformViews / youtubeTotalViews) * 100 },
+    { label: 'Teaser', value: teaserViews, color: '#B03030', pct: (teaserViews / youtubeTotalViews) * 100 },
+    { label: 'Shorts (7 clips)', value: shortsViews, color: '#7A2A2A', pct: (shortsViews / youtubeTotalViews) * 100 },
+  ];
+  return (
+    <div className="flex h-full flex-col justify-center gap-3">
+      {/* Single stacked bar */}
+      <div className="flex h-7 overflow-hidden rounded-md">
+        {segments.map(seg => (
+          <div
+            key={seg.label}
+            className="flex items-center justify-center"
+            style={{ width: `${seg.pct}%`, background: seg.color }}
+          >
+            {seg.pct > 8 && <span className="font-mono text-[10px] font-bold text-white">{seg.pct.toFixed(0)}%</span>}
+          </div>
+        ))}
+      </div>
+      {/* Legend rows */}
+      <div className="space-y-1.5">
+        {segments.map(seg => (
+          <div key={seg.label} className="flex items-center gap-2">
+            <span className="h-2.5 w-2.5 shrink-0 rounded-sm" style={{ background: seg.color }} />
+            <span className="flex-1 text-xs text-light">{seg.label}</span>
+            <span className="font-mono text-xs font-bold text-white">{compact(seg.value)}</span>
+            <span className="font-mono text-[10px] text-muted w-10 text-right">{seg.pct.toFixed(1)}%</span>
+          </div>
+        ))}
+      </div>
+      {/* One-liner */}
+      <div className="border-t pt-2 text-xs leading-relaxed" style={{ borderColor: line, color: red }}>
+        <span className="font-bold">Gap: </span>TikTok has 0 views. Shorts are only 5%. The story is working — distribution isn&apos;t.
+      </div>
     </div>
   );
 }
@@ -178,33 +229,6 @@ function PriorityTimeline() {
           </div>
         </div>
       ))}
-    </div>
-  );
-}
-
-/** Distribution gap — stacked horizontal bars showing where attention is vs where it isn't */
-function DistributionGap() {
-  const rows = [
-    { label: 'Longform (EP1)', value: longformViews, color: red },
-    { label: 'Teaser', value: teaserViews, color: '#B03030' },
-    { label: 'Shorts', value: shortsViews, color: '#7A2A2A' },
-    { label: 'TikTok', value: 0, color: dim },
-  ];
-  const max = longformViews;
-  return (
-    <div className="space-y-2">
-      {rows.map(row => (
-        <div key={row.label} className="flex items-center gap-3">
-          <div className="w-24 shrink-0 text-xs font-semibold text-light">{row.label}</div>
-          <div className="h-4 flex-1 overflow-hidden rounded-sm bg-[#161616]">
-            <div className="h-full rounded-sm transition-all duration-700" style={{ width: `${Math.max(row.value > 0 ? 2 : 0, (row.value / max) * 100)}%`, background: row.color }} />
-          </div>
-          <div className="w-14 shrink-0 text-right font-mono text-sm" style={{ color: row.value > 0 ? white : muted }}>{row.value > 0 ? compact(row.value) : '—'}</div>
-        </div>
-      ))}
-      <div className="pt-1 text-xs leading-relaxed" style={{ color: red }}>
-        <span className="font-bold">Read: </span>Demand is real. Distribution is the bottleneck, not the story.
-      </div>
     </div>
   );
 }
@@ -393,19 +417,19 @@ function CommandCenter({ registry }: { registry: EkatorRegistrySnapshot }) {
 
       {/* Main 3-column grid */}
       <div className="mb-3 grid gap-3 lg:grid-cols-[0.8fr_1.2fr_1fr]">
-        {/* Radial gauge */}
-        <div className="rounded-lg border p-4" style={{ borderColor: line, background: '#0E0E0E' }}>
-          <div className="mb-2 text-[10px] uppercase tracking-[0.2em]" style={{ color: red }}>EP1 Gravity</div>
-          <RadialGauge value={83.3} max={100} label="83%" sublabel="of YT views" />
+        {/* EP1 Gravity */}
+        <div className="rounded-lg border p-5" style={{ borderColor: line, background: '#0E0E0E' }}>
+          <div className="mb-3 text-[10px] uppercase tracking-[0.2em]" style={{ color: red }}>EP1 Gravity</div>
+          <Ep1GravityCard />
         </div>
 
-        {/* Distribution gap */}
-        <div className="rounded-lg border p-4" style={{ borderColor: line, background: '#0E0E0E' }}>
+        {/* View Concentration */}
+        <div className="rounded-lg border p-5" style={{ borderColor: line, background: '#0E0E0E' }}>
           <div className="mb-3 flex items-center justify-between">
-            <div className="text-[10px] uppercase tracking-[0.2em]" style={{ color: red }}>Distribution Gap</div>
-            <div className="font-mono text-xs text-muted">views by format</div>
+            <div className="text-[10px] uppercase tracking-[0.2em]" style={{ color: red }}>View Concentration</div>
+            <div className="font-mono text-xs text-muted">where views are by format</div>
           </div>
-          <DistributionGap />
+          <ViewConcentrationCard />
         </div>
 
         {/* Priority queue */}

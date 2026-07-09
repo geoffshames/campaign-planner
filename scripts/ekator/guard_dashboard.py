@@ -69,7 +69,7 @@ REQUIRED = [
     "EKATOR COMMAND CENTER",
     "72-Hour Queue",
     "Channel Pulse",
-    "Distribution Gap",
+    "View Concentration",
     "EP1 Gravity",
     "Owned Channels",
     "Asset Performance",
