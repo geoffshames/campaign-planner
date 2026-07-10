@@ -1,32 +1,9 @@
-export type EkatorRegistryItem = {
-  caption: string;
-  platform: string;
-  handle: string;
-  status: string;
-};
-
-export type EkatorRegistryHandle = {
-  displayName: string;
-  handle?: string | null;
-  platforms: string;
-  kind: string;
-  notes?: string | null;
-};
-
 export type EkatorRegistrySnapshot = {
   status: 'live' | 'pending';
-  itemsCount: number;
-  readyItemsCount: number;
-  ownedItemsCount: number;
-  streetEvalItemsCount: number;
   monitoredHandlesCount: number;
-  activeMonitoredHandlesCount: number;
   seedingNetworkCount: number;
   snsViralCount: number;
   officialHandleCount: number;
-  responseCount: number;
-  recentItems: EkatorRegistryItem[];
-  topHandles: EkatorRegistryHandle[];
 };
 
 export type EkatorAsset = {
@@ -76,24 +53,10 @@ const EKATOR_CLIENT_ID = '1159a218-5c5b-4373-8fb4-c7365bb81f4e';
 
 export const fallbackEkatorRegistrySnapshot: EkatorRegistrySnapshot = {
   status: 'pending',
-  itemsCount: 16,
-  readyItemsCount: 16,
-  ownedItemsCount: 16,
-  streetEvalItemsCount: 15,
-  monitoredHandlesCount: 30,
-  activeMonitoredHandlesCount: 30,
-  seedingNetworkCount: 24,
-  snsViralCount: 6,
-  officialHandleCount: 2,
-  responseCount: 1,
-  recentItems: [
-    { caption: 'Idol Till I Die EP1', platform: 'youtube', handle: 'Idol Till I Die', status: 'ready' },
-  ],
-  topHandles: [
-    { displayName: '@ekatormatthew', handle: 'ekatormatthew', platforms: 'TT', kind: 'sns-viral', notes: 'Matthew fan signal' },
-    { displayName: '@ekator.lukas', handle: 'ekator.lukas', platforms: 'TT', kind: 'sns-viral', notes: 'Lukas fan signal' },
-    { displayName: '@idoltillidie', handle: 'idoltillidie', platforms: 'IG,YTB,TT', kind: 'official', notes: 'Official account' },
-  ],
+  monitoredHandlesCount: 0,
+  seedingNetworkCount: 0,
+  snsViralCount: 0,
+  officialHandleCount: 0,
 };
 
 export const fallbackEkatorAssetSnapshot: EkatorAssetSnapshot = {
@@ -216,62 +179,32 @@ export async function getEkatorRegistrySnapshot(): Promise<EkatorRegistrySnapsho
   }
 
   try {
-    const clients = await supabaseFetch<SupabaseRow[]>(baseUrl, key, '/rest/v1/cc_clients?select=*&slug=eq.ekator&limit=1');
+    const clients = await supabaseFetch<SupabaseRow[]>(baseUrl, key, '/rest/v1/cc_clients?select=client_id&slug=eq.ekator&limit=1');
     const client = clients[0];
     const clientId = asString(client?.client_id, EKATOR_CLIENT_ID);
     const encodedClientId = encodeURIComponent(clientId);
 
-    const [items, handles, responses] = await Promise.all([
-      supabaseFetch<SupabaseRow[]>(baseUrl, key, `/rest/v1/cc_items?select=*&client_id=eq.${encodedClientId}&limit=200`),
-      supabaseFetch<SupabaseRow[]>(baseUrl, key, `/rest/v1/cc_monitored_handles?select=*&client_id=eq.${encodedClientId}&limit=200`),
-      supabaseFetch<SupabaseRow[]>(baseUrl, key, `/rest/v1/cc_responses?select=*&client_id=eq.${encodedClientId}&limit=50`),
-    ]);
-
-    const activeHandles = handles.filter((handle) => asBoolean(handle.active));
-    const readyItems = items.filter((item) => asString(item.status).toLowerCase() === 'ready');
-    const ownedItems = items.filter((item) => asBoolean(item.is_owned));
-    const streetEvalItems = items.filter((item) => asString(item.platform).toLowerCase() === 'street-eval');
-    const normalizedHandles = handles.map((handle) => ({
-      displayName: asString(handle.display_name, asString(handle.handle, 'unknown')),
-      handle: typeof handle.handle === 'string' ? handle.handle : null,
-      platforms: asString(handle.platforms, '—'),
-      kind: asString(handle.kind, 'unknown'),
-      notes: typeof handle.notes === 'string' ? handle.notes : null,
-    }));
-
-    const officialHandles = normalizedHandles.filter((handle) => handle.kind.toLowerCase().includes('official'));
-    const snsViral = normalizedHandles.filter((handle) => handle.kind.toLowerCase().includes('viral'));
-    const seeding = normalizedHandles.filter((handle) => handle.kind.toLowerCase().includes('seeding'));
+    const handles = await supabaseFetch<SupabaseRow[]>(
+      baseUrl,
+      key,
+      `/rest/v1/cc_monitored_handles?select=kind&client_id=eq.${encodedClientId}&limit=200`,
+    );
+    const officialHandles = handles.filter((handle) => asString(handle.kind).toLowerCase().includes('official'));
+    const snsViral = handles.filter((handle) => asString(handle.kind).toLowerCase().includes('viral'));
+    const seeding = handles.filter((handle) => asString(handle.kind).toLowerCase().includes('seeding'));
 
     return {
       status: 'live',
-      itemsCount: items.length,
-      readyItemsCount: readyItems.length,
-      ownedItemsCount: ownedItems.length,
-      streetEvalItemsCount: streetEvalItems.length,
       monitoredHandlesCount: handles.length,
-      activeMonitoredHandlesCount: activeHandles.length,
       seedingNetworkCount: seeding.length,
       snsViralCount: snsViral.length,
       officialHandleCount: officialHandles.length,
-      responseCount: responses.length,
-      recentItems: items
-        .filter((item) => asString(item.platform).toLowerCase() !== 'street-eval')
-        .slice(0, 5)
-        .map((item) => ({
-          caption: asString(item.caption, 'Untitled asset'),
-          platform: asString(item.platform, 'unknown'),
-          handle: asString(item.handle, 'unknown'),
-          status: asString(item.status, 'unknown'),
-        })),
-      topHandles: [
-        ...officialHandles,
-        ...snsViral,
-        ...seeding,
-        ...normalizedHandles,
-      ].slice(0, 8),
     };
-  } catch {
+  } catch (error) {
+    console.error(
+      '[ekator-dashboard] Registry snapshot unavailable:',
+      error instanceof Error ? error.message : 'Unknown error',
+    );
     return fallbackEkatorRegistrySnapshot;
   }
 }
@@ -285,20 +218,37 @@ export async function getEkatorAssetSnapshot(): Promise<EkatorAssetSnapshot> {
   }
 
   try {
-    const encodedClientId = encodeURIComponent(EKATOR_CLIENT_ID);
-    // Preserve the asset inventory even if the performance endpoint is unavailable.
-    // A downstream metrics failure must never make the whole section look empty.
-    const [itemsResult, performanceResult] = await Promise.allSettled([
-      supabaseFetch<SupabaseRow[]>(baseUrl, key, `/rest/v1/cc_items?select=*&client_id=eq.${encodedClientId}&limit=200`),
-      supabaseFetch<SupabaseRow[]>(baseUrl, key, `/rest/v1/cc_performance?select=*&order=captured_at.desc&limit=200`),
-    ]);
+    const clients = await supabaseFetch<SupabaseRow[]>(baseUrl, key, '/rest/v1/cc_clients?select=client_id&slug=eq.ekator&limit=1');
+    const clientId = asString(clients[0]?.client_id, EKATOR_CLIENT_ID);
+    const encodedClientId = encodeURIComponent(clientId);
+    const items = await supabaseFetch<SupabaseRow[]>(baseUrl, key, `/rest/v1/cc_items?select=*&client_id=eq.${encodedClientId}&limit=200`);
 
-    if (itemsResult.status === 'rejected') {
-      return fallbackEkatorAssetSnapshot;
+    const publishedItems = items.flatMap((item) => {
+      const publication = ownedPublication(item);
+      return publication ? [{ item, publication }] : [];
+    });
+    const publishedItemIds = publishedItems
+      .map(({ item }) => asString(item.item_id))
+      .filter((itemId) => /^[A-Za-z0-9_-]{1,128}$/.test(itemId));
+
+    // Preserve valid publication inventory if performance enrichment is unavailable.
+    // Scope the read to this ledger so unrelated rows can never exhaust the result cap.
+    let performance: SupabaseRow[] = [];
+    if (publishedItemIds.length > 0) {
+      const itemIdFilter = publishedItemIds.map(encodeURIComponent).join(',');
+      try {
+        performance = await supabaseFetch<SupabaseRow[]>(
+          baseUrl,
+          key,
+          `/rest/v1/cc_performance?select=*&item_id=in.(${itemIdFilter})&order=captured_at.desc&limit=500`,
+        );
+      } catch (error) {
+        console.error(
+          '[ekator-dashboard] Performance enrichment unavailable:',
+          error instanceof Error ? error.message : 'Unknown error',
+        );
+      }
     }
-
-    const items = itemsResult.value;
-    const performance = performanceResult.status === 'fulfilled' ? performanceResult.value : [];
 
     // Build a map of latest performance per item_id
     const perfByItem = new Map<string, SupabaseRow>();
@@ -308,11 +258,6 @@ export async function getEkatorAssetSnapshot(): Promise<EkatorAssetSnapshot> {
         perfByItem.set(itemId, row); // first occurrence = latest (ordered desc)
       }
     }
-
-    const publishedItems = items.flatMap((item) => {
-      const publication = ownedPublication(item);
-      return publication ? [{ item, publication }] : [];
-    });
 
     const assets: EkatorAsset[] = publishedItems.map(({ item, publication }) => {
       const itemId = asString(item.item_id);
@@ -342,7 +287,11 @@ export async function getEkatorAssetSnapshot(): Promise<EkatorAssetSnapshot> {
       awaitingMetricsCount: assets.filter((asset) => asset.views === null).length,
       publishedCount: assets.length,
     };
-  } catch {
+  } catch (error) {
+    console.error(
+      '[ekator-dashboard] Publication inventory unavailable:',
+      error instanceof Error ? error.message : 'Unknown error',
+    );
     return fallbackEkatorAssetSnapshot;
   }
 }
@@ -390,7 +339,11 @@ export async function getEkatorMetricsSnapshot(): Promise<EkatorMetricsSnapshot>
       totalViews: channels.reduce((sum, ch) => sum + (ch.views ?? 0), 0),
       totalAudience: channels.reduce((sum, ch) => sum + ch.audience, 0),
     };
-  } catch {
+  } catch (error) {
+    console.error(
+      '[ekator-dashboard] Aggregate metrics unavailable:',
+      error instanceof Error ? error.message : 'Unknown error',
+    );
     return fallbackEkatorMetricsSnapshot;
   }
 }

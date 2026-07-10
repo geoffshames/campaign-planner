@@ -11,17 +11,12 @@ import type { EkatorRegistrySnapshot, EkatorAssetSnapshot, EkatorAsset } from '@
 /* ── DATA ─────────────────────────────────────────────────────────── */
 
 const red = '#FD3737';
-const dim = '#1C1C1C';
 const line = '#2A2A2A';
-const muted = '#7A7A82';
+const muted = '#A0A0AA';
 const light = '#E4E4E9';
 const white = '#FAFAFA';
 
-const youtubeTotalViews = 136_552;
 const ownedAudience = 78_680;
-const shortsViews = 7_309;
-const longformViews = 113_809;
-const teaserViews = 15_434;
 
 type Channel = {
   name: string;
@@ -39,6 +34,7 @@ type Channel = {
 
 type Insight = { label: string; stat: string; read: string; action: string; tone: 'strong' | 'watch' | 'risk' };
 type DashboardMetrics = {
+  hasMeasuredPerformance: boolean;
   youtubeTotalViews: number;
   longformViews: number;
   teaserViews: number;
@@ -54,15 +50,16 @@ function deriveDashboardMetrics(snapshot: EkatorAssetSnapshot): DashboardMetrics
   const published = snapshot.assets.filter((asset) => asset.platform === 'youtube' && asset.views !== null);
   if (published.length === 0) {
     return {
-      youtubeTotalViews,
-      longformViews,
-      teaserViews,
-      shortsViews,
-      shortsCount: 7,
-      videoCount: 9,
-      youtubeEngagement: 3.8,
-      teaserDetected: true,
-      readLabel: 'Jul 8, 2026',
+      hasMeasuredPerformance: false,
+      youtubeTotalViews: 0,
+      longformViews: 0,
+      teaserViews: 0,
+      shortsViews: 0,
+      shortsCount: 0,
+      videoCount: 0,
+      youtubeEngagement: null,
+      teaserDetected: false,
+      readLabel: 'Data pending',
     };
   }
 
@@ -89,6 +86,7 @@ function deriveDashboardMetrics(snapshot: EkatorAssetSnapshot): DashboardMetrics
     : 'Live snapshot';
 
   return {
+    hasMeasuredPerformance: true,
     youtubeTotalViews: totalViews,
     longformViews: ep1?.views ?? 0,
     teaserViews: teaser?.views ?? 0,
@@ -108,7 +106,7 @@ function buildChannels(metrics: DashboardMetrics): Channel[] {
     : 0;
   return [
     { name: 'Instagram', handle: '@idoltillidie', audience: 62_900, posts: '8 posts', views: null, share: 79.9, engagement: '—', status: 'strong', role: 'Top-of-funnel audience reservoir', insight: 'Instagram owns nearly 80% of the known official audience, but post-level performance is not yet connected to this read.', action: 'Every IG post/story should ladder into one clear behavior: watch EP1, save a trainee clip, or follow YouTube.' },
-    { name: 'YouTube', handle: '@Idoltillidie', audience: 5_280, posts: `${metrics.videoCount} videos`, views: metrics.youtubeTotalViews, share: 6.7, engagement: ytEr, status: 'watch', role: 'Documentary home + retargeting anchor', insight: `EP1 holds ${ep1Share.toFixed(1)}% of measured YouTube views, showing discovery far beyond the subscriber base.`, action: 'Use YouTube as the source of truth for story beats, then force the short-form layer to carry those beats outward.' },
+    { name: 'YouTube', handle: '@Idoltillidie', audience: 5_280, posts: metrics.hasMeasuredPerformance ? `${metrics.videoCount} videos` : '—', views: metrics.hasMeasuredPerformance ? metrics.youtubeTotalViews : null, share: 6.7, engagement: ytEr, status: 'watch', role: 'Documentary home + retargeting anchor', insight: metrics.hasMeasuredPerformance ? `EP1 holds ${ep1Share.toFixed(1)}% of measured YouTube views, showing discovery far beyond the subscriber base.` : 'Published YouTube performance is temporarily unavailable.', action: 'Use YouTube as the source of truth for story beats, then force the short-form layer to carry those beats outward.' },
     { name: 'TikTok', handle: '@idoltillidie', audience: 10_500, posts: '0 videos', views: null, share: 13.3, engagement: '—', status: 'risk', role: 'Dormant owned distribution', insight: 'There is a meaningful follower base but no official TikTok content, so the campaign is leaving algorithmic inventory unused.', action: 'Post the first three EP1 cuts immediately: Matthew leader arc, trainee pressure, and comedic dorm/rule clip.' },
   ];
 }
@@ -167,8 +165,8 @@ const compact = (v: number) => new Intl.NumberFormat('en-US', { notation: 'compa
 
 function statusColor(s: string) {
   if (s === 'strong') return light;
-  if (s === 'watch') return red;
-  if (s === 'risk') return '#D42D2D';
+  if (s === 'watch') return muted;
+  if (s === 'risk') return red;
   return muted;
 }
 function statusLabel(s: string) {
@@ -178,8 +176,82 @@ function statusLabel(s: string) {
   return 'Quiet';
 }
 
+function useDialogFocus(onClose: () => void) {
+  const dialogRef = useRef<HTMLDivElement | null>(null);
+  const closeRef = useRef(onClose);
+
+  useEffect(() => {
+    closeRef.current = onClose;
+  }, [onClose]);
+
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    const previouslyFocused = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    const focusableSelector = [
+      'a[href]',
+      'button:not([disabled])',
+      'iframe',
+      'select:not([disabled])',
+      '[tabindex]:not([tabindex="-1"])',
+    ].join(',');
+
+    const focusFirstControl = () => {
+      const preferred = dialog?.querySelector<HTMLElement>('[data-dialog-close]');
+      const first = dialog?.querySelector<HTMLElement>(focusableSelector);
+      (preferred ?? first ?? dialog)?.focus();
+    };
+
+    const frame = window.requestAnimationFrame(focusFirstControl);
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        closeRef.current();
+        return;
+      }
+      if (event.key !== 'Tab' || !dialog) return;
+
+      const focusable = Array.from(dialog.querySelectorAll<HTMLElement>(focusableSelector));
+      if (focusable.length === 0) {
+        event.preventDefault();
+        dialog.focus();
+        return;
+      }
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = previousOverflow;
+      previouslyFocused?.focus();
+    };
+  }, []);
+
+  return dialogRef;
+}
+
 /** EP1 Gravity — bklit notched arc gauge */
 function Ep1GravityCard({ metrics }: { metrics: DashboardMetrics }) {
+  if (!metrics.hasMeasuredPerformance) {
+    return (
+      <div className="flex min-h-[230px] flex-col items-center justify-center gap-2 text-center">
+        <div className="font-mono text-4xl font-black text-white">—</div>
+        <div className="font-mono text-[10px] uppercase tracking-[0.16em] text-[#A0A0AA]">YouTube performance unavailable</div>
+      </div>
+    );
+  }
   const ep1Pct = metrics.youtubeTotalViews > 0
     ? (metrics.longformViews / metrics.youtubeTotalViews) * 100
     : 0;
@@ -201,7 +273,7 @@ function Ep1GravityCard({ metrics }: { metrics: DashboardMetrics }) {
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
           <div className="text-center">
             <div className="font-mono text-2xl font-black leading-none" style={{ color: red }}>{ep1Pct.toFixed(0)}%</div>
-            <div className="mt-1 text-[9px] uppercase tracking-wider text-[#8A8A94]">EP1 share</div>
+            <div className="mt-1 text-[9px] uppercase tracking-wider text-[#A0A0AA]">EP1 share</div>
           </div>
         </div>
       </div>
@@ -212,10 +284,10 @@ function Ep1GravityCard({ metrics }: { metrics: DashboardMetrics }) {
         </div>
         <div className="flex items-center gap-1.5">
           <span className="h-2 w-2 rounded-full" style={{ background: '#2A2A2A' }} />
-          <span className="font-mono text-[10px] text-[#8A8A94]">Rest · {compact(Math.max(0, metrics.youtubeTotalViews - metrics.longformViews))}</span>
+          <span className="font-mono text-[10px] text-[#A0A0AA]">Rest · {compact(Math.max(0, metrics.youtubeTotalViews - metrics.longformViews))}</span>
         </div>
       </div>
-      <div className="text-xs leading-relaxed text-[#8A8A94]">
+      <div className="text-xs leading-relaxed text-[#A0A0AA]">
         One video carries the channel. Cut it into clips.
       </div>
     </div>
@@ -224,6 +296,14 @@ function Ep1GravityCard({ metrics }: { metrics: DashboardMetrics }) {
 
 /** View Concentration — bklit concentric ring chart */
 function ViewConcentrationCard({ metrics }: { metrics: DashboardMetrics }) {
+  if (!metrics.hasMeasuredPerformance) {
+    return (
+      <div className="flex min-h-[286px] flex-col items-center justify-center gap-2 text-center">
+        <div className="font-mono text-4xl font-black text-white">—</div>
+        <div className="font-mono text-[10px] uppercase tracking-[0.16em] text-[#A0A0AA]">Format mix unavailable</div>
+      </div>
+    );
+  }
   const total = Math.max(1, metrics.youtubeTotalViews);
   const segments = [
     { label: 'EP1 (longform)', value: metrics.longformViews, color: red, pct: (metrics.longformViews / total) * 100 },
@@ -248,7 +328,7 @@ function ViewConcentrationCard({ metrics }: { metrics: DashboardMetrics }) {
           defaultLabel="Total views"
           formatOptions={{ notation: 'compact', maximumFractionDigits: 1 }}
           valueClassName="font-mono text-xl font-black text-white"
-          labelClassName="text-[9px] uppercase tracking-wider text-[#8A8A94]"
+          labelClassName="text-[9px] uppercase tracking-wider text-[#A0A0AA]"
         />
       </RingChart>
       <div className="w-full space-y-1.5 border-t pt-2" style={{ borderColor: line }}>
@@ -257,7 +337,7 @@ function ViewConcentrationCard({ metrics }: { metrics: DashboardMetrics }) {
             <span className="h-2.5 w-2.5 shrink-0 rounded-sm" style={{ background: seg.color }} />
             <span className="flex-1 text-xs text-[#E4E4E9]">{seg.label}</span>
             <span className="font-mono text-xs font-bold text-white">{compact(seg.value)}</span>
-            <span className="font-mono text-[10px] text-[#8A8A94] w-10 text-right">{seg.pct.toFixed(1)}%</span>
+            <span className="font-mono text-[10px] text-[#A0A0AA] w-10 text-right">{seg.pct.toFixed(1)}%</span>
           </div>
         ))}
       </div>
@@ -299,20 +379,20 @@ function KpiRail({ metrics }: { metrics: DashboardMetrics }) {
     ? (metrics.longformViews / metrics.youtubeTotalViews) * 100
     : 0;
   const items = [
-    { label: 'Audience', value: compact(ownedAudience), sub: 'IG+YT+TT' },
-    { label: 'YT Views', value: compact(metrics.youtubeTotalViews), sub: `${metrics.videoCount} videos` },
-    { label: 'EP1 Gravity', value: `${ep1Pct.toFixed(1)}%`, sub: 'of YT views' },
-    { label: 'Shorts', value: compact(metrics.shortsViews), sub: `${metrics.shortsCount} clips` },
-    { label: 'TikTok', value: '0', sub: '10.5K waiting' },
-    { label: 'Paid', value: '—', sub: 'not live' },
+    { label: 'Audience', value: compact(ownedAudience), sub: 'IG+YT+TT', tone: 'normal' },
+    { label: 'YT Views', value: metrics.hasMeasuredPerformance ? compact(metrics.youtubeTotalViews) : '—', sub: metrics.hasMeasuredPerformance ? `${metrics.videoCount} videos` : 'data pending', tone: 'normal' },
+    { label: 'EP1 Gravity', value: metrics.hasMeasuredPerformance ? `${ep1Pct.toFixed(1)}%` : '—', sub: metrics.hasMeasuredPerformance ? 'of YT views' : 'data pending', tone: 'normal' },
+    { label: 'Shorts', value: metrics.hasMeasuredPerformance ? compact(metrics.shortsViews) : '—', sub: metrics.hasMeasuredPerformance ? `${metrics.shortsCount} clips` : 'data pending', tone: 'risk' },
+    { label: 'TikTok', value: '0', sub: '10.5K waiting', tone: 'risk' },
+    { label: 'Paid', value: '—', sub: 'not live', tone: 'muted' },
   ];
   return (
     <div className="grid grid-cols-3 gap-px overflow-hidden rounded-lg bg-[#1A1A1A] sm:grid-cols-6">
-      {items.map((item, i) => (
+      {items.map((item) => (
         <div key={item.label} className="bg-[#0E0E0E] px-3 py-2.5">
-          <div className="text-[9px] uppercase tracking-[0.15em] text-[#8A8A94]">{item.label}</div>
-          <div className="mt-0.5 font-mono text-xl font-bold leading-none" style={{ color: i === 2 ? red : i === 3 || i === 4 ? '#D42D2D' : white }}>{item.value}</div>
-          <div className="mt-0.5 text-[9px] text-[#8A8A94]">{item.sub}</div>
+          <div className="text-[9px] uppercase tracking-[0.15em] text-[#A0A0AA]">{item.label}</div>
+          <div className="mt-0.5 font-mono text-xl font-bold leading-none" style={{ color: item.tone === 'risk' ? red : item.tone === 'muted' ? muted : white }}>{item.value}</div>
+          <div className="mt-0.5 text-[9px] text-[#A0A0AA]">{item.sub}</div>
         </div>
       ))}
     </div>
@@ -333,12 +413,12 @@ function StatusStrip({ registry, assets }: { registry: EkatorRegistrySnapshot; a
   return (
     <div className="flex flex-wrap items-center gap-x-5 gap-y-1.5 px-3 py-2 font-mono text-xs">
       <div className="flex items-center gap-1.5">
-        <span className={`h-2 w-2 rounded-full ${live ? 'bg-[#4ADE80]' : 'bg-[#D42D2D]'} animate-pulse`} />
-        <span className="uppercase tracking-wider" style={{ color: live ? '#4ADE80' : '#D42D2D' }}>{live ? 'LIVE' : 'SYNC'}</span>
+        <span className={`h-2 w-2 rounded-full ${live ? 'bg-[#E4E4E9]' : 'bg-[#FD3737]'} animate-pulse`} />
+        <span className="uppercase tracking-wider" style={{ color: live ? light : red }}>{live ? 'LIVE' : 'SYNC'}</span>
       </div>
       {items.map(item => (
         <div key={item.label} className="flex items-baseline gap-1">
-          <span className="text-[#8A8A94]">{item.label}</span>
+          <span className="text-[#A0A0AA]">{item.label}</span>
           <span className="font-bold" style={{ color: item.label === 'Paid' ? '#D42D2D' : white }}>{item.value}</span>
         </div>
       ))}
@@ -376,10 +456,10 @@ function ChannelMatrix({ channels, metrics }: { channels: Channel[]; metrics: Da
                   style={{ width: ch.views ? `${Math.min(100, (ch.views / Math.max(1, metrics.youtubeTotalViews)) * 100)}%` : ch.posts === '0 videos' ? '0%' : '30%', background: ringColor, opacity: 0.85 }}
                 />
               </div>
-              <div className="mt-1.5 font-mono text-[10px] text-[#8A8A94]">{ch.posts}</div>
+              <div className="mt-1.5 font-mono text-[10px] text-[#A0A0AA]">{ch.posts}</div>
             </div>
             <div className="w-full border-t pt-2" style={{ borderColor: line }}>
-              <div className="text-[9px] uppercase tracking-wider text-[#8A8A94]">Engagement</div>
+              <div className="text-[9px] uppercase tracking-wider text-[#A0A0AA]">Engagement</div>
               <div className="mt-0.5 font-mono text-sm font-bold" style={{ color: ch.engagement === '—' ? '#8A8A94' : white }}>{ch.engagement}</div>
             </div>
           </div>
@@ -421,22 +501,21 @@ function RefreshButton() {
   const colors = {
     idle: red,
     sending: muted,
-    sent: '#4ADE80',
-    error: '#D42D2D',
+    sent: light,
+    error: red,
   };
 
   return (
     <button
       onClick={handleRefresh}
       disabled={state === 'sending'}
-      className="flex items-center gap-2 rounded-md border px-4 py-1.5 font-mono text-xs font-bold uppercase tracking-wider transition-all hover:bg-[#1A1A1A] disabled:opacity-50"
+      className="flex min-h-11 items-center gap-2 rounded-md border px-4 py-2 font-mono text-xs font-bold uppercase tracking-wider transition-all hover:bg-[#1A1A1A] disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FD3737]"
       style={{ borderColor: colors[state], color: colors[state] }}
     >
       {state === 'sending' && (
         <span className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-t-transparent" style={{ borderColor: muted, borderTopColor: 'transparent' }} />
       )}
-      {state === 'sent' && <span style={{ color: '#4ADE80' }}>✓</span>}
-      {labels[state]}
+      <span aria-live="polite">{labels[state]}</span>
     </button>
   );
 }
@@ -449,7 +528,7 @@ function CommandCenter({ registry, assets, metrics, channels }: { registry: Ekat
       {/* Title bar */}
       <div className="mb-4 flex flex-wrap items-end justify-between gap-3 border-b pb-3" style={{ borderColor: line }}>
         <div>
-          <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-[#8A8A94]">
+          <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-[#A0A0AA]">
             <span style={{ color: red }}>●</span> EKATOR Social Dashboard
           </div>
           <h1 className="mt-1 font-mono text-3xl font-black leading-none text-white md:text-4xl">EKATOR <span style={{ color: red }}>COMMAND CENTER</span></h1>
@@ -457,7 +536,7 @@ function CommandCenter({ registry, assets, metrics, channels }: { registry: Ekat
         <div className="flex items-end gap-4">
           <RefreshButton />
           <div className="text-right">
-            <div className="text-[10px] uppercase tracking-[0.2em] text-[#8A8A94]">Idol Till I Die</div>
+            <div className="text-[10px] uppercase tracking-[0.2em] text-[#A0A0AA]">Idol Till I Die</div>
             <div className="font-mono text-xs text-[#E4E4E9]">{metrics.readLabel}</div>
           </div>
         </div>
@@ -478,7 +557,7 @@ function CommandCenter({ registry, assets, metrics, channels }: { registry: Ekat
         <div className="rounded-lg border p-5" style={{ borderColor: line, background: '#0E0E0E' }}>
           <div className="mb-3 flex items-center justify-between">
             <div className="text-[10px] uppercase tracking-[0.2em]" style={{ color: red }}>View Concentration</div>
-            <div className="font-mono text-xs text-[#8A8A94]">where views are by format</div>
+            <div className="font-mono text-xs text-[#A0A0AA]">where views are by format</div>
           </div>
           <ViewConcentrationCard metrics={metrics} />
         </div>
@@ -487,7 +566,7 @@ function CommandCenter({ registry, assets, metrics, channels }: { registry: Ekat
         <div className="rounded-lg border p-4" style={{ borderColor: line, background: '#0E0E0E' }}>
           <div className="mb-3 flex items-center justify-between">
             <div className="text-[10px] uppercase tracking-[0.2em]" style={{ color: red }}>72-Hour Queue</div>
-            <div className="font-mono text-xs text-[#8A8A94]">do these first</div>
+            <div className="font-mono text-xs text-[#A0A0AA]">do these first</div>
           </div>
           <PriorityTimeline />
         </div>
@@ -497,7 +576,7 @@ function CommandCenter({ registry, assets, metrics, channels }: { registry: Ekat
       <div className="mb-3 rounded-lg border p-4" style={{ borderColor: line, background: '#0E0E0E' }}>
         <div className="mb-3 flex items-center justify-between">
           <div className="text-[10px] uppercase tracking-[0.2em]" style={{ color: red }}>Channel Pulse</div>
-          <div className="font-mono text-xs text-[#8A8A94]">audience · status · activation</div>
+          <div className="font-mono text-xs text-[#A0A0AA]">audience · status · activation</div>
         </div>
         <ChannelMatrix channels={channels} metrics={metrics} />
       </div>
@@ -519,23 +598,19 @@ function SectionHeader({ num, title, subtitle }: { num: string; title: string; s
         <span className="font-mono text-xs font-bold uppercase tracking-[0.2em]" style={{ color: red }}>{num}</span>
         <h2 className="font-mono text-2xl font-black text-white md:text-3xl">{title}</h2>
       </div>
-      <p className="mt-1 max-w-2xl text-xs leading-snug text-[#8A8A94]">{subtitle}</p>
+      <p className="mt-1 max-w-2xl text-xs leading-snug text-[#A0A0AA]">{subtitle}</p>
     </div>
   );
 }
 
 /** Channel detail modal */
 function ChannelModal({ channel, onClose }: { channel: Channel; onClose: () => void }) {
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') onClose();
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [onClose]);
+  const dialogRef = useDialogFocus(onClose);
 
   return (
     <div
+      ref={dialogRef}
+      tabIndex={-1}
       role="dialog"
       aria-modal="true"
       aria-label={`${channel.name} channel detail`}
@@ -556,13 +631,14 @@ function ChannelModal({ channel, onClose }: { channel: Channel; onClose: () => v
               <span className="font-mono text-xs uppercase" style={{ color: statusColor(channel.status) }}>{statusLabel(channel.status)}</span>
             </div>
             <h3 className="mt-2 font-mono text-2xl font-black text-white">{channel.name}</h3>
-            <div className="mt-1 font-mono text-xs text-[#8A8A94]">{channel.handle}</div>
+            <div className="mt-1 font-mono text-xs text-[#A0A0AA]">{channel.handle}</div>
           </div>
           <button
             type="button"
+            data-dialog-close
             aria-label="Close channel detail"
             onClick={onClose}
-            className="flex h-8 w-8 items-center justify-center rounded-md border text-lg text-[#8A8A94] transition-colors hover:bg-[#1A1A1A] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#FD3737]"
+            className="flex h-11 w-11 items-center justify-center rounded-md border text-lg text-[#A0A0AA] transition-colors hover:bg-[#1A1A1A] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#FD3737]"
             style={{ borderColor: line }}
           >
             ✕
@@ -571,35 +647,35 @@ function ChannelModal({ channel, onClose }: { channel: Channel; onClose: () => v
 
         {/* Role */}
         <div className="mb-4 rounded-lg p-3" style={{ background: '#141414' }}>
-          <div className="text-[10px] uppercase tracking-wider text-[#8A8A94]">Role</div>
+          <div className="text-[10px] uppercase tracking-wider text-[#A0A0AA]">Role</div>
           <div className="mt-1 text-sm font-semibold text-white">{channel.role}</div>
         </div>
 
         {/* Stats grid */}
         <div className="mb-4 grid grid-cols-3 gap-2">
           <div className="rounded-lg p-3" style={{ background: '#141414' }}>
-            <div className="text-[10px] uppercase tracking-wider text-[#8A8A94]">Audience</div>
+            <div className="text-[10px] uppercase tracking-wider text-[#A0A0AA]">Audience</div>
             <div className="mt-1 font-mono text-xl font-bold text-white">{compact(channel.audience)}</div>
           </div>
           <div className="rounded-lg p-3" style={{ background: '#141414' }}>
-            <div className="text-[10px] uppercase tracking-wider text-[#8A8A94]">Share</div>
+            <div className="text-[10px] uppercase tracking-wider text-[#A0A0AA]">Share</div>
             <div className="mt-1 font-mono text-xl font-bold" style={{ color: statusColor(channel.status) }}>{channel.share}%</div>
           </div>
           <div className="rounded-lg p-3" style={{ background: '#141414' }}>
-            <div className="text-[10px] uppercase tracking-wider text-[#8A8A94]">Engagement</div>
+            <div className="text-[10px] uppercase tracking-wider text-[#A0A0AA]">Engagement</div>
             <div className="mt-1 font-mono text-xl font-bold text-white">{channel.engagement}</div>
           </div>
           <div className="rounded-lg p-3" style={{ background: '#141414' }}>
-            <div className="text-[10px] uppercase tracking-wider text-[#8A8A94]">Views</div>
+            <div className="text-[10px] uppercase tracking-wider text-[#A0A0AA]">Views</div>
             <div className="mt-1 font-mono text-xl font-bold text-white">{channel.views === null ? '—' : compact(channel.views)}</div>
           </div>
           <div className="rounded-lg p-3" style={{ background: '#141414' }}>
-            <div className="text-[10px] uppercase tracking-wider text-[#8A8A94]">Posts</div>
+            <div className="text-[10px] uppercase tracking-wider text-[#A0A0AA]">Posts</div>
             <div className="mt-1 font-mono text-xl font-bold text-white">{channel.posts}</div>
           </div>
           <div className="rounded-lg p-3" style={{ background: '#141414' }}>
-            <div className="text-[10px] uppercase tracking-wider text-[#8A8A94]">Content</div>
-            <div className="mt-1 font-mono text-xl font-bold text-white">{channel.posts}</div>
+            <div className="text-[10px] uppercase tracking-wider text-[#A0A0AA]">Status</div>
+            <div className="mt-1 font-mono text-sm font-bold uppercase" style={{ color: statusColor(channel.status) }}>{statusLabel(channel.status)}</div>
           </div>
         </div>
 
@@ -626,7 +702,7 @@ function ChannelTable({ channels }: { channels: Channel[] }) {
     <>
       <div className="mx-auto min-w-0 max-w-[1400px] px-4 md:px-6 lg:px-8">
         <div className="w-full max-w-full overflow-x-auto rounded-lg border" style={{ borderColor: line }}>
-          <div className="grid min-w-[760px] grid-cols-[1.2fr_1fr_1fr_1fr_0.8fr_0.6fr] gap-2 bg-[#141414] px-4 py-3 font-mono text-[10px] uppercase tracking-[0.15em] text-[#8A8A94]">
+          <div className="grid min-w-[760px] grid-cols-[1.2fr_1fr_1fr_1fr_0.8fr_0.6fr] gap-2 bg-[#141414] px-4 py-3 font-mono text-[10px] uppercase tracking-[0.15em] text-[#A0A0AA]">
             <div>Channel</div>
             <div>Audience</div>
             <div>Share</div>
@@ -638,7 +714,7 @@ function ChannelTable({ channels }: { channels: Channel[] }) {
             <div key={ch.name} className={`grid min-w-[760px] grid-cols-[1.2fr_1fr_1fr_1fr_0.8fr_0.6fr] items-center gap-2 px-4 py-4 ${i > 0 ? 'border-t' : ''}`} style={{ borderColor: line }}>
               <div>
                 <div className="text-sm font-bold text-white">{ch.name}</div>
-                <div className="font-mono text-[10px] text-[#8A8A94]">{ch.handle}</div>
+                <div className="font-mono text-[10px] text-[#A0A0AA]">{ch.handle}</div>
               </div>
               <div className="font-mono text-lg font-bold text-white">{compact(ch.audience)}</div>
               <div>
@@ -653,7 +729,7 @@ function ChannelTable({ channels }: { channels: Channel[] }) {
                 <button
                   type="button"
                   onClick={() => setOpenChannel(ch)}
-                  className="rounded-md border px-3 py-1.5 font-mono text-[11px] font-bold uppercase tracking-wider transition-all hover:bg-[#1A1A1A] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#FD3737]"
+                  className="min-h-11 rounded-md border px-3 py-2 font-mono text-[11px] font-bold uppercase tracking-wider transition-all hover:bg-[#1A1A1A] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#FD3737]"
                   style={{ borderColor: red, color: red }}
                 >
                   View
@@ -670,6 +746,7 @@ function ChannelTable({ channels }: { channels: Channel[] }) {
 
 /** Asset shadowbox — embeds supported platform posts and links to the original. */
 function AssetShadowbox({ asset, onClose }: { asset: EkatorAsset; onClose: () => void }) {
+  const dialogRef = useDialogFocus(onClose);
   const isYouTube = asset.sourceUrl?.includes('youtu.be') || asset.sourceUrl?.includes('youtube.com');
 
   // Convert youtu.be/VIDEOID to embed URL
@@ -677,21 +754,10 @@ function AssetShadowbox({ asset, onClose }: { asset: EkatorAsset; onClose: () =>
     ? asset.sourceUrl.replace('youtu.be/', 'youtube.com/embed/').replace('watch?v=', 'embed/')
     : null;
 
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') onClose();
-    };
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    window.addEventListener('keydown', handleKeyDown);
-    return () => {
-      document.body.style.overflow = previousOverflow;
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [onClose]);
-
   return (
     <div
+      ref={dialogRef}
+      tabIndex={-1}
       role="dialog"
       aria-modal="true"
       aria-label={`Asset detail: ${asset.caption}`}
@@ -709,15 +775,16 @@ function AssetShadowbox({ asset, onClose }: { asset: EkatorAsset; onClose: () =>
           <div className="min-w-0">
             <div className="flex items-center gap-2">
               <span className="rounded-sm px-2 py-0.5 font-mono text-[10px] font-bold uppercase" style={{ color: red, border: `1px solid ${red}` }}>{asset.platform}</span>
-              <span className="font-mono text-[10px] text-[#8A8A94]">{asset.handle}</span>
+              <span className="font-mono text-[10px] text-[#A0A0AA]">{asset.handle}</span>
             </div>
             <div className="mt-1.5 text-sm font-bold text-white">{asset.caption}</div>
           </div>
           <button
             type="button"
+            data-dialog-close
             aria-label="Close asset detail"
             onClick={onClose}
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border text-lg text-[#8A8A94] transition-colors hover:bg-[#1A1A1A] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#FD3737]"
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md border text-lg text-[#A0A0AA] transition-colors hover:bg-[#1A1A1A] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#FD3737]"
             style={{ borderColor: line }}
           >
             ✕
@@ -736,7 +803,7 @@ function AssetShadowbox({ asset, onClose }: { asset: EkatorAsset; onClose: () =>
               allowFullScreen
             />
           ) : (
-            <div className="flex h-full items-center justify-center font-mono text-sm text-[#8A8A94]">
+            <div className="flex h-full items-center justify-center font-mono text-sm text-[#A0A0AA]">
               No embed available
             </div>
           )}
@@ -745,25 +812,25 @@ function AssetShadowbox({ asset, onClose }: { asset: EkatorAsset; onClose: () =>
         {/* Stats */}
         <div className="grid grid-cols-2 gap-px bg-[#1A1A1A] sm:grid-cols-4">
           <div className="bg-[#0E0E0E] px-4 py-3">
-            <div className="text-[10px] uppercase tracking-wider text-[#8A8A94]">Views</div>
+            <div className="text-[10px] uppercase tracking-wider text-[#A0A0AA]">Views</div>
             <div className="mt-0.5 font-mono text-lg font-bold text-white">{asset.views !== null ? compact(asset.views) : '—'}</div>
           </div>
           <div className="bg-[#0E0E0E] px-4 py-3">
-            <div className="text-[10px] uppercase tracking-wider text-[#8A8A94]">Likes</div>
+            <div className="text-[10px] uppercase tracking-wider text-[#A0A0AA]">Likes</div>
             <div className="mt-0.5 font-mono text-lg font-bold text-white">{asset.likes !== null ? compact(asset.likes) : '—'}</div>
           </div>
           <div className="bg-[#0E0E0E] px-4 py-3">
-            <div className="text-[10px] uppercase tracking-wider text-[#8A8A94]">Comments</div>
+            <div className="text-[10px] uppercase tracking-wider text-[#A0A0AA]">Comments</div>
             <div className="mt-0.5 font-mono text-lg font-bold text-white">{asset.comments !== null ? compact(asset.comments) : '—'}</div>
           </div>
           <div className="bg-[#0E0E0E] px-4 py-3">
-            <div className="text-[10px] uppercase tracking-wider text-[#8A8A94]">Engagement</div>
+            <div className="text-[10px] uppercase tracking-wider text-[#A0A0AA]">Engagement</div>
             <div className="mt-0.5 font-mono text-lg font-bold" style={{ color: red }}>{asset.engagementRate !== null ? `${asset.engagementRate.toFixed(1)}%` : '—'}</div>
           </div>
         </div>
 
         {/* Footer */}
-        <div className="border-t px-5 py-3 font-mono text-[10px] text-[#8A8A94]" style={{ borderColor: line }}>
+        <div className="border-t px-5 py-3 font-mono text-[10px] text-[#A0A0AA]" style={{ borderColor: line }}>
           {asset.sourceUrl ? (
             <a href={asset.sourceUrl} target="_blank" rel="noopener noreferrer" className="hover:text-white" style={{ color: muted }}>
               Open original ↗
@@ -815,19 +882,19 @@ function AssetBoard({ assets }: { assets: EkatorAssetSnapshot }) {
       <div className="mx-auto max-w-[1400px] px-4 md:px-6 lg:px-8">
         <div className="mb-3 grid gap-px overflow-hidden rounded-lg border bg-[#232323] sm:grid-cols-3" style={{ borderColor: line }}>
           <div className="bg-[#0E0E0E] px-4 py-3">
-            <div className="font-mono text-[9px] uppercase tracking-[0.16em] text-[#8A8A94]">Owned publications</div>
+            <div className="font-mono text-[9px] uppercase tracking-[0.16em] text-[#A0A0AA]">Owned publications</div>
             <div className="mt-1 font-mono text-2xl font-black text-white">{assets.publishedCount}</div>
-            <div className="text-[10px] text-[#8A8A94]">verified platform post URLs</div>
+            <div className="text-[10px] text-[#A0A0AA]">verified platform post URLs</div>
           </div>
           <div className="bg-[#0E0E0E] px-4 py-3">
-            <div className="font-mono text-[9px] uppercase tracking-[0.16em] text-[#8A8A94]">Measured performance</div>
+            <div className="font-mono text-[9px] uppercase tracking-[0.16em] text-[#A0A0AA]">Measured performance</div>
             <div className="mt-1 font-mono text-2xl font-black" style={{ color: red }}>{assets.performanceCount}</div>
-            <div className="text-[10px] text-[#8A8A94]">views + interactions connected</div>
+            <div className="text-[10px] text-[#A0A0AA]">views + interactions connected</div>
           </div>
           <div className="bg-[#0E0E0E] px-4 py-3">
-            <div className="font-mono text-[9px] uppercase tracking-[0.16em] text-[#8A8A94]">Awaiting metrics</div>
+            <div className="font-mono text-[9px] uppercase tracking-[0.16em] text-[#A0A0AA]">Awaiting metrics</div>
             <div className="mt-1 font-mono text-2xl font-black text-white">{assets.awaitingMetricsCount}</div>
-            <div className="text-[10px] text-[#8A8A94]">published posts without a performance read</div>
+            <div className="text-[10px] text-[#A0A0AA]">published posts without a performance read</div>
           </div>
         </div>
         <div className="overflow-hidden rounded-lg border" style={{ borderColor: line }}>
@@ -839,7 +906,7 @@ function AssetBoard({ assets }: { assets: EkatorAssetSnapshot }) {
                   key={fb}
                   onClick={() => setFilter(fb)}
                   aria-pressed={filter === fb}
-                  className="rounded-md px-3 py-1.5 font-mono text-[11px] font-bold uppercase tracking-wider transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FD3737]"
+                  className="min-h-11 rounded-md px-3 py-2 font-mono text-[11px] font-bold uppercase tracking-wider transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FD3737]"
                   style={{
                     background: filter === fb ? red : 'transparent',
                     color: filter === fb ? white : muted,
@@ -851,12 +918,12 @@ function AssetBoard({ assets }: { assets: EkatorAssetSnapshot }) {
               ))}
             </div>
             <div className="flex items-center gap-2">
-              <span className="font-mono text-[10px] uppercase tracking-wider text-[#8A8A94]">Sort</span>
+              <span className="font-mono text-[10px] uppercase tracking-wider text-[#A0A0AA]">Sort</span>
               <select
                 aria-label="Sort asset performance"
                 value={sort}
                 onChange={(e) => setSort(e.target.value as typeof sort)}
-                className="rounded-md border bg-[#0E0E0E] px-3 py-1.5 font-mono text-[11px] text-white outline-none focus-visible:ring-2 focus-visible:ring-[#FD3737]"
+                className="min-h-11 rounded-md border bg-[#0E0E0E] px-3 py-2 font-mono text-[11px] text-white outline-none focus-visible:ring-2 focus-visible:ring-[#FD3737]"
                 style={{ borderColor: line }}
               >
                 {sortOptions.map(opt => (
@@ -868,7 +935,7 @@ function AssetBoard({ assets }: { assets: EkatorAssetSnapshot }) {
 
           {/* Asset rows */}
           <div className="divide-y" style={{ borderColor: line }}>
-            <div className="hidden grid-cols-[minmax(0,2.4fr)_1fr_1.1fr_0.8fr] gap-4 bg-[#101010] px-4 py-2.5 font-mono text-[9px] uppercase tracking-[0.16em] text-[#8A8A94] md:grid">
+            <div className="hidden grid-cols-[minmax(0,2.4fr)_1fr_1.1fr_0.8fr] gap-4 bg-[#101010] px-4 py-2.5 font-mono text-[9px] uppercase tracking-[0.16em] text-[#A0A0AA] md:grid">
               <div>Asset</div><div className="text-right">Views</div><div className="text-right">Interactions</div><div className="text-right">State</div>
             </div>
             {sorted.map(asset => {
@@ -885,7 +952,7 @@ function AssetBoard({ assets }: { assets: EkatorAssetSnapshot }) {
                 >
                   <div className="min-w-0">
                     <div className="truncate text-sm font-semibold text-white">{asset.caption}</div>
-                    <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-[10px] text-[#8A8A94]">
+                    <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-[10px] text-[#A0A0AA]">
                       <span>{asset.platform}</span><span aria-hidden="true">·</span><span>{asset.handle}</span>{asset.postDate && <><span aria-hidden="true">·</span><span>{asset.postDate}</span></>}
                     </div>
                   </div>
@@ -898,34 +965,38 @@ function AssetBoard({ assets }: { assets: EkatorAssetSnapshot }) {
                         </div>
                       </>
                     ) : (
-                      <div className="font-mono text-[10px] uppercase tracking-wider text-[#8A8A94]">Not published</div>
+                      <div className="font-mono text-[10px] uppercase tracking-wider text-[#A0A0AA]">Awaiting metrics</div>
                     )}
                   </div>
                   <div className="col-span-2 flex items-center justify-between border-t pt-2 md:col-span-1 md:block md:border-0 md:pt-0 md:text-right" style={{ borderColor: line }}>
-                    <span className="font-mono text-[9px] uppercase tracking-wider text-[#8A8A94] md:hidden">Interactions</span>
+                    <span className="font-mono text-[9px] uppercase tracking-wider text-[#A0A0AA] md:hidden">Interactions</span>
                     {hasPerformance ? (
                       <div>
                         <div className="font-mono text-sm font-bold text-white">{engagement !== null ? `${engagement.toFixed(1)}%` : '—'}</div>
-                        <div className="mt-0.5 font-mono text-[9px] text-[#8A8A94]">{asset.likes !== null ? `${compact(asset.likes)} likes` : 'likes —'} · {asset.comments !== null ? `${compact(asset.comments)} comments` : 'comments —'}</div>
+                        <div className="mt-0.5 font-mono text-[9px] text-[#A0A0AA]">{asset.likes !== null ? `${compact(asset.likes)} likes` : 'likes —'} · {asset.comments !== null ? `${compact(asset.comments)} comments` : 'comments —'}</div>
                       </div>
                     ) : (
-                      <div className="font-mono text-[10px] text-[#8A8A94]">Platform metrics begin after publish</div>
+                      <div className="font-mono text-[10px] text-[#A0A0AA]">Performance capture pending</div>
                     )}
                   </div>
                   <div className="hidden text-right md:block">
-                    <span className="inline-flex rounded-sm px-2 py-1 font-mono text-[9px] font-bold uppercase tracking-wider" style={{ color: hasPerformance ? '#4ADE80' : '#E4E4E9', border: `1px solid ${hasPerformance ? '#28663E' : line}` }}>{hasPerformance ? 'Measured' : 'Source'}</span>
+                    <span className="inline-flex rounded-sm px-2 py-1 font-mono text-[9px] font-bold uppercase tracking-wider" style={{ color: light, border: `1px solid ${line}` }}>{hasPerformance ? 'Measured' : 'Awaiting metrics'}</span>
                   </div>
                 </button>
               );
             })}
             {sorted.length === 0 && (
-              <div className="px-4 py-12 text-center font-mono text-sm text-[#8A8A94]">
-                {allAssets.length === 0 ? 'No assets indexed yet. Run Refresh Now to collect.' : 'No assets match this filter.'}
+              <div className="px-4 py-12 text-center font-mono text-sm text-[#A0A0AA]">
+                {allAssets.length === 0
+                  ? assets.status === 'pending'
+                    ? 'Published asset data is temporarily unavailable.'
+                    : 'No verified owned-channel publications are available yet.'
+                  : 'No assets match this filter.'}
               </div>
             )}
           </div>
           {allAssets.length > 0 && (
-            <div className="border-t bg-[#101010] px-4 py-3 text-[10px] leading-relaxed text-[#8A8A94]" style={{ borderColor: line }}>
+            <div className="border-t bg-[#101010] px-4 py-3 text-[10px] leading-relaxed text-[#A0A0AA]" style={{ borderColor: line }}>
               Only owned-channel publications with verified platform post URLs are shown. Raw source files stay excluded until they are actually published.
             </div>
           )}
@@ -942,24 +1013,21 @@ function InsightBoard({ metrics }: { metrics: DashboardMetrics }) {
     ? ((metrics.longformViews + metrics.teaserViews) / metrics.youtubeTotalViews) * 100
     : 0;
   const liveInsights = insights.map((ins, index) => index === 0
-    ? { ...ins, stat: `${concentration.toFixed(1)}%`, read: `EP1 + teaser account for ${concentration.toFixed(1)}% of measured official YouTube views. The longform story is doing the work; the short-form layer is still the distribution gap.` }
+    ? metrics.hasMeasuredPerformance
+      ? { ...ins, stat: `${concentration.toFixed(1)}%`, read: `EP1 + teaser account for ${concentration.toFixed(1)}% of measured official YouTube views. The longform story is doing the work; the short-form layer is still the distribution gap.` }
+      : { ...ins, stat: '—', read: 'Published YouTube performance is temporarily unavailable, so concentration cannot be calculated.' }
     : ins);
   return (
     <div className="mx-auto max-w-[1400px] px-4 md:px-6 lg:px-8">
       <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
         {liveInsights.map((ins, i) => (
-          <div key={ins.label} className="relative overflow-hidden rounded-lg border border-[line] bg-[#0E0E0E] p-4" style={{ borderColor: line }}>
+          <div key={ins.label} className="relative overflow-hidden rounded-lg border bg-[#0E0E0E] p-4" style={{ borderColor: line }}>
             <div className="absolute left-0 top-0 h-full w-1" style={{ background: statusColor(ins.tone) }} />
-            <div className="text-[10px] uppercase tracking-[0.15em] text-[#8A8A94]">{ins.label}</div>
+            <div className="text-[10px] uppercase tracking-[0.15em] text-[#A0A0AA]">{ins.label}</div>
             <div className="mt-2 font-mono text-3xl font-black" style={{ color: i === 3 ? red : white }}>{ins.stat}</div>
-            {/* Mini bar accent */}
-            <div className="mt-3 flex gap-0.5">
-              {[...Array(12)].map((_, j) => (
-                <div key={j} className="h-4 flex-1 rounded-sm" style={{ background: j < (ins.tone === 'risk' ? 2 : ins.tone === 'watch' ? 6 : 10) ? statusColor(ins.tone) : dim, opacity: 0.6 }} />
-              ))}
-            </div>
+            <div className="mt-3 h-px w-full" aria-hidden="true" style={{ background: statusColor(ins.tone), opacity: 0.55 }} />
             <p className="mt-3 text-xs leading-relaxed text-[#E4E4E9]">{ins.read}</p>
-            <div className="mt-3 border-t border-[line] pt-2 text-xs leading-snug text-white" style={{ borderColor: line }}>
+            <div className="mt-3 border-t pt-2 text-xs leading-snug text-white" style={{ borderColor: line }}>
               <span className="font-bold" style={{ color: red }}>Do next: </span>{ins.action}
             </div>
           </div>
@@ -995,14 +1063,16 @@ function MeasurementTable({ assets, metrics }: { assets: EkatorAssetSnapshot; me
     .sort((a, b) => b.velocity - a.velocity);
   const maxVelocity = Math.max(1, ...velocityAssets.map((entry) => entry.velocity));
   const liveLayers = measurementLayers.map((layer) => layer.platform === 'YouTube'
-    ? { ...layer, coverage: `${metrics.videoCount} videos with views`, next: 'Add retention, average view duration, and subscriber delta by video.' }
+    ? metrics.hasMeasuredPerformance
+      ? { ...layer, coverage: `${metrics.videoCount} videos with views`, next: 'Add retention, average view duration, and subscriber delta by video.' }
+      : { ...layer, coverage: 'Data unavailable', read: 'Published YouTube performance is temporarily unavailable.', next: 'Restore the performance feed, then add retention, average view duration, and subscriber delta by video.' }
     : layer);
 
   return (
     <div className="mx-auto max-w-[1400px] px-4 md:px-6 lg:px-8 space-y-5">
       {/* Post-level table */}
       <div className="overflow-hidden rounded-lg border" style={{ borderColor: line }}>
-        <div className="hidden grid-cols-[1fr_1fr_1fr_2fr] gap-4 bg-[#141414] px-5 py-3 font-mono text-[11px] uppercase tracking-[0.15em] text-[#8A8A94] md:grid">
+        <div className="hidden grid-cols-[1fr_1fr_1fr_2fr] gap-4 bg-[#141414] px-5 py-3 font-mono text-[11px] uppercase tracking-[0.15em] text-[#A0A0AA] md:grid">
           <div>Platform</div><div>Audience</div><div>Coverage</div><div>Current read → Next data</div>
         </div>
         {liveLayers.map((layer, i) => (
@@ -1014,11 +1084,11 @@ function MeasurementTable({ assets, metrics }: { assets: EkatorAssetSnapshot; me
               </div>
             </div>
             <div>
-              <div className="mb-1 font-mono text-[9px] uppercase tracking-wider text-[#8A8A94] md:hidden">Audience</div>
+              <div className="mb-1 font-mono text-[9px] uppercase tracking-wider text-[#A0A0AA] md:hidden">Audience</div>
               <div className="font-mono text-sm text-[#E4E4E9]">{layer.audience}</div>
             </div>
             <div>
-              <div className="mb-1 font-mono text-[9px] uppercase tracking-wider text-[#8A8A94] md:hidden">Coverage</div>
+              <div className="mb-1 font-mono text-[9px] uppercase tracking-wider text-[#A0A0AA] md:hidden">Coverage</div>
               <div className="font-mono text-sm text-[#E4E4E9]">{layer.coverage}</div>
             </div>
             <div>
@@ -1035,19 +1105,19 @@ function MeasurementTable({ assets, metrics }: { assets: EkatorAssetSnapshot; me
           <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
             <div>
               <div className="text-[11px] uppercase tracking-[0.2em]" style={{ color: red }}>Daily Velocity</div>
-              <div className="mt-1 text-[10px] text-[#8A8A94]">Hover or focus any bar for the exact daily pace.</div>
+              <div className="mt-1 text-[10px] text-[#A0A0AA]">Hover or focus any bar for the exact daily pace.</div>
             </div>
-            <div className="font-mono text-[11px] text-[#8A8A94]">views/day · {metrics.readLabel}</div>
+            <div className="font-mono text-[11px] text-[#A0A0AA]">views/day · {metrics.readLabel}</div>
           </div>
           {ep1Asset && (
             <div className="mb-5 flex items-center justify-between gap-4 rounded-md border px-4 py-3" style={{ background: '#140A0A', borderColor: '#3A1717' }}>
               <div className="min-w-0">
                 <div className="truncate text-xs font-semibold text-white">{ep1Asset.caption}</div>
-                <div className="font-mono text-[10px] text-[#8A8A94]">Anchor episode · separated from comparable cuts</div>
+                <div className="font-mono text-[10px] text-[#A0A0AA]">Anchor episode · separated from comparable cuts</div>
               </div>
               <div className="shrink-0 text-right">
                 <div className="font-mono text-2xl font-black" style={{ color: red }}>{compact(velocityFor(ep1Asset))}/d</div>
-                <div className="font-mono text-[9px] text-[#8A8A94]">{compact(ep1Asset.views ?? 0)} total</div>
+                <div className="font-mono text-[9px] text-[#A0A0AA]">{compact(ep1Asset.views ?? 0)} total</div>
               </div>
             </div>
           )}
@@ -1066,7 +1136,7 @@ function MeasurementTable({ assets, metrics }: { assets: EkatorAssetSnapshot; me
                   >
                     <span className="block text-xs font-bold leading-snug text-white">{asset.caption}</span>
                     <span className="mt-2 block font-mono text-lg font-black" style={{ color: red }}>{velocity.toLocaleString()} views/day</span>
-                    <span className="mt-1 block font-mono text-[10px] text-[#8A8A94]">{asset.views?.toLocaleString()} total · {asset.postDate}</span>
+                    <span className="mt-1 block font-mono text-[10px] text-[#A0A0AA]">{asset.views?.toLocaleString()} total · {asset.postDate}</span>
                   </span>
                   <span className="mb-2 block font-mono text-[10px] font-bold text-white opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">{compact(velocity)}/d</span>
                   <span className="block w-full rounded-t-sm transition-all group-hover:brightness-125 group-focus-visible:brightness-125" style={{ height: `${Math.max(14, (velocity / maxVelocity) * 132)}px`, background: index === 0 ? red : '#B92B2B' }} aria-hidden="true" />
@@ -1093,17 +1163,17 @@ function MeasurementTable({ assets, metrics }: { assets: EkatorAssetSnapshot; me
               <div key={fb.platform} className="flex items-center justify-between gap-2 border-b pb-3" style={{ borderColor: line }}>
                 <div>
                   <div className="text-sm font-semibold text-white">{fb.platform}</div>
-                  <div className="font-mono text-xs text-[#8A8A94]">baseline {fb.baseline}</div>
+                  <div className="font-mono text-xs text-[#A0A0AA]">baseline {fb.baseline}</div>
                 </div>
                 <div className="flex gap-1 font-mono text-[10px]">
-                  <span className="rounded-sm bg-[#1A1A1A] px-2 py-1 text-[#8A8A94]">T+24h</span>
-                  <span className="rounded-sm bg-[#1A1A1A] px-2 py-1 text-[#8A8A94]">T+72h</span>
-                  <span className="rounded-sm bg-[#1A1A1A] px-2 py-1 text-[#8A8A94]">T+7d</span>
+                  <span className="rounded-sm bg-[#1A1A1A] px-2 py-1 text-[#A0A0AA]">T+24h</span>
+                  <span className="rounded-sm bg-[#1A1A1A] px-2 py-1 text-[#A0A0AA]">T+72h</span>
+                  <span className="rounded-sm bg-[#1A1A1A] px-2 py-1 text-[#A0A0AA]">T+7d</span>
                 </div>
               </div>
             ))}
           </div>
-          <p className="mt-3 text-xs leading-snug text-[#8A8A94]">Deltas populate after each episode post.</p>
+          <p className="mt-3 text-xs leading-snug text-[#A0A0AA]">Deltas populate after each episode post.</p>
         </div>
       </div>
 
@@ -1114,11 +1184,11 @@ function MeasurementTable({ assets, metrics }: { assets: EkatorAssetSnapshot; me
           <div className="space-y-3">
             {sentimentThemes.map(theme => (
               <div key={theme.theme} className="flex items-start gap-3 border-b pb-3" style={{ borderColor: line }}>
-                <span className={`mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full ${theme.status === 'Needs comments' ? 'bg-[#D42D2D]' : 'bg-[#4ADE80]'}`} />
+                <span className={`mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full ${theme.status === 'Needs comments' ? 'bg-[#FD3737]' : 'bg-[#E4E4E9]'}`} />
                 <div className="min-w-0 flex-1">
                   <div className="text-sm font-semibold text-white">{theme.theme}</div>
                   <div className="mt-1 text-xs leading-relaxed text-[#E4E4E9]"><span className="font-bold" style={{ color: red }}>Tag: </span>{theme.tags}</div>
-                  <div className="text-xs leading-relaxed text-[#8A8A94]"><span className="font-bold text-white">Use: </span>{theme.use}</div>
+                  <div className="text-xs leading-relaxed text-[#A0A0AA]"><span className="font-bold text-white">Use: </span>{theme.use}</div>
                 </div>
                 <span className="shrink-0 rounded-sm px-2 py-1 font-mono text-[10px] uppercase" style={{ color: theme.status === 'Needs comments' ? '#D42D2D' : light, border: `1px solid ${theme.status === 'Needs comments' ? '#D42D2D' : line}` }}>{theme.status === 'Needs comments' ? 'Need' : 'Ready'}</span>
               </div>
@@ -1137,7 +1207,7 @@ function MeasurementTable({ assets, metrics }: { assets: EkatorAssetSnapshot; me
           <div className="grid grid-cols-2 gap-2">
             {paidFields.map(field => (
               <div key={field.metric} className="flex items-baseline gap-2 border-b py-2" style={{ borderColor: line }}>
-                <span className="font-mono text-sm font-bold text-[#8A8A94]">·</span>
+                <span className="font-mono text-sm font-bold text-[#A0A0AA]">·</span>
                 <div>
                   <span className="text-sm font-semibold text-white">{field.metric}</span>
                   <p className="mt-1 text-xs leading-relaxed text-[#E4E4E9]">{field.use}</p>
@@ -1164,11 +1234,11 @@ function MovesTimeline() {
               <div className="z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 font-mono text-sm font-black" style={{ borderColor: red, color: red, background: '#0A0A0A' }}>
                 {rec.rank}
               </div>
-              <div className="flex-1 rounded-lg border border-[line] bg-[#0E0E0E] p-4" style={{ borderColor: line }}>
+              <div className="flex-1 rounded-lg border bg-[#0E0E0E] p-4" style={{ borderColor: line }}>
                 <div className="flex items-start justify-between gap-3">
                   <h3 className="text-sm font-bold text-white">{rec.title}</h3>
                   <div className="flex shrink-0 items-center gap-2">
-                    <span className="font-mono text-[10px] uppercase tracking-wider text-[#8A8A94]">{rec.owner}</span>
+                    <span className="font-mono text-[10px] uppercase tracking-wider text-[#A0A0AA]">{rec.owner}</span>
                     <span className="rounded-sm px-2 py-0.5 font-mono text-[10px] font-bold uppercase" style={{ color: rec.impact === 'High' ? red : muted, border: `1px solid ${rec.impact === 'High' ? red : line}` }}>{rec.impact}</span>
                   </div>
                 </div>
@@ -1210,15 +1280,15 @@ export function EkatorCommandCenter({ registry, assets }: { registry: EkatorRegi
 
       {/* Nav */}
       <nav className="fixed left-0 right-0 top-0 z-50 border-b border-[#2A2A2A] bg-[#0A0A0A]/95 backdrop-blur-md">
-        <div className="mx-auto flex h-14 max-w-[1400px] items-center justify-between px-4 md:px-6 lg:px-8">
+        <div className="mx-auto flex h-14 max-w-[1400px] items-center gap-3 px-4 md:px-6 lg:px-8">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/brand/CC-LOGO-2024-WHITE.png" alt="Crowd Control" className="h-4 w-auto opacity-90" />
-          <div className="hidden items-center gap-5 lg:flex">
+          <img src="/brand/CC-LOGO-2024-WHITE.png" alt="Crowd Control" className="h-4 max-w-[82px] shrink-0 object-contain opacity-90 sm:max-w-none" />
+          <div className="flex min-w-0 flex-1 items-center justify-start gap-3 overflow-x-auto [scrollbar-width:none] lg:justify-center lg:gap-5 [&::-webkit-scrollbar]:hidden">
             {nav.map(([id, label]) => (
-              <a key={id} href={`#${id}`} className="font-mono text-[10px] uppercase tracking-[0.15em] text-[#8A8A94] transition-colors hover:text-[#FD3737]">{label}</a>
+              <a key={id} href={`#${id}`} className="flex min-h-11 shrink-0 items-center font-mono text-[10px] uppercase tracking-[0.12em] text-[#A0A0AA] transition-colors hover:text-[#FD3737] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#FD3737] lg:tracking-[0.15em]">{label}</a>
             ))}
           </div>
-          <span className="font-mono text-[10px] uppercase tracking-[0.15em]" style={{ color: red }}>Living Dashboard</span>
+          <span className="hidden shrink-0 font-mono text-[10px] uppercase tracking-[0.15em] xl:block" style={{ color: red }}>Living Dashboard</span>
         </div>
       </nav>
 
@@ -1231,35 +1301,35 @@ export function EkatorCommandCenter({ registry, assets }: { registry: EkatorRegi
       <div className="mx-auto h-px max-w-[1400px]" style={{ background: line }} />
 
       {/* DETAIL SECTIONS — below the fold */}
-      <section id="channels" className="py-12 md:py-16">
+      <section id="channels" className="scroll-mt-14 py-12 md:py-16">
         <SectionHeader num="01" title="Owned Channels" subtitle="Audience, output, views, and next action per surface." />
         <ChannelTable channels={channelData} />
       </section>
 
       <div className="mx-auto h-px max-w-[1400px]" style={{ background: line }} />
 
-      <section id="assets" className="py-12 md:py-16">
+      <section id="assets" className="scroll-mt-14 py-12 md:py-16">
         <SectionHeader num="02" title="Asset Performance" subtitle="Where attention is concentrated and which assets to cut, mirror, or hold." />
         <AssetBoard assets={assets} />
       </section>
 
       <div className="mx-auto h-px max-w-[1400px]" style={{ background: line }} />
 
-      <section id="insights" className="py-12 md:py-16">
+      <section id="insights" className="scroll-mt-14 py-12 md:py-16">
         <SectionHeader num="03" title="Actionable Insights" subtitle="Metric, meaning, and decision." />
         <InsightBoard metrics={metrics} />
       </section>
 
       <div className="mx-auto h-px max-w-[1400px]" style={{ background: line }} />
 
-      <section id="data" className="py-12 md:py-16">
+      <section id="data" className="scroll-mt-14 py-12 md:py-16">
         <SectionHeader num="04" title="Measurement Layers" subtitle="Post-level, pacing, sentiment, follower lift, and paid delivery." />
         <MeasurementTable assets={assets} metrics={metrics} />
       </section>
 
       <div className="mx-auto h-px max-w-[1400px]" style={{ background: line }} />
 
-      <section id="moves" className="py-12 md:py-16">
+      <section id="moves" className="scroll-mt-14 py-12 md:py-16">
         <SectionHeader num="05" title="Ranked moves for the next 72 hours" subtitle="Prioritized operating queue." />
         <MovesTimeline />
       </section>
@@ -1268,7 +1338,7 @@ export function EkatorCommandCenter({ registry, assets }: { registry: EkatorRegi
       <footer className="border-t border-[#2A2A2A] py-12">
         <div className="mx-auto max-w-[1400px] px-4 text-center md:px-6 lg:px-8">
           <div className="font-mono text-2xl font-black text-white">EKATOR <span style={{ color: red }}>×</span> Crowd Control</div>
-          <p className="mx-auto mt-3 max-w-2xl text-xs leading-relaxed text-[#8A8A94]">Owned-social intelligence dashboard for the Idol Till I Die campaign.</p>
+          <p className="mx-auto mt-3 max-w-2xl text-xs leading-relaxed text-[#A0A0AA]">Owned-social intelligence dashboard for the Idol Till I Die campaign.</p>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/brand/CC-LOGO-2024-WHITE.png" alt="Crowd Control" className="mx-auto mt-6 h-5 w-auto opacity-60" />
         </div>
