@@ -44,6 +44,15 @@ class DashboardDataContractTests(unittest.TestCase):
         ):
             self.assertNotIn(stale_claim, COMPONENT)
 
+    def test_hero_prioritizes_cross_platform_attention(self) -> None:
+        self.assertIn("label: 'Measured views'", COMPONENT)
+        self.assertIn("label: 'IG Reel views'", COMPONENT)
+        self.assertIn("IG + YT measured", COMPONENT)
+        self.assertIn("Attention Mix", COMPONENT)
+        self.assertIn("where measured views are landing", COMPONENT)
+        self.assertIn("Instagram Reels", COMPONENT)
+        self.assertIn("Instagram carries", COMPONENT)
+
     def test_follower_delta_is_not_a_static_placeholder(self) -> None:
         self.assertNotIn("const followerBaselines", COMPONENT)
         self.assertIn("channelSnapshot", COMPONENT)

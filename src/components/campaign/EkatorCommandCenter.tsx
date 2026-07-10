@@ -29,6 +29,7 @@ type Channel = {
   postCount: number;
   posts: string;
   views: number | null;
+  viewCount: number;
   share: number;
   engagement: string;
   status: 'strong' | 'watch' | 'risk';
@@ -136,9 +137,9 @@ function buildChannels(metrics: DashboardMetrics, assets: EkatorAssetSnapshot, c
   const youtubePostCount = yt?.postCount ?? metrics.videoCount;
   const tiktokPostCount = tt?.postCount ?? ttAssets.length;
   return [
-    { name: 'Instagram', handle: `@${ig?.handle || 'idoltillidie'}`, audience: instagramAudience, postCount: instagramPostCount, posts: `${instagramPostCount} posts`, views: instagramViewCount > 0 ? instagramViews : null, share: makeShare(instagramAudience), engagement: igEngagement, status: 'strong', role: 'Top-of-funnel audience reservoir', insight: instagramViewCount > 0 ? `${instagramViewCount} verified Instagram Reels have ${compact(instagramViews)} measured views plus likes and comments.` : `${igAssets.length} verified Instagram posts have known interactions; Reel views are collecting.`, action: 'Use view and interaction velocity to identify the strongest hooks, then route the audience toward EP1.' },
-    { name: 'YouTube', handle: `@${yt?.handle || 'Idoltillidie'}`, audience: youtubeAudience, postCount: youtubePostCount, posts: `${youtubePostCount} videos`, views: metrics.hasMeasuredPerformance ? metrics.youtubeTotalViews : null, share: makeShare(youtubeAudience), engagement: ytEr, status: 'watch', role: 'Documentary home + retargeting anchor', insight: metrics.hasMeasuredPerformance ? `EP1 holds ${ep1Share.toFixed(1)}% of measured YouTube views, showing discovery beyond the subscriber base.` : 'Published YouTube performance is temporarily unavailable.', action: 'Use YouTube as the story anchor, then carry the strongest beats outward through short-form cuts.' },
-    { name: 'TikTok', handle: `@${tt?.handle || 'idoltillidie'}`, audience: tiktokAudience, postCount: tiktokPostCount, posts: `${tiktokPostCount} videos`, views: null, share: makeShare(tiktokAudience), engagement: '—', status: tiktokPostCount > 0 ? 'watch' : 'risk', role: 'Dormant owned distribution', insight: tiktokPostCount > 0 ? 'TikTok publishing is active and ready for post-level pacing reads.' : 'There is a meaningful follower base but no official TikTok content, leaving algorithmic inventory unused.', action: 'Post the first three EP1 cuts: Matthew leader arc, trainee pressure, and comedic dorm/rule clip.' },
+    { name: 'Instagram', handle: `@${ig?.handle || 'idoltillidie'}`, audience: instagramAudience, postCount: instagramPostCount, posts: `${instagramPostCount} posts`, views: instagramViewCount > 0 ? instagramViews : null, viewCount: instagramViewCount, share: makeShare(instagramAudience), engagement: igEngagement, status: 'strong', role: 'Top-of-funnel audience reservoir', insight: instagramViewCount > 0 ? `${instagramViewCount} verified Instagram Reels have ${compact(instagramViews)} measured views plus likes and comments.` : `${igAssets.length} verified Instagram posts have known interactions; Reel views are collecting.`, action: 'Use view and interaction velocity to identify the strongest hooks, then route the audience toward EP1.' },
+    { name: 'YouTube', handle: `@${yt?.handle || 'Idoltillidie'}`, audience: youtubeAudience, postCount: youtubePostCount, posts: `${youtubePostCount} videos`, views: metrics.hasMeasuredPerformance ? metrics.youtubeTotalViews : null, viewCount: metrics.videoCount, share: makeShare(youtubeAudience), engagement: ytEr, status: 'watch', role: 'Documentary home + retargeting anchor', insight: metrics.hasMeasuredPerformance ? `EP1 holds ${ep1Share.toFixed(1)}% of measured YouTube views, showing discovery beyond the subscriber base.` : 'Published YouTube performance is temporarily unavailable.', action: 'Use YouTube as the story anchor, then carry the strongest beats outward through short-form cuts.' },
+    { name: 'TikTok', handle: `@${tt?.handle || 'idoltillidie'}`, audience: tiktokAudience, postCount: tiktokPostCount, posts: `${tiktokPostCount} videos`, views: null, viewCount: 0, share: makeShare(tiktokAudience), engagement: '—', status: tiktokPostCount > 0 ? 'watch' : 'risk', role: 'Dormant owned distribution', insight: tiktokPostCount > 0 ? 'TikTok publishing is active and ready for post-level pacing reads.' : 'There is a meaningful follower base but no official TikTok content, leaving algorithmic inventory unused.', action: 'Post the first three EP1 cuts: Matthew leader arc, trainee pressure, and comedic dorm/rule clip.' },
   ];
 }
 
@@ -481,24 +482,30 @@ function Ep1GravityCard({ metrics }: { metrics: DashboardMetrics }) {
   );
 }
 
-/** View Concentration — bklit concentric ring chart */
-function ViewConcentrationCard({ metrics }: { metrics: DashboardMetrics }) {
-  if (!metrics.hasMeasuredPerformance) {
+/** Cross-platform attention mix — bklit concentric ring chart */
+function ViewConcentrationCard({ metrics, channels }: { metrics: DashboardMetrics; channels: Channel[] }) {
+  const instagram = channels.find((channel) => channel.name === 'Instagram');
+  const instagramViews = instagram?.views ?? 0;
+  const measuredViews = instagramViews + metrics.youtubeTotalViews;
+  if (measuredViews === 0) {
     return (
       <div className="flex min-h-[286px] flex-col items-center justify-center gap-2 text-center">
         <div className="font-mono text-4xl font-black text-white">—</div>
-        <div className="font-mono text-[10px] uppercase tracking-[0.16em] text-[#A0A0AA]">Format mix unavailable</div>
+        <div className="font-mono text-[10px] uppercase tracking-[0.16em] text-[#A0A0AA]">Attention mix unavailable</div>
       </div>
     );
   }
-  const total = Math.max(1, metrics.youtubeTotalViews);
+  const total = Math.max(1, measuredViews);
   const segments = [
-    { label: 'EP1 (longform)', value: metrics.longformViews, color: red, pct: (metrics.longformViews / total) * 100 },
+    ...(instagramViews > 0
+      ? [{ label: 'Instagram Reels', value: instagramViews, color: '#E4E4E9', pct: (instagramViews / total) * 100 }]
+      : []),
+    { label: 'YouTube EP1', value: metrics.longformViews, color: red, pct: (metrics.longformViews / total) * 100 },
     ...(metrics.teaserDetected
-      ? [{ label: 'Teaser', value: metrics.teaserViews, color: '#B03030', pct: (metrics.teaserViews / total) * 100 }]
+      ? [{ label: 'YouTube teaser', value: metrics.teaserViews, color: '#B03030', pct: (metrics.teaserViews / total) * 100 }]
       : []),
     {
-      label: `${metrics.teaserDetected ? 'Shorts' : 'Other published cuts'} (${metrics.shortsCount} clips)`,
+      label: `YouTube ${metrics.teaserDetected ? 'Shorts' : 'published cuts'} (${metrics.shortsCount})`,
       value: metrics.shortsViews,
       color: '#7A2A2A',
       pct: (metrics.shortsViews / total) * 100,
@@ -512,7 +519,7 @@ function ViewConcentrationCard({ metrics }: { metrics: DashboardMetrics }) {
           <Ring key={item.label} index={index} />
         ))}
         <RingCenter
-          defaultLabel="Total views"
+          defaultLabel="Measured views"
           formatOptions={{ notation: 'compact', maximumFractionDigits: 1 }}
           valueClassName="font-mono text-xl font-black text-white"
           labelClassName="text-[9px] uppercase tracking-wider text-[#A0A0AA]"
@@ -524,12 +531,12 @@ function ViewConcentrationCard({ metrics }: { metrics: DashboardMetrics }) {
             <span className="h-2.5 w-2.5 shrink-0 rounded-sm" style={{ background: seg.color }} />
             <span className="flex-1 text-xs text-[#E4E4E9]">{seg.label}</span>
             <span className="font-mono text-xs font-bold text-white">{compact(seg.value)}</span>
-            <span className="font-mono text-[10px] text-[#A0A0AA] w-10 text-right">{seg.pct.toFixed(1)}%</span>
+            <span className="w-10 text-right font-mono text-[10px] text-[#A0A0AA]">{seg.pct.toFixed(1)}%</span>
           </div>
         ))}
       </div>
       <div className="text-xs leading-relaxed" style={{ color: red }}>
-        <span className="font-bold">Gap: </span>Short-form share is {((metrics.shortsViews / total) * 100).toFixed(1)}%. Use the measured format mix to prioritize the next cuts.
+        <span className="font-bold">Read: </span>Instagram carries {((instagramViews / total) * 100).toFixed(1)}% of measured public views. Treat it as the discovery surface and YouTube as the depth and conversion surface.
       </div>
     </div>
   );
@@ -566,20 +573,23 @@ function KpiRail({ metrics, channels }: { metrics: DashboardMetrics; channels: C
     ? (metrics.longformViews / metrics.youtubeTotalViews) * 100
     : 0;
   const tiktok = channels.find((channel) => channel.name === 'TikTok');
+  const instagram = channels.find((channel) => channel.name === 'Instagram');
+  const instagramViews = instagram?.views ?? 0;
+  const measuredViews = instagramViews + metrics.youtubeTotalViews;
   const items = [
     { label: 'Audience', value: metrics.ownedAudience > 0 ? compact(metrics.ownedAudience) : '—', sub: 'IG+YT+TT', tone: 'normal' },
-    { label: 'YT Views', value: metrics.hasMeasuredPerformance ? compact(metrics.youtubeTotalViews) : '—', sub: metrics.hasMeasuredPerformance ? `${metrics.videoCount} videos` : 'data pending', tone: 'normal' },
+    { label: 'Measured views', value: measuredViews > 0 ? compact(measuredViews) : '—', sub: 'IG + YT measured', tone: 'normal' },
+    { label: 'IG Reel views', value: instagramViews > 0 ? compact(instagramViews) : '—', sub: instagram ? `${instagram.viewCount} Reels` : 'data pending', tone: 'normal' },
+    { label: 'YT views', value: metrics.hasMeasuredPerformance ? compact(metrics.youtubeTotalViews) : '—', sub: metrics.hasMeasuredPerformance ? `${metrics.videoCount} videos` : 'data pending', tone: 'normal' },
     { label: 'EP1 Gravity', value: metrics.hasMeasuredPerformance ? `${ep1Pct.toFixed(1)}%` : '—', sub: metrics.hasMeasuredPerformance ? 'of YT views' : 'data pending', tone: 'normal' },
-    { label: 'Shorts', value: metrics.hasMeasuredPerformance ? compact(metrics.shortsViews) : '—', sub: metrics.hasMeasuredPerformance ? `${metrics.shortsCount} clips` : 'data pending', tone: 'risk' },
     { label: 'TikTok', value: tiktok?.posts.split(' ')[0] ?? '—', sub: tiktok ? `${compact(tiktok.audience)} waiting` : 'data pending', tone: 'risk' },
-    { label: 'Paid', value: '—', sub: 'not live', tone: 'muted' },
   ];
   return (
     <div className="grid min-w-0 grid-cols-2 gap-px overflow-hidden rounded-lg bg-[#1A1A1A] sm:grid-cols-3 lg:grid-cols-6">
       {items.map((item) => (
         <div key={item.label} className="min-w-0 bg-[#0E0E0E] px-3 py-2.5">
           <div className="text-[9px] uppercase tracking-[0.15em] text-[#A0A0AA]">{item.label}</div>
-          <div className="mt-0.5 font-mono text-xl font-bold leading-none" style={{ color: item.tone === 'risk' ? red : item.tone === 'muted' ? muted : white }}>{item.value}</div>
+          <div className="mt-0.5 font-mono text-xl font-bold leading-none" style={{ color: item.tone === 'risk' ? red : white }}>{item.value}</div>
           <div className="mt-0.5 text-[9px] text-[#A0A0AA]">{item.sub}</div>
         </div>
       ))}
@@ -740,19 +750,19 @@ function CommandCenter({ registry, assets, metrics, channels, recommendations }:
 
       {/* Main 3-column grid */}
       <div className="mb-3 grid min-w-0 grid-cols-1 gap-3 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)_minmax(0,1fr)]">
-        {/* EP1 Gravity */}
+        {/* YouTube EP1 Gravity */}
         <div className="min-w-0 rounded-lg border p-4 sm:p-5" style={{ borderColor: line, background: '#0E0E0E' }}>
-          <div className="mb-3 text-[10px] uppercase tracking-[0.2em]" style={{ color: red }}>EP1 Gravity</div>
+          <div className="mb-3 text-[10px] uppercase tracking-[0.2em]" style={{ color: red }}>YouTube EP1 Gravity</div>
           <Ep1GravityCard metrics={metrics} />
         </div>
 
-        {/* View Concentration */}
+        {/* Cross-platform attention mix */}
         <div className="min-w-0 rounded-lg border p-4 sm:p-5" style={{ borderColor: line, background: '#0E0E0E' }}>
           <div className="mb-3 flex min-w-0 flex-col items-start gap-1 sm:flex-row sm:items-center sm:justify-between">
-            <div className="text-[10px] uppercase tracking-[0.2em]" style={{ color: red }}>View Concentration</div>
-            <div className="font-mono text-xs text-[#A0A0AA]">where views are by format</div>
+            <div className="text-[10px] uppercase tracking-[0.2em]" style={{ color: red }}>Attention Mix</div>
+            <div className="font-mono text-xs text-[#A0A0AA]">where measured views are landing</div>
           </div>
-          <ViewConcentrationCard metrics={metrics} />
+          <ViewConcentrationCard metrics={metrics} channels={channels} />
         </div>
 
         {/* Priority queue */}
