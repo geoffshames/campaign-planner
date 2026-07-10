@@ -62,6 +62,12 @@ class DashboardDataContractTests(unittest.TestCase):
         self.assertIn("maxValue: maxAudience", COMPONENT)
         self.assertIn("ch.postCount / maxPosts", COMPONENT)
 
+    def test_youtube_shadowbox_normalizes_all_supported_publication_urls(self) -> None:
+        self.assertIn("function youtubeEmbedUrl", COMPONENT)
+        self.assertIn("/^\\/(?:shorts|live|embed)\\/", COMPONENT)
+        self.assertIn("url.searchParams.get('v')", COMPONENT)
+        self.assertIn("hostname === 'youtu.be'", COMPONENT)
+
 
 if __name__ == "__main__":
     unittest.main()

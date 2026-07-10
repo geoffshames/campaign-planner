@@ -930,14 +930,35 @@ function ChannelTable({ channels }: { channels: Channel[] }) {
 }
 
 /** Asset shadowbox — embeds supported platform posts and links to the original. */
+function youtubeEmbedUrl(sourceUrl: string | null): string | null {
+  if (!sourceUrl) return null;
+
+  try {
+    const url = new URL(sourceUrl);
+    const hostname = url.hostname.replace(/^www\./, '').toLowerCase();
+    let videoId: string | null = null;
+
+    if (hostname === 'youtu.be') {
+      videoId = url.pathname.split('/').filter(Boolean)[0] ?? null;
+    } else if (hostname === 'youtube.com' || hostname === 'm.youtube.com') {
+      if (url.pathname === '/watch') {
+        videoId = url.searchParams.get('v');
+      } else {
+        videoId = url.pathname.match(/^\/(?:shorts|live|embed)\/([^/?#]+)/)?.[1] ?? null;
+      }
+    }
+
+    return videoId && /^[A-Za-z0-9_-]+$/.test(videoId)
+      ? `https://www.youtube.com/embed/${videoId}`
+      : null;
+  } catch {
+    return null;
+  }
+}
+
 function AssetShadowbox({ asset, onClose }: { asset: EkatorAsset; onClose: () => void }) {
   const dialogRef = useDialogFocus(onClose);
-  const isYouTube = asset.sourceUrl?.includes('youtu.be') || asset.sourceUrl?.includes('youtube.com');
-
-  // Convert youtu.be/VIDEOID to embed URL
-  const embedUrl = isYouTube && asset.sourceUrl
-    ? asset.sourceUrl.replace('youtu.be/', 'youtube.com/embed/').replace('watch?v=', 'embed/')
-    : null;
+  const embedUrl = youtubeEmbedUrl(asset.sourceUrl);
 
   return (
     <div
