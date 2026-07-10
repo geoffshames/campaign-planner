@@ -864,7 +864,7 @@ function ChannelTable({ channels }: { channels: Channel[] }) {
               </div>
               <div className="font-mono text-lg font-bold text-white">{compact(ch.audience)}</div>
               <div>
-                <div className="font-mono text-sm font-bold" style={{ color: statusColor(ch.status) }}>{ch.share}%</div>
+                <div className="font-mono text-sm font-bold" style={{ color: statusColor(ch.status) }}>{ch.share.toFixed(1)}%</div>
                 <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-[#161616]">
                   <div className="h-full rounded-full" style={{ width: `${ch.share}%`, background: statusColor(ch.status) }} />
                 </div>
