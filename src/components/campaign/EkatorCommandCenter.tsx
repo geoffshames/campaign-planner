@@ -1,11 +1,7 @@
 'use client';
 
-import { useMemo, useRef, useState, useCallback, useEffect } from 'react';
+import { useMemo, useRef, useState, useEffect } from 'react';
 import { motion, useScroll, useSpring } from 'framer-motion';
-import { Gauge } from '@/components/charts/gauge';
-import { RingChart } from '@/components/charts/ring-chart';
-import { Ring } from '@/components/charts/ring';
-import { RingCenter } from '@/components/charts/ring-center';
 import type {
   EkatorRegistrySnapshot,
   EkatorAssetSnapshot,
@@ -54,6 +50,34 @@ type DashboardMetrics = {
   teaserDetected: boolean;
   refreshedAt: string | null;
   readLabel: string;
+};
+
+type AudienceTimelinePoint = {
+  capturedAt: string;
+  timestamp: number;
+  total: number;
+  instagram: number;
+  youtube: number;
+  tiktok: number;
+};
+
+type AudienceGrowth = {
+  net: number | null;
+  percent: number | null;
+  baselineAt: string | null;
+};
+
+type EngagementSnapshot = {
+  rate: number | null;
+  views: number;
+  interactions: number;
+  measuredPosts: number;
+  comments: number;
+  byPlatform: Array<{
+    platform: EkatorOwnedChannel['platform'];
+    rate: number | null;
+    measuredPosts: number;
+  }>;
 };
 
 function hasMeasuredMetrics(asset: EkatorAsset): boolean {
@@ -154,6 +178,91 @@ function platformPostCount(
 ): number {
   const channel = channelSnapshot.channels.find((candidate) => candidate.platform === platform);
   return channel?.postCount ?? assets.assets.filter((asset) => asset.platform === platform).length;
+}
+
+function buildAudienceTimeline(channelSnapshot: EkatorChannelSnapshot): AudienceTimelinePoint[] {
+  const platforms: EkatorOwnedChannel['platform'][] = ['instagram', 'youtube', 'tiktok'];
+  const historyByPlatform = new Map(platforms.map((platform) => {
+    const channel = channelSnapshot.channels.find((candidate) => candidate.platform === platform);
+    const points = [...(channel?.history ?? [])]
+      .filter((point) => point.audience !== null && Number.isFinite(new Date(point.capturedAt).getTime()))
+      .map((point) => ({ capturedAt: point.capturedAt, timestamp: new Date(point.capturedAt).getTime(), audience: point.audience as number }));
+    if (channel?.capturedAt && channel.audience !== null) {
+      const timestamp = new Date(channel.capturedAt).getTime();
+      if (Number.isFinite(timestamp) && !points.some((point) => point.timestamp === timestamp)) {
+        points.push({ capturedAt: channel.capturedAt, timestamp, audience: channel.audience });
+      }
+    }
+    return [platform, points.sort((a, b) => a.timestamp - b.timestamp)] as const;
+  }));
+  const timestamps = Array.from(new Set(
+    Array.from(historyByPlatform.values()).flatMap((points) => points.map((point) => point.timestamp)),
+  )).sort((a, b) => a - b);
+  const latestTimestamp = timestamps.at(-1);
+  if (latestTimestamp === undefined) return [];
+  const cutoff = latestTimestamp - (30 * 86_400_000);
+
+  return timestamps
+    .filter((timestamp) => timestamp >= cutoff)
+    .map((timestamp) => {
+      const values = Object.fromEntries(platforms.map((platform) => {
+        const point = historyByPlatform.get(platform)?.filter((candidate) => candidate.timestamp <= timestamp).at(-1);
+        return [platform, point?.audience ?? null];
+      })) as Record<EkatorOwnedChannel['platform'], number | null>;
+      if (platforms.some((platform) => values[platform] === null)) return null;
+      const instagram = values.instagram as number;
+      const youtube = values.youtube as number;
+      const tiktok = values.tiktok as number;
+      return {
+        capturedAt: new Date(timestamp).toISOString(),
+        timestamp,
+        total: instagram + youtube + tiktok,
+        instagram,
+        youtube,
+        tiktok,
+      };
+    })
+    .filter((point): point is AudienceTimelinePoint => point !== null);
+}
+
+function deriveSevenDayAudienceGrowth(timeline: AudienceTimelinePoint[]): AudienceGrowth {
+  const latest = timeline.at(-1);
+  if (!latest) return { net: null, percent: null, baselineAt: null };
+  const target = latest.timestamp - (7 * 86_400_000);
+  const baseline = timeline.filter((point) => point.timestamp <= target).at(-1);
+  if (!baseline || baseline.total <= 0) return { net: null, percent: null, baselineAt: null };
+  const net = latest.total - baseline.total;
+  return {
+    net,
+    percent: (net / baseline.total) * 100,
+    baselineAt: baseline.capturedAt,
+  };
+}
+
+function derivePortfolioEngagement(assets: EkatorAssetSnapshot): EngagementSnapshot {
+  const platforms: EkatorOwnedChannel['platform'][] = ['instagram', 'youtube', 'tiktok'];
+  const weightedFor = (platform?: EkatorOwnedChannel['platform']) => {
+    const rows = assets.assets.filter((asset) => (
+      (!platform || asset.platform === platform)
+      && asset.views !== null
+      && asset.views > 0
+    ));
+    const views = rows.reduce((sum, asset) => sum + (asset.views ?? 0), 0);
+    const interactions = rows.reduce((sum, asset) => sum + knownInteractions(asset), 0);
+    return {
+      views,
+      interactions,
+      measuredPosts: rows.length,
+      rate: views > 0 ? (interactions / views) * 100 : null,
+    };
+  };
+  const portfolio = weightedFor();
+  return {
+    ...portfolio,
+    comments: assets.assets.reduce((sum, asset) => sum + (asset.comments ?? 0), 0),
+    byPlatform: platforms.map((platform) => ({ platform, ...weightedFor(platform) }))
+      .map(({ platform, rate, measuredPosts }) => ({ platform, rate, measuredPosts })),
+  };
 }
 
 function buildInsights(
@@ -429,171 +538,140 @@ function useDialogFocus(onClose: () => void) {
   return dialogRef;
 }
 
-/** EP1 Gravity — bklit notched arc gauge */
-function Ep1GravityCard({ metrics }: { metrics: DashboardMetrics }) {
-  if (!metrics.hasMeasuredPerformance) {
-    return (
-      <div className="flex min-h-[230px] flex-col items-center justify-center gap-2 text-center">
-        <div className="font-mono text-4xl font-black text-white">—</div>
-        <div className="font-mono text-[10px] uppercase tracking-[0.16em] text-[#A0A0AA]">YouTube performance unavailable</div>
-      </div>
-    );
-  }
-  const ep1Pct = metrics.youtubeTotalViews > 0
-    ? (metrics.longformViews / metrics.youtubeTotalViews) * 100
-    : 0;
+/** Manual refresh control */
+function RefreshButton() {
+  const [state, setState] = useState<'idle' | 'loading' | 'error'>('idle');
+  const refresh = async () => {
+    if (state === 'loading') return;
+    setState('loading');
+    try {
+      const response = await fetch('/api/ekator/refresh', { method: 'POST' });
+      if (!response.ok) throw new Error('Refresh failed');
+      window.location.reload();
+    } catch {
+      setState('error');
+    }
+  };
   return (
-    <div className="flex h-full min-w-0 flex-col items-center justify-center gap-3">
-      <div className="relative mx-auto w-full max-w-[220px]">
-        <Gauge
-          value={ep1Pct}
-          totalNotches={40}
-          spacing={25}
-          activeFill={red}
-          inactiveFill="#2A2A2A"
-          inactiveFillOpacity={0.5}
-          useGradient
-          activeGradient={[red, '#B03030']}
-          inactiveGradient={['#2A2A2A', '#1C1C1C']}
-          className="w-full"
-          minWidth={0}
-        />
-        <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-          <div className="text-center">
-            <div className="font-mono text-2xl font-black leading-none" style={{ color: red }}>{ep1Pct.toFixed(0)}%</div>
-            <div className="mt-1 text-[9px] uppercase tracking-wider text-[#A0A0AA]">EP1 share</div>
-          </div>
-        </div>
-      </div>
-      <div className="flex w-full min-w-0 flex-wrap items-center justify-between gap-2 border-t pt-2" style={{ borderColor: line }}>
-        <div className="flex items-center gap-1.5">
-          <span className="h-2 w-2 rounded-full" style={{ background: red }} />
-          <span className="font-mono text-[10px] text-[#E4E4E9]">EP1 · {compact(metrics.longformViews)}</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <span className="h-2 w-2 rounded-full" style={{ background: '#2A2A2A' }} />
-          <span className="font-mono text-[10px] text-[#A0A0AA]">Rest · {compact(Math.max(0, metrics.youtubeTotalViews - metrics.longformViews))}</span>
-        </div>
-      </div>
-      <div className="text-xs leading-relaxed text-[#A0A0AA]">
-        One video carries the channel. Cut it into clips.
-      </div>
-    </div>
+    <button type="button" onClick={refresh} disabled={state === 'loading'} className="min-h-11 rounded-lg border px-4 py-2 font-mono text-[10px] font-bold uppercase tracking-wider transition-colors hover:bg-[#FD3737] hover:text-white disabled:cursor-wait disabled:opacity-60" style={{ borderColor: red, color: state === 'error' ? '#D42D2D' : red }}>
+      {state === 'loading' ? 'Refreshing…' : state === 'error' ? 'Retry refresh' : 'Refresh now'}
+    </button>
   );
 }
 
-/** Cross-platform attention mix — bklit concentric ring chart */
-function ViewConcentrationCard({ metrics, channels }: { metrics: DashboardMetrics; channels: Channel[] }) {
-  const instagram = channels.find((channel) => channel.name === 'Instagram');
-  const instagramViews = instagram?.views ?? 0;
-  const measuredViews = instagramViews + metrics.youtubeTotalViews;
-  if (measuredViews === 0) {
-    return (
-      <div className="flex min-h-[286px] flex-col items-center justify-center gap-2 text-center">
-        <div className="font-mono text-4xl font-black text-white">—</div>
-        <div className="font-mono text-[10px] uppercase tracking-[0.16em] text-[#A0A0AA]">Attention mix unavailable</div>
-      </div>
-    );
-  }
-  const total = Math.max(1, measuredViews);
-  const segments = [
-    ...(instagramViews > 0
-      ? [{ label: 'Instagram Reels', value: instagramViews, color: '#E4E4E9', pct: (instagramViews / total) * 100 }]
-      : []),
-    { label: 'YouTube EP1', value: metrics.longformViews, color: red, pct: (metrics.longformViews / total) * 100 },
-    ...(metrics.teaserDetected
-      ? [{ label: 'YouTube teaser', value: metrics.teaserViews, color: '#B03030', pct: (metrics.teaserViews / total) * 100 }]
-      : []),
-    {
-      label: `YouTube ${metrics.teaserDetected ? 'Shorts' : 'published cuts'} (${metrics.shortsCount})`,
-      value: metrics.shortsViews,
-      color: '#7A2A2A',
-      pct: (metrics.shortsViews / total) * 100,
-    },
-  ];
-  const ringData = segments.map(s => ({ label: s.label, value: s.value, maxValue: total, color: s.color }));
-  return (
-    <div className="flex h-full flex-col items-center justify-center gap-3">
-      <RingChart data={ringData} size={210} strokeWidth={11} ringGap={7} baseInnerRadius={46}>
-        {ringData.map((item, index) => (
-          <Ring key={item.label} index={index} />
-        ))}
-        <RingCenter
-          defaultLabel="Measured views"
-          formatOptions={{ notation: 'compact', maximumFractionDigits: 1 }}
-          valueClassName="font-mono text-xl font-black text-white"
-          labelClassName="text-[9px] uppercase tracking-wider text-[#A0A0AA]"
-        />
-      </RingChart>
-      <div className="w-full space-y-1.5 border-t pt-2" style={{ borderColor: line }}>
-        {segments.map(seg => (
-          <div key={seg.label} className="flex items-center gap-2">
-            <span className="h-2.5 w-2.5 shrink-0 rounded-sm" style={{ background: seg.color }} />
-            <span className="flex-1 text-xs text-[#E4E4E9]">{seg.label}</span>
-            <span className="font-mono text-xs font-bold text-white">{compact(seg.value)}</span>
-            <span className="w-10 text-right font-mono text-[10px] text-[#A0A0AA]">{seg.pct.toFixed(1)}%</span>
-          </div>
-        ))}
-      </div>
-      <div className="text-xs leading-relaxed" style={{ color: red }}>
-        <span className="font-bold">Read: </span>Instagram carries {((instagramViews / total) * 100).toFixed(1)}% of measured public views. Treat it as the discovery surface and YouTube as the depth and conversion surface.
-      </div>
-    </div>
-  );
-}
-
-
-/** Priority timeline — numbered horizontal stepper */
-function PriorityTimeline({ recommendations }: { recommendations: Rec[] }) {
-  return (
-    <div className="space-y-3">
-      {recommendations.slice(0, 3).map(rec => (
-        <div key={rec.rank} className="flex items-start gap-3">
-          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-2 font-mono text-sm font-bold" style={{ borderColor: red, color: red }}>
-            {rec.rank}
-          </div>
-          <div className="min-w-0 flex-1">
-            <div className="text-sm font-semibold leading-tight text-white">{rec.title}</div>
-            <div className="mt-1 text-xs leading-relaxed text-[#E4E4E9]">{rec.move}</div>
-          </div>
-          <div className="shrink-0 text-right">
-            <span className="rounded-sm px-2 py-0.5 font-mono text-[10px] font-bold uppercase" style={{ color: rec.impact === 'High' ? red : muted, border: `1px solid ${rec.impact === 'High' ? red : line}` }}>
-              {rec.impact}
-            </span>
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-/** KPI rail — inline strip of key numbers, no cards */
-function KpiRail({ metrics, channels }: { metrics: DashboardMetrics; channels: Channel[] }) {
-  const ep1Pct = metrics.youtubeTotalViews > 0
-    ? (metrics.longformViews / metrics.youtubeTotalViews) * 100
-    : 0;
-  const tiktok = channels.find((channel) => channel.name === 'TikTok');
-  const instagram = channels.find((channel) => channel.name === 'Instagram');
-  const instagramViews = instagram?.views ?? 0;
-  const measuredViews = instagramViews + metrics.youtubeTotalViews;
+/** Evergreen hero — durable campaign-health signals */
+function EvergreenKpiRail({ metrics, channels, growth, engagement }: { metrics: DashboardMetrics; channels: Channel[]; growth: AudienceGrowth; engagement: EngagementSnapshot }) {
+  const measuredAttention = channels.reduce((sum, channel) => sum + (channel.views ?? 0), 0);
   const items = [
-    { label: 'Audience', value: metrics.ownedAudience > 0 ? compact(metrics.ownedAudience) : '—', sub: 'IG+YT+TT', tone: 'normal' },
-    { label: 'Measured views', value: measuredViews > 0 ? compact(measuredViews) : '—', sub: 'IG + YT measured', tone: 'normal' },
-    { label: 'IG Reel views', value: instagramViews > 0 ? compact(instagramViews) : '—', sub: instagram ? `${instagram.viewCount} Reels` : 'data pending', tone: 'normal' },
-    { label: 'YT views', value: metrics.hasMeasuredPerformance ? compact(metrics.youtubeTotalViews) : '—', sub: metrics.hasMeasuredPerformance ? `${metrics.videoCount} videos` : 'data pending', tone: 'normal' },
-    { label: 'EP1 Gravity', value: metrics.hasMeasuredPerformance ? `${ep1Pct.toFixed(1)}%` : '—', sub: metrics.hasMeasuredPerformance ? 'of YT views' : 'data pending', tone: 'normal' },
-    { label: 'TikTok', value: tiktok?.posts.split(' ')[0] ?? '—', sub: tiktok ? `${compact(tiktok.audience)} waiting` : 'data pending', tone: 'risk' },
+    { label: 'Owned Audience', value: metrics.ownedAudience > 0 ? compact(metrics.ownedAudience) : '—', sub: 'Instagram + YouTube + TikTok' },
+    {
+      label: '7-Day Growth',
+      value: growth.percent === null ? '—' : `${growth.percent >= 0 ? '+' : ''}${growth.percent.toFixed(1)}%`,
+      sub: growth.net === null ? 'Collecting 7-day baseline' : `${growth.net >= 0 ? '+' : ''}${compact(growth.net)} audience · 7 days`,
+    },
+    { label: 'Measured Engagement', value: engagement.rate === null ? '—' : `${engagement.rate.toFixed(1)}%`, sub: engagement.rate === null ? 'Awaiting view-backed posts' : `${compact(engagement.interactions)} interactions · ${engagement.measuredPosts} posts` },
+    { label: 'Measured Attention', value: measuredAttention > 0 ? compact(measuredAttention) : '—', sub: measuredAttention > 0 ? 'Source-backed public views' : 'View coverage pending' },
   ];
   return (
-    <div className="grid min-w-0 grid-cols-2 gap-px overflow-hidden rounded-lg bg-[#1A1A1A] sm:grid-cols-3 lg:grid-cols-6">
+    <div className="grid min-w-0 grid-cols-2 gap-px overflow-hidden rounded-lg bg-[#242424] lg:grid-cols-4">
       {items.map((item) => (
-        <div key={item.label} className="min-w-0 bg-[#0E0E0E] px-3 py-2.5">
-          <div className="text-[9px] uppercase tracking-[0.15em] text-[#A0A0AA]">{item.label}</div>
-          <div className="mt-0.5 font-mono text-xl font-bold leading-none" style={{ color: item.tone === 'risk' ? red : white }}>{item.value}</div>
-          <div className="mt-0.5 text-[9px] text-[#A0A0AA]">{item.sub}</div>
+        <div key={item.label} className="min-w-0 bg-[#0E0E0E] px-4 py-4 sm:px-5">
+          <div className="text-[9px] uppercase tracking-[0.18em] text-[#A0A0AA]">{item.label}</div>
+          <div className="mt-2 font-mono text-2xl font-black leading-none text-white sm:text-3xl">{item.value}</div>
+          <div className="mt-2 min-h-7 text-[10px] leading-snug text-[#A0A0AA]">{item.sub}</div>
         </div>
       ))}
     </div>
+  );
+}
+
+function AudienceMomentum({ timeline, channels, growth }: { timeline: AudienceTimelinePoint[]; channels: Channel[]; growth: AudienceGrowth }) {
+  const width = 760;
+  const height = 240;
+  const padX = 28;
+  const padTop = 28;
+  const padBottom = 42;
+  const latest = timeline.at(-1);
+  const totals = timeline.map((point) => point.total);
+  const minTotal = totals.length > 0 ? Math.min(...totals) : 0;
+  const maxTotal = totals.length > 0 ? Math.max(...totals) : 0;
+  const spread = Math.max(1, maxTotal - minTotal);
+  const yMin = Math.max(0, minTotal - spread * 0.18);
+  const yMax = maxTotal + spread * 0.18;
+  const firstTimestamp = timeline[0]?.timestamp ?? 0;
+  const lastTimestamp = latest?.timestamp ?? firstTimestamp + 1;
+  const timeSpan = Math.max(1, lastTimestamp - firstTimestamp);
+  const xFor = (timestamp: number) => padX + ((timestamp - firstTimestamp) / timeSpan) * (width - padX * 2);
+  const yFor = (value: number) => padTop + (1 - ((value - yMin) / Math.max(1, yMax - yMin))) * (height - padTop - padBottom);
+  const path = timeline.map((point, index) => `${index === 0 ? 'M' : 'L'} ${xFor(point.timestamp).toFixed(1)} ${yFor(point.total).toFixed(1)}`).join(' ');
+  const formatDate = (value: string) => new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric' }).format(new Date(value));
+  const rawAudienceTotal = channels.reduce((sum, channel) => sum + channel.audience, 0);
+  const audienceDenominator = Math.max(1, rawAudienceTotal);
+  const growthLabel = growth.percent === null ? 'Collecting 7-day baseline' : `${growth.percent >= 0 ? '+' : ''}${growth.percent.toFixed(1)}% over 7 days`;
+  return (
+    <section className="min-w-0 rounded-lg border bg-[#0E0E0E] p-4 sm:p-6" style={{ borderColor: line }} aria-labelledby="audience-momentum-title">
+      <div className="flex flex-col gap-3 border-b pb-4 sm:flex-row sm:items-end sm:justify-between" style={{ borderColor: line }}>
+        <div><div id="audience-momentum-title" className="text-[10px] uppercase tracking-[0.2em]" style={{ color: red }}>Audience Momentum</div><div className="mt-1 text-xs text-[#A0A0AA]">Combined owned audience · rolling 30-day window</div></div>
+        <div className="sm:text-right"><div className="font-mono text-3xl font-black text-white">{latest ? compact(latest.total) : compact(rawAudienceTotal)}</div><div className="mt-1 font-mono text-[10px] uppercase tracking-wider text-[#A0A0AA]">{growthLabel}</div></div>
+      </div>
+      {timeline.length >= 2 ? (
+        <div className="mt-4 overflow-hidden rounded-md border bg-[#0A0A0A]" style={{ borderColor: '#202020' }}>
+          <svg viewBox={`0 0 ${width} ${height}`} className="block h-auto w-full" role="img" aria-label={`Combined audience trend from ${formatDate(timeline[0].capturedAt)} to ${formatDate(latest?.capturedAt ?? timeline[0].capturedAt)}`}>
+            {[0.2, 0.5, 0.8].map((fraction) => { const y = padTop + fraction * (height - padTop - padBottom); return <line key={fraction} x1={padX} x2={width - padX} y1={y} y2={y} stroke="#202020" strokeWidth="1" />; })}
+            <defs><linearGradient id="audience-area" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={red} stopOpacity="0.24" /><stop offset="100%" stopColor={red} stopOpacity="0" /></linearGradient></defs>
+            <path d={`${path} L ${xFor(lastTimestamp).toFixed(1)} ${height - padBottom} L ${xFor(firstTimestamp).toFixed(1)} ${height - padBottom} Z`} fill="url(#audience-area)" />
+            <path d={path} fill="none" stroke={red} strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
+            {timeline.map((point, index) => <circle key={point.capturedAt} cx={xFor(point.timestamp)} cy={yFor(point.total)} r={index === timeline.length - 1 ? 5 : 3} fill={index === timeline.length - 1 ? white : red} stroke="#0A0A0A" strokeWidth="2" />)}
+            <text x={padX} y={height - 15} fill="#A0A0AA" fontSize="12" fontFamily="monospace">{formatDate(timeline[0].capturedAt)}</text><text x={width - padX} y={height - 15} fill="#A0A0AA" fontSize="12" fontFamily="monospace" textAnchor="end">{formatDate(latest?.capturedAt ?? timeline[0].capturedAt)}</text>
+          </svg>
+        </div>
+      ) : (
+        <div className="mt-4 flex min-h-72 items-center justify-center rounded-md border bg-[#0A0A0A] px-5 text-center" style={{ borderColor: '#202020' }}><div><div className="font-mono text-2xl font-black text-white">TREND COLLECTING</div><div className="mt-2 max-w-sm text-xs leading-relaxed text-[#A0A0AA]">Daily audience snapshots are connected. The trajectory appears after a second complete capture.</div></div></div>
+      )}
+      <div className="mt-4 grid gap-3 sm:grid-cols-3">
+        {channels.map((channel) => { const share = (channel.audience / audienceDenominator) * 100; return <div key={channel.name} className="rounded-md border bg-[#111111] px-3 py-3" style={{ borderColor: '#202020' }}><div className="flex items-baseline justify-between gap-3"><span className="text-xs font-semibold text-white">{channel.name}</span><span className="font-mono text-xs font-bold text-white">{compact(channel.audience)}</span></div><div className="mt-2 h-1.5 overflow-hidden rounded-full bg-[#242424]"><div className="h-full rounded-full" style={{ width: `${Math.max(2, share)}%`, background: channel.status === 'risk' ? red : light }} /></div><div className="mt-1.5 font-mono text-[9px] text-[#A0A0AA]">{share.toFixed(1)}% of audience</div></div>; })}
+      </div>
+    </section>
+  );
+}
+
+function EngagementHealth({ engagement }: { engagement: EngagementSnapshot }) {
+  const maxRate = Math.max(1, ...engagement.byPlatform.map((entry) => entry.rate ?? 0));
+  const labels: Record<EkatorOwnedChannel['platform'], string> = { instagram: 'Instagram', youtube: 'YouTube', tiktok: 'TikTok' };
+  return (
+    <section className="min-w-0 rounded-lg border bg-[#0E0E0E] p-4 sm:p-5" style={{ borderColor: line }} aria-labelledby="engagement-health-title">
+      <div className="flex items-start justify-between gap-4 border-b pb-4" style={{ borderColor: line }}><div><div id="engagement-health-title" className="text-[10px] uppercase tracking-[0.2em]" style={{ color: red }}>Engagement Health</div><div className="mt-1 text-xs text-[#A0A0AA]">View-weighted portfolio rate</div></div><div className="text-right"><div className="font-mono text-3xl font-black text-white">{engagement.rate === null ? '—' : `${engagement.rate.toFixed(1)}%`}</div><div className="mt-1 font-mono text-[9px] uppercase tracking-wider text-[#A0A0AA]">{engagement.measuredPosts} measured posts</div></div></div>
+      <div className="mt-4 space-y-4">{engagement.byPlatform.map((entry) => <div key={entry.platform}><div className="flex items-center justify-between gap-3 text-xs"><span className="font-semibold text-[#E4E4E9]">{labels[entry.platform]}</span><span className="font-mono font-bold text-white">{entry.rate === null ? '—' : `${entry.rate.toFixed(1)}%`}</span></div><div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-[#242424]"><div className="h-full rounded-full" style={{ width: entry.rate === null ? '0%' : `${Math.max(3, (entry.rate / maxRate) * 100)}%`, background: entry.platform === 'tiktok' ? red : light }} /></div><div className="mt-1 font-mono text-[9px] text-[#A0A0AA]">{entry.measuredPosts} view-backed {entry.measuredPosts === 1 ? 'post' : 'posts'}</div></div>)}</div>
+      <p className="mt-4 border-t pt-3 text-[10px] leading-relaxed text-[#A0A0AA]" style={{ borderColor: line }}>Likes + comments + shares ÷ measured views. Posts without a public view count are excluded.</p>
+    </section>
+  );
+}
+
+function SentimentPulse({ engagement }: { engagement: EngagementSnapshot }) {
+  return (
+    <section className="min-w-0 rounded-lg border bg-[#0E0E0E] p-4 sm:p-5" style={{ borderColor: line }} aria-labelledby="sentiment-pulse-title">
+      <div className="flex items-start justify-between gap-4"><div><div id="sentiment-pulse-title" className="text-[10px] uppercase tracking-[0.2em]" style={{ color: red }}>Sentiment Pulse</div><div className="mt-1 text-xs text-[#A0A0AA]">Audience quality signal</div></div><span className="rounded-sm border px-2 py-1 font-mono text-[9px] font-bold uppercase tracking-wider" style={{ borderColor: red, color: red }}>Data gap</span></div>
+      <div className="mt-5 font-mono text-2xl font-black text-white">Not yet measured</div>
+      <p className="mt-2 text-xs leading-relaxed text-[#E4E4E9]">{compact(engagement.comments)} comments are counted, but comment text and polarity are not connected. No sentiment score is inferred from engagement totals.</p>
+      <div className="mt-4 border-t pt-3" style={{ borderColor: line }}><div className="text-[9px] uppercase tracking-[0.16em] text-[#A0A0AA]">Required next layer</div><div className="mt-1 text-xs leading-relaxed text-white">Comment ingestion, language normalization, and positive / neutral / negative classification with sample coverage.</div></div>
+    </section>
+  );
+}
+
+function ExecutiveRead({ metrics, channels }: { metrics: DashboardMetrics; channels: Channel[] }) {
+  const measuredChannels = channels.filter((channel) => channel.views !== null && channel.views > 0);
+  const measuredViews = measuredChannels.reduce((sum, channel) => sum + (channel.views ?? 0), 0);
+  const leader = [...measuredChannels].sort((a, b) => (b.views ?? 0) - (a.views ?? 0))[0];
+  const leaderShare = leader && measuredViews > 0 ? ((leader.views ?? 0) / measuredViews) * 100 : null;
+  const tiktok = channels.find((channel) => channel.name === 'TikTok');
+  const tiktokDormant = (tiktok?.postCount ?? 0) === 0;
+  const reads = [
+    { label: 'Winning', value: leader && leaderShare !== null ? `${leader.name} carries ${leaderShare.toFixed(1)}% of measured public views.` : 'Measured attention is still collecting.', accent: light },
+    { label: 'Risk', value: tiktokDormant ? (tiktok && tiktok.audience > 0 ? `${compact(tiktok.audience)} TikTok followers remain inactive with no official posts.` : 'TikTok publishing remains inactive with no official posts.') : 'No channel-level activation gap is currently flagged.', accent: red },
+    { label: 'Next move', value: tiktokDormant ? 'Publish the first controlled TikTok cuts and establish a seven-day pacing baseline.' : metrics.hasMeasuredPerformance ? 'Repeat the strongest cross-platform hook inside a comparable measurement window.' : 'Restore post-level performance coverage before changing the content plan.', accent: red },
+  ];
+  return (
+    <section className="grid overflow-hidden rounded-lg border bg-[#0E0E0E] md:grid-cols-3" style={{ borderColor: line }} aria-label="Executive read">{reads.map((read, index) => <div key={read.label} className={`relative min-w-0 px-4 py-4 sm:px-5 ${index > 0 ? 'border-t md:border-l md:border-t-0' : ''}`} style={{ borderColor: line }}><div className="absolute left-0 top-0 h-full w-1" style={{ background: read.accent }} /><div className="text-[9px] uppercase tracking-[0.18em] text-[#A0A0AA]">{read.label}</div><p className="mt-2 text-sm font-semibold leading-snug text-white">{read.value}</p></div>)}</section>
   );
 }
 
@@ -624,170 +702,35 @@ function StatusStrip({ registry, assets }: { registry: EkatorRegistrySnapshot; a
   );
 }
 
-/** Channel matrix — bklit ring chart per channel */
-function ChannelMatrix({ channels }: { channels: Channel[] }) {
-  const maxAudience = Math.max(1, ...channels.map((channel) => channel.audience));
-  const maxPosts = Math.max(1, ...channels.map((channel) => channel.postCount));
-  return (
-    <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-      {channels.map(ch => {
-        const ringColor = ch.status === 'strong' ? '#E4E4E9' : statusColor(ch.status);
-        const ringData = [{ label: ch.name, value: ch.audience, maxValue: maxAudience, color: ringColor }];
-        return (
-          <div key={ch.name} className="flex flex-col items-center gap-2 rounded-lg bg-[#141414] p-5 text-center">
-            <RingChart data={ringData} size={104} strokeWidth={9} ringGap={0} baseInnerRadius={38}>
-              <Ring index={0} animate showGlow={false} />
-              <RingCenter
-                defaultLabel=""
-                formatOptions={{ notation: 'compact', maximumFractionDigits: 1 }}
-                valueClassName="font-mono text-base font-bold text-white"
-                labelClassName="hidden"
-              />
-            </RingChart>
-            <div className="text-base font-bold text-white">{ch.name}</div>
-            <div className="flex items-center gap-2">
-              <span className="h-2 w-2 rounded-full" style={{ background: statusColor(ch.status) }} />
-              <span className="font-mono text-xs uppercase" style={{ color: statusColor(ch.status) }}>{statusLabel(ch.status)}</span>
-            </div>
-            <div className="w-full">
-              <div className="h-1.5 overflow-hidden rounded-full bg-[#262626]">
-                <div
-                  className="h-full rounded-full"
-                  style={{ width: `${Math.min(100, (ch.postCount / maxPosts) * 100)}%`, background: ringColor, opacity: 0.85 }}
-                />
-              </div>
-              <div className="mt-1.5 font-mono text-[10px] text-[#A0A0AA]">{ch.posts}</div>
-            </div>
-            <div className="w-full border-t pt-2" style={{ borderColor: line }}>
-              <div className="text-[9px] uppercase tracking-wider text-[#A0A0AA]">Engagement</div>
-              <div className="mt-0.5 font-mono text-sm font-bold" style={{ color: ch.engagement === '—' ? '#8A8A94' : white }}>{ch.engagement}</div>
-            </div>
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
-/** Refresh button — triggers agent pipeline via API route */
-function RefreshButton() {
-  const [state, setState] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
-
-  const handleRefresh = useCallback(async () => {
-    setState('sending');
-    try {
-      const resp = await fetch('/api/ekator/refresh', { method: 'POST' });
-      const data = await resp.json();
-      if (data.ok) {
-        setState('sent');
-        setTimeout(() => setState('idle'), 4000);
-      } else {
-        setState('error');
-        setTimeout(() => setState('idle'), 4000);
-      }
-    } catch {
-      setState('error');
-      setTimeout(() => setState('idle'), 4000);
-    }
-  }, []);
-
-  const labels = {
-    idle: 'Refresh Now',
-    sending: 'Sending…',
-    sent: 'Refresh queued ✓',
-    error: 'Failed — try again',
-  };
-
-  const colors = {
-    idle: red,
-    sending: muted,
-    sent: light,
-    error: red,
-  };
-
-  return (
-    <button
-      onClick={handleRefresh}
-      disabled={state === 'sending'}
-      className="flex min-h-11 items-center gap-2 rounded-md border px-4 py-2 font-mono text-xs font-bold uppercase tracking-wider transition-all hover:bg-[#1A1A1A] disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FD3737]"
-      style={{ borderColor: colors[state], color: colors[state] }}
-    >
-      {state === 'sending' && (
-        <span className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-t-transparent" style={{ borderColor: muted, borderTopColor: 'transparent' }} />
-      )}
-      <span aria-live="polite">{labels[state]}</span>
-    </button>
-  );
-}
-
 /* ── COMMAND CENTER (above the fold) ──────────────────────────────── */
 
-function CommandCenter({ registry, assets, metrics, channels, recommendations }: { registry: EkatorRegistrySnapshot; assets: EkatorAssetSnapshot; metrics: DashboardMetrics; channels: Channel[]; recommendations: Rec[] }) {
+function CommandCenter({ registry, assets, metrics, channels, audienceTimeline, growth, engagement }: { registry: EkatorRegistrySnapshot; assets: EkatorAssetSnapshot; metrics: DashboardMetrics; channels: Channel[]; audienceTimeline: AudienceTimelinePoint[]; growth: AudienceGrowth; engagement: EngagementSnapshot }) {
   return (
     <div className="mx-auto w-full min-w-0 max-w-[1400px] px-4 pb-6 pt-8 sm:pt-12 md:px-6 lg:px-8 lg:pt-20">
-      {/* Title bar */}
       <div className="mb-4 flex min-w-0 flex-col items-start gap-4 border-b pb-4 sm:flex-row sm:items-end sm:justify-between sm:gap-3 sm:pb-3" style={{ borderColor: line }}>
         <div className="min-w-0">
-          <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-[#A0A0AA]">
-            <span style={{ color: red }}>●</span> EKATOR Social Dashboard
-          </div>
-          <h1 className="mt-2 font-mono text-3xl font-black leading-[0.9] tracking-[-0.04em] text-white md:text-4xl">
-            <span className="block sm:inline">EKATOR</span>{' '}
-            <span className="mt-1 block sm:mt-0 sm:inline" style={{ color: red }}>COMMAND CENTER</span>
-          </h1>
+          <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-[#A0A0AA]"><span style={{ color: red }}>●</span> EKATOR Social Dashboard</div>
+          <h1 className="mt-2 font-mono text-3xl font-black leading-[0.9] tracking-[-0.04em] text-white md:text-4xl"><span className="block sm:inline">EKATOR</span>{' '}<span className="mt-1 block sm:mt-0 sm:inline" style={{ color: red }}>COMMAND CENTER</span></h1>
         </div>
         <div className="flex w-full min-w-0 flex-wrap items-end justify-between gap-4 sm:w-auto sm:flex-nowrap sm:justify-start">
           <RefreshButton />
-          <div className="text-right">
-            <div className="text-[10px] uppercase tracking-[0.2em] text-[#A0A0AA]">Last refreshed</div>
-            <div className="font-mono text-xs text-[#E4E4E9]">{metrics.readLabel}</div>
-          </div>
+          <div className="text-right"><div className="text-[10px] uppercase tracking-[0.2em] text-[#A0A0AA]">Last refreshed</div><div className="font-mono text-xs text-[#E4E4E9]">{metrics.readLabel}</div></div>
         </div>
       </div>
 
-      {/* KPI Rail */}
-      <div className="mb-3"><KpiRail metrics={metrics} channels={channels} /></div>
+      <div className="mb-3"><EvergreenKpiRail metrics={metrics} channels={channels} growth={growth} engagement={engagement} /></div>
 
-      {/* Main 3-column grid */}
-      <div className="mb-3 grid min-w-0 grid-cols-1 gap-3 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)_minmax(0,1fr)]">
-        {/* YouTube EP1 Gravity */}
-        <div className="min-w-0 rounded-lg border p-4 sm:p-5" style={{ borderColor: line, background: '#0E0E0E' }}>
-          <div className="mb-3 text-[10px] uppercase tracking-[0.2em]" style={{ color: red }}>YouTube EP1 Gravity</div>
-          <Ep1GravityCard metrics={metrics} />
-        </div>
-
-        {/* Cross-platform attention mix */}
-        <div className="min-w-0 rounded-lg border p-4 sm:p-5" style={{ borderColor: line, background: '#0E0E0E' }}>
-          <div className="mb-3 flex min-w-0 flex-col items-start gap-1 sm:flex-row sm:items-center sm:justify-between">
-            <div className="text-[10px] uppercase tracking-[0.2em]" style={{ color: red }}>Attention Mix</div>
-            <div className="font-mono text-xs text-[#A0A0AA]">where measured views are landing</div>
-          </div>
-          <ViewConcentrationCard metrics={metrics} channels={channels} />
-        </div>
-
-        {/* Priority queue */}
-        <div className="min-w-0 rounded-lg border p-4" style={{ borderColor: line, background: '#0E0E0E' }}>
-          <div className="mb-3 flex min-w-0 flex-col items-start gap-1 sm:flex-row sm:items-center sm:justify-between">
-            <div className="text-[10px] uppercase tracking-[0.2em]" style={{ color: red }}>72-Hour Queue</div>
-            <div className="font-mono text-xs text-[#A0A0AA]">do these first</div>
-          </div>
-          <PriorityTimeline recommendations={recommendations} />
+      <div className="mb-3 grid min-w-0 grid-cols-1 gap-3 lg:grid-cols-[minmax(0,2fr)_minmax(300px,0.8fr)]">
+        <AudienceMomentum timeline={audienceTimeline} channels={channels} growth={growth} />
+        <div className="grid min-w-0 gap-3">
+          <EngagementHealth engagement={engagement} />
+          <SentimentPulse engagement={engagement} />
         </div>
       </div>
 
-      {/* Channel matrix — 3 compact channel cards with rings */}
-      <div className="mb-3 min-w-0 rounded-lg border p-4" style={{ borderColor: line, background: '#0E0E0E' }}>
-        <div className="mb-3 flex min-w-0 flex-col items-start gap-1 sm:flex-row sm:items-center sm:justify-between">
-          <div className="text-[10px] uppercase tracking-[0.2em]" style={{ color: red }}>Channel Pulse</div>
-          <div className="font-mono text-xs text-[#A0A0AA]">audience · status · activation</div>
-        </div>
-        <ChannelMatrix channels={channels} />
-      </div>
+      <div className="mb-3"><ExecutiveRead metrics={metrics} channels={channels} /></div>
 
-      {/* Status strip */}
-      <div className="rounded-lg border" style={{ borderColor: line, background: '#0E0E0E' }}>
-        <StatusStrip registry={registry} assets={assets} />
-      </div>
+      <div className="rounded-lg border" style={{ borderColor: line, background: '#0E0E0E' }}><StatusStrip registry={registry} assets={assets} /></div>
     </div>
   );
 }
@@ -1536,6 +1479,9 @@ export function EkatorCommandCenter({ registry, assets, channelSnapshot }: { reg
   const scaleX = useSpring(scrollYProgress, { stiffness: 120, damping: 30, restDelta: 0.001 });
   const metrics = useMemo(() => deriveDashboardMetrics(assets, channelSnapshot), [assets, channelSnapshot]);
   const channelData = useMemo(() => buildChannels(metrics, assets, channelSnapshot), [metrics, assets, channelSnapshot]);
+  const audienceTimeline = useMemo(() => buildAudienceTimeline(channelSnapshot), [channelSnapshot]);
+  const audienceGrowth = useMemo(() => deriveSevenDayAudienceGrowth(audienceTimeline), [audienceTimeline]);
+  const engagement = useMemo(() => derivePortfolioEngagement(assets), [assets]);
   const insights = useMemo(() => buildInsights(metrics, assets, channelSnapshot), [metrics, assets, channelSnapshot]);
   const recommendations = useMemo(() => buildRecommendations(metrics, assets, channelSnapshot), [metrics, assets, channelSnapshot]);
   const nav = useMemo(() => [
@@ -1563,7 +1509,7 @@ export function EkatorCommandCenter({ registry, assets, channelSnapshot }: { reg
 
       {/* COMMAND CENTER — above the fold */}
       <header ref={heroRef} className="min-h-[100dvh] min-w-0 pt-14">
-        <CommandCenter registry={registry} assets={assets} metrics={metrics} channels={channelData} recommendations={recommendations} />
+        <CommandCenter registry={registry} assets={assets} metrics={metrics} channels={channelData} audienceTimeline={audienceTimeline} growth={audienceGrowth} engagement={engagement} />
       </header>
 
       {/* Divider */}

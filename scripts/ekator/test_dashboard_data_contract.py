@@ -7,6 +7,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 LIB = (ROOT / "src/lib/ekator-dashboard.ts").read_text()
 COMPONENT = (ROOT / "src/components/campaign/EkatorCommandCenter.tsx").read_text()
+HERO = COMPONENT.split("function CommandCenter", 1)[1].split("/* ── DETAIL SECTIONS", 1)[0]
 PAGES = "\n".join(
     (ROOT / path).read_text()
     for path in ("src/app/ekator/page.tsx", "src/app/campaign/ekator/page.tsx")
@@ -44,14 +45,33 @@ class DashboardDataContractTests(unittest.TestCase):
         ):
             self.assertNotIn(stale_claim, COMPONENT)
 
-    def test_hero_prioritizes_cross_platform_attention(self) -> None:
-        self.assertIn("label: 'Measured views'", COMPONENT)
-        self.assertIn("label: 'IG Reel views'", COMPONENT)
-        self.assertIn("IG + YT measured", COMPONENT)
-        self.assertIn("Attention Mix", COMPONENT)
-        self.assertIn("where measured views are landing", COMPONENT)
-        self.assertIn("Instagram Reels", COMPONENT)
-        self.assertIn("Instagram carries", COMPONENT)
+    def test_hero_prioritizes_evergreen_campaign_health(self) -> None:
+        for label in (
+            "Owned Audience",
+            "7-Day Growth",
+            "Measured Engagement",
+            "Measured Attention",
+            "Audience Momentum",
+            "Engagement Health",
+            "Sentiment Pulse",
+            "Not yet measured",
+            "Winning",
+            "Risk",
+            "Next move",
+        ):
+            self.assertIn(label, COMPONENT)
+        self.assertIn("function buildAudienceTimeline", COMPONENT)
+        self.assertIn("function deriveSevenDayAudienceGrowth", COMPONENT)
+        self.assertIn("function derivePortfolioEngagement", COMPONENT)
+
+    def test_asset_specific_diagnostics_are_outside_the_hero(self) -> None:
+        for stale_hero in (
+            "YouTube EP1 Gravity",
+            "Attention Mix",
+            "Channel Pulse",
+            "72-Hour Queue",
+        ):
+            self.assertNotIn(stale_hero, HERO)
 
     def test_follower_delta_panel_is_removed(self) -> None:
         self.assertNotIn("Follower Delta", COMPONENT)
@@ -77,11 +97,12 @@ class DashboardDataContractTests(unittest.TestCase):
             self.assertNotIn(stale_audience, COMPONENT)
         self.assertIn("platformPostCount('tiktok'", COMPONENT)
 
-    def test_channel_visuals_do_not_embed_snapshot_metrics(self) -> None:
+    def test_audience_momentum_uses_channel_history(self) -> None:
         for stale_literal in ("maxValue: 65_074", "TikTok 0.", "ch.posts === '0 videos'"):
             self.assertNotIn(stale_literal, COMPONENT)
-        self.assertIn("maxValue: maxAudience", COMPONENT)
-        self.assertIn("ch.postCount / maxPosts", COMPONENT)
+        self.assertIn("channel?.history", COMPONENT)
+        self.assertIn("channel.audience", COMPONENT)
+        self.assertIn("Collecting 7-day baseline", COMPONENT)
 
     def test_youtube_shadowbox_normalizes_all_supported_publication_urls(self) -> None:
         self.assertIn("function youtubeEmbedUrl", COMPONENT)
