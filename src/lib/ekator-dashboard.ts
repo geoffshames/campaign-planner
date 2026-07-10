@@ -133,12 +133,15 @@ type OwnedPublication = {
   sourceUrl: string;
 };
 
-function itemUrl(item: SupabaseRow): string | null {
+function itemUrls(item: SupabaseRow): string[] {
+  const urls: string[] = [];
   for (const key of ['source_url', 'post_url', 'permalink', 'url']) {
     const value = item[key];
-    if (typeof value === 'string' && value.trim()) return value.trim();
+    if (typeof value === 'string' && value.trim() && !urls.includes(value.trim())) {
+      urls.push(value.trim());
+    }
   }
-  return null;
+  return urls;
 }
 
 /**
@@ -150,38 +153,37 @@ function itemUrl(item: SupabaseRow): string | null {
 function ownedPublication(item: SupabaseRow): OwnedPublication | null {
   if (!asBoolean(item.is_owned)) return null;
 
-  const sourceUrl = itemUrl(item);
-  if (!sourceUrl) return null;
+  for (const sourceUrl of itemUrls(item)) {
+    try {
+      const url = new URL(sourceUrl);
+      if (url.protocol !== 'https:' && url.protocol !== 'http:') continue;
+      const host = url.hostname.toLowerCase().replace(/^www\./, '');
+      const path = url.pathname;
 
-  try {
-    const url = new URL(sourceUrl);
-    if (url.protocol !== 'https:' && url.protocol !== 'http:') return null;
-    const host = url.hostname.toLowerCase().replace(/^www\./, '');
-    const path = url.pathname;
+      if (
+        (host === 'youtu.be' && /^\/[A-Za-z0-9_-]+/.test(path)) ||
+        ((host === 'youtube.com' || host.endsWith('.youtube.com')) &&
+          ((path === '/watch' && Boolean(url.searchParams.get('v'))) || /^\/(shorts|live|embed)\/[A-Za-z0-9_-]+/.test(path)))
+      ) {
+        return { platform: 'youtube', sourceUrl };
+      }
 
-    if (
-      (host === 'youtu.be' && /^\/[A-Za-z0-9_-]+/.test(path)) ||
-      ((host === 'youtube.com' || host.endsWith('.youtube.com')) &&
-        ((path === '/watch' && Boolean(url.searchParams.get('v'))) || /^\/(shorts|live|embed)\/[A-Za-z0-9_-]+/.test(path)))
-    ) {
-      return { platform: 'youtube', sourceUrl };
+      if (
+        (host === 'instagram.com' || host.endsWith('.instagram.com')) &&
+        /^\/(p|reel|tv)\/[A-Za-z0-9_.-]+/.test(path)
+      ) {
+        return { platform: 'instagram', sourceUrl };
+      }
+
+      if (
+        (host === 'tiktok.com' || host.endsWith('.tiktok.com')) &&
+        /^\/@[^/]+\/video\/\d+/.test(path)
+      ) {
+        return { platform: 'tiktok', sourceUrl };
+      }
+    } catch {
+      continue;
     }
-
-    if (
-      (host === 'instagram.com' || host.endsWith('.instagram.com')) &&
-      /^\/(p|reel|tv)\/[A-Za-z0-9_.-]+/.test(path)
-    ) {
-      return { platform: 'instagram', sourceUrl };
-    }
-
-    if (
-      (host === 'tiktok.com' || host.endsWith('.tiktok.com')) &&
-      /^\/@[^/]+\/video\/\d+/.test(path)
-    ) {
-      return { platform: 'tiktok', sourceUrl };
-    }
-  } catch {
-    return null;
   }
 
   return null;

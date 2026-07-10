@@ -46,6 +46,7 @@ type DashboardMetrics = {
   shortsCount: number;
   videoCount: number;
   youtubeEngagement: number | null;
+  teaserDetected: boolean;
   readLabel: string;
 };
 
@@ -60,6 +61,7 @@ function deriveDashboardMetrics(snapshot: EkatorAssetSnapshot): DashboardMetrics
       shortsCount: 7,
       videoCount: 9,
       youtubeEngagement: 3.8,
+      teaserDetected: true,
       readLabel: 'Jul 8, 2026',
     };
   }
@@ -94,6 +96,7 @@ function deriveDashboardMetrics(snapshot: EkatorAssetSnapshot): DashboardMetrics
     shortsCount: shorts.length,
     videoCount: published.length,
     youtubeEngagement: totalViews > 0 ? (interactions / totalViews) * 100 : null,
+    teaserDetected: Boolean(teaser),
     readLabel,
   };
 }
@@ -224,8 +227,15 @@ function ViewConcentrationCard({ metrics }: { metrics: DashboardMetrics }) {
   const total = Math.max(1, metrics.youtubeTotalViews);
   const segments = [
     { label: 'EP1 (longform)', value: metrics.longformViews, color: red, pct: (metrics.longformViews / total) * 100 },
-    { label: 'Teaser', value: metrics.teaserViews, color: '#B03030', pct: (metrics.teaserViews / total) * 100 },
-    { label: `Shorts (${metrics.shortsCount} clips)`, value: metrics.shortsViews, color: '#7A2A2A', pct: (metrics.shortsViews / total) * 100 },
+    ...(metrics.teaserDetected
+      ? [{ label: 'Teaser', value: metrics.teaserViews, color: '#B03030', pct: (metrics.teaserViews / total) * 100 }]
+      : []),
+    {
+      label: `${metrics.teaserDetected ? 'Shorts' : 'Other published cuts'} (${metrics.shortsCount} clips)`,
+      value: metrics.shortsViews,
+      color: '#7A2A2A',
+      pct: (metrics.shortsViews / total) * 100,
+    },
   ];
   const ringData = segments.map(s => ({ label: s.label, value: s.value, maxValue: total, color: s.color }));
   return (
@@ -658,10 +668,9 @@ function ChannelTable({ channels }: { channels: Channel[] }) {
   );
 }
 
-/** Video shadowbox — embeds YouTube iframe or plays raw mp4 */
+/** Asset shadowbox — embeds supported platform posts and links to the original. */
 function AssetShadowbox({ asset, onClose }: { asset: EkatorAsset; onClose: () => void }) {
   const isYouTube = asset.sourceUrl?.includes('youtu.be') || asset.sourceUrl?.includes('youtube.com');
-  const isMp4 = asset.sourceUrl?.endsWith('.mp4');
 
   // Convert youtu.be/VIDEOID to embed URL
   const embedUrl = isYouTube && asset.sourceUrl
@@ -725,13 +734,6 @@ function AssetShadowbox({ asset, onClose }: { asset: EkatorAsset; onClose: () =>
               className="h-full w-full"
               allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
-            />
-          ) : isMp4 && asset.sourceUrl ? (
-            <video
-              src={asset.sourceUrl}
-              className="h-full w-full"
-              controls
-              autoPlay
             />
           ) : (
             <div className="flex h-full items-center justify-center font-mono text-sm text-[#8A8A94]">
@@ -980,8 +982,10 @@ function MeasurementTable({ assets, metrics }: { assets: EkatorAssetSnapshot; me
   const snapshotDate = captureAt ? new Date(captureAt) : new Date();
   const velocityFor = (asset: EkatorAsset) => {
     if (!asset.postDate || asset.views === null) return 0;
-    const publishedAt = new Date(`${asset.postDate}T00:00:00-07:00`);
-    const ageDays = Math.max(1, Math.ceil((snapshotDate.getTime() - publishedAt.getTime()) / 86_400_000));
+    const publishedAt = new Date(asset.postDate.includes('T') ? asset.postDate : `${asset.postDate}T00:00:00-07:00`);
+    const publishedAtMs = publishedAt.getTime();
+    if (!Number.isFinite(publishedAtMs)) return 0;
+    const ageDays = Math.max(1, Math.ceil((snapshotDate.getTime() - publishedAtMs) / 86_400_000));
     return Math.round(asset.views / ageDays);
   };
   const ep1Asset = publishedAssets.find((asset) => /ep\.?\s*1/i.test(asset.caption));
