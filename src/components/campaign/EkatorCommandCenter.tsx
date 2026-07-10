@@ -1292,17 +1292,6 @@ function MeasurementTable({ assets, metrics, channelSnapshot }: { assets: Ekator
     .sort((a, b) => b.velocity - a.velocity)
     .slice(0, 12);
   const maxVelocity = Math.max(1, ...velocityAssets.map((entry) => entry.velocity));
-  const followerRows = channelSnapshot.channels.map((channel) => {
-    const baseline = channel.history[0];
-    const currentAudience = channel.audience ?? channel.history.at(-1)?.audience ?? null;
-    const delta = baseline?.audience !== null && baseline?.audience !== undefined && currentAudience !== null
-      ? currentAudience - baseline.audience
-      : null;
-    const deltaPercent = delta !== null && baseline?.audience
-      ? (delta / baseline.audience) * 100
-      : null;
-    return { channel, baseline, currentAudience, delta, deltaPercent };
-  });
   const liveLayers = measurementLayers.map((layer) => {
     if (layer.platform === 'YouTube') {
       return metrics.hasMeasuredPerformance
@@ -1365,8 +1354,8 @@ function MeasurementTable({ assets, metrics, channelSnapshot }: { assets: Ekator
         ))}
       </div>
 
-      {/* Velocity + Follower delta side by side */}
-      <div className="grid gap-4 lg:grid-cols-[1.35fr_0.65fr]">
+      {/* Velocity */}
+      <div>
         <div className="rounded-lg border p-5" style={{ borderColor: line, background: '#0E0E0E' }}>
           <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
             <div>
@@ -1452,38 +1441,6 @@ function MeasurementTable({ assets, metrics, channelSnapshot }: { assets: Ekator
             </div>
             <p className="mt-3 text-[10px] leading-relaxed text-[#A0A0AA]">Reel views and interactions are connected. Interaction pace remains the cross-platform comparator for posts whose view metric is unavailable.</p>
           </div>
-        </div>
-
-        <div className="rounded-lg border p-5" style={{ borderColor: line, background: '#0E0E0E' }}>
-          <div className="mb-4 text-[11px] uppercase tracking-[0.2em]" style={{ color: red }}>Follower Delta</div>
-          <div className="space-y-3">
-            {followerRows.map(({ channel, baseline, currentAudience, delta, deltaPercent }) => (
-              <div key={channel.platform} className="border-b pb-3" style={{ borderColor: line }}>
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <div className="text-sm font-semibold capitalize text-white">{channel.platform}</div>
-                    <div className="font-mono text-[10px] text-[#A0A0AA]">
-                      {baseline?.audience !== null && baseline?.audience !== undefined ? `baseline ${compact(baseline.audience)}` : 'baseline pending'}
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <div className="font-mono text-lg font-black text-white">{currentAudience !== null ? compact(currentAudience) : '—'}</div>
-                    <div className="font-mono text-[10px]" style={{ color: delta !== null && delta > 0 ? red : muted }}>
-                      {delta === null ? 'delta pending' : `${delta >= 0 ? '+' : ''}${delta.toLocaleString()}${deltaPercent !== null ? ` · ${deltaPercent >= 0 ? '+' : ''}${deltaPercent.toFixed(1)}%` : ''}`}
-                    </div>
-                  </div>
-                </div>
-                <div className="mt-2 flex items-center justify-between gap-2 font-mono text-[9px] uppercase tracking-wider text-[#A0A0AA]">
-                  <span>Since baseline</span>
-                  <span>{baseline ? formatRefreshedAt(baseline.capturedAt) : 'collecting'}</span>
-                </div>
-              </div>
-            ))}
-            {followerRows.length === 0 && (
-              <div className="font-mono text-xs text-[#A0A0AA]">Follower history is collecting.</div>
-            )}
-          </div>
-          <p className="mt-3 text-xs leading-snug text-[#A0A0AA]">Daily snapshots now persist in the client channel history. 24h, 72h, and 7d windows become available as those checkpoints accumulate.</p>
         </div>
       </div>
 
@@ -1635,7 +1592,7 @@ export function EkatorCommandCenter({ registry, assets, channelSnapshot }: { reg
       <div className="mx-auto h-px max-w-[1400px]" style={{ background: line }} />
 
       <section id="data" className="scroll-mt-14 py-12 md:py-16">
-        <SectionHeader num="04" title="Measurement Layers" subtitle="Post-level, pacing, sentiment, follower lift, and paid delivery." />
+        <SectionHeader num="04" title="Measurement Layers" subtitle="Post-level performance, pacing, sentiment, and paid delivery." />
         <MeasurementTable assets={assets} metrics={metrics} channelSnapshot={channelSnapshot} />
       </section>
 

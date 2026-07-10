@@ -53,10 +53,11 @@ class DashboardDataContractTests(unittest.TestCase):
         self.assertIn("Instagram Reels", COMPONENT)
         self.assertIn("Instagram carries", COMPONENT)
 
-    def test_follower_delta_is_not_a_static_placeholder(self) -> None:
-        self.assertNotIn("const followerBaselines", COMPONENT)
-        self.assertIn("channelSnapshot", COMPONENT)
-        self.assertIn("Since baseline", COMPONENT)
+    def test_follower_delta_panel_is_removed(self) -> None:
+        self.assertNotIn("Follower Delta", COMPONENT)
+        self.assertNotIn("follower lift", COMPONENT)
+        self.assertNotIn("Since baseline", COMPONENT)
+        self.assertNotIn("const followerRows", COMPONENT)
 
     def test_insights_and_ranked_moves_use_current_measurements(self) -> None:
         self.assertIn("function buildInsights", COMPONENT)
