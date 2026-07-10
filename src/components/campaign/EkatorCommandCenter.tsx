@@ -16,7 +16,7 @@ const muted = '#A0A0AA';
 const light = '#E4E4E9';
 const white = '#FAFAFA';
 
-const ownedAudience = 78_680;
+const ownedAudience = 82_154;
 
 type Channel = {
   name: string;
@@ -433,7 +433,7 @@ function ChannelMatrix({ channels, metrics }: { channels: Channel[]; metrics: Da
     <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
       {channels.map(ch => {
         const ringColor = ch.status === 'strong' ? '#E4E4E9' : statusColor(ch.status);
-        const ringData = [{ label: ch.name, value: ch.audience, maxValue: 62_900, color: ringColor }];
+        const ringData = [{ label: ch.name, value: ch.audience, maxValue: 65_074, color: ringColor }];
         return (
           <div key={ch.name} className="flex flex-col items-center gap-2 rounded-lg bg-[#141414] p-5 text-center">
             <RingChart data={ringData} size={104} strokeWidth={9} ringGap={0} baseInnerRadius={38}>
