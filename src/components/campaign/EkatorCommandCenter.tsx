@@ -105,23 +105,23 @@ function buildChannels(metrics: DashboardMetrics): Channel[] {
     ? (metrics.longformViews / metrics.youtubeTotalViews) * 100
     : 0;
   return [
-    { name: 'Instagram', handle: '@idoltillidie', audience: 62_900, posts: '8 posts', views: null, share: 79.9, engagement: '—', status: 'strong', role: 'Top-of-funnel audience reservoir', insight: 'Instagram owns nearly 80% of the known official audience, but post-level performance is not yet connected to this read.', action: 'Every IG post/story should ladder into one clear behavior: watch EP1, save a trainee clip, or follow YouTube.' },
-    { name: 'YouTube', handle: '@Idoltillidie', audience: 5_280, posts: metrics.hasMeasuredPerformance ? `${metrics.videoCount} videos` : '—', views: metrics.hasMeasuredPerformance ? metrics.youtubeTotalViews : null, share: 6.7, engagement: ytEr, status: 'watch', role: 'Documentary home + retargeting anchor', insight: metrics.hasMeasuredPerformance ? `EP1 holds ${ep1Share.toFixed(1)}% of measured YouTube views, showing discovery far beyond the subscriber base.` : 'Published YouTube performance is temporarily unavailable.', action: 'Use YouTube as the source of truth for story beats, then force the short-form layer to carry those beats outward.' },
-    { name: 'TikTok', handle: '@idoltillidie', audience: 10_500, posts: '0 videos', views: null, share: 13.3, engagement: '—', status: 'risk', role: 'Dormant owned distribution', insight: 'There is a meaningful follower base but no official TikTok content, so the campaign is leaving algorithmic inventory unused.', action: 'Post the first three EP1 cuts immediately: Matthew leader arc, trainee pressure, and comedic dorm/rule clip.' },
+    { name: 'Instagram', handle: '@idoltillidie', audience: 65_074, posts: '10 posts', views: null, share: 79.2, engagement: '—', status: 'strong', role: 'Top-of-funnel audience reservoir', insight: 'Instagram owns nearly 80% of the known official audience, but post-level performance is not yet connected to this read.', action: 'Every IG post/story should ladder into one clear behavior: watch EP1, save a trainee clip, or follow YouTube.' },
+    { name: 'YouTube', handle: '@Idoltillidie', audience: 5_280, posts: metrics.hasMeasuredPerformance ? `${metrics.videoCount} videos` : '—', views: metrics.hasMeasuredPerformance ? metrics.youtubeTotalViews : null, share: 6.4, engagement: ytEr, status: 'watch', role: 'Documentary home + retargeting anchor', insight: metrics.hasMeasuredPerformance ? `EP1 holds ${ep1Share.toFixed(1)}% of measured YouTube views, showing discovery far beyond the subscriber base.` : 'Published YouTube performance is temporarily unavailable.', action: 'Use YouTube as the source of truth for story beats, then force the short-form layer to carry those beats outward.' },
+    { name: 'TikTok', handle: '@idoltillidie', audience: 11_800, posts: '0 videos', views: null, share: 14.4, engagement: '—', status: 'risk', role: 'Dormant owned distribution', insight: 'There is a meaningful follower base but no official TikTok content, so the campaign is leaving algorithmic inventory unused.', action: 'Post the first three EP1 cuts immediately: Matthew leader arc, trainee pressure, and comedic dorm/rule clip.' },
   ];
 }
 
 const insights: Insight[] = [
-  { label: 'Demand is real, but concentrated', stat: '94.7%', read: 'EP1 + teaser account for almost all measured official YouTube views. The longform story is doing the work; the short-form layer is not yet distributing that demand.', action: 'Build a daily short ladder from EP1 instead of treating each clip as a one-off upload.', tone: 'watch' },
-  { label: 'Instagram is the conversion gap', stat: '62.9K', read: 'Instagram is the largest owned channel by far, but the measurable viewing event lives on YouTube.', action: 'Create IG-native story posts that explicitly drive to "watch EP1" and measure link/click lift.', tone: 'strong' },
-  { label: 'TikTok is unused owned leverage', stat: '10.5K / 0', read: 'The account has followers but no posts. That is the fastest fix in the system.', action: 'Launch TikTok with three narrative cuts before adding spend anywhere else.', tone: 'risk' },
+  { label: 'Demand is real, but concentrated', stat: '94.2%', read: 'EP1 + teaser account for almost all measured official YouTube views. The longform story is doing the work; the short-form layer is not yet distributing that demand.', action: 'Build a daily short ladder from EP1 instead of treating each clip as a one-off upload.', tone: 'watch' },
+  { label: 'Instagram is the conversion gap', stat: '65.1K', read: 'Instagram is the largest owned channel by far, but the measurable viewing event lives on YouTube.', action: 'Create IG-native story posts that explicitly drive to "watch EP1" and measure link/click lift.', tone: 'strong' },
+  { label: 'TikTok is unused owned leverage', stat: '11.8K / 0', read: 'The account has followers but no posts. That is the fastest fix in the system.', action: 'Launch TikTok with three narrative cuts before adding spend anywhere else.', tone: 'risk' },
   { label: 'Matthew remains the cleanest first protagonist', stat: 'Priority 1', read: 'The available short-form read points toward Matthew\'s leader arc as the clearest hook for international audiences.', action: 'Make Matthew the first controlled variable: 3 edits, 3 hooks, 3 platforms, same 24-hour read window.', tone: 'strong' },
 ];
 
 type Rec = { rank: number; title: string; why: string; move: string; owner: string; impact: 'High' | 'Medium' };
 const recommendations: Rec[] = [
   { rank: 1, title: 'Turn EP1 into a controlled 12-clip test, not random snippets', why: 'The longform episode is the only proven demand source right now. Shorts are not yet carrying the story outward.', move: 'Cut 12 moments across four lanes: Matthew leader, Cai origin/redemption, Oh Juni pressure, group conflict/comedy. Publish with consistent English-first hooks.', owner: 'Content / clipping', impact: 'High' },
-  { rank: 2, title: 'Activate TikTok immediately', why: '10.5K official followers and zero posts is a pure distribution leak.', move: 'Post the top three EP1 cuts today. Keep captions bilingual and make the first second explain the stakes: "They debut together or fail together."', owner: 'Owned social', impact: 'High' },
+  { rank: 2, title: 'Activate TikTok immediately', why: '11.8K official followers and zero posts is a pure distribution leak.', move: 'Post the top three EP1 cuts today. Keep captions bilingual and make the first second explain the stakes: "They debut together or fail together."', owner: 'Owned social', impact: 'High' },
   { rank: 3, title: 'Use Instagram as the fan reservoir, not a passive poster', why: 'Instagram holds ~80% of the official audience. The strongest next read is whether that audience can move toward EP1, saves, and follow-through instead of staying passive.', move: 'Add pinned EP1 CTA, story link stack, and a recurring "choose the trainee" interactive sticker for each protagonist lane.', owner: 'Owned social', impact: 'High' },
   { rank: 4, title: 'Test member-pair dynamics before scaling performance-only cuts', why: 'The clearest clips are character-led. Relationship hooks make the show easier to understand for new viewers than formal trailer language.', move: 'Build a small batch around pairings and conflicts: Matthew/Cai, dorm rules, group stakes, and "can they debut together?" pressure.', owner: 'Creative strategy', impact: 'Medium' },
   { rank: 5, title: 'Close context gaps before the next clip wave', why: 'New viewers still need fast answers: who is onscreen, what the stakes are, where to watch, and why this moment matters.', move: 'Add one-line context to every next cut so casual viewers can understand the story without already knowing the show.', owner: 'Content clarity', impact: 'Medium' },
@@ -129,9 +129,9 @@ const recommendations: Rec[] = [
 
 type MeasureLayer = { platform: string; audience: string; coverage: string; read: string; next: string; tone: 'strong' | 'watch' | 'risk' };
 const measurementLayers: MeasureLayer[] = [
-  { platform: 'YouTube', audience: '5.28K subs', coverage: '9 videos with views', read: 'Post-level views are live here; EP1 is the anchor and shorts are the distribution gap.', next: 'Add likes, comments, retention, average view duration, and subscriber delta by video.', tone: 'strong' },
-  { platform: 'Instagram', audience: '62.9K followers', coverage: '8 posts counted', read: 'Largest owned audience, but post-level engagement and story-click data are not in the read yet.', next: 'Capture views, likes, comments, saves, shares, story taps, link clicks, and follower delta per post.', tone: 'watch' },
-  { platform: 'TikTok', audience: '10.5K followers', coverage: '0 official posts', read: 'No post-level layer can exist until the first official clips go up.', next: 'Start with first-hour, 24-hour, and 72-hour views, profile visits, follows, comments, saves, and shares.', tone: 'risk' },
+  { platform: 'YouTube', audience: '5.28K subs', coverage: '10 videos with views', read: 'Post-level views are live here; EP1 is the anchor and shorts are the distribution gap.', next: 'Add likes, comments, retention, average view duration, and subscriber delta by video.', tone: 'strong' },
+  { platform: 'Instagram', audience: '65.1K followers', coverage: '10 posts counted', read: 'Largest owned audience, but post-level engagement and story-click data are not in the read yet.', next: 'Capture views, likes, comments, saves, shares, story taps, link clicks, and follower delta per post.', tone: 'watch' },
+  { platform: 'TikTok', audience: '11.8K followers', coverage: '0 official posts', read: 'No post-level layer can exist until the first official clips go up.', next: 'Start with first-hour, 24-hour, and 72-hour views, profile visits, follows, comments, saves, and shares.', tone: 'risk' },
 ];
 
 type Sentiment = { theme: string; tags: string; use: string; status: string };
@@ -154,9 +154,9 @@ const paidFields = [
 ];
 
 const followerBaselines = [
-  { platform: 'Instagram', baseline: '62.9K' },
+  { platform: 'Instagram', baseline: '65.1K' },
   { platform: 'YouTube', baseline: '5.28K' },
-  { platform: 'TikTok', baseline: '10.5K' },
+  { platform: 'TikTok', baseline: '11.8K' },
 ];
 
 const compact = (v: number) => new Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: v >= 10_000 ? 1 : 0 }).format(v);
@@ -384,7 +384,7 @@ function KpiRail({ metrics }: { metrics: DashboardMetrics }) {
     { label: 'YT Views', value: metrics.hasMeasuredPerformance ? compact(metrics.youtubeTotalViews) : '—', sub: metrics.hasMeasuredPerformance ? `${metrics.videoCount} videos` : 'data pending', tone: 'normal' },
     { label: 'EP1 Gravity', value: metrics.hasMeasuredPerformance ? `${ep1Pct.toFixed(1)}%` : '—', sub: metrics.hasMeasuredPerformance ? 'of YT views' : 'data pending', tone: 'normal' },
     { label: 'Shorts', value: metrics.hasMeasuredPerformance ? compact(metrics.shortsViews) : '—', sub: metrics.hasMeasuredPerformance ? `${metrics.shortsCount} clips` : 'data pending', tone: 'risk' },
-    { label: 'TikTok', value: '0', sub: '10.5K waiting', tone: 'risk' },
+    { label: 'TikTok', value: '0', sub: '11.8K waiting', tone: 'risk' },
     { label: 'Paid', value: '—', sub: 'not live', tone: 'muted' },
   ];
   return (
