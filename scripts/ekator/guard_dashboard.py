@@ -61,6 +61,7 @@ RENDERED_ONLY_FORBIDDEN = [
     "VERCEL_TOKEN",
     "GITHUB_PAT",
     "cron job",
+    "Agents launched",
 ]
 
 # Minimal public-facing anchors expected on both routes.
@@ -73,8 +74,15 @@ REQUIRED = [
     "EP1 Gravity",
     "Owned Channels",
     "Asset Performance",
+    "Owned publications",
+    "Measured performance",
+    "Awaiting metrics",
+    "verified platform post URLs",
+    "views + interactions connected",
     "Actionable Insights",
     "Measurement Layers",
+    "Hover or focus any bar",
+    "views/day",
     "Ranked moves for the next 72 hours",
     "Paid Media",
     "NOT LIVE",

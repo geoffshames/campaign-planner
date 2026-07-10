@@ -1,13 +1,11 @@
 'use client';
 
-import { useMemo, useRef, useState, useCallback } from 'react';
+import { useMemo, useRef, useState, useCallback, useEffect } from 'react';
 import { motion, useScroll, useSpring } from 'framer-motion';
 import { Gauge } from '@/components/charts/gauge';
 import { RingChart } from '@/components/charts/ring-chart';
 import { Ring } from '@/components/charts/ring';
 import { RingCenter } from '@/components/charts/ring-center';
-import { BarChart } from '@/components/charts/bar-chart';
-import { Bar } from '@/components/charts/bar';
 import type { EkatorRegistrySnapshot, EkatorAssetSnapshot, EkatorAsset } from '@/lib/ekator-dashboard';
 
 /* ── DATA ─────────────────────────────────────────────────────────── */
@@ -39,27 +37,79 @@ type Channel = {
   action: string;
 };
 
-const channels: Channel[] = [
-  { name: 'Instagram', handle: '@idoltillidie', audience: 62_900, posts: '8 posts', views: 0, share: 79.9, engagement: '4.2%', status: 'strong', role: 'Top-of-funnel audience reservoir', insight: 'Instagram owns nearly 80% of the known official audience, but the current measurable conversion event is YouTube EP1.', action: 'Every IG post/story should ladder into one clear behavior: watch EP1, save a trainee clip, or follow YouTube.' },
-  { name: 'YouTube', handle: '@Idoltillidie', audience: 5_280, posts: '9 videos', views: youtubeTotalViews, share: 6.7, engagement: '3.8%', status: 'watch', role: 'Documentary home + retargeting anchor', insight: 'EP1 is over-performing relative to subscriber base: 113.8K views on 5.28K subscribers implies discovery beyond owned subs.', action: 'Use YouTube as the source of truth for story beats, then force the short-form layer to carry those beats outward.' },
-  { name: 'TikTok', handle: '@idoltillidie', audience: 10_500, posts: '0 videos', views: 0, share: 13.3, engagement: '—', status: 'risk', role: 'Dormant owned distribution', insight: 'There is a meaningful follower base but no official TikTok content, so the campaign is leaving algorithmic inventory unused.', action: 'Post the first three EP1 cuts immediately: Matthew leader arc, trainee pressure, and comedic dorm/rule clip.' },
-];
-
-type Video = { title: string; views: number; duration: string; published: string; type: 'Longform' | 'Teaser' | 'Short'; transcript: boolean; signal: string; action: string };
-
-const videos: Video[] = [
-  { title: '"다 같이 데뷔하거나 다 같이 무산되거나" / EP.1', views: 113_809, duration: '41:46', published: 'Jul 6', type: 'Longform', transcript: true, signal: 'Main demand engine. 83% of measured YouTube views are concentrated here.', action: 'Timestamp into 12 clip candidates; assign each clip to Matthew / Cai Jinxin / Oh Juni / group-conflict lanes.' },
-  { title: '[Teaser] 데뷔할 수 있을 것 같아요?', views: 15_434, duration: '0:45', published: 'Jun 29', type: 'Teaser', transcript: false, signal: 'Trailer seeded the premise; EP1 is already 7.4× larger than teaser views.', action: 'Retire as primary asset; use only as low-friction retargeting or intro creative.' },
-  { title: '서로를 이해 못 하는 이유', views: 2_234, duration: '1:32', published: 'Jul 6', type: 'Short', transcript: false, signal: 'Top short-form signal in the current YouTube set.', action: 'Re-cut with English opening text and mirror to TikTok + Reels within 24 hours.' },
-  { title: '이런 숙소룰은 처음이죠?', views: 1_667, duration: '0:48', published: 'Jul 7', type: 'Short', transcript: false, signal: 'Dorm/rules slice has clearer casual-fandom texture than performance-only clips.', action: 'Package as "trainee life is stricter than you think" for non-Korean viewers.' },
-  { title: '리더가 된 매튜의 서사', views: 1_018, duration: '1:03', published: 'Jul 7', type: 'Short', transcript: true, signal: 'Matthew leader narrative is the cleanest member-led hook in the current short set.', action: 'Make this the first paid/SWRM test once clip tracking is clean.' },
-  { title: '[미공개] 소파 부신 범인 공개', views: 988, duration: '1:50', published: 'Jul 8', type: 'Short', transcript: false, signal: 'Behind-the-scenes / "unreleased" packaging is useful but not yet breaking out.', action: 'Retitle into a curiosity hook before scaling.' },
-  { title: '너무 무더운(?) 분위기였어요', views: 688, duration: '1:22', published: 'Jul 7', type: 'Short', transcript: false, signal: 'Low current traction; likely needs stronger upfront context.', action: 'Hold until a member-specific edit gives it a clearer protagonist.' },
-  { title: '기다려주셔서 감사합니다', views: 399, duration: '1:06', published: 'Jul 8', type: 'Short', transcript: true, signal: 'Sentiment-first but small base response so far.', action: 'Use as comment/SWRM prompt, not primary paid creative.' },
-  { title: '마치 로또 당첨 전 내 모습', views: 315, duration: '0:21', published: 'Jul 8', type: 'Short', transcript: false, signal: 'Lowest measured clip; no scale signal yet.', action: 'Archive unless Reels/TikTok proves the meme read is stronger off YouTube.' },
-];
-
 type Insight = { label: string; stat: string; read: string; action: string; tone: 'strong' | 'watch' | 'risk' };
+type DashboardMetrics = {
+  youtubeTotalViews: number;
+  longformViews: number;
+  teaserViews: number;
+  shortsViews: number;
+  shortsCount: number;
+  videoCount: number;
+  youtubeEngagement: number | null;
+  readLabel: string;
+};
+
+function deriveDashboardMetrics(snapshot: EkatorAssetSnapshot): DashboardMetrics {
+  const published = snapshot.assets.filter((asset) => asset.platform === 'youtube' && asset.views !== null);
+  if (published.length === 0) {
+    return {
+      youtubeTotalViews,
+      longformViews,
+      teaserViews,
+      shortsViews,
+      shortsCount: 7,
+      videoCount: 9,
+      youtubeEngagement: 3.8,
+      readLabel: 'Jul 8, 2026',
+    };
+  }
+
+  const ep1 = published.find((asset) => /ep\.?\s*1/i.test(asset.caption));
+  const teaser = published.find((asset) => /teaser/i.test(asset.caption));
+  const shorts = published.filter((asset) => asset.itemId !== ep1?.itemId && asset.itemId !== teaser?.itemId);
+  const totalViews = published.reduce((sum, asset) => sum + (asset.views ?? 0), 0);
+  const interactions = published.reduce(
+    (sum, asset) => sum + (asset.likes ?? 0) + (asset.comments ?? 0) + (asset.shares ?? 0),
+    0,
+  );
+  const latestCapture = published
+    .map((asset) => asset.capturedAt)
+    .filter((value): value is string => Boolean(value))
+    .sort()
+    .at(-1);
+  const readLabel = latestCapture
+    ? new Intl.DateTimeFormat('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+        timeZone: 'America/Los_Angeles',
+      }).format(new Date(latestCapture))
+    : 'Live snapshot';
+
+  return {
+    youtubeTotalViews: totalViews,
+    longformViews: ep1?.views ?? 0,
+    teaserViews: teaser?.views ?? 0,
+    shortsViews: shorts.reduce((sum, asset) => sum + (asset.views ?? 0), 0),
+    shortsCount: shorts.length,
+    videoCount: published.length,
+    youtubeEngagement: totalViews > 0 ? (interactions / totalViews) * 100 : null,
+    readLabel,
+  };
+}
+
+function buildChannels(metrics: DashboardMetrics): Channel[] {
+  const ytEr = metrics.youtubeEngagement === null ? '—' : `${metrics.youtubeEngagement.toFixed(1)}%`;
+  const ep1Share = metrics.youtubeTotalViews > 0
+    ? (metrics.longformViews / metrics.youtubeTotalViews) * 100
+    : 0;
+  return [
+    { name: 'Instagram', handle: '@idoltillidie', audience: 62_900, posts: '8 posts', views: null, share: 79.9, engagement: '—', status: 'strong', role: 'Top-of-funnel audience reservoir', insight: 'Instagram owns nearly 80% of the known official audience, but post-level performance is not yet connected to this read.', action: 'Every IG post/story should ladder into one clear behavior: watch EP1, save a trainee clip, or follow YouTube.' },
+    { name: 'YouTube', handle: '@Idoltillidie', audience: 5_280, posts: `${metrics.videoCount} videos`, views: metrics.youtubeTotalViews, share: 6.7, engagement: ytEr, status: 'watch', role: 'Documentary home + retargeting anchor', insight: `EP1 holds ${ep1Share.toFixed(1)}% of measured YouTube views, showing discovery far beyond the subscriber base.`, action: 'Use YouTube as the source of truth for story beats, then force the short-form layer to carry those beats outward.' },
+    { name: 'TikTok', handle: '@idoltillidie', audience: 10_500, posts: '0 videos', views: null, share: 13.3, engagement: '—', status: 'risk', role: 'Dormant owned distribution', insight: 'There is a meaningful follower base but no official TikTok content, so the campaign is leaving algorithmic inventory unused.', action: 'Post the first three EP1 cuts immediately: Matthew leader arc, trainee pressure, and comedic dorm/rule clip.' },
+  ];
+}
+
 const insights: Insight[] = [
   { label: 'Demand is real, but concentrated', stat: '94.7%', read: 'EP1 + teaser account for almost all measured official YouTube views. The longform story is doing the work; the short-form layer is not yet distributing that demand.', action: 'Build a daily short ladder from EP1 instead of treating each clip as a one-off upload.', tone: 'watch' },
   { label: 'Instagram is the conversion gap', stat: '62.9K', read: 'Instagram is the largest owned channel by far, but the measurable viewing event lives on YouTube.', action: 'Create IG-native story posts that explicitly drive to "watch EP1" and measure link/click lift.', tone: 'strong' },
@@ -108,14 +158,6 @@ const followerBaselines = [
   { platform: 'TikTok', baseline: '10.5K' },
 ];
 
-const monthIndex: Record<string, number> = { Jun: 5, Jul: 6 };
-const currentReadDate = new Date('2026-07-08T12:00:00-07:00');
-function daysSince(published: string) {
-  const [m, d] = published.split(' ');
-  const date = new Date(2026, monthIndex[m] ?? 6, Number.parseInt(d, 10), 12, 0, 0);
-  return Math.max(1, Math.round((currentReadDate.getTime() - date.getTime()) / 86_400_000));
-}
-
 const compact = (v: number) => new Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: v >= 10_000 ? 1 : 0 }).format(v);
 
 /* ── CUSTOM DASHBOARD ELEMENTS ────────────────────────────────────── */
@@ -134,8 +176,10 @@ function statusLabel(s: string) {
 }
 
 /** EP1 Gravity — bklit notched arc gauge */
-function Ep1GravityCard() {
-  const ep1Pct = (longformViews / youtubeTotalViews) * 100;
+function Ep1GravityCard({ metrics }: { metrics: DashboardMetrics }) {
+  const ep1Pct = metrics.youtubeTotalViews > 0
+    ? (metrics.longformViews / metrics.youtubeTotalViews) * 100
+    : 0;
   return (
     <div className="flex h-full flex-col items-center justify-center gap-3">
       <div className="relative w-full max-w-[220px]">
@@ -161,11 +205,11 @@ function Ep1GravityCard() {
       <div className="flex w-full items-center justify-between gap-3 border-t pt-2" style={{ borderColor: line }}>
         <div className="flex items-center gap-1.5">
           <span className="h-2 w-2 rounded-full" style={{ background: red }} />
-          <span className="font-mono text-[10px] text-[#E4E4E9]">EP1 · {compact(longformViews)}</span>
+          <span className="font-mono text-[10px] text-[#E4E4E9]">EP1 · {compact(metrics.longformViews)}</span>
         </div>
         <div className="flex items-center gap-1.5">
           <span className="h-2 w-2 rounded-full" style={{ background: '#2A2A2A' }} />
-          <span className="font-mono text-[10px] text-[#8A8A94]">Rest · {compact(youtubeTotalViews - longformViews)}</span>
+          <span className="font-mono text-[10px] text-[#8A8A94]">Rest · {compact(Math.max(0, metrics.youtubeTotalViews - metrics.longformViews))}</span>
         </div>
       </div>
       <div className="text-xs leading-relaxed text-[#8A8A94]">
@@ -176,13 +220,14 @@ function Ep1GravityCard() {
 }
 
 /** View Concentration — bklit concentric ring chart */
-function ViewConcentrationCard() {
+function ViewConcentrationCard({ metrics }: { metrics: DashboardMetrics }) {
+  const total = Math.max(1, metrics.youtubeTotalViews);
   const segments = [
-    { label: 'EP1 (longform)', value: longformViews, color: red, pct: (longformViews / youtubeTotalViews) * 100 },
-    { label: 'Teaser', value: teaserViews, color: '#B03030', pct: (teaserViews / youtubeTotalViews) * 100 },
-    { label: 'Shorts (7 clips)', value: shortsViews, color: '#7A2A2A', pct: (shortsViews / youtubeTotalViews) * 100 },
+    { label: 'EP1 (longform)', value: metrics.longformViews, color: red, pct: (metrics.longformViews / total) * 100 },
+    { label: 'Teaser', value: metrics.teaserViews, color: '#B03030', pct: (metrics.teaserViews / total) * 100 },
+    { label: `Shorts (${metrics.shortsCount} clips)`, value: metrics.shortsViews, color: '#7A2A2A', pct: (metrics.shortsViews / total) * 100 },
   ];
-  const ringData = segments.map(s => ({ label: s.label, value: s.value, maxValue: youtubeTotalViews, color: s.color }));
+  const ringData = segments.map(s => ({ label: s.label, value: s.value, maxValue: total, color: s.color }));
   return (
     <div className="flex h-full flex-col items-center justify-center gap-3">
       <RingChart data={ringData} size={210} strokeWidth={11} ringGap={7} baseInnerRadius={46}>
@@ -207,7 +252,7 @@ function ViewConcentrationCard() {
         ))}
       </div>
       <div className="text-xs leading-relaxed" style={{ color: red }}>
-        <span className="font-bold">Gap: </span>TikTok 0. Shorts 5%. Story works — distribution doesn&apos;t.
+        <span className="font-bold">Gap: </span>TikTok 0. Shorts {((metrics.shortsViews / total) * 100).toFixed(1)}%. Story works — distribution doesn&apos;t.
       </div>
     </div>
   );
@@ -239,12 +284,15 @@ function PriorityTimeline() {
 }
 
 /** KPI rail — inline strip of key numbers, no cards */
-function KpiRail() {
+function KpiRail({ metrics }: { metrics: DashboardMetrics }) {
+  const ep1Pct = metrics.youtubeTotalViews > 0
+    ? (metrics.longformViews / metrics.youtubeTotalViews) * 100
+    : 0;
   const items = [
     { label: 'Audience', value: compact(ownedAudience), sub: 'IG+YT+TT' },
-    { label: 'YT Views', value: compact(youtubeTotalViews), sub: '9 videos' },
-    { label: 'EP1 Gravity', value: '83.3%', sub: 'of YT views' },
-    { label: 'Shorts', value: compact(shortsViews), sub: 'low' },
+    { label: 'YT Views', value: compact(metrics.youtubeTotalViews), sub: `${metrics.videoCount} videos` },
+    { label: 'EP1 Gravity', value: `${ep1Pct.toFixed(1)}%`, sub: 'of YT views' },
+    { label: 'Shorts', value: compact(metrics.shortsViews), sub: `${metrics.shortsCount} clips` },
     { label: 'TikTok', value: '0', sub: '10.5K waiting' },
     { label: 'Paid', value: '—', sub: 'not live' },
   ];
@@ -262,12 +310,12 @@ function KpiRail() {
 }
 
 /** Status strip — single-line system status */
-function StatusStrip({ registry }: { registry: EkatorRegistrySnapshot }) {
+function StatusStrip({ registry, assets }: { registry: EkatorRegistrySnapshot; assets: EkatorAssetSnapshot }) {
   const live = registry.status === 'live';
   const nodes = registry.seedingNetworkCount + registry.snsViralCount + registry.officialHandleCount;
   const items = [
-    { label: 'Assets', value: registry.itemsCount },
-    { label: 'Street-eval', value: registry.streetEvalItemsCount },
+    { label: 'Published', value: assets.publishedCount },
+    { label: 'Measured', value: assets.performanceCount },
     { label: 'Monitored', value: registry.monitoredHandlesCount },
     { label: 'Nodes', value: nodes },
     { label: 'Paid', value: 'OFF' as const },
@@ -289,9 +337,9 @@ function StatusStrip({ registry }: { registry: EkatorRegistrySnapshot }) {
 }
 
 /** Channel matrix — bklit ring chart per channel */
-function ChannelMatrix() {
+function ChannelMatrix({ channels, metrics }: { channels: Channel[]; metrics: DashboardMetrics }) {
   return (
-    <div className="grid grid-cols-3 gap-3">
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
       {channels.map(ch => {
         const ringColor = ch.status === 'strong' ? '#E4E4E9' : statusColor(ch.status);
         const ringData = [{ label: ch.name, value: ch.audience, maxValue: 62_900, color: ringColor }];
@@ -315,7 +363,7 @@ function ChannelMatrix() {
               <div className="h-1.5 overflow-hidden rounded-full bg-[#262626]">
                 <div
                   className="h-full rounded-full"
-                  style={{ width: ch.views ? `${Math.min(100, (ch.views / youtubeTotalViews) * 100)}%` : ch.posts === '0 videos' ? '0%' : '30%', background: ringColor, opacity: 0.85 }}
+                  style={{ width: ch.views ? `${Math.min(100, (ch.views / Math.max(1, metrics.youtubeTotalViews)) * 100)}%` : ch.posts === '0 videos' ? '0%' : '30%', background: ringColor, opacity: 0.85 }}
                 />
               </div>
               <div className="mt-1.5 font-mono text-[10px] text-[#8A8A94]">{ch.posts}</div>
@@ -356,7 +404,7 @@ function RefreshButton() {
   const labels = {
     idle: 'Refresh Now',
     sending: 'Sending…',
-    sent: 'Agents launched ✓',
+    sent: 'Refresh queued ✓',
     error: 'Failed — try again',
   };
 
@@ -385,7 +433,7 @@ function RefreshButton() {
 
 /* ── COMMAND CENTER (above the fold) ──────────────────────────────── */
 
-function CommandCenter({ registry }: { registry: EkatorRegistrySnapshot }) {
+function CommandCenter({ registry, assets, metrics, channels }: { registry: EkatorRegistrySnapshot; assets: EkatorAssetSnapshot; metrics: DashboardMetrics; channels: Channel[] }) {
   return (
     <div className="mx-auto max-w-[1400px] px-4 pt-20 pb-6 md:px-6 lg:px-8">
       {/* Title bar */}
@@ -400,20 +448,20 @@ function CommandCenter({ registry }: { registry: EkatorRegistrySnapshot }) {
           <RefreshButton />
           <div className="text-right">
             <div className="text-[10px] uppercase tracking-[0.2em] text-[#8A8A94]">Idol Till I Die</div>
-            <div className="font-mono text-xs text-[#E4E4E9]">Jul 8, 2026</div>
+            <div className="font-mono text-xs text-[#E4E4E9]">{metrics.readLabel}</div>
           </div>
         </div>
       </div>
 
       {/* KPI Rail */}
-      <div className="mb-3"><KpiRail /></div>
+      <div className="mb-3"><KpiRail metrics={metrics} /></div>
 
       {/* Main 3-column grid */}
       <div className="mb-3 grid gap-3 lg:grid-cols-[0.8fr_1.2fr_1fr]">
         {/* EP1 Gravity */}
         <div className="rounded-lg border p-5" style={{ borderColor: line, background: '#0E0E0E' }}>
           <div className="mb-3 text-[10px] uppercase tracking-[0.2em]" style={{ color: red }}>EP1 Gravity</div>
-          <Ep1GravityCard />
+          <Ep1GravityCard metrics={metrics} />
         </div>
 
         {/* View Concentration */}
@@ -422,7 +470,7 @@ function CommandCenter({ registry }: { registry: EkatorRegistrySnapshot }) {
             <div className="text-[10px] uppercase tracking-[0.2em]" style={{ color: red }}>View Concentration</div>
             <div className="font-mono text-xs text-[#8A8A94]">where views are by format</div>
           </div>
-          <ViewConcentrationCard />
+          <ViewConcentrationCard metrics={metrics} />
         </div>
 
         {/* Priority queue */}
@@ -441,12 +489,12 @@ function CommandCenter({ registry }: { registry: EkatorRegistrySnapshot }) {
           <div className="text-[10px] uppercase tracking-[0.2em]" style={{ color: red }}>Channel Pulse</div>
           <div className="font-mono text-xs text-[#8A8A94]">audience · status · activation</div>
         </div>
-        <ChannelMatrix />
+        <ChannelMatrix channels={channels} metrics={metrics} />
       </div>
 
       {/* Status strip */}
       <div className="rounded-lg border" style={{ borderColor: line, background: '#0E0E0E' }}>
-        <StatusStrip registry={registry} />
+        <StatusStrip registry={registry} assets={assets} />
       </div>
     </div>
   );
@@ -468,8 +516,19 @@ function SectionHeader({ num, title, subtitle }: { num: string; title: string; s
 
 /** Channel detail modal */
 function ChannelModal({ channel, onClose }: { channel: Channel; onClose: () => void }) {
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
+
   return (
     <div
+      role="dialog"
+      aria-modal="true"
+      aria-label={`${channel.name} channel detail`}
       className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 p-4"
       style={{ animation: 'fadeIn 0.15s ease' }}
       onClick={onClose}
@@ -490,8 +549,10 @@ function ChannelModal({ channel, onClose }: { channel: Channel; onClose: () => v
             <div className="mt-1 font-mono text-xs text-[#8A8A94]">{channel.handle}</div>
           </div>
           <button
+            type="button"
+            aria-label="Close channel detail"
             onClick={onClose}
-            className="flex h-8 w-8 items-center justify-center rounded-md border text-lg text-[#8A8A94] transition-colors hover:bg-[#1A1A1A]"
+            className="flex h-8 w-8 items-center justify-center rounded-md border text-lg text-[#8A8A94] transition-colors hover:bg-[#1A1A1A] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#FD3737]"
             style={{ borderColor: line }}
           >
             ✕
@@ -549,14 +610,13 @@ function ChannelModal({ channel, onClose }: { channel: Channel; onClose: () => v
 }
 
 /** Owned channels — table with View buttons that open modals */
-function ChannelTable() {
+function ChannelTable({ channels }: { channels: Channel[] }) {
   const [openChannel, setOpenChannel] = useState<Channel | null>(null);
   return (
     <>
-      <div className="mx-auto max-w-[1400px] px-4 md:px-6 lg:px-8">
-        <div className="overflow-hidden rounded-lg border" style={{ borderColor: line }}>
-          {/* Header row */}
-          <div className="grid grid-cols-[1.2fr_1fr_1fr_1fr_0.8fr_0.6fr] gap-2 bg-[#141414] px-4 py-3 font-mono text-[10px] uppercase tracking-[0.15em] text-[#8A8A94]">
+      <div className="mx-auto min-w-0 max-w-[1400px] px-4 md:px-6 lg:px-8">
+        <div className="w-full max-w-full overflow-x-auto rounded-lg border" style={{ borderColor: line }}>
+          <div className="grid min-w-[760px] grid-cols-[1.2fr_1fr_1fr_1fr_0.8fr_0.6fr] gap-2 bg-[#141414] px-4 py-3 font-mono text-[10px] uppercase tracking-[0.15em] text-[#8A8A94]">
             <div>Channel</div>
             <div>Audience</div>
             <div>Share</div>
@@ -565,7 +625,7 @@ function ChannelTable() {
             <div>Detail</div>
           </div>
           {channels.map((ch, i) => (
-            <div key={ch.name} className={`grid grid-cols-[1.2fr_1fr_1fr_1fr_0.8fr_0.6fr] items-center gap-2 px-4 py-4 ${i > 0 ? 'border-t' : ''}`} style={{ borderColor: line }}>
+            <div key={ch.name} className={`grid min-w-[760px] grid-cols-[1.2fr_1fr_1fr_1fr_0.8fr_0.6fr] items-center gap-2 px-4 py-4 ${i > 0 ? 'border-t' : ''}`} style={{ borderColor: line }}>
               <div>
                 <div className="text-sm font-bold text-white">{ch.name}</div>
                 <div className="font-mono text-[10px] text-[#8A8A94]">{ch.handle}</div>
@@ -581,8 +641,9 @@ function ChannelTable() {
               <div className="font-mono text-sm" style={{ color: ch.views === null || ch.views === 0 ? muted : white }}>{ch.views === null || ch.views === 0 ? '—' : compact(ch.views)}</div>
               <div>
                 <button
+                  type="button"
                   onClick={() => setOpenChannel(ch)}
-                  className="rounded-md border px-3 py-1.5 font-mono text-[11px] font-bold uppercase tracking-wider transition-all hover:bg-[#1A1A1A]"
+                  className="rounded-md border px-3 py-1.5 font-mono text-[11px] font-bold uppercase tracking-wider transition-all hover:bg-[#1A1A1A] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#FD3737]"
                   style={{ borderColor: red, color: red }}
                 >
                   View
@@ -607,8 +668,24 @@ function AssetShadowbox({ asset, onClose }: { asset: EkatorAsset; onClose: () =>
     ? asset.sourceUrl.replace('youtu.be/', 'youtube.com/embed/').replace('watch?v=', 'embed/')
     : null;
 
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onClose();
+    };
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [onClose]);
+
   return (
     <div
+      role="dialog"
+      aria-modal="true"
+      aria-label={`Asset detail: ${asset.caption}`}
       className="fixed inset-0 z-[100] flex items-center justify-center bg-black/85 p-4"
       style={{ animation: 'fadeIn 0.15s ease' }}
       onClick={onClose}
@@ -628,8 +705,10 @@ function AssetShadowbox({ asset, onClose }: { asset: EkatorAsset; onClose: () =>
             <div className="mt-1.5 text-sm font-bold text-white">{asset.caption}</div>
           </div>
           <button
+            type="button"
+            aria-label="Close asset detail"
             onClick={onClose}
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border text-lg text-[#8A8A94] transition-colors hover:bg-[#1A1A1A]"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border text-lg text-[#8A8A94] transition-colors hover:bg-[#1A1A1A] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#FD3737]"
             style={{ borderColor: line }}
           >
             ✕
@@ -641,6 +720,7 @@ function AssetShadowbox({ asset, onClose }: { asset: EkatorAsset; onClose: () =>
           {embedUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <iframe
+              title={asset.caption}
               src={embedUrl}
               className="h-full w-full"
               allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -731,6 +811,23 @@ function AssetBoard({ assets }: { assets: EkatorAssetSnapshot }) {
   return (
     <>
       <div className="mx-auto max-w-[1400px] px-4 md:px-6 lg:px-8">
+        <div className="mb-3 grid gap-px overflow-hidden rounded-lg border bg-[#232323] sm:grid-cols-3" style={{ borderColor: line }}>
+          <div className="bg-[#0E0E0E] px-4 py-3">
+            <div className="font-mono text-[9px] uppercase tracking-[0.16em] text-[#8A8A94]">Owned publications</div>
+            <div className="mt-1 font-mono text-2xl font-black text-white">{assets.publishedCount}</div>
+            <div className="text-[10px] text-[#8A8A94]">verified platform post URLs</div>
+          </div>
+          <div className="bg-[#0E0E0E] px-4 py-3">
+            <div className="font-mono text-[9px] uppercase tracking-[0.16em] text-[#8A8A94]">Measured performance</div>
+            <div className="mt-1 font-mono text-2xl font-black" style={{ color: red }}>{assets.performanceCount}</div>
+            <div className="text-[10px] text-[#8A8A94]">views + interactions connected</div>
+          </div>
+          <div className="bg-[#0E0E0E] px-4 py-3">
+            <div className="font-mono text-[9px] uppercase tracking-[0.16em] text-[#8A8A94]">Awaiting metrics</div>
+            <div className="mt-1 font-mono text-2xl font-black text-white">{assets.awaitingMetricsCount}</div>
+            <div className="text-[10px] text-[#8A8A94]">published posts without a performance read</div>
+          </div>
+        </div>
         <div className="overflow-hidden rounded-lg border" style={{ borderColor: line }}>
           {/* Filter + Sort controls */}
           <div className="flex flex-wrap items-center justify-between gap-3 border-b px-4 py-3" style={{ borderColor: line, background: '#141414' }}>
@@ -739,7 +836,8 @@ function AssetBoard({ assets }: { assets: EkatorAssetSnapshot }) {
                 <button
                   key={fb}
                   onClick={() => setFilter(fb)}
-                  className="rounded-md px-3 py-1.5 font-mono text-[11px] font-bold uppercase tracking-wider transition-all"
+                  aria-pressed={filter === fb}
+                  className="rounded-md px-3 py-1.5 font-mono text-[11px] font-bold uppercase tracking-wider transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FD3737]"
                   style={{
                     background: filter === fb ? red : 'transparent',
                     color: filter === fb ? white : muted,
@@ -753,9 +851,10 @@ function AssetBoard({ assets }: { assets: EkatorAssetSnapshot }) {
             <div className="flex items-center gap-2">
               <span className="font-mono text-[10px] uppercase tracking-wider text-[#8A8A94]">Sort</span>
               <select
+                aria-label="Sort asset performance"
                 value={sort}
                 onChange={(e) => setSort(e.target.value as typeof sort)}
-                className="rounded-md border bg-[#0E0E0E] px-3 py-1.5 font-mono text-[11px] text-white outline-none"
+                className="rounded-md border bg-[#0E0E0E] px-3 py-1.5 font-mono text-[11px] text-white outline-none focus-visible:ring-2 focus-visible:ring-[#FD3737]"
                 style={{ borderColor: line }}
               >
                 {sortOptions.map(opt => (
@@ -767,32 +866,54 @@ function AssetBoard({ assets }: { assets: EkatorAssetSnapshot }) {
 
           {/* Asset rows */}
           <div className="divide-y" style={{ borderColor: line }}>
+            <div className="hidden grid-cols-[minmax(0,2.4fr)_1fr_1.1fr_0.8fr] gap-4 bg-[#101010] px-4 py-2.5 font-mono text-[9px] uppercase tracking-[0.16em] text-[#8A8A94] md:grid">
+              <div>Asset</div><div className="text-right">Views</div><div className="text-right">Interactions</div><div className="text-right">State</div>
+            </div>
             {sorted.map(asset => {
               const views = asset.views ?? 0;
               const engagement = asset.engagementRate;
+              const hasPerformance = asset.views !== null;
               return (
-                <div
+                <button
+                  type="button"
                   key={asset.itemId}
                   onClick={() => setSelected(asset)}
-                  className="grid cursor-pointer grid-cols-[2.5fr_1fr_1fr_0.8fr] items-center gap-3 px-4 py-3 transition-colors hover:bg-[#141414]"
+                  aria-label={`Inspect ${asset.caption}`}
+                  className="grid w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-3 px-4 py-3 text-left transition-colors hover:bg-[#141414] focus-visible:bg-[#141414] focus-visible:outline focus-visible:outline-2 focus-visible:outline-inset focus-visible:outline-[#FD3737] md:grid-cols-[minmax(0,2.4fr)_1fr_1.1fr_0.8fr]"
                 >
                   <div className="min-w-0">
-                    <div className="truncate text-xs font-semibold text-white">{asset.caption}</div>
-                    <div className="mt-0.5 font-mono text-[10px] text-[#8A8A94]">{asset.platform} · {asset.handle}{asset.postDate ? ` · ${asset.postDate}` : ''}</div>
-                  </div>
-                  <div className="text-right">
-                    <div className="font-mono text-lg font-bold text-white">{views > 0 ? compact(views) : '—'}</div>
-                    <div className="mt-0.5 h-1 overflow-hidden rounded-full bg-[#161616]">
-                      <div className="h-full rounded-full" style={{ width: `${(views / maxViews) * 100}%`, background: asset.platform === 'youtube' ? red : '#7A2A2A' }} />
+                    <div className="truncate text-sm font-semibold text-white">{asset.caption}</div>
+                    <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-[10px] text-[#8A8A94]">
+                      <span>{asset.platform}</span><span aria-hidden="true">·</span><span>{asset.handle}</span>{asset.postDate && <><span aria-hidden="true">·</span><span>{asset.postDate}</span></>}
                     </div>
                   </div>
-                  <div className="text-right font-mono text-sm font-bold" style={{ color: engagement !== null ? white : muted }}>
-                    {engagement !== null ? `${engagement.toFixed(1)}%` : '—'}
-                  </div>
                   <div className="text-right">
-                    <span className="rounded-sm px-2 py-0.5 font-mono text-[10px] font-bold uppercase" style={{ color: red, border: `1px solid ${red}` }}>Play</span>
+                    {hasPerformance ? (
+                      <>
+                        <div className="font-mono text-lg font-bold text-white">{compact(views)}</div>
+                        <div className="mt-1 h-1 overflow-hidden rounded-full bg-[#202020]" aria-hidden="true">
+                          <div className="h-full rounded-full" style={{ width: `${Math.max(2, (views / maxViews) * 100)}%`, background: red }} />
+                        </div>
+                      </>
+                    ) : (
+                      <div className="font-mono text-[10px] uppercase tracking-wider text-[#8A8A94]">Not published</div>
+                    )}
                   </div>
-                </div>
+                  <div className="col-span-2 flex items-center justify-between border-t pt-2 md:col-span-1 md:block md:border-0 md:pt-0 md:text-right" style={{ borderColor: line }}>
+                    <span className="font-mono text-[9px] uppercase tracking-wider text-[#8A8A94] md:hidden">Interactions</span>
+                    {hasPerformance ? (
+                      <div>
+                        <div className="font-mono text-sm font-bold text-white">{engagement !== null ? `${engagement.toFixed(1)}%` : '—'}</div>
+                        <div className="mt-0.5 font-mono text-[9px] text-[#8A8A94]">{asset.likes !== null ? `${compact(asset.likes)} likes` : 'likes —'} · {asset.comments !== null ? `${compact(asset.comments)} comments` : 'comments —'}</div>
+                      </div>
+                    ) : (
+                      <div className="font-mono text-[10px] text-[#8A8A94]">Platform metrics begin after publish</div>
+                    )}
+                  </div>
+                  <div className="hidden text-right md:block">
+                    <span className="inline-flex rounded-sm px-2 py-1 font-mono text-[9px] font-bold uppercase tracking-wider" style={{ color: hasPerformance ? '#4ADE80' : '#E4E4E9', border: `1px solid ${hasPerformance ? '#28663E' : line}` }}>{hasPerformance ? 'Measured' : 'Source'}</span>
+                  </div>
+                </button>
               );
             })}
             {sorted.length === 0 && (
@@ -801,6 +922,11 @@ function AssetBoard({ assets }: { assets: EkatorAssetSnapshot }) {
               </div>
             )}
           </div>
+          {allAssets.length > 0 && (
+            <div className="border-t bg-[#101010] px-4 py-3 text-[10px] leading-relaxed text-[#8A8A94]" style={{ borderColor: line }}>
+              Only owned-channel publications with verified platform post URLs are shown. Raw source files stay excluded until they are actually published.
+            </div>
+          )}
         </div>
       </div>
       {selected && <AssetShadowbox asset={selected} onClose={() => setSelected(null)} />}
@@ -809,11 +935,17 @@ function AssetBoard({ assets }: { assets: EkatorAssetSnapshot }) {
 }
 
 /** Insights — custom bento with mini sparkline-style accents */
-function InsightBoard() {
+function InsightBoard({ metrics }: { metrics: DashboardMetrics }) {
+  const concentration = metrics.youtubeTotalViews > 0
+    ? ((metrics.longformViews + metrics.teaserViews) / metrics.youtubeTotalViews) * 100
+    : 0;
+  const liveInsights = insights.map((ins, index) => index === 0
+    ? { ...ins, stat: `${concentration.toFixed(1)}%`, read: `EP1 + teaser account for ${concentration.toFixed(1)}% of measured official YouTube views. The longform story is doing the work; the short-form layer is still the distribution gap.` }
+    : ins);
   return (
     <div className="mx-auto max-w-[1400px] px-4 md:px-6 lg:px-8">
       <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
-        {insights.map((ins, i) => (
+        {liveInsights.map((ins, i) => (
           <div key={ins.label} className="relative overflow-hidden rounded-lg border border-[line] bg-[#0E0E0E] p-4" style={{ borderColor: line }}>
             <div className="absolute left-0 top-0 h-full w-1" style={{ background: statusColor(ins.tone) }} />
             <div className="text-[10px] uppercase tracking-[0.15em] text-[#8A8A94]">{ins.label}</div>
@@ -836,24 +968,55 @@ function InsightBoard() {
 }
 
 /** Measurement layers — custom table (enlarged) */
-function MeasurementTable() {
+function MeasurementTable({ assets, metrics }: { assets: EkatorAssetSnapshot; metrics: DashboardMetrics }) {
+  const publishedAssets = assets.assets.filter(
+    (asset) => asset.platform === 'youtube' && asset.views !== null && asset.postDate,
+  );
+  const captureAt = publishedAssets
+    .map((asset) => asset.capturedAt)
+    .filter((value): value is string => Boolean(value))
+    .sort()
+    .at(-1);
+  const snapshotDate = captureAt ? new Date(captureAt) : new Date();
+  const velocityFor = (asset: EkatorAsset) => {
+    if (!asset.postDate || asset.views === null) return 0;
+    const publishedAt = new Date(`${asset.postDate}T00:00:00-07:00`);
+    const ageDays = Math.max(1, Math.ceil((snapshotDate.getTime() - publishedAt.getTime()) / 86_400_000));
+    return Math.round(asset.views / ageDays);
+  };
+  const ep1Asset = publishedAssets.find((asset) => /ep\.?\s*1/i.test(asset.caption));
+  const velocityAssets = publishedAssets
+    .filter((asset) => asset.itemId !== ep1Asset?.itemId)
+    .map((asset) => ({ asset, velocity: velocityFor(asset) }))
+    .sort((a, b) => b.velocity - a.velocity);
+  const maxVelocity = Math.max(1, ...velocityAssets.map((entry) => entry.velocity));
+  const liveLayers = measurementLayers.map((layer) => layer.platform === 'YouTube'
+    ? { ...layer, coverage: `${metrics.videoCount} videos with views`, next: 'Add retention, average view duration, and subscriber delta by video.' }
+    : layer);
+
   return (
     <div className="mx-auto max-w-[1400px] px-4 md:px-6 lg:px-8 space-y-5">
       {/* Post-level table */}
       <div className="overflow-hidden rounded-lg border" style={{ borderColor: line }}>
-        <div className="grid grid-cols-[1fr_1fr_1fr_2fr] gap-2 bg-[#141414] px-5 py-3 font-mono text-[11px] uppercase tracking-[0.15em] text-[#8A8A94]">
+        <div className="hidden grid-cols-[1fr_1fr_1fr_2fr] gap-4 bg-[#141414] px-5 py-3 font-mono text-[11px] uppercase tracking-[0.15em] text-[#8A8A94] md:grid">
           <div>Platform</div><div>Audience</div><div>Coverage</div><div>Current read → Next data</div>
         </div>
-        {measurementLayers.map((layer, i) => (
-          <div key={layer.platform} className={`grid grid-cols-[1fr_1fr_1fr_2fr] gap-2 px-5 py-5 ${i > 0 ? 'border-t' : ''}`} style={{ borderColor: line }}>
+        {liveLayers.map((layer, i) => (
+          <div key={layer.platform} className={`grid grid-cols-1 gap-4 px-5 py-5 md:grid-cols-[1fr_1fr_1fr_2fr] ${i > 0 ? 'border-t' : ''}`} style={{ borderColor: line }}>
             <div>
               <div className="flex items-center gap-2">
                 <span className="h-2.5 w-2.5 rounded-full" style={{ background: statusColor(layer.tone) }} />
                 <span className="text-base font-bold text-white">{layer.platform}</span>
               </div>
             </div>
-            <div className="font-mono text-sm text-[#E4E4E9]">{layer.audience}</div>
-            <div className="font-mono text-sm text-[#E4E4E9]">{layer.coverage}</div>
+            <div>
+              <div className="mb-1 font-mono text-[9px] uppercase tracking-wider text-[#8A8A94] md:hidden">Audience</div>
+              <div className="font-mono text-sm text-[#E4E4E9]">{layer.audience}</div>
+            </div>
+            <div>
+              <div className="mb-1 font-mono text-[9px] uppercase tracking-wider text-[#8A8A94] md:hidden">Coverage</div>
+              <div className="font-mono text-sm text-[#E4E4E9]">{layer.coverage}</div>
+            </div>
             <div>
               <p className="text-sm leading-relaxed text-[#E4E4E9]">{layer.read}</p>
               <p className="mt-1.5 text-sm leading-relaxed text-white"><span className="font-bold" style={{ color: red }}>Add next: </span>{layer.next}</p>
@@ -863,44 +1026,59 @@ function MeasurementTable() {
       </div>
 
       {/* Velocity + Follower delta side by side */}
-      <div className="grid gap-4 lg:grid-cols-[1.3fr_0.7fr]">
+      <div className="grid gap-4 lg:grid-cols-[1.35fr_0.65fr]">
         <div className="rounded-lg border p-5" style={{ borderColor: line, background: '#0E0E0E' }}>
-          <div className="mb-4 flex items-center justify-between">
-            <div className="text-[11px] uppercase tracking-[0.2em]" style={{ color: red }}>Daily Velocity</div>
-            <div className="font-mono text-[11px] text-[#8A8A94]">views/day · baseline Jul 8</div>
-          </div>
-          {/* EP1 outlier called out separately so the clip bars stay readable */}
-          <div className="mb-4 flex items-center justify-between rounded-md px-4 py-3" style={{ background: '#140A0A' }}>
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
             <div>
-              <div className="text-xs font-semibold text-white">{videos[0].title.length > 34 ? videos[0].title.slice(0, 34) + '…' : videos[0].title}</div>
-              <div className="font-mono text-[10px] text-[#8A8A94]">Anchor episode — charted separately</div>
+              <div className="text-[11px] uppercase tracking-[0.2em]" style={{ color: red }}>Daily Velocity</div>
+              <div className="mt-1 text-[10px] text-[#8A8A94]">Hover or focus any bar for the exact daily pace.</div>
             </div>
-            <div className="font-mono text-2xl font-black" style={{ color: red }}>{compact(Math.round(videos[0].views / daysSince(videos[0].published)))}/d</div>
+            <div className="font-mono text-[11px] text-[#8A8A94]">views/day · {metrics.readLabel}</div>
           </div>
-          <div className="space-y-3">
-            {(() => {
-              const velData = videos.slice(1, 6).map((v, i) => {
-                const vel = v.views / daysSince(v.published);
-                return { name: `#${i + 1}`, velocity: Math.round(vel) };
-              });
-              return (
-                <BarChart data={velData} xDataKey="name" aspectRatio="3/1" barGap={0.3} animationDuration={800}>
-                  <Bar dataKey="velocity" fill={red} lineCap={4} />
-                </BarChart>
-              );
-            })()}
+          {ep1Asset && (
+            <div className="mb-5 flex items-center justify-between gap-4 rounded-md border px-4 py-3" style={{ background: '#140A0A', borderColor: '#3A1717' }}>
+              <div className="min-w-0">
+                <div className="truncate text-xs font-semibold text-white">{ep1Asset.caption}</div>
+                <div className="font-mono text-[10px] text-[#8A8A94]">Anchor episode · separated from comparable cuts</div>
+              </div>
+              <div className="shrink-0 text-right">
+                <div className="font-mono text-2xl font-black" style={{ color: red }}>{compact(velocityFor(ep1Asset))}/d</div>
+                <div className="font-mono text-[9px] text-[#8A8A94]">{compact(ep1Asset.views ?? 0)} total</div>
+              </div>
+            </div>
+          )}
+          <div className="overflow-x-auto pb-2">
+            <div className="grid min-w-[620px] items-end gap-2" style={{ gridTemplateColumns: `repeat(${Math.max(1, velocityAssets.length)}, minmax(54px, 1fr))` }}>
+              {velocityAssets.map(({ asset, velocity }, index) => (
+                <button
+                  type="button"
+                  key={asset.itemId}
+                  className="group relative flex h-52 min-w-0 flex-col justify-end rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FD3737]"
+                  aria-label={`${asset.caption}: ${velocity.toLocaleString()} views per day, ${asset.views?.toLocaleString()} total views`}
+                >
+                  <span
+                    className={`pointer-events-none absolute z-20 hidden w-52 rounded-md border bg-[#0A0A0A] p-3 text-left shadow-2xl group-hover:block group-focus-visible:block ${index === 0 ? 'left-0' : index === velocityAssets.length - 1 ? 'right-0' : 'left-1/2 -translate-x-1/2'}`}
+                    style={{ borderColor: '#444', bottom: `${Math.max(14, (velocity / maxVelocity) * 132) + 42}px` }}
+                  >
+                    <span className="block text-xs font-bold leading-snug text-white">{asset.caption}</span>
+                    <span className="mt-2 block font-mono text-lg font-black" style={{ color: red }}>{velocity.toLocaleString()} views/day</span>
+                    <span className="mt-1 block font-mono text-[10px] text-[#8A8A94]">{asset.views?.toLocaleString()} total · {asset.postDate}</span>
+                  </span>
+                  <span className="mb-2 block font-mono text-[10px] font-bold text-white opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">{compact(velocity)}/d</span>
+                  <span className="block w-full rounded-t-sm transition-all group-hover:brightness-125 group-focus-visible:brightness-125" style={{ height: `${Math.max(14, (velocity / maxVelocity) * 132)}px`, background: index === 0 ? red : '#B92B2B' }} aria-hidden="true" />
+                  <span className="mt-2 block font-mono text-[10px] font-bold" style={{ color: red }}>#{index + 1}</span>
+                </button>
+              ))}
+            </div>
           </div>
-          <div className="mt-3 space-y-1.5">
-            {videos.slice(1, 6).map((v, i) => {
-              const vel = v.views / daysSince(v.published);
-              return (
-                <div key={v.title} className="flex items-center gap-3 text-xs">
-                  <span className="w-7 shrink-0 font-mono font-bold" style={{ color: red }}>#{i + 1}</span>
-                  <span className="flex-1 truncate text-[#E4E4E9]">{v.title.length > 30 ? v.title.slice(0, 30) + '…' : v.title}</span>
-                  <span className="font-mono font-bold text-white">{compact(Math.round(vel))}/d</span>
-                </div>
-              );
-            })}
+          <div className="mt-3 grid gap-x-6 gap-y-2 sm:grid-cols-2">
+            {velocityAssets.map(({ asset, velocity }, index) => (
+              <div key={asset.itemId} className="flex min-w-0 items-center gap-2 text-xs">
+                <span className="w-6 shrink-0 font-mono font-bold" style={{ color: red }}>#{index + 1}</span>
+                <span className="flex-1 truncate text-[#E4E4E9]">{asset.caption}</span>
+                <span className="shrink-0 font-mono font-bold text-white">{compact(velocity)}/d</span>
+              </div>
+            ))}
           </div>
         </div>
 
@@ -958,7 +1136,7 @@ function MeasurementTable() {
                 <span className="font-mono text-sm font-bold text-[#8A8A94]">·</span>
                 <div>
                   <span className="text-sm font-semibold text-white">{field.metric}</span>
-                  <p className="text-xs leading-tight text-[#E4E4E9]">{field.use.slice(0, 50)}{field.use.length > 50 ? '…' : ''}</p>
+                  <p className="mt-1 text-xs leading-relaxed text-[#E4E4E9]">{field.use}</p>
                 </div>
               </div>
             ))}
@@ -1015,12 +1193,14 @@ export function EkatorCommandCenter({ registry, assets }: { registry: EkatorRegi
   const heroRef = useRef<HTMLDivElement | null>(null);
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, { stiffness: 120, damping: 30, restDelta: 0.001 });
+  const metrics = useMemo(() => deriveDashboardMetrics(assets), [assets]);
+  const channelData = useMemo(() => buildChannels(metrics), [metrics]);
   const nav = useMemo(() => [
     ['channels', 'Channels'], ['assets', 'Assets'], ['insights', 'Insights'], ['data', 'Data'], ['moves', 'Moves'],
   ], []);
 
   return (
-    <main className="min-h-screen bg-[#0A0A0A] text-[#FAFAFA]">
+    <main className="min-h-screen overflow-x-hidden bg-[#0A0A0A] text-[#FAFAFA]">
       {/* Scroll progress */}
       <motion.div className="fixed left-0 right-0 top-0 z-[70] h-[2px] origin-left" style={{ scaleX, background: red }} />
 
@@ -1040,7 +1220,7 @@ export function EkatorCommandCenter({ registry, assets }: { registry: EkatorRegi
 
       {/* COMMAND CENTER — above the fold */}
       <header ref={heroRef} className="min-h-screen pt-14">
-        <CommandCenter registry={registry} />
+        <CommandCenter registry={registry} assets={assets} metrics={metrics} channels={channelData} />
       </header>
 
       {/* Divider */}
@@ -1049,7 +1229,7 @@ export function EkatorCommandCenter({ registry, assets }: { registry: EkatorRegi
       {/* DETAIL SECTIONS — below the fold */}
       <section id="channels" className="py-12 md:py-16">
         <SectionHeader num="01" title="Owned Channels" subtitle="Audience, output, views, and next action per surface." />
-        <ChannelTable />
+        <ChannelTable channels={channelData} />
       </section>
 
       <div className="mx-auto h-px max-w-[1400px]" style={{ background: line }} />
@@ -1063,14 +1243,14 @@ export function EkatorCommandCenter({ registry, assets }: { registry: EkatorRegi
 
       <section id="insights" className="py-12 md:py-16">
         <SectionHeader num="03" title="Actionable Insights" subtitle="Metric, meaning, and decision." />
-        <InsightBoard />
+        <InsightBoard metrics={metrics} />
       </section>
 
       <div className="mx-auto h-px max-w-[1400px]" style={{ background: line }} />
 
       <section id="data" className="py-12 md:py-16">
         <SectionHeader num="04" title="Measurement Layers" subtitle="Post-level, pacing, sentiment, follower lift, and paid delivery." />
-        <MeasurementTable />
+        <MeasurementTable assets={assets} metrics={metrics} />
       </section>
 
       <div className="mx-auto h-px max-w-[1400px]" style={{ background: line }} />

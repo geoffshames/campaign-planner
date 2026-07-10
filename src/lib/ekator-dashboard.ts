@@ -31,13 +31,14 @@ export type EkatorRegistrySnapshot = {
 
 export type EkatorAsset = {
   itemId: string;
-  platform: 'youtube' | 'street-eval' | 'instagram' | 'tiktok';
+  platform: 'youtube' | 'instagram' | 'tiktok';
   handle: string;
   caption: string;
   sourceUrl: string | null;
   isOwned: boolean;
   postDate: string | null;
   status: string;
+  capturedAt: string | null;
   // Performance (from cc_performance, latest snapshot)
   views: number | null;
   likes: number | null;
@@ -49,6 +50,9 @@ export type EkatorAsset = {
 export type EkatorAssetSnapshot = {
   status: 'live' | 'pending';
   assets: EkatorAsset[];
+  performanceCount: number;
+  awaitingMetricsCount: number;
+  publishedCount: number;
 };
 
 export type EkatorChannelMetrics = {
@@ -84,8 +88,6 @@ export const fallbackEkatorRegistrySnapshot: EkatorRegistrySnapshot = {
   responseCount: 1,
   recentItems: [
     { caption: 'Idol Till I Die EP1', platform: 'youtube', handle: 'Idol Till I Die', status: 'ready' },
-    { caption: '0627 street eval - Matthew', platform: 'street-eval', handle: 'Matthew', status: 'ready' },
-    { caption: '0627 street eval - Cai Jinxin', platform: 'street-eval', handle: 'Cai Jinxin', status: 'ready' },
   ],
   topHandles: [
     { displayName: '@ekatormatthew', handle: 'ekatormatthew', platforms: 'TT', kind: 'sns-viral', notes: 'Matthew fan signal' },
@@ -97,6 +99,9 @@ export const fallbackEkatorRegistrySnapshot: EkatorRegistrySnapshot = {
 export const fallbackEkatorAssetSnapshot: EkatorAssetSnapshot = {
   status: 'pending',
   assets: [],
+  performanceCount: 0,
+  awaitingMetricsCount: 0,
+  publishedCount: 0,
 };
 
 export const fallbackEkatorMetricsSnapshot: EkatorMetricsSnapshot = {
@@ -120,6 +125,65 @@ function asNumber(value: unknown): number | null {
     const n = Number(value);
     return Number.isFinite(n) ? n : null;
   }
+  return null;
+}
+
+type OwnedPublication = {
+  platform: 'youtube' | 'instagram' | 'tiktok';
+  sourceUrl: string;
+};
+
+function itemUrl(item: SupabaseRow): string | null {
+  for (const key of ['source_url', 'post_url', 'permalink', 'url']) {
+    const value = item[key];
+    if (typeof value === 'string' && value.trim()) return value.trim();
+  }
+  return null;
+}
+
+/**
+ * Publication evidence is intentionally URL-based. A raw uploaded MP4, an
+ * `is_owned` flag, or a `street-eval` label does not prove that an asset was
+ * published. If a source clip is posted later, its real owned-channel post URL
+ * qualifies it and the asset is normalized to that platform.
+ */
+function ownedPublication(item: SupabaseRow): OwnedPublication | null {
+  if (!asBoolean(item.is_owned)) return null;
+
+  const sourceUrl = itemUrl(item);
+  if (!sourceUrl) return null;
+
+  try {
+    const url = new URL(sourceUrl);
+    if (url.protocol !== 'https:' && url.protocol !== 'http:') return null;
+    const host = url.hostname.toLowerCase().replace(/^www\./, '');
+    const path = url.pathname;
+
+    if (
+      (host === 'youtu.be' && /^\/[A-Za-z0-9_-]+/.test(path)) ||
+      ((host === 'youtube.com' || host.endsWith('.youtube.com')) &&
+        ((path === '/watch' && Boolean(url.searchParams.get('v'))) || /^\/(shorts|live|embed)\/[A-Za-z0-9_-]+/.test(path)))
+    ) {
+      return { platform: 'youtube', sourceUrl };
+    }
+
+    if (
+      (host === 'instagram.com' || host.endsWith('.instagram.com')) &&
+      /^\/(p|reel|tv)\/[A-Za-z0-9_.-]+/.test(path)
+    ) {
+      return { platform: 'instagram', sourceUrl };
+    }
+
+    if (
+      (host === 'tiktok.com' || host.endsWith('.tiktok.com')) &&
+      /^\/@[^/]+\/video\/\d+/.test(path)
+    ) {
+      return { platform: 'tiktok', sourceUrl };
+    }
+  } catch {
+    return null;
+  }
+
   return null;
 }
 
@@ -189,12 +253,15 @@ export async function getEkatorRegistrySnapshot(): Promise<EkatorRegistrySnapsho
       snsViralCount: snsViral.length,
       officialHandleCount: officialHandles.length,
       responseCount: responses.length,
-      recentItems: items.slice(0, 5).map((item) => ({
-        caption: asString(item.caption, 'Untitled asset'),
-        platform: asString(item.platform, 'unknown'),
-        handle: asString(item.handle, 'unknown'),
-        status: asString(item.status, 'unknown'),
-      })),
+      recentItems: items
+        .filter((item) => asString(item.platform).toLowerCase() !== 'street-eval')
+        .slice(0, 5)
+        .map((item) => ({
+          caption: asString(item.caption, 'Untitled asset'),
+          platform: asString(item.platform, 'unknown'),
+          handle: asString(item.handle, 'unknown'),
+          status: asString(item.status, 'unknown'),
+        })),
       topHandles: [
         ...officialHandles,
         ...snsViral,
@@ -217,10 +284,19 @@ export async function getEkatorAssetSnapshot(): Promise<EkatorAssetSnapshot> {
 
   try {
     const encodedClientId = encodeURIComponent(EKATOR_CLIENT_ID);
-    const [items, performance] = await Promise.all([
+    // Preserve the asset inventory even if the performance endpoint is unavailable.
+    // A downstream metrics failure must never make the whole section look empty.
+    const [itemsResult, performanceResult] = await Promise.allSettled([
       supabaseFetch<SupabaseRow[]>(baseUrl, key, `/rest/v1/cc_items?select=*&client_id=eq.${encodedClientId}&limit=200`),
       supabaseFetch<SupabaseRow[]>(baseUrl, key, `/rest/v1/cc_performance?select=*&order=captured_at.desc&limit=200`),
     ]);
+
+    if (itemsResult.status === 'rejected') {
+      return fallbackEkatorAssetSnapshot;
+    }
+
+    const items = itemsResult.value;
+    const performance = performanceResult.status === 'fulfilled' ? performanceResult.value : [];
 
     // Build a map of latest performance per item_id
     const perfByItem = new Map<string, SupabaseRow>();
@@ -231,18 +307,24 @@ export async function getEkatorAssetSnapshot(): Promise<EkatorAssetSnapshot> {
       }
     }
 
-    const assets: EkatorAsset[] = items.map((item) => {
+    const publishedItems = items.flatMap((item) => {
+      const publication = ownedPublication(item);
+      return publication ? [{ item, publication }] : [];
+    });
+
+    const assets: EkatorAsset[] = publishedItems.map(({ item, publication }) => {
       const itemId = asString(item.item_id);
       const perf = perfByItem.get(itemId);
       return {
         itemId,
-        platform: asString(item.platform, 'unknown') as EkatorAsset['platform'],
+        platform: publication.platform,
         handle: asString(item.handle, 'unknown'),
         caption: asString(item.caption, 'Untitled'),
-        sourceUrl: typeof item.source_url === 'string' ? item.source_url : null,
-        isOwned: asBoolean(item.is_owned),
+        sourceUrl: publication.sourceUrl,
+        isOwned: true,
         postDate: typeof item.post_date === 'string' ? item.post_date : null,
         status: asString(item.status, 'unknown'),
+        capturedAt: perf && typeof perf.captured_at === 'string' ? perf.captured_at : null,
         views: perf ? asNumber(perf.views) : null,
         likes: perf ? asNumber(perf.likes) : null,
         comments: perf ? asNumber(perf.comments) : null,
@@ -251,7 +333,13 @@ export async function getEkatorAssetSnapshot(): Promise<EkatorAssetSnapshot> {
       };
     });
 
-    return { status: 'live', assets };
+    return {
+      status: 'live',
+      assets,
+      performanceCount: assets.filter((asset) => asset.views !== null).length,
+      awaitingMetricsCount: assets.filter((asset) => asset.views === null).length,
+      publishedCount: assets.length,
+    };
   } catch {
     return fallbackEkatorAssetSnapshot;
   }
