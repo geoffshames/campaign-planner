@@ -256,8 +256,8 @@ function Ep1GravityCard({ metrics }: { metrics: DashboardMetrics }) {
     ? (metrics.longformViews / metrics.youtubeTotalViews) * 100
     : 0;
   return (
-    <div className="flex h-full flex-col items-center justify-center gap-3">
-      <div className="relative w-full max-w-[220px]">
+    <div className="flex h-full min-w-0 flex-col items-center justify-center gap-3">
+      <div className="relative mx-auto w-full max-w-[220px]">
         <Gauge
           value={ep1Pct}
           totalNotches={40}
@@ -269,6 +269,7 @@ function Ep1GravityCard({ metrics }: { metrics: DashboardMetrics }) {
           activeGradient={[red, '#B03030']}
           inactiveGradient={['#2A2A2A', '#1C1C1C']}
           className="w-full"
+          minWidth={0}
         />
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
           <div className="text-center">
@@ -277,7 +278,7 @@ function Ep1GravityCard({ metrics }: { metrics: DashboardMetrics }) {
           </div>
         </div>
       </div>
-      <div className="flex w-full items-center justify-between gap-3 border-t pt-2" style={{ borderColor: line }}>
+      <div className="flex w-full min-w-0 flex-wrap items-center justify-between gap-2 border-t pt-2" style={{ borderColor: line }}>
         <div className="flex items-center gap-1.5">
           <span className="h-2 w-2 rounded-full" style={{ background: red }} />
           <span className="font-mono text-[10px] text-[#E4E4E9]">EP1 · {compact(metrics.longformViews)}</span>
@@ -387,9 +388,9 @@ function KpiRail({ metrics }: { metrics: DashboardMetrics }) {
     { label: 'Paid', value: '—', sub: 'not live', tone: 'muted' },
   ];
   return (
-    <div className="grid grid-cols-3 gap-px overflow-hidden rounded-lg bg-[#1A1A1A] sm:grid-cols-6">
+    <div className="grid min-w-0 grid-cols-2 gap-px overflow-hidden rounded-lg bg-[#1A1A1A] sm:grid-cols-3 lg:grid-cols-6">
       {items.map((item) => (
-        <div key={item.label} className="bg-[#0E0E0E] px-3 py-2.5">
+        <div key={item.label} className="min-w-0 bg-[#0E0E0E] px-3 py-2.5">
           <div className="text-[9px] uppercase tracking-[0.15em] text-[#A0A0AA]">{item.label}</div>
           <div className="mt-0.5 font-mono text-xl font-bold leading-none" style={{ color: item.tone === 'risk' ? red : item.tone === 'muted' ? muted : white }}>{item.value}</div>
           <div className="mt-0.5 text-[9px] text-[#A0A0AA]">{item.sub}</div>
@@ -524,16 +525,19 @@ function RefreshButton() {
 
 function CommandCenter({ registry, assets, metrics, channels }: { registry: EkatorRegistrySnapshot; assets: EkatorAssetSnapshot; metrics: DashboardMetrics; channels: Channel[] }) {
   return (
-    <div className="mx-auto max-w-[1400px] px-4 pt-20 pb-6 md:px-6 lg:px-8">
+    <div className="mx-auto w-full min-w-0 max-w-[1400px] px-4 pb-6 pt-8 sm:pt-12 md:px-6 lg:px-8 lg:pt-20">
       {/* Title bar */}
-      <div className="mb-4 flex flex-wrap items-end justify-between gap-3 border-b pb-3" style={{ borderColor: line }}>
-        <div>
+      <div className="mb-4 flex min-w-0 flex-col items-start gap-4 border-b pb-4 sm:flex-row sm:items-end sm:justify-between sm:gap-3 sm:pb-3" style={{ borderColor: line }}>
+        <div className="min-w-0">
           <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-[#A0A0AA]">
             <span style={{ color: red }}>●</span> EKATOR Social Dashboard
           </div>
-          <h1 className="mt-1 font-mono text-3xl font-black leading-none text-white md:text-4xl">EKATOR <span style={{ color: red }}>COMMAND CENTER</span></h1>
+          <h1 className="mt-2 font-mono text-3xl font-black leading-[0.9] tracking-[-0.04em] text-white md:text-4xl">
+            <span className="block sm:inline">EKATOR</span>{' '}
+            <span className="mt-1 block sm:mt-0 sm:inline" style={{ color: red }}>COMMAND CENTER</span>
+          </h1>
         </div>
-        <div className="flex items-end gap-4">
+        <div className="flex w-full min-w-0 flex-wrap items-end justify-between gap-4 sm:w-auto sm:flex-nowrap sm:justify-start">
           <RefreshButton />
           <div className="text-right">
             <div className="text-[10px] uppercase tracking-[0.2em] text-[#A0A0AA]">Idol Till I Die</div>
@@ -546,16 +550,16 @@ function CommandCenter({ registry, assets, metrics, channels }: { registry: Ekat
       <div className="mb-3"><KpiRail metrics={metrics} /></div>
 
       {/* Main 3-column grid */}
-      <div className="mb-3 grid gap-3 lg:grid-cols-[0.8fr_1.2fr_1fr]">
+      <div className="mb-3 grid min-w-0 grid-cols-1 gap-3 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)_minmax(0,1fr)]">
         {/* EP1 Gravity */}
-        <div className="rounded-lg border p-5" style={{ borderColor: line, background: '#0E0E0E' }}>
+        <div className="min-w-0 rounded-lg border p-4 sm:p-5" style={{ borderColor: line, background: '#0E0E0E' }}>
           <div className="mb-3 text-[10px] uppercase tracking-[0.2em]" style={{ color: red }}>EP1 Gravity</div>
           <Ep1GravityCard metrics={metrics} />
         </div>
 
         {/* View Concentration */}
-        <div className="rounded-lg border p-5" style={{ borderColor: line, background: '#0E0E0E' }}>
-          <div className="mb-3 flex items-center justify-between">
+        <div className="min-w-0 rounded-lg border p-4 sm:p-5" style={{ borderColor: line, background: '#0E0E0E' }}>
+          <div className="mb-3 flex min-w-0 flex-col items-start gap-1 sm:flex-row sm:items-center sm:justify-between">
             <div className="text-[10px] uppercase tracking-[0.2em]" style={{ color: red }}>View Concentration</div>
             <div className="font-mono text-xs text-[#A0A0AA]">where views are by format</div>
           </div>
@@ -563,8 +567,8 @@ function CommandCenter({ registry, assets, metrics, channels }: { registry: Ekat
         </div>
 
         {/* Priority queue */}
-        <div className="rounded-lg border p-4" style={{ borderColor: line, background: '#0E0E0E' }}>
-          <div className="mb-3 flex items-center justify-between">
+        <div className="min-w-0 rounded-lg border p-4" style={{ borderColor: line, background: '#0E0E0E' }}>
+          <div className="mb-3 flex min-w-0 flex-col items-start gap-1 sm:flex-row sm:items-center sm:justify-between">
             <div className="text-[10px] uppercase tracking-[0.2em]" style={{ color: red }}>72-Hour Queue</div>
             <div className="font-mono text-xs text-[#A0A0AA]">do these first</div>
           </div>
@@ -573,8 +577,8 @@ function CommandCenter({ registry, assets, metrics, channels }: { registry: Ekat
       </div>
 
       {/* Channel matrix — 3 compact channel cards with rings */}
-      <div className="mb-3 rounded-lg border p-4" style={{ borderColor: line, background: '#0E0E0E' }}>
-        <div className="mb-3 flex items-center justify-between">
+      <div className="mb-3 min-w-0 rounded-lg border p-4" style={{ borderColor: line, background: '#0E0E0E' }}>
+        <div className="mb-3 flex min-w-0 flex-col items-start gap-1 sm:flex-row sm:items-center sm:justify-between">
           <div className="text-[10px] uppercase tracking-[0.2em]" style={{ color: red }}>Channel Pulse</div>
           <div className="font-mono text-xs text-[#A0A0AA]">audience · status · activation</div>
         </div>
@@ -1129,10 +1133,13 @@ function MeasurementTable({ assets, metrics }: { assets: EkatorAssetSnapshot; me
                   key={asset.itemId}
                   className="group relative flex h-52 min-w-0 flex-col justify-end rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FD3737]"
                   aria-label={`${asset.caption}: ${velocity.toLocaleString()} views per day, ${asset.views?.toLocaleString()} total views`}
+                  aria-describedby={`velocity-tooltip-${index}`}
                 >
                   <span
-                    className={`pointer-events-none absolute z-20 hidden w-52 rounded-md border bg-[#0A0A0A] p-3 text-left shadow-2xl group-hover:block group-focus-visible:block ${index === 0 ? 'left-0' : index === velocityAssets.length - 1 ? 'right-0' : 'left-1/2 -translate-x-1/2'}`}
-                    style={{ borderColor: '#444', bottom: `${Math.max(14, (velocity / maxVelocity) * 132) + 42}px` }}
+                    id={`velocity-tooltip-${index}`}
+                    className={`pointer-events-none absolute top-2 z-20 hidden w-52 rounded-md border bg-[#0A0A0A] p-3 text-left shadow-2xl group-hover:block group-focus-visible:block ${index === 0 ? 'left-0' : index === velocityAssets.length - 1 ? 'right-0' : 'left-1/2 -translate-x-1/2'}`}
+                    style={{ borderColor: '#444' }}
+                    role="tooltip"
                   >
                     <span className="block text-xs font-bold leading-snug text-white">{asset.caption}</span>
                     <span className="mt-2 block font-mono text-lg font-black" style={{ color: red }}>{velocity.toLocaleString()} views/day</span>
@@ -1274,7 +1281,7 @@ export function EkatorCommandCenter({ registry, assets }: { registry: EkatorRegi
   ], []);
 
   return (
-    <main className="min-h-screen overflow-x-hidden bg-[#0A0A0A] text-[#FAFAFA]">
+    <main className="min-h-[100dvh] w-full min-w-0 overflow-x-hidden bg-[#0A0A0A] text-[#FAFAFA]">
       {/* Scroll progress */}
       <motion.div className="fixed left-0 right-0 top-0 z-[70] h-[2px] origin-left" style={{ scaleX, background: red }} />
 
@@ -1293,7 +1300,7 @@ export function EkatorCommandCenter({ registry, assets }: { registry: EkatorRegi
       </nav>
 
       {/* COMMAND CENTER — above the fold */}
-      <header ref={heroRef} className="min-h-screen pt-14">
+      <header ref={heroRef} className="min-h-[100dvh] min-w-0 pt-14">
         <CommandCenter registry={registry} assets={assets} metrics={metrics} channels={channelData} />
       </header>
 
