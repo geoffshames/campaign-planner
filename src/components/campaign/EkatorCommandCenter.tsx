@@ -6,7 +6,13 @@ import { Gauge } from '@/components/charts/gauge';
 import { RingChart } from '@/components/charts/ring-chart';
 import { Ring } from '@/components/charts/ring';
 import { RingCenter } from '@/components/charts/ring-center';
-import type { EkatorRegistrySnapshot, EkatorAssetSnapshot, EkatorAsset } from '@/lib/ekator-dashboard';
+import type {
+  EkatorRegistrySnapshot,
+  EkatorAssetSnapshot,
+  EkatorAsset,
+  EkatorChannelSnapshot,
+  EkatorOwnedChannel,
+} from '@/lib/ekator-dashboard';
 
 /* ── DATA ─────────────────────────────────────────────────────────── */
 
@@ -16,12 +22,11 @@ const muted = '#A0A0AA';
 const light = '#E4E4E9';
 const white = '#FAFAFA';
 
-const ownedAudience = 82_154;
-
 type Channel = {
   name: string;
   handle: string;
   audience: number;
+  postCount: number;
   posts: string;
   views: number | null;
   share: number;
@@ -33,8 +38,11 @@ type Channel = {
 };
 
 type Insight = { label: string; stat: string; read: string; action: string; tone: 'strong' | 'watch' | 'risk' };
+type Rec = { rank: number; title: string; why: string; move: string; owner: string; impact: 'High' | 'Medium' };
+type MeasureLayer = { platform: string; audience: string; coverage: string; read: string; next: string; tone: 'strong' | 'watch' | 'risk' };
 type DashboardMetrics = {
   hasMeasuredPerformance: boolean;
+  ownedAudience: number;
   youtubeTotalViews: number;
   longformViews: number;
   teaserViews: number;
@@ -43,26 +51,31 @@ type DashboardMetrics = {
   videoCount: number;
   youtubeEngagement: number | null;
   teaserDetected: boolean;
+  refreshedAt: string | null;
   readLabel: string;
 };
 
-function deriveDashboardMetrics(snapshot: EkatorAssetSnapshot): DashboardMetrics {
-  const published = snapshot.assets.filter((asset) => asset.platform === 'youtube' && asset.views !== null);
-  if (published.length === 0) {
-    return {
-      hasMeasuredPerformance: false,
-      youtubeTotalViews: 0,
-      longformViews: 0,
-      teaserViews: 0,
-      shortsViews: 0,
-      shortsCount: 0,
-      videoCount: 0,
-      youtubeEngagement: null,
-      teaserDetected: false,
-      readLabel: 'Data pending',
-    };
-  }
+function hasMeasuredMetrics(asset: EkatorAsset): boolean {
+  return asset.views !== null || asset.likes !== null || asset.comments !== null || asset.shares !== null;
+}
 
+function formatRefreshedAt(value: string | null): string {
+  if (!value) return 'Refresh pending';
+  const date = new Date(value);
+  if (!Number.isFinite(date.getTime())) return 'Refresh pending';
+  return new Intl.DateTimeFormat('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+    timeZoneName: 'short',
+    timeZone: 'America/Los_Angeles',
+  }).format(date);
+}
+
+function deriveDashboardMetrics(snapshot: EkatorAssetSnapshot, channelSnapshot: EkatorChannelSnapshot): DashboardMetrics {
+  const published = snapshot.assets.filter((asset) => asset.platform === 'youtube' && asset.views !== null);
   const ep1 = published.find((asset) => /ep\.?\s*1/i.test(asset.caption));
   const teaser = published.find((asset) => /teaser/i.test(asset.caption));
   const shorts = published.filter((asset) => asset.itemId !== ep1?.itemId && asset.itemId !== teaser?.itemId);
@@ -71,22 +84,17 @@ function deriveDashboardMetrics(snapshot: EkatorAssetSnapshot): DashboardMetrics
     (sum, asset) => sum + (asset.likes ?? 0) + (asset.comments ?? 0) + (asset.shares ?? 0),
     0,
   );
-  const latestCapture = published
-    .map((asset) => asset.capturedAt)
+  const latestCapture = [
+    channelSnapshot.refreshedAt,
+    ...snapshot.assets.map((asset) => asset.capturedAt),
+  ]
     .filter((value): value is string => Boolean(value))
     .sort()
-    .at(-1);
-  const readLabel = latestCapture
-    ? new Intl.DateTimeFormat('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-        timeZone: 'America/Los_Angeles',
-      }).format(new Date(latestCapture))
-    : 'Live snapshot';
+    .at(-1) ?? null;
 
   return {
-    hasMeasuredPerformance: true,
+    hasMeasuredPerformance: published.length > 0,
+    ownedAudience: channelSnapshot.channels.reduce((sum, channel) => sum + (channel.audience ?? 0), 0),
     youtubeTotalViews: totalViews,
     longformViews: ep1?.views ?? 0,
     teaserViews: teaser?.views ?? 0,
@@ -95,51 +103,227 @@ function deriveDashboardMetrics(snapshot: EkatorAssetSnapshot): DashboardMetrics
     videoCount: published.length,
     youtubeEngagement: totalViews > 0 ? (interactions / totalViews) * 100 : null,
     teaserDetected: Boolean(teaser),
-    readLabel,
+    refreshedAt: latestCapture,
+    readLabel: formatRefreshedAt(latestCapture),
   };
 }
 
-function buildChannels(metrics: DashboardMetrics): Channel[] {
+function buildChannels(metrics: DashboardMetrics, assets: EkatorAssetSnapshot, channelSnapshot: EkatorChannelSnapshot): Channel[] {
+  const channelFor = (platform: EkatorOwnedChannel['platform']) => channelSnapshot.channels.find((channel) => channel.platform === platform);
+  const platformAssets = (platform: EkatorOwnedChannel['platform']) => assets.assets.filter((asset) => asset.platform === platform);
+  const audienceTotal = Math.max(1, metrics.ownedAudience);
+  const makeShare = (audience: number) => (audience / audienceTotal) * 100;
+  const ig = channelFor('instagram');
+  const yt = channelFor('youtube');
+  const tt = channelFor('tiktok');
+  const igAssets = platformAssets('instagram');
+  const ttAssets = platformAssets('tiktok');
+  const igEngagementReads = igAssets.map((asset) => asset.engagementRate).filter((value): value is number => value !== null);
+  const igEngagement = igEngagementReads.length > 0
+    ? `${(igEngagementReads.reduce((sum, value) => sum + value, 0) / igEngagementReads.length).toFixed(1)}%`
+    : '—';
   const ytEr = metrics.youtubeEngagement === null ? '—' : `${metrics.youtubeEngagement.toFixed(1)}%`;
   const ep1Share = metrics.youtubeTotalViews > 0
     ? (metrics.longformViews / metrics.youtubeTotalViews) * 100
     : 0;
+  const instagramAudience = ig?.audience ?? 0;
+  const youtubeAudience = yt?.audience ?? 0;
+  const tiktokAudience = tt?.audience ?? 0;
+  const instagramPostCount = ig?.postCount ?? igAssets.length;
+  const youtubePostCount = yt?.postCount ?? metrics.videoCount;
+  const tiktokPostCount = tt?.postCount ?? ttAssets.length;
   return [
-    { name: 'Instagram', handle: '@idoltillidie', audience: 65_074, posts: '10 posts', views: null, share: 79.2, engagement: '—', status: 'strong', role: 'Top-of-funnel audience reservoir', insight: 'Instagram owns nearly 80% of the known official audience, but post-level performance is not yet connected to this read.', action: 'Every IG post/story should ladder into one clear behavior: watch EP1, save a trainee clip, or follow YouTube.' },
-    { name: 'YouTube', handle: '@Idoltillidie', audience: 5_280, posts: metrics.hasMeasuredPerformance ? `${metrics.videoCount} videos` : '—', views: metrics.hasMeasuredPerformance ? metrics.youtubeTotalViews : null, share: 6.4, engagement: ytEr, status: 'watch', role: 'Documentary home + retargeting anchor', insight: metrics.hasMeasuredPerformance ? `EP1 holds ${ep1Share.toFixed(1)}% of measured YouTube views, showing discovery far beyond the subscriber base.` : 'Published YouTube performance is temporarily unavailable.', action: 'Use YouTube as the source of truth for story beats, then force the short-form layer to carry those beats outward.' },
-    { name: 'TikTok', handle: '@idoltillidie', audience: 11_800, posts: '0 videos', views: null, share: 14.4, engagement: '—', status: 'risk', role: 'Dormant owned distribution', insight: 'There is a meaningful follower base but no official TikTok content, so the campaign is leaving algorithmic inventory unused.', action: 'Post the first three EP1 cuts immediately: Matthew leader arc, trainee pressure, and comedic dorm/rule clip.' },
+    { name: 'Instagram', handle: `@${ig?.handle || 'idoltillidie'}`, audience: instagramAudience, postCount: instagramPostCount, posts: `${instagramPostCount} posts`, views: null, share: makeShare(instagramAudience), engagement: igEngagement, status: 'strong', role: 'Top-of-funnel audience reservoir', insight: `${igAssets.length} verified Instagram posts now have likes and comments connected. Public view counts are not available from this feed.`, action: 'Use the top interaction-velocity posts as creative signals, then route the audience toward EP1.' },
+    { name: 'YouTube', handle: `@${yt?.handle || 'Idoltillidie'}`, audience: youtubeAudience, postCount: youtubePostCount, posts: `${youtubePostCount} videos`, views: metrics.hasMeasuredPerformance ? metrics.youtubeTotalViews : null, share: makeShare(youtubeAudience), engagement: ytEr, status: 'watch', role: 'Documentary home + retargeting anchor', insight: metrics.hasMeasuredPerformance ? `EP1 holds ${ep1Share.toFixed(1)}% of measured YouTube views, showing discovery beyond the subscriber base.` : 'Published YouTube performance is temporarily unavailable.', action: 'Use YouTube as the story anchor, then carry the strongest beats outward through short-form cuts.' },
+    { name: 'TikTok', handle: `@${tt?.handle || 'idoltillidie'}`, audience: tiktokAudience, postCount: tiktokPostCount, posts: `${tiktokPostCount} videos`, views: null, share: makeShare(tiktokAudience), engagement: '—', status: tiktokPostCount > 0 ? 'watch' : 'risk', role: 'Dormant owned distribution', insight: tiktokPostCount > 0 ? 'TikTok publishing is active and ready for post-level pacing reads.' : 'There is a meaningful follower base but no official TikTok content, leaving algorithmic inventory unused.', action: 'Post the first three EP1 cuts: Matthew leader arc, trainee pressure, and comedic dorm/rule clip.' },
   ];
 }
 
-const insights: Insight[] = [
-  { label: 'Demand is real, but concentrated', stat: '94.2%', read: 'EP1 + teaser account for almost all measured official YouTube views. The longform story is doing the work; the short-form layer is not yet distributing that demand.', action: 'Build a daily short ladder from EP1 instead of treating each clip as a one-off upload.', tone: 'watch' },
-  { label: 'Instagram is the conversion gap', stat: '65.1K', read: 'Instagram is the largest owned channel by far, but the measurable viewing event lives on YouTube.', action: 'Create IG-native story posts that explicitly drive to "watch EP1" and measure link/click lift.', tone: 'strong' },
-  { label: 'TikTok is unused owned leverage', stat: '11.8K / 0', read: 'The account has followers but no posts. That is the fastest fix in the system.', action: 'Launch TikTok with three narrative cuts before adding spend anywhere else.', tone: 'risk' },
-  { label: 'Matthew remains the cleanest first protagonist', stat: 'Priority 1', read: 'The available short-form read points toward Matthew\'s leader arc as the clearest hook for international audiences.', action: 'Make Matthew the first controlled variable: 3 edits, 3 hooks, 3 platforms, same 24-hour read window.', tone: 'strong' },
-];
+function knownInteractions(asset: EkatorAsset): number {
+  return (asset.likes ?? 0) + (asset.comments ?? 0) + (asset.shares ?? 0);
+}
 
-type Rec = { rank: number; title: string; why: string; move: string; owner: string; impact: 'High' | 'Medium' };
-const recommendations: Rec[] = [
-  { rank: 1, title: 'Turn EP1 into a controlled 12-clip test, not random snippets', why: 'The longform episode is the only proven demand source right now. Shorts are not yet carrying the story outward.', move: 'Cut 12 moments across four lanes: Matthew leader, Cai origin/redemption, Oh Juni pressure, group conflict/comedy. Publish with consistent English-first hooks.', owner: 'Content / clipping', impact: 'High' },
-  { rank: 2, title: 'Activate TikTok immediately', why: '11.8K official followers and zero posts is a pure distribution leak.', move: 'Post the top three EP1 cuts today. Keep captions bilingual and make the first second explain the stakes: "They debut together or fail together."', owner: 'Owned social', impact: 'High' },
-  { rank: 3, title: 'Use Instagram as the fan reservoir, not a passive poster', why: 'Instagram holds ~80% of the official audience. The strongest next read is whether that audience can move toward EP1, saves, and follow-through instead of staying passive.', move: 'Add pinned EP1 CTA, story link stack, and a recurring "choose the trainee" interactive sticker for each protagonist lane.', owner: 'Owned social', impact: 'High' },
-  { rank: 4, title: 'Test member-pair dynamics before scaling performance-only cuts', why: 'The clearest clips are character-led. Relationship hooks make the show easier to understand for new viewers than formal trailer language.', move: 'Build a small batch around pairings and conflicts: Matthew/Cai, dorm rules, group stakes, and "can they debut together?" pressure.', owner: 'Creative strategy', impact: 'Medium' },
-  { rank: 5, title: 'Close context gaps before the next clip wave', why: 'New viewers still need fast answers: who is onscreen, what the stakes are, where to watch, and why this moment matters.', move: 'Add one-line context to every next cut so casual viewers can understand the story without already knowing the show.', owner: 'Content clarity', impact: 'Medium' },
-];
+function platformPostCount(
+  platform: EkatorOwnedChannel['platform'],
+  assets: EkatorAssetSnapshot,
+  channelSnapshot: EkatorChannelSnapshot,
+): number {
+  const channel = channelSnapshot.channels.find((candidate) => candidate.platform === platform);
+  return channel?.postCount ?? assets.assets.filter((asset) => asset.platform === platform).length;
+}
 
-type MeasureLayer = { platform: string; audience: string; coverage: string; read: string; next: string; tone: 'strong' | 'watch' | 'risk' };
+function buildInsights(
+  metrics: DashboardMetrics,
+  assets: EkatorAssetSnapshot,
+  channelSnapshot: EkatorChannelSnapshot,
+): Insight[] {
+  const concentration = metrics.youtubeTotalViews > 0
+    ? ((metrics.longformViews + metrics.teaserViews) / metrics.youtubeTotalViews) * 100
+    : null;
+  const instagram = channelSnapshot.channels.find((channel) => channel.platform === 'instagram');
+  const instagramAudience = instagram?.audience ?? 0;
+  const instagramShare = metrics.ownedAudience > 0 ? (instagramAudience / metrics.ownedAudience) * 100 : null;
+  const instagramMeasuredPosts = assets.assets.filter((asset) => asset.platform === 'instagram' && hasMeasuredMetrics(asset)).length;
+  const tiktok = channelSnapshot.channels.find((channel) => channel.platform === 'tiktok');
+  const tiktokAudience = tiktok?.audience ?? 0;
+  const tiktokPosts = platformPostCount('tiktok', assets, channelSnapshot);
+  const interactionLeader = assets.assets
+    .map((asset) => ({ asset, interactions: knownInteractions(asset) }))
+    .filter((entry) => entry.interactions > 0)
+    .sort((a, b) => b.interactions - a.interactions)[0];
+
+  return [
+    {
+      label: 'Measured YouTube demand concentration',
+      stat: concentration === null ? '—' : `${concentration.toFixed(1)}%`,
+      read: concentration === null
+        ? 'Published YouTube performance is temporarily unavailable, so demand concentration cannot be calculated.'
+        : `EP1 + teaser account for ${concentration.toFixed(1)}% of ${compact(metrics.youtubeTotalViews)} measured official YouTube views.`,
+      action: concentration === null
+        ? 'Restore the performance read before changing the publishing plan.'
+        : 'Use the proven long-form story as the source for the next short-form sprint.',
+      tone: 'watch',
+    },
+    {
+      label: 'Instagram audience reservoir',
+      stat: instagramAudience > 0 ? compact(instagramAudience) : '—',
+      read: instagramAudience > 0
+        ? `Instagram represents ${instagramShare?.toFixed(1) ?? '—'}% of the measured owned audience, with ${instagramMeasuredPosts} verified posts carrying known interactions. Public post views are unavailable from this feed.`
+        : 'Instagram audience data is temporarily unavailable.',
+      action: 'Use interaction velocity as the creative signal and measure first-party reach and link activity separately.',
+      tone: 'strong',
+    },
+    {
+      label: tiktokPosts > 0 ? 'TikTok pacing is now measurable' : 'TikTok distribution gap',
+      stat: tiktokAudience > 0 ? `${compact(tiktokAudience)} / ${tiktokPosts}` : '—',
+      read: tiktokAudience > 0
+        ? `${compact(tiktokAudience)} followers and ${tiktokPosts} published ${tiktokPosts === 1 ? 'post' : 'posts'} are currently recorded.`
+        : 'TikTok audience and publication data are temporarily unavailable.',
+      action: tiktokPosts > 0
+        ? 'Capture first-hour, 24-hour, and 72-hour pacing before increasing output.'
+        : 'Publish the first controlled cuts and establish a post-level baseline.',
+      tone: tiktokPosts > 0 ? 'watch' : 'risk',
+    },
+    {
+      label: 'Current interaction leader',
+      stat: interactionLeader ? compact(interactionLeader.interactions) : '—',
+      read: interactionLeader
+        ? `“${interactionLeader.asset.caption}” has ${compact(interactionLeader.interactions)} known interactions on ${interactionLeader.asset.platform}. This is an interaction signal, not a cross-platform view comparison.`
+        : 'No post currently has a measured interaction total.',
+      action: interactionLeader
+        ? 'Use its hook and story beat as one controlled comparator in the next publishing batch.'
+        : 'Restore post-level interaction collection before selecting a creative leader.',
+      tone: 'strong',
+    },
+  ];
+}
+
+function buildRecommendations(
+  metrics: DashboardMetrics,
+  assets: EkatorAssetSnapshot,
+  channelSnapshot: EkatorChannelSnapshot,
+): Rec[] {
+  const youtubeConcentration = metrics.youtubeTotalViews > 0
+    ? (metrics.longformViews / metrics.youtubeTotalViews) * 100
+    : null;
+  const shortsShare = metrics.youtubeTotalViews > 0
+    ? (metrics.shortsViews / metrics.youtubeTotalViews) * 100
+    : null;
+  const instagram = channelSnapshot.channels.find((channel) => channel.platform === 'instagram');
+  const instagramAudience = instagram?.audience ?? 0;
+  const instagramShare = metrics.ownedAudience > 0 ? (instagramAudience / metrics.ownedAudience) * 100 : null;
+  const tiktok = channelSnapshot.channels.find((channel) => channel.platform === 'tiktok');
+  const tiktokAudience = tiktok?.audience ?? 0;
+  const tiktokPosts = platformPostCount('tiktok', assets, channelSnapshot);
+  const interactionLeader = assets.assets
+    .map((asset) => ({ asset, interactions: knownInteractions(asset) }))
+    .filter((entry) => entry.interactions > 0)
+    .sort((a, b) => b.interactions - a.interactions)[0];
+  const moves: Omit<Rec, 'rank'>[] = [];
+
+  moves.push(metrics.hasMeasuredPerformance && youtubeConcentration !== null && shortsShare !== null
+    ? {
+        title: 'Convert measured EP1 concentration into a controlled short-form sprint',
+        why: `EP1 holds ${youtubeConcentration.toFixed(1)}% of measured YouTube views, while ${metrics.shortsCount} shorts hold ${shortsShare.toFixed(1)}%.`,
+        move: 'Cut six distinct EP1 moments across character, stakes, and lighter group dynamics; publish with consistent hooks over the next 72 hours.',
+        owner: 'Content / clipping',
+        impact: 'High',
+      }
+    : {
+        title: 'Restore the YouTube performance read before scaling output',
+        why: 'Published YouTube performance is unavailable, so concentration and short-form share cannot be verified.',
+        move: 'Repair the post-level performance feed and re-rank the queue from measured views and interactions.',
+        owner: 'Measurement',
+        impact: 'High',
+      });
+
+  moves.push(tiktokPosts === 0
+    ? {
+        title: 'Activate TikTok and establish the first pacing baseline',
+        why: tiktokAudience > 0
+          ? `${compact(tiktokAudience)} followers and zero published posts are currently recorded.`
+          : 'Zero published TikTok posts are currently recorded; the audience total is unavailable.',
+        move: 'Publish three distinct EP1-derived cuts, then record first-hour, 24-hour, and 72-hour views and interactions for each.',
+        owner: 'Owned social',
+        impact: 'High',
+      }
+    : {
+        title: 'Use current TikTok posts to establish a pacing baseline',
+        why: `${tiktokPosts} TikTok ${tiktokPosts === 1 ? 'post is' : 'posts are'} live for an audience of ${tiktokAudience > 0 ? compact(tiktokAudience) : '—'}.`,
+        move: 'Compare first-hour, 24-hour, and 72-hour views and interactions before increasing posting volume.',
+        owner: 'Owned social',
+        impact: 'High',
+      });
+
+  moves.push({
+    title: 'Turn the Instagram audience into a measurable EP1 path',
+    why: instagramAudience > 0
+      ? `Instagram holds ${instagramShare?.toFixed(1) ?? '—'}% of the recorded owned audience (${compact(instagramAudience)} followers), while public post views remain unavailable.`
+      : 'Instagram audience data is unavailable and public post views are not present in the current feed.',
+    move: 'Use a pinned EP1 call-to-action and story-link sequence; capture first-party reach, taps, saves, shares, and link clicks.',
+    owner: 'Owned social',
+    impact: 'High',
+  });
+
+  moves.push(interactionLeader
+    ? {
+        title: 'Use the current interaction leader as a controlled comparator',
+        why: `“${interactionLeader.asset.caption}” leads the current ledger with ${compact(interactionLeader.interactions)} known interactions on ${interactionLeader.asset.platform}.`,
+        move: 'Repeat its hook or story beat in one new cut while holding format and publishing window consistent enough to compare the next read.',
+        owner: 'Creative strategy',
+        impact: 'Medium',
+      }
+    : {
+        title: 'Restore interaction coverage before selecting a creative leader',
+        why: 'No current asset has a known interaction total.',
+        move: 'Collect likes, comments, and shares for the next published batch, then choose the repeatable hook from measured results.',
+        owner: 'Measurement',
+        impact: 'Medium',
+      });
+
+  moves.push({
+    title: 'Maintain the measurement boundary until campaign delivery begins',
+    why: 'No campaigns are live, so every current audience and post-performance read is an owned-channel signal.',
+    move: 'Keep the delivery section marked Not live and add confirmed spend, reach, efficiency, and conversion data only after launch.',
+    owner: 'Measurement',
+    impact: 'Medium',
+  });
+
+  return moves.map((move, index) => ({ ...move, rank: index + 1 }));
+}
+
 const measurementLayers: MeasureLayer[] = [
-  { platform: 'YouTube', audience: '5.28K subs', coverage: '10 videos with views', read: 'Post-level views are live here; EP1 is the anchor and shorts are the distribution gap.', next: 'Add likes, comments, retention, average view duration, and subscriber delta by video.', tone: 'strong' },
-  { platform: 'Instagram', audience: '65.1K followers', coverage: '10 posts counted', read: 'Largest owned audience, but post-level engagement and story-click data are not in the read yet.', next: 'Capture views, likes, comments, saves, shares, story taps, link clicks, and follower delta per post.', tone: 'watch' },
-  { platform: 'TikTok', audience: '11.8K followers', coverage: '0 official posts', read: 'No post-level layer can exist until the first official clips go up.', next: 'Start with first-hour, 24-hour, and 72-hour views, profile visits, follows, comments, saves, and shares.', tone: 'risk' },
+  { platform: 'YouTube', audience: '—', coverage: 'Awaiting current read', read: 'Post-level views are the primary performance layer for official YouTube publications.', next: 'Add retention and average view duration by video.', tone: 'strong' },
+  { platform: 'Instagram', audience: '—', coverage: 'Awaiting current read', read: 'Known interactions are available separately from unavailable public post views.', next: 'Add reach, saves, shares, and story-link clicks from first-party Insights.', tone: 'watch' },
+  { platform: 'TikTok', audience: '—', coverage: 'Awaiting current read', read: 'Post-level pacing begins once official publications are recorded.', next: 'Capture first-hour, 24-hour, and 72-hour views, follows, comments, saves, and shares.', tone: 'risk' },
 ];
 
 type Sentiment = { theme: string; tags: string; use: string; status: string };
 const sentimentThemes: Sentiment[] = [
-  { theme: 'Matthew leadership arc', tags: 'Leader, pressure, responsibility, sympathy, international-fan clarity.', use: 'Decides whether Matthew remains the first paid/social variable.', status: 'Ready to tag' },
+  { theme: 'Matthew leadership arc', tags: 'Leader, pressure, responsibility, sympathy, international-fan clarity.', use: 'Tests whether the leadership arc earns the first cross-platform creative repeat.', status: 'Ready to tag' },
   { theme: 'Group stakes', tags: 'Together-or-fail framing, team tension, "can they debut?" reactions.', use: 'Decides if hooks should lead with the show premise instead of one member.', status: 'Ready to tag' },
   { theme: 'Dorm / rule comedy', tags: 'Funny rules, daily-life moments, meme comments, low-context shareability.', use: 'Decides which casual-fandom clips can scale beyond existing viewers.', status: 'Ready to tag' },
-  { theme: 'Confusion / context gaps', tags: 'Questions about who, what show, voting, episode order, subtitles, where to watch.', use: 'Decides what on-screen text must be added before paid spend.', status: 'Needs comments' },
+  { theme: 'Confusion / context gaps', tags: 'Questions about who, what show, voting, episode order, subtitles, where to watch.', use: 'Decides what on-screen text must be added before wider distribution.', status: 'Needs comments' },
 ];
 
 const paidFields = [
@@ -151,12 +335,6 @@ const paidFields = [
   { metric: 'Follower conversion', use: 'New followers or subscribers generated per 1K paid views.' },
   { metric: 'EP1 click-through', use: 'Whether paid clips create traffic to the anchor episode.' },
   { metric: 'Creative winner / loser', use: 'Best and weakest paid cuts by platform, audience, and day.' },
-];
-
-const followerBaselines = [
-  { platform: 'Instagram', baseline: '65.1K' },
-  { platform: 'YouTube', baseline: '5.28K' },
-  { platform: 'TikTok', baseline: '11.8K' },
 ];
 
 const compact = (v: number) => new Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: v >= 10_000 ? 1 : 0 }).format(v);
@@ -343,7 +521,7 @@ function ViewConcentrationCard({ metrics }: { metrics: DashboardMetrics }) {
         ))}
       </div>
       <div className="text-xs leading-relaxed" style={{ color: red }}>
-        <span className="font-bold">Gap: </span>TikTok 0. Shorts {((metrics.shortsViews / total) * 100).toFixed(1)}%. Story works — distribution doesn&apos;t.
+        <span className="font-bold">Gap: </span>Short-form share is {((metrics.shortsViews / total) * 100).toFixed(1)}%. Use the measured format mix to prioritize the next cuts.
       </div>
     </div>
   );
@@ -351,7 +529,7 @@ function ViewConcentrationCard({ metrics }: { metrics: DashboardMetrics }) {
 
 
 /** Priority timeline — numbered horizontal stepper */
-function PriorityTimeline() {
+function PriorityTimeline({ recommendations }: { recommendations: Rec[] }) {
   return (
     <div className="space-y-3">
       {recommendations.slice(0, 3).map(rec => (
@@ -375,16 +553,17 @@ function PriorityTimeline() {
 }
 
 /** KPI rail — inline strip of key numbers, no cards */
-function KpiRail({ metrics }: { metrics: DashboardMetrics }) {
+function KpiRail({ metrics, channels }: { metrics: DashboardMetrics; channels: Channel[] }) {
   const ep1Pct = metrics.youtubeTotalViews > 0
     ? (metrics.longformViews / metrics.youtubeTotalViews) * 100
     : 0;
+  const tiktok = channels.find((channel) => channel.name === 'TikTok');
   const items = [
-    { label: 'Audience', value: compact(ownedAudience), sub: 'IG+YT+TT', tone: 'normal' },
+    { label: 'Audience', value: metrics.ownedAudience > 0 ? compact(metrics.ownedAudience) : '—', sub: 'IG+YT+TT', tone: 'normal' },
     { label: 'YT Views', value: metrics.hasMeasuredPerformance ? compact(metrics.youtubeTotalViews) : '—', sub: metrics.hasMeasuredPerformance ? `${metrics.videoCount} videos` : 'data pending', tone: 'normal' },
     { label: 'EP1 Gravity', value: metrics.hasMeasuredPerformance ? `${ep1Pct.toFixed(1)}%` : '—', sub: metrics.hasMeasuredPerformance ? 'of YT views' : 'data pending', tone: 'normal' },
     { label: 'Shorts', value: metrics.hasMeasuredPerformance ? compact(metrics.shortsViews) : '—', sub: metrics.hasMeasuredPerformance ? `${metrics.shortsCount} clips` : 'data pending', tone: 'risk' },
-    { label: 'TikTok', value: '0', sub: '11.8K waiting', tone: 'risk' },
+    { label: 'TikTok', value: tiktok?.posts.split(' ')[0] ?? '—', sub: tiktok ? `${compact(tiktok.audience)} waiting` : 'data pending', tone: 'risk' },
     { label: 'Paid', value: '—', sub: 'not live', tone: 'muted' },
   ];
   return (
@@ -428,12 +607,14 @@ function StatusStrip({ registry, assets }: { registry: EkatorRegistrySnapshot; a
 }
 
 /** Channel matrix — bklit ring chart per channel */
-function ChannelMatrix({ channels, metrics }: { channels: Channel[]; metrics: DashboardMetrics }) {
+function ChannelMatrix({ channels }: { channels: Channel[] }) {
+  const maxAudience = Math.max(1, ...channels.map((channel) => channel.audience));
+  const maxPosts = Math.max(1, ...channels.map((channel) => channel.postCount));
   return (
     <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
       {channels.map(ch => {
         const ringColor = ch.status === 'strong' ? '#E4E4E9' : statusColor(ch.status);
-        const ringData = [{ label: ch.name, value: ch.audience, maxValue: 65_074, color: ringColor }];
+        const ringData = [{ label: ch.name, value: ch.audience, maxValue: maxAudience, color: ringColor }];
         return (
           <div key={ch.name} className="flex flex-col items-center gap-2 rounded-lg bg-[#141414] p-5 text-center">
             <RingChart data={ringData} size={104} strokeWidth={9} ringGap={0} baseInnerRadius={38}>
@@ -454,7 +635,7 @@ function ChannelMatrix({ channels, metrics }: { channels: Channel[]; metrics: Da
               <div className="h-1.5 overflow-hidden rounded-full bg-[#262626]">
                 <div
                   className="h-full rounded-full"
-                  style={{ width: ch.views ? `${Math.min(100, (ch.views / Math.max(1, metrics.youtubeTotalViews)) * 100)}%` : ch.posts === '0 videos' ? '0%' : '30%', background: ringColor, opacity: 0.85 }}
+                  style={{ width: `${Math.min(100, (ch.postCount / maxPosts) * 100)}%`, background: ringColor, opacity: 0.85 }}
                 />
               </div>
               <div className="mt-1.5 font-mono text-[10px] text-[#A0A0AA]">{ch.posts}</div>
@@ -523,7 +704,7 @@ function RefreshButton() {
 
 /* ── COMMAND CENTER (above the fold) ──────────────────────────────── */
 
-function CommandCenter({ registry, assets, metrics, channels }: { registry: EkatorRegistrySnapshot; assets: EkatorAssetSnapshot; metrics: DashboardMetrics; channels: Channel[] }) {
+function CommandCenter({ registry, assets, metrics, channels, recommendations }: { registry: EkatorRegistrySnapshot; assets: EkatorAssetSnapshot; metrics: DashboardMetrics; channels: Channel[]; recommendations: Rec[] }) {
   return (
     <div className="mx-auto w-full min-w-0 max-w-[1400px] px-4 pb-6 pt-8 sm:pt-12 md:px-6 lg:px-8 lg:pt-20">
       {/* Title bar */}
@@ -540,14 +721,14 @@ function CommandCenter({ registry, assets, metrics, channels }: { registry: Ekat
         <div className="flex w-full min-w-0 flex-wrap items-end justify-between gap-4 sm:w-auto sm:flex-nowrap sm:justify-start">
           <RefreshButton />
           <div className="text-right">
-            <div className="text-[10px] uppercase tracking-[0.2em] text-[#A0A0AA]">Idol Till I Die</div>
+            <div className="text-[10px] uppercase tracking-[0.2em] text-[#A0A0AA]">Last refreshed</div>
             <div className="font-mono text-xs text-[#E4E4E9]">{metrics.readLabel}</div>
           </div>
         </div>
       </div>
 
       {/* KPI Rail */}
-      <div className="mb-3"><KpiRail metrics={metrics} /></div>
+      <div className="mb-3"><KpiRail metrics={metrics} channels={channels} /></div>
 
       {/* Main 3-column grid */}
       <div className="mb-3 grid min-w-0 grid-cols-1 gap-3 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)_minmax(0,1fr)]">
@@ -572,7 +753,7 @@ function CommandCenter({ registry, assets, metrics, channels }: { registry: Ekat
             <div className="text-[10px] uppercase tracking-[0.2em]" style={{ color: red }}>72-Hour Queue</div>
             <div className="font-mono text-xs text-[#A0A0AA]">do these first</div>
           </div>
-          <PriorityTimeline />
+          <PriorityTimeline recommendations={recommendations} />
         </div>
       </div>
 
@@ -582,7 +763,7 @@ function CommandCenter({ registry, assets, metrics, channels }: { registry: Ekat
           <div className="text-[10px] uppercase tracking-[0.2em]" style={{ color: red }}>Channel Pulse</div>
           <div className="font-mono text-xs text-[#A0A0AA]">audience · status · activation</div>
         </div>
-        <ChannelMatrix channels={channels} metrics={metrics} />
+        <ChannelMatrix channels={channels} />
       </div>
 
       {/* Status strip */}
@@ -851,6 +1032,12 @@ function AssetBoard({ assets }: { assets: EkatorAssetSnapshot }) {
   const [filter, setFilter] = useState<string>('All');
   const [sort, setSort] = useState<'views-desc' | 'views-asc' | 'date-desc' | 'date-asc' | 'engagement-desc'>('views-desc');
   const [selected, setSelected] = useState<EkatorAsset | null>(null);
+  const selectedTriggerRef = useRef<HTMLButtonElement | null>(null);
+
+  const closeShadowbox = () => {
+    setSelected(null);
+    window.requestAnimationFrame(() => selectedTriggerRef.current?.focus());
+  };
 
   const allAssets = assets.assets;
   const platforms = ['All', ...Array.from(new Set(allAssets.map(a => a.platform)))];
@@ -943,14 +1130,17 @@ function AssetBoard({ assets }: { assets: EkatorAssetSnapshot }) {
               <div>Asset</div><div className="text-right">Views</div><div className="text-right">Interactions</div><div className="text-right">State</div>
             </div>
             {sorted.map(asset => {
-              const views = asset.views ?? 0;
+              const views = asset.views;
               const engagement = asset.engagementRate;
-              const hasPerformance = asset.views !== null;
+              const hasPerformance = hasMeasuredMetrics(asset);
               return (
                 <button
                   type="button"
                   key={asset.itemId}
-                  onClick={() => setSelected(asset)}
+                  onClick={(event) => {
+                    selectedTriggerRef.current = event.currentTarget;
+                    setSelected(asset);
+                  }}
                   aria-label={`Inspect ${asset.caption}`}
                   className="grid w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-3 px-4 py-3 text-left transition-colors hover:bg-[#141414] focus-visible:bg-[#141414] focus-visible:outline focus-visible:outline-2 focus-visible:outline-inset focus-visible:outline-[#FD3737] md:grid-cols-[minmax(0,2.4fr)_1fr_1.1fr_0.8fr]"
                 >
@@ -961,13 +1151,18 @@ function AssetBoard({ assets }: { assets: EkatorAssetSnapshot }) {
                     </div>
                   </div>
                   <div className="text-right">
-                    {hasPerformance ? (
+                    {views !== null ? (
                       <>
                         <div className="font-mono text-lg font-bold text-white">{compact(views)}</div>
                         <div className="mt-1 h-1 overflow-hidden rounded-full bg-[#202020]" aria-hidden="true">
                           <div className="h-full rounded-full" style={{ width: `${Math.max(2, (views / maxViews) * 100)}%`, background: red }} />
                         </div>
                       </>
+                    ) : hasPerformance ? (
+                      <div>
+                        <div className="font-mono text-lg font-bold text-white">—</div>
+                        <div className="font-mono text-[9px] uppercase tracking-wider text-[#A0A0AA]">not available</div>
+                      </div>
                     ) : (
                       <div className="font-mono text-[10px] uppercase tracking-wider text-[#A0A0AA]">Awaiting metrics</div>
                     )}
@@ -1006,25 +1201,17 @@ function AssetBoard({ assets }: { assets: EkatorAssetSnapshot }) {
           )}
         </div>
       </div>
-      {selected && <AssetShadowbox asset={selected} onClose={() => setSelected(null)} />}
+      {selected && <AssetShadowbox asset={selected} onClose={closeShadowbox} />}
     </>
   );
 }
 
 /** Insights — custom bento with mini sparkline-style accents */
-function InsightBoard({ metrics }: { metrics: DashboardMetrics }) {
-  const concentration = metrics.youtubeTotalViews > 0
-    ? ((metrics.longformViews + metrics.teaserViews) / metrics.youtubeTotalViews) * 100
-    : 0;
-  const liveInsights = insights.map((ins, index) => index === 0
-    ? metrics.hasMeasuredPerformance
-      ? { ...ins, stat: `${concentration.toFixed(1)}%`, read: `EP1 + teaser account for ${concentration.toFixed(1)}% of measured official YouTube views. The longform story is doing the work; the short-form layer is still the distribution gap.` }
-      : { ...ins, stat: '—', read: 'Published YouTube performance is temporarily unavailable, so concentration cannot be calculated.' }
-    : ins);
+function InsightBoard({ insights }: { insights: Insight[] }) {
   return (
     <div className="mx-auto max-w-[1400px] px-4 md:px-6 lg:px-8">
       <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
-        {liveInsights.map((ins, i) => (
+        {insights.map((ins, i) => (
           <div key={ins.label} className="relative overflow-hidden rounded-lg border bg-[#0E0E0E] p-4" style={{ borderColor: line }}>
             <div className="absolute left-0 top-0 h-full w-1" style={{ background: statusColor(ins.tone) }} />
             <div className="text-[10px] uppercase tracking-[0.15em] text-[#A0A0AA]">{ins.label}</div>
@@ -1042,35 +1229,71 @@ function InsightBoard({ metrics }: { metrics: DashboardMetrics }) {
 }
 
 /** Measurement layers — custom table (enlarged) */
-function MeasurementTable({ assets, metrics }: { assets: EkatorAssetSnapshot; metrics: DashboardMetrics }) {
+function MeasurementTable({ assets, metrics, channelSnapshot }: { assets: EkatorAssetSnapshot; metrics: DashboardMetrics; channelSnapshot: EkatorChannelSnapshot }) {
   const publishedAssets = assets.assets.filter(
     (asset) => asset.platform === 'youtube' && asset.views !== null && asset.postDate,
   );
-  const captureAt = publishedAssets
-    .map((asset) => asset.capturedAt)
-    .filter((value): value is string => Boolean(value))
-    .sort()
-    .at(-1);
-  const snapshotDate = captureAt ? new Date(captureAt) : new Date();
-  const velocityFor = (asset: EkatorAsset) => {
-    if (!asset.postDate || asset.views === null) return 0;
+  const snapshotDate = metrics.refreshedAt ? new Date(metrics.refreshedAt) : new Date();
+  const ageDaysFor = (asset: EkatorAsset) => {
+    if (!asset.postDate) return 1;
     const publishedAt = new Date(asset.postDate.includes('T') ? asset.postDate : `${asset.postDate}T00:00:00-07:00`);
     const publishedAtMs = publishedAt.getTime();
-    if (!Number.isFinite(publishedAtMs)) return 0;
-    const ageDays = Math.max(1, Math.ceil((snapshotDate.getTime() - publishedAtMs) / 86_400_000));
-    return Math.round(asset.views / ageDays);
+    if (!Number.isFinite(publishedAtMs)) return 1;
+    return Math.max(1, Math.ceil((snapshotDate.getTime() - publishedAtMs) / 86_400_000));
   };
+  const velocityFor = (asset: EkatorAsset) => asset.views === null ? 0 : Math.round(asset.views / ageDaysFor(asset));
+  const interactionTotal = (asset: EkatorAsset) => (asset.likes ?? 0) + (asset.comments ?? 0) + (asset.shares ?? 0);
+  const interactionVelocityFor = (asset: EkatorAsset) => Math.round(interactionTotal(asset) / ageDaysFor(asset));
   const ep1Asset = publishedAssets.find((asset) => /ep\.?\s*1/i.test(asset.caption));
   const velocityAssets = publishedAssets
     .filter((asset) => asset.itemId !== ep1Asset?.itemId)
     .map((asset) => ({ asset, velocity: velocityFor(asset) }))
     .sort((a, b) => b.velocity - a.velocity);
+  const interactionVelocityAssets = assets.assets
+    .filter((asset) => asset.postDate && interactionTotal(asset) > 0)
+    .map((asset) => ({ asset, velocity: interactionVelocityFor(asset), total: interactionTotal(asset) }))
+    .sort((a, b) => b.velocity - a.velocity)
+    .slice(0, 12);
   const maxVelocity = Math.max(1, ...velocityAssets.map((entry) => entry.velocity));
-  const liveLayers = measurementLayers.map((layer) => layer.platform === 'YouTube'
-    ? metrics.hasMeasuredPerformance
-      ? { ...layer, coverage: `${metrics.videoCount} videos with views`, next: 'Add retention, average view duration, and subscriber delta by video.' }
-      : { ...layer, coverage: 'Data unavailable', read: 'Published YouTube performance is temporarily unavailable.', next: 'Restore the performance feed, then add retention, average view duration, and subscriber delta by video.' }
-    : layer);
+  const followerRows = channelSnapshot.channels.map((channel) => {
+    const baseline = channel.history[0];
+    const currentAudience = channel.audience ?? channel.history.at(-1)?.audience ?? null;
+    const delta = baseline?.audience !== null && baseline?.audience !== undefined && currentAudience !== null
+      ? currentAudience - baseline.audience
+      : null;
+    const deltaPercent = delta !== null && baseline?.audience
+      ? (delta / baseline.audience) * 100
+      : null;
+    return { channel, baseline, currentAudience, delta, deltaPercent };
+  });
+  const liveLayers = measurementLayers.map((layer) => {
+    if (layer.platform === 'YouTube') {
+      return metrics.hasMeasuredPerformance
+        ? { ...layer, audience: `${compact(channelSnapshot.channels.find((channel) => channel.platform === 'youtube')?.audience ?? 0)} subscribers`, coverage: `${metrics.videoCount} videos with views`, next: 'Add retention and average view duration by video.' }
+        : { ...layer, coverage: 'Data unavailable', read: 'Published YouTube performance is temporarily unavailable.', next: 'Restore the performance feed, then add retention and average view duration by video.' };
+    }
+    if (layer.platform === 'Instagram') {
+      const instagram = channelSnapshot.channels.find((channel) => channel.platform === 'instagram');
+      const instagramAssets = assets.assets.filter((asset) => asset.platform === 'instagram' && hasMeasuredMetrics(asset));
+      return { ...layer, audience: instagram?.audience ? `${compact(instagram.audience)} followers` : '—', coverage: `${instagramAssets.length} posts with interactions`, read: 'Likes and comments are connected for verified posts. Public view counts are unavailable from this feed.', next: 'Add reach, saves, shares, and story-link clicks from first-party Insights.' };
+    }
+    if (layer.platform === 'TikTok') {
+      const tiktok = channelSnapshot.channels.find((channel) => channel.platform === 'tiktok');
+      const tiktokAssets = assets.assets.filter((asset) => asset.platform === 'tiktok');
+      const tiktokPostCount = tiktok?.postCount ?? tiktokAssets.length;
+      return {
+        ...layer,
+        audience: tiktok?.audience ? `${compact(tiktok.audience)} followers` : '—',
+        coverage: `${tiktokPostCount} official ${tiktokPostCount === 1 ? 'post' : 'posts'}`,
+        read: tiktokPostCount > 0
+          ? 'Official TikTok publications are recorded; post-level pacing can now be measured.'
+          : 'No official TikTok publications are currently recorded, so post-level pacing is unavailable.',
+        next: 'Capture first-hour, 24-hour, and 72-hour views, follows, comments, saves, and shares.',
+        tone: tiktokPostCount > 0 ? 'watch' : 'risk',
+      };
+    }
+    return layer;
+  });
 
   return (
     <div className="mx-auto max-w-[1400px] px-4 md:px-6 lg:px-8 space-y-5">
@@ -1161,26 +1384,67 @@ function MeasurementTable({ assets, metrics }: { assets: EkatorAssetSnapshot; me
               </div>
             ))}
           </div>
+          <div className="mt-6 border-t pt-5" style={{ borderColor: line }}>
+            <div className="mb-3 flex flex-wrap items-end justify-between gap-2">
+              <div>
+                <div className="text-[11px] uppercase tracking-[0.2em]" style={{ color: red }}>Interaction velocity</div>
+                <div className="mt-1 text-[10px] text-[#A0A0AA]">Likes + comments + shares per day across verified owned posts.</div>
+              </div>
+              <div className="font-mono text-[10px] text-[#A0A0AA]">interactions/day</div>
+            </div>
+            <div className="grid gap-2 sm:grid-cols-2">
+              {interactionVelocityAssets.map(({ asset, velocity, total }, index) => (
+                <a
+                  key={asset.itemId}
+                  href={asset.sourceUrl ?? undefined}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="grid min-w-0 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 rounded-md border px-3 py-2 transition-colors hover:bg-[#171717] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FD3737]"
+                  style={{ borderColor: line }}
+                >
+                  <span className="font-mono text-[10px] font-black" style={{ color: red }}>#{index + 1}</span>
+                  <span className="min-w-0">
+                    <span className="block truncate text-xs font-semibold text-white">{asset.caption}</span>
+                    <span className="font-mono text-[9px] uppercase text-[#A0A0AA]">{asset.platform} · {compact(total)} total</span>
+                  </span>
+                  <span className="font-mono text-xs font-black text-white">{compact(velocity)}/d</span>
+                </a>
+              ))}
+            </div>
+            <p className="mt-3 text-[10px] leading-relaxed text-[#A0A0AA]">Instagram public view counts are unavailable, so interaction pace keeps those posts visible without inventing a view metric.</p>
+          </div>
         </div>
 
         <div className="rounded-lg border p-5" style={{ borderColor: line, background: '#0E0E0E' }}>
           <div className="mb-4 text-[11px] uppercase tracking-[0.2em]" style={{ color: red }}>Follower Delta</div>
           <div className="space-y-3">
-            {followerBaselines.map(fb => (
-              <div key={fb.platform} className="flex items-center justify-between gap-2 border-b pb-3" style={{ borderColor: line }}>
-                <div>
-                  <div className="text-sm font-semibold text-white">{fb.platform}</div>
-                  <div className="font-mono text-xs text-[#A0A0AA]">baseline {fb.baseline}</div>
+            {followerRows.map(({ channel, baseline, currentAudience, delta, deltaPercent }) => (
+              <div key={channel.platform} className="border-b pb-3" style={{ borderColor: line }}>
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <div className="text-sm font-semibold capitalize text-white">{channel.platform}</div>
+                    <div className="font-mono text-[10px] text-[#A0A0AA]">
+                      {baseline?.audience !== null && baseline?.audience !== undefined ? `baseline ${compact(baseline.audience)}` : 'baseline pending'}
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="font-mono text-lg font-black text-white">{currentAudience !== null ? compact(currentAudience) : '—'}</div>
+                    <div className="font-mono text-[10px]" style={{ color: delta !== null && delta > 0 ? red : muted }}>
+                      {delta === null ? 'delta pending' : `${delta >= 0 ? '+' : ''}${delta.toLocaleString()}${deltaPercent !== null ? ` · ${deltaPercent >= 0 ? '+' : ''}${deltaPercent.toFixed(1)}%` : ''}`}
+                    </div>
+                  </div>
                 </div>
-                <div className="flex gap-1 font-mono text-[10px]">
-                  <span className="rounded-sm bg-[#1A1A1A] px-2 py-1 text-[#A0A0AA]">T+24h</span>
-                  <span className="rounded-sm bg-[#1A1A1A] px-2 py-1 text-[#A0A0AA]">T+72h</span>
-                  <span className="rounded-sm bg-[#1A1A1A] px-2 py-1 text-[#A0A0AA]">T+7d</span>
+                <div className="mt-2 flex items-center justify-between gap-2 font-mono text-[9px] uppercase tracking-wider text-[#A0A0AA]">
+                  <span>Since baseline</span>
+                  <span>{baseline ? formatRefreshedAt(baseline.capturedAt) : 'collecting'}</span>
                 </div>
               </div>
             ))}
+            {followerRows.length === 0 && (
+              <div className="font-mono text-xs text-[#A0A0AA]">Follower history is collecting.</div>
+            )}
           </div>
-          <p className="mt-3 text-xs leading-snug text-[#A0A0AA]">Deltas populate after each episode post.</p>
+          <p className="mt-3 text-xs leading-snug text-[#A0A0AA]">Daily snapshots now persist in the client channel history. 24h, 72h, and 7d windows become available as those checkpoints accumulate.</p>
         </div>
       </div>
 
@@ -1229,7 +1493,7 @@ function MeasurementTable({ assets, metrics }: { assets: EkatorAssetSnapshot; me
 }
 
 /** Moves — custom ranked timeline */
-function MovesTimeline() {
+function MovesTimeline({ recommendations }: { recommendations: Rec[] }) {
   return (
     <div className="mx-auto max-w-[1400px] px-4 md:px-6 lg:px-8">
       <div className="relative">
@@ -1270,12 +1534,14 @@ function MovesTimeline() {
 
 /* ── MAIN COMPONENT ────────────────────────────────────────────────── */
 
-export function EkatorCommandCenter({ registry, assets }: { registry: EkatorRegistrySnapshot; assets: EkatorAssetSnapshot }) {
+export function EkatorCommandCenter({ registry, assets, channelSnapshot }: { registry: EkatorRegistrySnapshot; assets: EkatorAssetSnapshot; channelSnapshot: EkatorChannelSnapshot }) {
   const heroRef = useRef<HTMLDivElement | null>(null);
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, { stiffness: 120, damping: 30, restDelta: 0.001 });
-  const metrics = useMemo(() => deriveDashboardMetrics(assets), [assets]);
-  const channelData = useMemo(() => buildChannels(metrics), [metrics]);
+  const metrics = useMemo(() => deriveDashboardMetrics(assets, channelSnapshot), [assets, channelSnapshot]);
+  const channelData = useMemo(() => buildChannels(metrics, assets, channelSnapshot), [metrics, assets, channelSnapshot]);
+  const insights = useMemo(() => buildInsights(metrics, assets, channelSnapshot), [metrics, assets, channelSnapshot]);
+  const recommendations = useMemo(() => buildRecommendations(metrics, assets, channelSnapshot), [metrics, assets, channelSnapshot]);
   const nav = useMemo(() => [
     ['channels', 'Channels'], ['assets', 'Assets'], ['insights', 'Insights'], ['data', 'Data'], ['moves', 'Moves'],
   ], []);
@@ -1301,7 +1567,7 @@ export function EkatorCommandCenter({ registry, assets }: { registry: EkatorRegi
 
       {/* COMMAND CENTER — above the fold */}
       <header ref={heroRef} className="min-h-[100dvh] min-w-0 pt-14">
-        <CommandCenter registry={registry} assets={assets} metrics={metrics} channels={channelData} />
+        <CommandCenter registry={registry} assets={assets} metrics={metrics} channels={channelData} recommendations={recommendations} />
       </header>
 
       {/* Divider */}
@@ -1324,21 +1590,21 @@ export function EkatorCommandCenter({ registry, assets }: { registry: EkatorRegi
 
       <section id="insights" className="scroll-mt-14 py-12 md:py-16">
         <SectionHeader num="03" title="Actionable Insights" subtitle="Metric, meaning, and decision." />
-        <InsightBoard metrics={metrics} />
+        <InsightBoard insights={insights} />
       </section>
 
       <div className="mx-auto h-px max-w-[1400px]" style={{ background: line }} />
 
       <section id="data" className="scroll-mt-14 py-12 md:py-16">
         <SectionHeader num="04" title="Measurement Layers" subtitle="Post-level, pacing, sentiment, follower lift, and paid delivery." />
-        <MeasurementTable assets={assets} metrics={metrics} />
+        <MeasurementTable assets={assets} metrics={metrics} channelSnapshot={channelSnapshot} />
       </section>
 
       <div className="mx-auto h-px max-w-[1400px]" style={{ background: line }} />
 
       <section id="moves" className="scroll-mt-14 py-12 md:py-16">
         <SectionHeader num="05" title="Ranked moves for the next 72 hours" subtitle="Prioritized operating queue." />
-        <MovesTimeline />
+        <MovesTimeline recommendations={recommendations} />
       </section>
 
       {/* Footer */}

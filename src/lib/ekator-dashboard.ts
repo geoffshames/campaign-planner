@@ -32,6 +32,27 @@ export type EkatorAssetSnapshot = {
   publishedCount: number;
 };
 
+export type EkatorChannelHistoryPoint = {
+  capturedAt: string;
+  audience: number | null;
+  postCount: number | null;
+};
+
+export type EkatorOwnedChannel = {
+  platform: 'youtube' | 'instagram' | 'tiktok';
+  handle: string;
+  audience: number | null;
+  postCount: number | null;
+  capturedAt: string | null;
+  history: EkatorChannelHistoryPoint[];
+};
+
+export type EkatorChannelSnapshot = {
+  status: 'live' | 'pending';
+  channels: EkatorOwnedChannel[];
+  refreshedAt: string | null;
+};
+
 export type EkatorChannelMetrics = {
   platform: string;
   audience: number;
@@ -67,6 +88,12 @@ export const fallbackEkatorAssetSnapshot: EkatorAssetSnapshot = {
   publishedCount: 0,
 };
 
+export const fallbackEkatorChannelSnapshot: EkatorChannelSnapshot = {
+  status: 'pending',
+  channels: [],
+  refreshedAt: null,
+};
+
 export const fallbackEkatorMetricsSnapshot: EkatorMetricsSnapshot = {
   status: 'pending',
   channels: [],
@@ -89,6 +116,15 @@ function asNumber(value: unknown): number | null {
     return Number.isFinite(n) ? n : null;
   }
   return null;
+}
+
+function asOwnedPlatform(value: unknown): EkatorOwnedChannel['platform'] | null {
+  const platform = asString(value).toLowerCase();
+  return platform === 'youtube' || platform === 'instagram' || platform === 'tiktok' ? platform : null;
+}
+
+function hasPerformanceMetrics(asset: EkatorAsset): boolean {
+  return asset.views !== null || asset.likes !== null || asset.comments !== null || asset.shares !== null;
 }
 
 type OwnedPublication = {
@@ -283,8 +319,8 @@ export async function getEkatorAssetSnapshot(): Promise<EkatorAssetSnapshot> {
     return {
       status: 'live',
       assets,
-      performanceCount: assets.filter((asset) => asset.views !== null).length,
-      awaitingMetricsCount: assets.filter((asset) => asset.views === null).length,
+      performanceCount: assets.filter(hasPerformanceMetrics).length,
+      awaitingMetricsCount: assets.filter((asset) => !hasPerformanceMetrics(asset)).length,
       publishedCount: assets.length,
     };
   } catch (error) {
@@ -293,6 +329,67 @@ export async function getEkatorAssetSnapshot(): Promise<EkatorAssetSnapshot> {
       error instanceof Error ? error.message : 'Unknown error',
     );
     return fallbackEkatorAssetSnapshot;
+  }
+}
+
+export async function getEkatorChannelSnapshot(): Promise<EkatorChannelSnapshot> {
+  const baseUrl = process.env.SUPABASE_EKATOR_URL || process.env.SUPABASE_SINCERITY_STUDIOS_URL;
+  const key = process.env.SUPABASE_EKATOR_SERVICE_ROLE_KEY || process.env.SUPABASE_SINCERITY_STUDIOS_SERVICE_ROLE_KEY;
+
+  if (!baseUrl || !key) return fallbackEkatorChannelSnapshot;
+
+  try {
+    const clients = await supabaseFetch<SupabaseRow[]>(
+      baseUrl,
+      key,
+      '/rest/v1/cc_clients?select=own_handles,last_ingest&slug=eq.ekator&limit=1',
+    );
+    const client = clients[0];
+    const rawChannels = Array.isArray(client?.own_handles) ? client.own_handles : [];
+    const channels = rawChannels.flatMap((raw): EkatorOwnedChannel[] => {
+      if (!raw || typeof raw !== 'object') return [];
+      const row = raw as SupabaseRow;
+      const platform = asOwnedPlatform(row.platform);
+      if (!platform) return [];
+      const rawHistory = Array.isArray(row.history) ? row.history : [];
+      const history = rawHistory.flatMap((point): EkatorChannelHistoryPoint[] => {
+        if (!point || typeof point !== 'object') return [];
+        const historyRow = point as SupabaseRow;
+        const capturedAt = asString(historyRow.captured_at);
+        if (!capturedAt) return [];
+        return [{
+          capturedAt,
+          audience: asNumber(historyRow.audience),
+          postCount: asNumber(historyRow.post_count),
+        }];
+      }).sort((a, b) => a.capturedAt.localeCompare(b.capturedAt));
+
+      return [{
+        platform,
+        handle: asString(row.handle),
+        audience: asNumber(row.audience),
+        postCount: asNumber(row.post_count),
+        capturedAt: asString(row.captured_at) || null,
+        history,
+      }];
+    });
+    const latestChannelCapture = channels
+      .map((channel) => channel.capturedAt)
+      .filter((value): value is string => Boolean(value))
+      .sort()
+      .at(-1);
+
+    return {
+      status: channels.length > 0 ? 'live' : 'pending',
+      channels,
+      refreshedAt: asString(client?.last_ingest) || latestChannelCapture || null,
+    };
+  } catch (error) {
+    console.error(
+      '[ekator-dashboard] Channel snapshot unavailable:',
+      error instanceof Error ? error.message : 'Unknown error',
+    );
+    return fallbackEkatorChannelSnapshot;
   }
 }
 
@@ -351,12 +448,14 @@ export async function getEkatorMetricsSnapshot(): Promise<EkatorMetricsSnapshot>
 export type EkatorFullSnapshot = {
   registry: EkatorRegistrySnapshot;
   assets: EkatorAssetSnapshot;
+  channelSnapshot: EkatorChannelSnapshot;
 };
 
 export async function getEkatorFullSnapshot(): Promise<EkatorFullSnapshot> {
-  const [registry, assets] = await Promise.all([
+  const [registry, assets, channelSnapshot] = await Promise.all([
     getEkatorRegistrySnapshot(),
     getEkatorAssetSnapshot(),
+    getEkatorChannelSnapshot(),
   ]);
-  return { registry, assets };
+  return { registry, assets, channelSnapshot };
 }

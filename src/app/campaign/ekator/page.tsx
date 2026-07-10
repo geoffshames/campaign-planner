@@ -17,6 +17,6 @@ export const metadata: Metadata = {
 };
 
 export default async function CampaignEkatorPage() {
-  const { registry, assets } = await getEkatorFullSnapshot();
-  return <EkatorCommandCenter registry={registry} assets={assets} />;
+  const { registry, assets, channelSnapshot } = await getEkatorFullSnapshot();
+  return <EkatorCommandCenter registry={registry} assets={assets} channelSnapshot={channelSnapshot} />;
 }
