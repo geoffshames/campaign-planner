@@ -118,6 +118,9 @@ function buildChannels(metrics: DashboardMetrics, assets: EkatorAssetSnapshot, c
   const tt = channelFor('tiktok');
   const igAssets = platformAssets('instagram');
   const ttAssets = platformAssets('tiktok');
+  const instagramViewAssets = igAssets.filter((asset) => asset.views !== null);
+  const instagramViews = instagramViewAssets.reduce((sum, asset) => sum + (asset.views ?? 0), 0);
+  const instagramViewCount = instagramViewAssets.length;
   const igEngagementReads = igAssets.map((asset) => asset.engagementRate).filter((value): value is number => value !== null);
   const igEngagement = igEngagementReads.length > 0
     ? `${(igEngagementReads.reduce((sum, value) => sum + value, 0) / igEngagementReads.length).toFixed(1)}%`
@@ -133,7 +136,7 @@ function buildChannels(metrics: DashboardMetrics, assets: EkatorAssetSnapshot, c
   const youtubePostCount = yt?.postCount ?? metrics.videoCount;
   const tiktokPostCount = tt?.postCount ?? ttAssets.length;
   return [
-    { name: 'Instagram', handle: `@${ig?.handle || 'idoltillidie'}`, audience: instagramAudience, postCount: instagramPostCount, posts: `${instagramPostCount} posts`, views: null, share: makeShare(instagramAudience), engagement: igEngagement, status: 'strong', role: 'Top-of-funnel audience reservoir', insight: `${igAssets.length} verified Instagram posts now have likes and comments connected. Public view counts are not available from this feed.`, action: 'Use the top interaction-velocity posts as creative signals, then route the audience toward EP1.' },
+    { name: 'Instagram', handle: `@${ig?.handle || 'idoltillidie'}`, audience: instagramAudience, postCount: instagramPostCount, posts: `${instagramPostCount} posts`, views: instagramViewCount > 0 ? instagramViews : null, share: makeShare(instagramAudience), engagement: igEngagement, status: 'strong', role: 'Top-of-funnel audience reservoir', insight: instagramViewCount > 0 ? `${instagramViewCount} verified Instagram Reels have ${compact(instagramViews)} measured views plus likes and comments.` : `${igAssets.length} verified Instagram posts have known interactions; Reel views are collecting.`, action: 'Use view and interaction velocity to identify the strongest hooks, then route the audience toward EP1.' },
     { name: 'YouTube', handle: `@${yt?.handle || 'Idoltillidie'}`, audience: youtubeAudience, postCount: youtubePostCount, posts: `${youtubePostCount} videos`, views: metrics.hasMeasuredPerformance ? metrics.youtubeTotalViews : null, share: makeShare(youtubeAudience), engagement: ytEr, status: 'watch', role: 'Documentary home + retargeting anchor', insight: metrics.hasMeasuredPerformance ? `EP1 holds ${ep1Share.toFixed(1)}% of measured YouTube views, showing discovery beyond the subscriber base.` : 'Published YouTube performance is temporarily unavailable.', action: 'Use YouTube as the story anchor, then carry the strongest beats outward through short-form cuts.' },
     { name: 'TikTok', handle: `@${tt?.handle || 'idoltillidie'}`, audience: tiktokAudience, postCount: tiktokPostCount, posts: `${tiktokPostCount} videos`, views: null, share: makeShare(tiktokAudience), engagement: '—', status: tiktokPostCount > 0 ? 'watch' : 'risk', role: 'Dormant owned distribution', insight: tiktokPostCount > 0 ? 'TikTok publishing is active and ready for post-level pacing reads.' : 'There is a meaningful follower base but no official TikTok content, leaving algorithmic inventory unused.', action: 'Post the first three EP1 cuts: Matthew leader arc, trainee pressure, and comedic dorm/rule clip.' },
   ];
@@ -163,7 +166,10 @@ function buildInsights(
   const instagram = channelSnapshot.channels.find((channel) => channel.platform === 'instagram');
   const instagramAudience = instagram?.audience ?? 0;
   const instagramShare = metrics.ownedAudience > 0 ? (instagramAudience / metrics.ownedAudience) * 100 : null;
-  const instagramMeasuredPosts = assets.assets.filter((asset) => asset.platform === 'instagram' && hasMeasuredMetrics(asset)).length;
+  const instagramAssets = assets.assets.filter((asset) => asset.platform === 'instagram');
+  const instagramMeasuredPosts = instagramAssets.filter(hasMeasuredMetrics).length;
+  const instagramViewAssets = instagramAssets.filter((asset) => asset.views !== null);
+  const instagramViews = instagramViewAssets.reduce((sum, asset) => sum + (asset.views ?? 0), 0);
   const tiktok = channelSnapshot.channels.find((channel) => channel.platform === 'tiktok');
   const tiktokAudience = tiktok?.audience ?? 0;
   const tiktokPosts = platformPostCount('tiktok', assets, channelSnapshot);
@@ -185,12 +191,12 @@ function buildInsights(
       tone: 'watch',
     },
     {
-      label: 'Instagram audience reservoir',
-      stat: instagramAudience > 0 ? compact(instagramAudience) : '—',
-      read: instagramAudience > 0
-        ? `Instagram represents ${instagramShare?.toFixed(1) ?? '—'}% of the measured owned audience, with ${instagramMeasuredPosts} verified posts carrying known interactions. Public post views are unavailable from this feed.`
-        : 'Instagram audience data is temporarily unavailable.',
-      action: 'Use interaction velocity as the creative signal and measure first-party reach and link activity separately.',
+      label: 'Instagram Reel demand',
+      stat: instagramViews > 0 ? compact(instagramViews) : '—',
+      read: instagramViews > 0
+        ? `${instagramViewAssets.length} verified Reels generated ${compact(instagramViews)} views across an audience of ${compact(instagramAudience)} followers (${instagramShare?.toFixed(1) ?? '—'}% of owned audience). ${instagramMeasuredPosts} posts carry measured performance.`
+        : 'Instagram Reel views are collecting; verified post interactions remain available.',
+      action: 'Use view velocity and interaction rate together to choose the next hooks and story beats.',
       tone: 'strong',
     },
     {
@@ -232,6 +238,8 @@ function buildRecommendations(
   const instagram = channelSnapshot.channels.find((channel) => channel.platform === 'instagram');
   const instagramAudience = instagram?.audience ?? 0;
   const instagramShare = metrics.ownedAudience > 0 ? (instagramAudience / metrics.ownedAudience) * 100 : null;
+  const instagramViewAssets = assets.assets.filter((asset) => asset.platform === 'instagram' && asset.views !== null);
+  const instagramViews = instagramViewAssets.reduce((sum, asset) => sum + (asset.views ?? 0), 0);
   const tiktok = channelSnapshot.channels.find((channel) => channel.platform === 'tiktok');
   const tiktokAudience = tiktok?.audience ?? 0;
   const tiktokPosts = platformPostCount('tiktok', assets, channelSnapshot);
@@ -277,9 +285,9 @@ function buildRecommendations(
 
   moves.push({
     title: 'Turn the Instagram audience into a measurable EP1 path',
-    why: instagramAudience > 0
-      ? `Instagram holds ${instagramShare?.toFixed(1) ?? '—'}% of the recorded owned audience (${compact(instagramAudience)} followers), while public post views remain unavailable.`
-      : 'Instagram audience data is unavailable and public post views are not present in the current feed.',
+    why: instagramViews > 0
+      ? `${instagramViewAssets.length} verified Reels generated ${compact(instagramViews)} measured views from an Instagram audience of ${compact(instagramAudience)} followers (${instagramShare?.toFixed(1) ?? '—'}% of owned audience).`
+      : 'Instagram Reel views are collecting; use the verified interaction reads until view coverage arrives.',
     move: 'Use a pinned EP1 call-to-action and story-link sequence; capture first-party reach, taps, saves, shares, and link clicks.',
     owner: 'Owned social',
     impact: 'High',
@@ -314,7 +322,7 @@ function buildRecommendations(
 
 const measurementLayers: MeasureLayer[] = [
   { platform: 'YouTube', audience: '—', coverage: 'Awaiting current read', read: 'Post-level views are the primary performance layer for official YouTube publications.', next: 'Add retention and average view duration by video.', tone: 'strong' },
-  { platform: 'Instagram', audience: '—', coverage: 'Awaiting current read', read: 'Known interactions are available separately from unavailable public post views.', next: 'Add reach, saves, shares, and story-link clicks from first-party Insights.', tone: 'watch' },
+  { platform: 'Instagram', audience: '—', coverage: 'Awaiting current read', read: 'Reel views, likes, and comments provide the public post-performance layer.', next: 'Add reach, saves, shares, and story-link clicks from first-party Insights.', tone: 'watch' },
   { platform: 'TikTok', audience: '—', coverage: 'Awaiting current read', read: 'Post-level pacing begins once official publications are recorded.', next: 'Capture first-hour, 24-hour, and 72-hour views, follows, comments, saves, and shares.', tone: 'risk' },
 ];
 
@@ -1251,9 +1259,7 @@ function InsightBoard({ insights }: { insights: Insight[] }) {
 
 /** Measurement layers — custom table (enlarged) */
 function MeasurementTable({ assets, metrics, channelSnapshot }: { assets: EkatorAssetSnapshot; metrics: DashboardMetrics; channelSnapshot: EkatorChannelSnapshot }) {
-  const publishedAssets = assets.assets.filter(
-    (asset) => asset.platform === 'youtube' && asset.views !== null && asset.postDate,
-  );
+  const publishedAssets = assets.assets.filter((asset) => asset.views !== null && asset.postDate);
   const snapshotDate = metrics.refreshedAt ? new Date(metrics.refreshedAt) : new Date();
   const ageDaysFor = (asset: EkatorAsset) => {
     if (!asset.postDate) return 1;
@@ -1296,7 +1302,9 @@ function MeasurementTable({ assets, metrics, channelSnapshot }: { assets: Ekator
     if (layer.platform === 'Instagram') {
       const instagram = channelSnapshot.channels.find((channel) => channel.platform === 'instagram');
       const instagramAssets = assets.assets.filter((asset) => asset.platform === 'instagram' && hasMeasuredMetrics(asset));
-      return { ...layer, audience: instagram?.audience ? `${compact(instagram.audience)} followers` : '—', coverage: `${instagramAssets.length} posts with interactions`, read: 'Likes and comments are connected for verified posts. Public view counts are unavailable from this feed.', next: 'Add reach, saves, shares, and story-link clicks from first-party Insights.' };
+      const instagramViewAssets = instagramAssets.filter((asset) => asset.views !== null);
+      const instagramViews = instagramViewAssets.reduce((sum, asset) => sum + (asset.views ?? 0), 0);
+      return { ...layer, audience: instagram?.audience ? `${compact(instagram.audience)} followers` : '—', coverage: `${instagramViewAssets.length} posts with views`, read: instagramViewAssets.length > 0 ? `${compact(instagramViews)} Reel views plus likes and comments are connected across verified posts.` : 'Reel views are collecting; likes and comments remain connected.', next: 'Add reach, saves, shares, and story-link clicks from first-party Insights.' };
     }
     if (layer.platform === 'TikTok') {
       const tiktok = channelSnapshot.channels.find((channel) => channel.platform === 'tiktok');
@@ -1432,7 +1440,7 @@ function MeasurementTable({ assets, metrics, channelSnapshot }: { assets: Ekator
                 </a>
               ))}
             </div>
-            <p className="mt-3 text-[10px] leading-relaxed text-[#A0A0AA]">Instagram public view counts are unavailable, so interaction pace keeps those posts visible without inventing a view metric.</p>
+            <p className="mt-3 text-[10px] leading-relaxed text-[#A0A0AA]">Reel views and interactions are connected. Interaction pace remains the cross-platform comparator for posts whose view metric is unavailable.</p>
           </div>
         </div>
 

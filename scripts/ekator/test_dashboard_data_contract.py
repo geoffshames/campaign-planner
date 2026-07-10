@@ -33,6 +33,17 @@ class DashboardDataContractTests(unittest.TestCase):
         self.assertIn("Interaction velocity", COMPONENT)
         self.assertIn("interactions/day", COMPONENT)
 
+    def test_instagram_reel_views_roll_up_across_the_dashboard(self) -> None:
+        self.assertIn("const instagramViews", COMPONENT)
+        self.assertIn("views: instagramViewCount > 0 ? instagramViews : null", COMPONENT)
+        self.assertIn("posts with views", COMPONENT)
+        for stale_claim in (
+            "Public view counts are not available from this feed.",
+            "Public post views are unavailable from this feed.",
+            "Public view counts are unavailable from this feed.",
+        ):
+            self.assertNotIn(stale_claim, COMPONENT)
+
     def test_follower_delta_is_not_a_static_placeholder(self) -> None:
         self.assertNotIn("const followerBaselines", COMPONENT)
         self.assertIn("channelSnapshot", COMPONENT)
