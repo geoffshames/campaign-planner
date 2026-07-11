@@ -7,6 +7,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 LIB = (ROOT / "src/lib/ekator-dashboard.ts").read_text()
 COMPONENT = (ROOT / "src/components/campaign/EkatorCommandCenter.tsx").read_text()
+GUARD = (ROOT / "scripts/ekator/guard_dashboard.py").read_text()
 HERO = COMPONENT.split("function CommandCenter", 1)[1].split("/* ── DETAIL SECTIONS", 1)[0]
 PAGES = "\n".join(
     (ROOT / path).read_text()
@@ -78,6 +79,30 @@ class DashboardDataContractTests(unittest.TestCase):
         self.assertNotIn("follower lift", COMPONENT)
         self.assertNotIn("Since baseline", COMPONENT)
         self.assertNotIn("const followerRows", COMPONENT)
+
+    def test_route_guard_matches_the_evergreen_hero_contract(self) -> None:
+        for current_anchor in (
+            "Owned Audience",
+            "7-Day Growth",
+            "Measured Engagement",
+            "Measured Attention",
+            "Audience Momentum",
+            "Engagement Health",
+            "Sentiment Pulse",
+            "Winning",
+            "Risk",
+            "Next move",
+        ):
+            self.assertIn(current_anchor, GUARD)
+        for removed_anchor in (
+            "72-Hour Queue",
+            "Channel Pulse",
+            "View Concentration",
+            "EP1 Gravity",
+            "Follower Delta",
+            "Since baseline",
+        ):
+            self.assertNotIn(removed_anchor, GUARD)
 
     def test_insights_and_ranked_moves_use_current_measurements(self) -> None:
         self.assertIn("function buildInsights", COMPONENT)
