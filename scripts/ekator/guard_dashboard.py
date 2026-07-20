@@ -44,6 +44,10 @@ SOURCE_FORBIDDEN = [
     "Test cells",
     "spend gate",
     "scale decision",
+    "No campaigns are live",
+    "No paid campaigns are live",
+    "Maintain the measurement boundary",
+    "Keep the delivery section marked Not live",
     "module becomes",
     "This module",
     "implementation note",
@@ -94,7 +98,7 @@ REQUIRED = [
     "interactions/day",
     "Ranked moves for the next 72 hours",
     "Paid Media",
-    "NOT LIVE",
+    "NO VERIFIED DELIVERY",
 ]
 
 ROUTES = ["/ekator", "/campaign/ekator"]

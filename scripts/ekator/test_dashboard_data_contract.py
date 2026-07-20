@@ -117,6 +117,31 @@ class DashboardDataContractTests(unittest.TestCase):
         ):
             self.assertNotIn(stale_claim, COMPONENT)
 
+    def test_youtube_taxonomy_separates_episodes_from_other_publications(self) -> None:
+        self.assertIn("function episodeNumberFromCaption", COMPONENT)
+        self.assertIn("const episodeAssets", COMPONENT)
+        self.assertIn("other YouTube publications", COMPONENT)
+        self.assertIn("Episode anchors", COMPONENT)
+        for stale_taxonomy in (
+            "const ep1 = published.find",
+            "const shorts = published.filter",
+            "shorts hold",
+            "const ep1Asset",
+        ):
+            self.assertNotIn(stale_taxonomy, COMPONENT)
+
+    def test_paid_copy_reflects_partial_verified_coverage(self) -> None:
+        self.assertIn("NO VERIFIED DELIVERY", COMPONENT)
+        self.assertIn("NO VERIFIED DELIVERY", GUARD)
+        self.assertIn("UNVERIFIED", COMPONENT)
+        for overconfident_claim in (
+            "No campaigns are live",
+            "No paid campaigns are live",
+            "Maintain the measurement boundary",
+            "Keep the delivery section marked Not live",
+        ):
+            self.assertNotIn(overconfident_claim, COMPONENT)
+
     def test_measurement_layer_audiences_are_not_hard_coded(self) -> None:
         for stale_audience in ("5.28K subs", "65.1K followers", "11.8K followers"):
             self.assertNotIn(stale_audience, COMPONENT)

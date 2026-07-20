@@ -41,13 +41,12 @@ type DashboardMetrics = {
   hasMeasuredPerformance: boolean;
   ownedAudience: number;
   youtubeTotalViews: number;
-  longformViews: number;
-  teaserViews: number;
-  shortsViews: number;
-  shortsCount: number;
+  episodeViews: number;
+  episodeCount: number;
+  otherYoutubeViews: number;
+  otherYoutubeCount: number;
   videoCount: number;
   youtubeEngagement: number | null;
-  teaserDetected: boolean;
   refreshedAt: string | null;
   readLabel: string;
 };
@@ -99,11 +98,20 @@ function formatRefreshedAt(value: string | null): string {
   }).format(date);
 }
 
+function episodeNumberFromCaption(caption: string): number | null {
+  const match = caption.match(/\bEP\.?\s*(\d+)\b/i);
+  if (!match) return null;
+  const value = Number(match[1]);
+  return Number.isFinite(value) ? value : null;
+}
+
 function deriveDashboardMetrics(snapshot: EkatorAssetSnapshot, channelSnapshot: EkatorChannelSnapshot): DashboardMetrics {
   const published = snapshot.assets.filter((asset) => asset.platform === 'youtube' && asset.views !== null);
-  const ep1 = published.find((asset) => /ep\.?\s*1/i.test(asset.caption));
-  const teaser = published.find((asset) => /teaser/i.test(asset.caption));
-  const shorts = published.filter((asset) => asset.itemId !== ep1?.itemId && asset.itemId !== teaser?.itemId);
+  const episodeAssets = published
+    .map((asset) => ({ asset, episodeNumber: episodeNumberFromCaption(asset.caption) }))
+    .filter((entry): entry is { asset: EkatorAsset; episodeNumber: number } => entry.episodeNumber !== null);
+  const episodeIds = new Set(episodeAssets.map(({ asset }) => asset.itemId));
+  const otherYoutubeAssets = published.filter((asset) => !episodeIds.has(asset.itemId));
   const totalViews = published.reduce((sum, asset) => sum + (asset.views ?? 0), 0);
   const interactions = published.reduce(
     (sum, asset) => sum + (asset.likes ?? 0) + (asset.comments ?? 0) + (asset.shares ?? 0),
@@ -121,13 +129,12 @@ function deriveDashboardMetrics(snapshot: EkatorAssetSnapshot, channelSnapshot: 
     hasMeasuredPerformance: published.length > 0,
     ownedAudience: channelSnapshot.channels.reduce((sum, channel) => sum + (channel.audience ?? 0), 0),
     youtubeTotalViews: totalViews,
-    longformViews: ep1?.views ?? 0,
-    teaserViews: teaser?.views ?? 0,
-    shortsViews: shorts.reduce((sum, asset) => sum + (asset.views ?? 0), 0),
-    shortsCount: shorts.length,
+    episodeViews: episodeAssets.reduce((sum, { asset }) => sum + (asset.views ?? 0), 0),
+    episodeCount: episodeAssets.length,
+    otherYoutubeViews: otherYoutubeAssets.reduce((sum, asset) => sum + (asset.views ?? 0), 0),
+    otherYoutubeCount: otherYoutubeAssets.length,
     videoCount: published.length,
     youtubeEngagement: totalViews > 0 ? (interactions / totalViews) * 100 : null,
-    teaserDetected: Boolean(teaser),
     refreshedAt: latestCapture,
     readLabel: formatRefreshedAt(latestCapture),
   };
@@ -151,8 +158,8 @@ function buildChannels(metrics: DashboardMetrics, assets: EkatorAssetSnapshot, c
     ? `${(igEngagementReads.reduce((sum, value) => sum + value, 0) / igEngagementReads.length).toFixed(1)}%`
     : '—';
   const ytEr = metrics.youtubeEngagement === null ? '—' : `${metrics.youtubeEngagement.toFixed(1)}%`;
-  const ep1Share = metrics.youtubeTotalViews > 0
-    ? (metrics.longformViews / metrics.youtubeTotalViews) * 100
+  const episodeShare = metrics.youtubeTotalViews > 0
+    ? (metrics.episodeViews / metrics.youtubeTotalViews) * 100
     : 0;
   const instagramAudience = ig?.audience ?? 0;
   const youtubeAudience = yt?.audience ?? 0;
@@ -161,9 +168,9 @@ function buildChannels(metrics: DashboardMetrics, assets: EkatorAssetSnapshot, c
   const youtubePostCount = yt?.postCount ?? metrics.videoCount;
   const tiktokPostCount = tt?.postCount ?? ttAssets.length;
   return [
-    { name: 'Instagram', handle: `@${ig?.handle || 'idoltillidie'}`, audience: instagramAudience, postCount: instagramPostCount, posts: `${instagramPostCount} posts`, views: instagramViewCount > 0 ? instagramViews : null, viewCount: instagramViewCount, share: makeShare(instagramAudience), engagement: igEngagement, status: 'strong', role: 'Top-of-funnel audience reservoir', insight: instagramViewCount > 0 ? `${instagramViewCount} verified Instagram Reels have ${compact(instagramViews)} measured views plus likes and comments.` : `${igAssets.length} verified Instagram posts have known interactions; Reel views are collecting.`, action: 'Use view and interaction velocity to identify the strongest hooks, then route the audience toward EP1.' },
-    { name: 'YouTube', handle: `@${yt?.handle || 'Idoltillidie'}`, audience: youtubeAudience, postCount: youtubePostCount, posts: `${youtubePostCount} videos`, views: metrics.hasMeasuredPerformance ? metrics.youtubeTotalViews : null, viewCount: metrics.videoCount, share: makeShare(youtubeAudience), engagement: ytEr, status: 'watch', role: 'Documentary home + retargeting anchor', insight: metrics.hasMeasuredPerformance ? `EP1 holds ${ep1Share.toFixed(1)}% of measured YouTube views, showing discovery beyond the subscriber base.` : 'Published YouTube performance is temporarily unavailable.', action: 'Use YouTube as the story anchor, then carry the strongest beats outward through short-form cuts.' },
-    { name: 'TikTok', handle: `@${tt?.handle || 'idoltillidie'}`, audience: tiktokAudience, postCount: tiktokPostCount, posts: `${tiktokPostCount} videos`, views: null, viewCount: 0, share: makeShare(tiktokAudience), engagement: '—', status: tiktokPostCount > 0 ? 'watch' : 'risk', role: 'Dormant owned distribution', insight: tiktokPostCount > 0 ? 'TikTok publishing is active and ready for post-level pacing reads.' : 'There is a meaningful follower base but no official TikTok content, leaving algorithmic inventory unused.', action: 'Post the first three EP1 cuts: Matthew leader arc, trainee pressure, and comedic dorm/rule clip.' },
+    { name: 'Instagram', handle: `@${ig?.handle || 'idoltillidie'}`, audience: instagramAudience, postCount: instagramPostCount, posts: `${instagramPostCount} posts`, views: instagramViewCount > 0 ? instagramViews : null, viewCount: instagramViewCount, share: makeShare(instagramAudience), engagement: igEngagement, status: 'strong', role: 'Top-of-funnel audience reservoir', insight: instagramViewCount > 0 ? `${instagramViewCount} verified Instagram Reels have ${compact(instagramViews)} measured views plus likes and comments.` : `${igAssets.length} verified Instagram posts have known interactions; Reel views are collecting.`, action: 'Use view and interaction velocity to identify the strongest hooks, then route the audience toward the newest episode.' },
+    { name: 'YouTube', handle: `@${yt?.handle || 'Idoltillidie'}`, audience: youtubeAudience, postCount: youtubePostCount, posts: `${youtubePostCount} videos`, views: metrics.hasMeasuredPerformance ? metrics.youtubeTotalViews : null, viewCount: metrics.videoCount, share: makeShare(youtubeAudience), engagement: ytEr, status: 'watch', role: 'Documentary home + retargeting anchor', insight: metrics.episodeCount > 0 ? `${metrics.episodeCount} measured episodes hold ${episodeShare.toFixed(1)}% of YouTube views, showing episode-led discovery beyond the subscriber base.` : metrics.hasMeasuredPerformance ? 'Published view data is available, but no episode rows are identified.' : 'Published YouTube performance is temporarily unavailable.', action: metrics.episodeCount > 0 ? 'Use the newest episode as the story anchor, then carry the strongest beats outward through short-form cuts.' : 'Confirm episode titles before changing the long-form publishing plan.' },
+    { name: 'TikTok', handle: `@${tt?.handle || 'idoltillidie'}`, audience: tiktokAudience, postCount: tiktokPostCount, posts: `${tiktokPostCount} videos`, views: null, viewCount: 0, share: makeShare(tiktokAudience), engagement: '—', status: tiktokPostCount > 0 ? 'watch' : 'risk', role: 'Dormant owned distribution', insight: tiktokPostCount > 0 ? 'TikTok publishing is active and ready for post-level pacing reads.' : 'There is a meaningful follower base but no official TikTok content, leaving algorithmic inventory unused.', action: 'Post three proven concepts first: twin dynamics, trainee pressure, and a lighter dorm/rule clip.' },
   ];
 }
 
@@ -270,8 +277,8 @@ function buildInsights(
   assets: EkatorAssetSnapshot,
   channelSnapshot: EkatorChannelSnapshot,
 ): Insight[] {
-  const concentration = metrics.youtubeTotalViews > 0
-    ? ((metrics.longformViews + metrics.teaserViews) / metrics.youtubeTotalViews) * 100
+  const concentration = metrics.youtubeTotalViews > 0 && metrics.episodeCount > 0
+    ? (metrics.episodeViews / metrics.youtubeTotalViews) * 100
     : null;
   const instagram = channelSnapshot.channels.find((channel) => channel.platform === 'instagram');
   const instagramAudience = instagram?.audience ?? 0;
@@ -290,14 +297,14 @@ function buildInsights(
 
   return [
     {
-      label: 'Measured YouTube demand concentration',
+      label: 'Episode-led YouTube demand',
       stat: concentration === null ? '—' : `${concentration.toFixed(1)}%`,
       read: concentration === null
         ? 'Published YouTube performance is temporarily unavailable, so demand concentration cannot be calculated.'
-        : `EP1 + teaser account for ${concentration.toFixed(1)}% of ${compact(metrics.youtubeTotalViews)} measured official YouTube views.`,
+        : `${metrics.episodeCount} measured episodes account for ${concentration.toFixed(1)}% of ${compact(metrics.youtubeTotalViews)} official YouTube views.`,
       action: concentration === null
         ? 'Restore the performance read before changing the publishing plan.'
-        : 'Use the proven long-form story as the source for the next short-form sprint.',
+        : 'Use the newest episode as the source for the next short-form sprint.',
       tone: 'watch',
     },
     {
@@ -339,11 +346,11 @@ function buildRecommendations(
   assets: EkatorAssetSnapshot,
   channelSnapshot: EkatorChannelSnapshot,
 ): Rec[] {
-  const youtubeConcentration = metrics.youtubeTotalViews > 0
-    ? (metrics.longformViews / metrics.youtubeTotalViews) * 100
+  const episodeShare = metrics.youtubeTotalViews > 0
+    ? (metrics.episodeViews / metrics.youtubeTotalViews) * 100
     : null;
-  const shortsShare = metrics.youtubeTotalViews > 0
-    ? (metrics.shortsViews / metrics.youtubeTotalViews) * 100
+  const otherYoutubeShare = metrics.youtubeTotalViews > 0
+    ? (metrics.otherYoutubeViews / metrics.youtubeTotalViews) * 100
     : null;
   const instagram = channelSnapshot.channels.find((channel) => channel.platform === 'instagram');
   const instagramAudience = instagram?.audience ?? 0;
@@ -357,20 +364,24 @@ function buildRecommendations(
     .map((asset) => ({ asset, interactions: knownInteractions(asset) }))
     .filter((entry) => entry.interactions > 0)
     .sort((a, b) => b.interactions - a.interactions)[0];
+  const twinAssets = assets.assets.filter((asset) => /쌍둥이|twin/i.test(asset.caption));
+  const twinPlatforms = new Set(twinAssets.map((asset) => asset.platform));
+  const twinViews = twinAssets.reduce((sum, asset) => sum + (asset.views ?? 0), 0);
+  const twinInteractions = twinAssets.reduce((sum, asset) => sum + knownInteractions(asset), 0);
   const moves: Omit<Rec, 'rank'>[] = [];
 
-  moves.push(metrics.hasMeasuredPerformance && youtubeConcentration !== null && shortsShare !== null
+  moves.push(metrics.hasMeasuredPerformance && metrics.episodeCount > 0 && episodeShare !== null && otherYoutubeShare !== null
     ? {
-        title: 'Convert measured EP1 concentration into a controlled short-form sprint',
-        why: `EP1 holds ${youtubeConcentration.toFixed(1)}% of measured YouTube views, while ${metrics.shortsCount} shorts hold ${shortsShare.toFixed(1)}%.`,
-        move: 'Cut six distinct EP1 moments across character, stakes, and lighter group dynamics; publish with consistent hooks over the next 72 hours.',
+        title: 'Turn episode-led demand into a controlled short-form sprint',
+        why: `${metrics.episodeCount} measured episodes account for ${episodeShare.toFixed(1)}% of YouTube views; ${metrics.otherYoutubeCount} other YouTube publications account for ${otherYoutubeShare.toFixed(1)}%.`,
+        move: 'Cut six distinct moments from the newest episode across character, stakes, and lighter group dynamics; publish with consistent hooks over the next 72 hours.',
         owner: 'Content / clipping',
         impact: 'High',
       }
     : {
-        title: 'Restore the YouTube performance read before scaling output',
-        why: 'Published YouTube performance is unavailable, so concentration and short-form share cannot be verified.',
-        move: 'Repair the post-level performance feed and re-rank the queue from measured views and interactions.',
+        title: 'Confirm episode coverage before scaling output',
+        why: metrics.hasMeasuredPerformance ? 'Published view data is available, but no episode rows are identified.' : 'Published YouTube performance is unavailable, so episode-led demand cannot be verified.',
+        move: metrics.hasMeasuredPerformance ? 'Confirm episode titles in the publication ledger, then re-rank the queue from the corrected rows.' : 'Restore the post-level performance read and re-rank the queue from measured views and interactions.',
         owner: 'Measurement',
         impact: 'High',
       });
@@ -381,7 +392,7 @@ function buildRecommendations(
         why: tiktokAudience > 0
           ? `${compact(tiktokAudience)} followers and zero published posts are currently recorded.`
           : 'Zero published TikTok posts are currently recorded; the audience total is unavailable.',
-        move: 'Publish three distinct EP1-derived cuts, then record first-hour, 24-hour, and 72-hour views and interactions for each.',
+        move: 'Publish three proven concepts—twin dynamics, the high-stakes premise, and a lighter reaction—then record first-hour, 24-hour, and 72-hour views and interactions.',
         owner: 'Owned social',
         impact: 'High',
       }
@@ -393,12 +404,22 @@ function buildRecommendations(
         impact: 'High',
       });
 
+  if (twinPlatforms.size >= 2 && twinViews > 0 && twinInteractions > 0) {
+    moves.push({
+      title: 'Turn the twin dynamic into a cross-platform series',
+      why: `${twinAssets.length} twin-focused publications across ${twinPlatforms.size} platforms generated ${compact(twinViews)} measured views and ${compact(twinInteractions)} known interactions.`,
+      move: 'Release the next twin-focused cut with a concise context overlay, then route viewers to the episode containing the full story.',
+      owner: 'Creative strategy',
+      impact: 'High',
+    });
+  }
+
   moves.push({
-    title: 'Turn the Instagram audience into a measurable EP1 path',
+    title: 'Turn the Instagram audience into a measurable episode path',
     why: instagramViews > 0
       ? `${instagramViewAssets.length} verified Reels generated ${compact(instagramViews)} measured views from an Instagram audience of ${compact(instagramAudience)} followers (${instagramShare?.toFixed(1) ?? '—'}% of owned audience).`
       : 'Instagram Reel views are collecting; use the verified interaction reads until view coverage arrives.',
-    move: 'Use a pinned EP1 call-to-action and story-link sequence; capture first-party reach, taps, saves, shares, and link clicks.',
+    move: 'Use a pinned full-episode call-to-action and story-link sequence; capture first-party reach, taps, saves, shares, and link clicks.',
     owner: 'Owned social',
     impact: 'High',
   });
@@ -418,14 +439,6 @@ function buildRecommendations(
         owner: 'Measurement',
         impact: 'Medium',
       });
-
-  moves.push({
-    title: 'Maintain the measurement boundary until campaign delivery begins',
-    why: 'No campaigns are live, so every current audience and post-performance read is an owned-channel signal.',
-    move: 'Keep the delivery section marked Not live and add confirmed spend, reach, efficiency, and conversion data only after launch.',
-    owner: 'Measurement',
-    impact: 'Medium',
-  });
 
   return moves.map((move, index) => ({ ...move, rank: index + 1 }));
 }
@@ -451,7 +464,7 @@ const paidFields = [
   { metric: 'Thumbstop / hold rate', use: 'Opening-frame performance by cut, tracked from paid delivery only.' },
   { metric: 'Completion rate', use: 'Whether the paid audience stays through the story, not just the hook.' },
   { metric: 'Follower conversion', use: 'New followers or subscribers generated per 1K paid views.' },
-  { metric: 'EP1 click-through', use: 'Whether paid clips create traffic to the anchor episode.' },
+  { metric: 'Episode click-through', use: 'Whether paid clips create traffic to the anchor episode.' },
   { metric: 'Creative winner / loser', use: 'Best and weakest paid cuts by platform, audience, and day.' },
 ];
 
@@ -684,7 +697,7 @@ function StatusStrip({ registry, assets }: { registry: EkatorRegistrySnapshot; a
     { label: 'Measured', value: assets.performanceCount },
     { label: 'Monitored', value: registry.monitoredHandlesCount },
     { label: 'Nodes', value: nodes },
-    { label: 'Paid', value: 'OFF' as const },
+    { label: 'Paid', value: 'UNVERIFIED' as const },
   ];
   return (
     <div className="flex flex-wrap items-center gap-x-5 gap-y-1.5 px-3 py-2 font-mono text-xs">
@@ -1224,9 +1237,12 @@ function MeasurementTable({ assets, metrics, channelSnapshot }: { assets: Ekator
   const velocityFor = (asset: EkatorAsset) => asset.views === null ? 0 : Math.round(asset.views / ageDaysFor(asset));
   const interactionTotal = (asset: EkatorAsset) => (asset.likes ?? 0) + (asset.comments ?? 0) + (asset.shares ?? 0);
   const interactionVelocityFor = (asset: EkatorAsset) => Math.round(interactionTotal(asset) / ageDaysFor(asset));
-  const ep1Asset = publishedAssets.find((asset) => /ep\.?\s*1/i.test(asset.caption));
+  const episodeAssets = publishedAssets
+    .filter((asset) => episodeNumberFromCaption(asset.caption) !== null)
+    .sort((a, b) => (episodeNumberFromCaption(a.caption) ?? 0) - (episodeNumberFromCaption(b.caption) ?? 0));
+  const episodeIds = new Set(episodeAssets.map((asset) => asset.itemId));
   const velocityAssets = publishedAssets
-    .filter((asset) => asset.itemId !== ep1Asset?.itemId)
+    .filter((asset) => !episodeIds.has(asset.itemId))
     .map((asset) => ({ asset, velocity: velocityFor(asset) }))
     .sort((a, b) => b.velocity - a.velocity);
   const interactionVelocityAssets = assets.assets
@@ -1307,15 +1323,17 @@ function MeasurementTable({ assets, metrics, channelSnapshot }: { assets: Ekator
             </div>
             <div className="font-mono text-[11px] text-[#A0A0AA]">views/day · {metrics.readLabel}</div>
           </div>
-          {ep1Asset && (
-            <div className="mb-5 flex items-center justify-between gap-4 rounded-md border px-4 py-3" style={{ background: '#140A0A', borderColor: '#3A1717' }}>
-              <div className="min-w-0">
-                <div className="truncate text-xs font-semibold text-white">{ep1Asset.caption}</div>
-                <div className="font-mono text-[10px] text-[#A0A0AA]">Anchor episode · separated from comparable cuts</div>
-              </div>
-              <div className="shrink-0 text-right">
-                <div className="font-mono text-2xl font-black" style={{ color: red }}>{compact(velocityFor(ep1Asset))}/d</div>
-                <div className="font-mono text-[9px] text-[#A0A0AA]">{compact(ep1Asset.views ?? 0)} total</div>
+          {episodeAssets.length > 0 && (
+            <div className="mb-5 rounded-md border px-4 py-3" style={{ background: '#140A0A', borderColor: '#3A1717' }}>
+              <div className="font-mono text-[10px] uppercase tracking-wider" style={{ color: red }}>Episode anchors</div>
+              <div className="mt-1 font-mono text-[10px] text-[#A0A0AA]">Separated from other YouTube publications for a comparable pacing read.</div>
+              <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                {episodeAssets.map((asset) => (
+                  <div key={asset.itemId} className="flex min-w-0 items-center justify-between gap-3 rounded border px-3 py-2" style={{ borderColor: '#3A1717' }}>
+                    <div className="min-w-0"><div className="truncate text-xs font-semibold text-white">{asset.caption}</div><div className="font-mono text-[9px] text-[#A0A0AA]">{compact(asset.views ?? 0)} total</div></div>
+                    <div className="shrink-0 font-mono text-lg font-black" style={{ color: red }}>{compact(velocityFor(asset))}/d</div>
+                  </div>
+                ))}
               </div>
             </div>
           )}
@@ -1409,10 +1427,10 @@ function MeasurementTable({ assets, metrics, channelSnapshot }: { assets: Ekator
         <div className="rounded-lg border p-5" style={{ borderColor: line, background: '#0E0E0E' }}>
           <div className="mb-4 flex items-center justify-between">
             <div className="text-[11px] uppercase tracking-[0.2em]" style={{ color: red }}>Paid Media</div>
-            <span className="font-mono text-sm font-bold" style={{ color: '#D42D2D' }}>NOT LIVE</span>
+            <span className="font-mono text-sm font-bold" style={{ color: '#D42D2D' }}>NO VERIFIED DELIVERY</span>
           </div>
           <div className="mb-4 rounded-md p-4" style={{ background: '#140A0A' }}>
-            <p className="text-sm leading-relaxed text-white">No paid campaigns are live yet. Once campaigns launch, this section will show confirmed delivery, efficiency, and conversion data.</p>
+            <p className="text-sm leading-relaxed text-white">No verified paid delivery is available. Delivery, efficiency, and conversion fields will populate when verified campaign data is available.</p>
           </div>
           <div className="grid grid-cols-2 gap-2">
             {paidFields.map(field => (
