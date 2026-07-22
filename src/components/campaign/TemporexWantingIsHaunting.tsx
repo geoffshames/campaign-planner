@@ -60,222 +60,6 @@ function Badge({ children, color = '#fd3737' }: { children: React.ReactNode; col
   return <span className="px-3 py-1 rounded-full text-[11px] font-semibold" style={{ background: `${color}22`, color }}>{children}</span>;
 }
 
-
-/* ── shared checklist state (same Supabase table as the proposal page, so status syncs) ── */
-const SB_URL = "https://hcyjlwbmrqcgbbizirzl.supabase.co";
-const SB_KEY = "sb_publishable_E1PXDuHKsBxmfbGfeYjbAw_63kK0p1y";
-const SB_TABLE = "proposal_checklist_state";
-
-async function fetchShared(storageKey: string): Promise<Record<string, boolean> | null> {
-  try {
-    const res = await fetch(`${SB_URL}/rest/v1/${SB_TABLE}?storage_key=eq.${encodeURIComponent(storageKey)}&select=item_id,checked`, { headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}` } });
-    if (!res.ok) return null;
-    const rows: { item_id: string; checked: boolean }[] = await res.json();
-    const map: Record<string, boolean> = {};
-    for (const r of rows) map[r.item_id] = r.checked;
-    return map;
-  } catch { return null; }
-}
-async function pushShared(storageKey: string, itemId: string, checked: boolean) {
-  try {
-    await fetch(`${SB_URL}/rest/v1/${SB_TABLE}?on_conflict=storage_key,item_id`, { method: "POST", headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}`, "Content-Type": "application/json", Prefer: "resolution=merge-duplicates" }, body: JSON.stringify({ storage_key: storageKey, item_id: itemId, checked, updated_at: new Date().toISOString() }) });
-  } catch {}
-}
-
-type CalEntry = { date: string; kind: string; label: string; detail?: string; channel?: string[]; time?: string; cta?: string; status?: string };
-type CalPhase = { title: string; window?: string; releaseDate?: string; format?: string; status?: string; summary?: string; entries: CalEntry[] };
-type CalData = { cadenceNote?: string; postingRules?: string[]; channelNote?: string; legend?: { kind: string; label: string }[]; footnote?: string; phases: CalPhase[] };
-type ChkItem = { id: string; label: string; formats?: string[]; owner?: string; note?: string; status?: string };
-type ChkGroup = { heading: string; release?: string; format?: string; status?: string; description?: string; items: ChkItem[] };
-type ChkData = { storageKey?: string; standardNote?: string; ownerLegend?: { owner: string; label: string }[]; footnote?: string; groups: ChkGroup[] };
-
-const KIND_DOT: Record<string, string> = {
-  release: "bg-[#fd3737]",
-  presave: "border-2 border-[#fd3737] bg-transparent",
-  announce: "border-2 border-[#fd3737] bg-transparent",
-  content: "bg-[#E4E4E9]",
-  paid: "border-2 border-[#71717A] bg-transparent",
-  asset: "bg-[#71717A] rotate-45",
-  live: "bg-[#fd3737]/50",
-  milestone: "bg-[#71717A]",
-};
-const KIND_LABEL: Record<string, string> = { release: "Release", presave: "Pre-save", announce: "Announce", content: "Organic", paid: "Paid", asset: "Asset due", live: "Live", milestone: "Milestone" };
-const STATUS_META: Record<string, { label: string; cls: string }> = {
-  have: { label: "Have", cls: "border-[#fd3737]/50 text-[#fd3737]" },
-  "in-progress": { label: "In progress", cls: "border-[#71717A]/70 text-[#E4E4E9]" },
-  needed: { label: "Needed", cls: "border-[#333333] text-[#B8B8C0]" },
-};
-
-function ContentCalendar() {
-  const CC = C.contentCalendar as unknown as CalData;
-  return (
-    <div>
-      <div className="grid md:grid-cols-2 gap-4 mb-8">
-        {CC.cadenceNote && (
-          <GlassCard className="p-6" hover={false}>
-            <div className="text-[11px] uppercase tracking-wider text-[#fd3737] mb-3">The repeating arc</div>
-            <p className="text-[#E4E4E9] text-sm leading-relaxed">{CC.cadenceNote}</p>
-          </GlassCard>
-        )}
-        {CC.postingRules && (
-          <GlassCard className="p-6" hover={false}>
-            <div className="text-[11px] uppercase tracking-wider text-[#fd3737] mb-3">Posting rules</div>
-            <ul className="space-y-2">
-              {CC.postingRules.map((r, i) => (<li key={i} className="flex gap-2 text-[#E4E4E9] text-sm leading-relaxed"><span className="text-[#fd3737]">&#9656;</span><span>{r}</span></li>))}
-            </ul>
-          </GlassCard>
-        )}
-      </div>
-      {CC.channelNote && (
-        <GlassCard className="p-5 mb-8 border-l-2 border-l-[#fd3737]" hover={false}>
-          <div className="text-[11px] uppercase tracking-wider text-[#fd3737] mb-1">Where spend goes</div>
-          <p className="text-[#E4E4E9] text-sm leading-relaxed">{CC.channelNote}</p>
-        </GlassCard>
-      )}
-      {CC.legend && (
-        <div className="flex flex-wrap gap-x-5 gap-y-2 mb-8">
-          {CC.legend.map((l, i) => (<div key={i} className="flex items-center gap-2"><span className={`w-[10px] h-[10px] rounded-full ${KIND_DOT[l.kind] || KIND_DOT.milestone}`} /><span className="text-[11px] uppercase tracking-wide text-[#B8B8C0]">{l.label}</span></div>))}
-        </div>
-      )}
-      <div className="space-y-6">
-        {CC.phases.map((ph, pi) => (
-          <GlassCard key={pi} className={`p-6 md:p-8 ${ph.status === "next" ? "border-[#fd3737]/50" : ""}`} hover={false}>
-            <div className="flex flex-wrap items-start justify-between gap-4 pb-5 mb-5 border-b border-[#333333]/60">
-              <div className="min-w-0">
-                <div className="flex flex-wrap items-center gap-3">
-                  <h4 className="font-display text-xl md:text-2xl text-[#FAFAFA]">{ph.title}</h4>
-                  {ph.status === "next" && <Badge>next up</Badge>}
-                  {ph.status === "done" && <Badge color="#A1A1AA">shipped</Badge>}
-                </div>
-                {ph.summary && <p className="text-[#B8B8C0] text-sm mt-2 max-w-3xl leading-relaxed">{ph.summary}</p>}
-              </div>
-              <div className="text-left md:text-right shrink-0">
-                {ph.releaseDate && (<><div className="text-[10px] uppercase tracking-wider text-[#71717A]">Release</div><div className="font-display text-lg md:text-xl text-[#fd3737]">{ph.releaseDate}</div></>)}
-                {ph.format && <div className="text-[10px] uppercase tracking-wide text-[#B8B8C0] mt-1">{ph.format}</div>}
-                {ph.window && <div className="text-[10px] text-[#71717A] mt-1">{ph.window}</div>}
-              </div>
-            </div>
-            <div>
-              {ph.entries.map((e, ei) => {
-                const last = ei === ph.entries.length - 1;
-                const done = e.status === "done";
-                return (
-                  <div key={ei} className={`relative flex gap-4 ${done ? "opacity-55" : ""}`}>
-                    <div className="flex flex-col items-center w-[14px] shrink-0">
-                      <span className={`mt-[6px] w-[11px] h-[11px] rounded-full ${KIND_DOT[e.kind] || KIND_DOT.milestone}`} />
-                      {!last && <span className="flex-1 w-px bg-[#333333]/70 mt-1" />}
-                    </div>
-                    <div className={`flex-1 min-w-0 ${last ? "pb-0" : "pb-7"}`}>
-                      <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                        <span className="text-[12px] font-semibold tracking-wide uppercase text-[#fd3737] tabular-nums">{e.date}</span>
-                        <span className="text-[10px] uppercase tracking-wider text-[#71717A]">{KIND_LABEL[e.kind] || ""}</span>
-                        {done && <span className="text-[10px] uppercase tracking-wider text-[#fd3737]">&#10003; done</span>}
-                      </div>
-                      <div className={`mt-1 leading-snug ${e.kind === "release" ? "font-display text-base md:text-lg text-[#FAFAFA]" : "text-sm md:text-[15px] font-semibold text-[#E9E9EE]"}`}>{e.label}</div>
-                      {e.detail && <p className="mt-1.5 text-[13px] text-[#B8B8C0] leading-relaxed max-w-2xl">{e.detail}</p>}
-                      {(e.channel || e.time || e.cta) && (
-                        <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-2">
-                          {e.channel && <div className="flex flex-wrap gap-1.5">{e.channel.map((c, ci) => (<span key={ci} className="px-2 py-0.5 border border-[#333333] text-[9.5px] uppercase tracking-wide text-[#B8B8C0]">{c}</span>))}</div>}
-                          {e.time && <span className="text-[10.5px] text-[#71717A]">&#9687; {e.time}</span>}
-                          {e.cta && <span className="px-2.5 py-0.5 rounded-full text-[10px] uppercase tracking-wide" style={{ background: "#fd373722", color: "#fd3737" }}>{e.cta}</span>}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </GlassCard>
-        ))}
-      </div>
-      {CC.footnote && <p className="text-[#71717A] text-xs leading-relaxed border-l-2 border-[#fd3737]/40 pl-4 mt-8">{CC.footnote}</p>}
-    </div>
-  );
-}
-
-function AssetChecklist() {
-  const AC = C.assetChecklist as unknown as ChkData;
-  const storageKey = AC.storageKey || "temporex-asset-checklist";
-  const [checked, setChecked] = useState<Record<string, boolean>>({});
-  useEffect(() => {
-    let cancelled = false;
-    const sync = async () => { const r = await fetchShared(storageKey); if (r && !cancelled) setChecked(r); };
-    sync();
-    const t = setInterval(sync, 12000);
-    return () => { cancelled = true; clearInterval(t); };
-  }, [storageKey]);
-  const all = AC.groups.flatMap((g) => g.items);
-  const total = all.length;
-  const done = all.filter((it) => checked[it.id]).length;
-  const toggle = (id: string) => { const n = !checked[id]; setChecked((c) => ({ ...c, [id]: n })); pushShared(storageKey, id, n); };
-  return (
-    <div>
-      {AC.standardNote && (
-        <GlassCard className="p-6 mb-6" hover={false}>
-          <div className="text-[11px] uppercase tracking-wider text-[#fd3737] mb-2">The standard set, every release</div>
-          <p className="text-[#E4E4E9] text-sm leading-relaxed">{AC.standardNote}</p>
-        </GlassCard>
-      )}
-      <div className="flex flex-wrap items-center gap-x-6 gap-y-3 mb-6">
-        <div className="flex items-center gap-4 flex-1 min-w-[220px]">
-          <div className="text-[12px] uppercase tracking-wider text-[#B8B8C0] whitespace-nowrap">{done} / {total} done</div>
-          <div className="flex-1 h-[3px] bg-[#333333]"><div className="h-full bg-[#fd3737] transition-all duration-500" style={{ width: total ? `${(done / total) * 100}%` : "0%" }} /></div>
-        </div>
-        {AC.ownerLegend && (<div className="flex flex-wrap gap-x-4 gap-y-2">{AC.ownerLegend.map((o, i) => (<span key={i} className="text-[10px] uppercase tracking-wide text-[#B8B8C0]"><span className="text-[#fd3737]">{o.owner}</span> {o.label}</span>))}</div>)}
-      </div>
-      <div className="space-y-5">
-        {AC.groups.map((g, gi) => {
-          const gdone = g.items.filter((it) => checked[it.id]).length;
-          return (
-            <GlassCard key={gi} className={`p-6 md:p-7 ${g.status === "next" ? "border-[#fd3737]/50" : ""}`} hover={false}>
-              <div className="flex flex-wrap items-start justify-between gap-4 pb-4 mb-4 border-b border-[#333333]/60">
-                <div className="min-w-0">
-                  <div className="flex flex-wrap items-center gap-3">
-                    <h4 className="font-display text-lg md:text-xl text-[#FAFAFA]">{g.heading}</h4>
-                    {g.status === "next" && <Badge>next up</Badge>}
-                    {g.status === "done" && <Badge color="#A1A1AA">shipped</Badge>}
-                  </div>
-                  {g.description && <p className="text-[#B8B8C0] text-sm mt-2 max-w-3xl leading-relaxed">{g.description}</p>}
-                </div>
-                <div className="text-left md:text-right shrink-0">
-                  {g.release && (<><div className="text-[10px] uppercase tracking-wider text-[#71717A]">Release</div><div className="font-display text-base md:text-lg text-[#fd3737]">{g.release}</div></>)}
-                  {g.format && <div className="text-[10px] uppercase tracking-wide text-[#B8B8C0] mt-1">{g.format}</div>}
-                  <div className="text-[10px] uppercase tracking-wide text-[#71717A] mt-1 tabular-nums">{gdone} / {g.items.length} done</div>
-                </div>
-              </div>
-              <div>
-                {g.items.map((it, ii) => {
-                  const c = !!checked[it.id];
-                  const st = it.status ? STATUS_META[it.status] : null;
-                  return (
-                    <div key={ii} className={`flex items-start gap-3.5 py-3.5 border-b border-[#333333]/40 last:border-b-0 ${c ? "opacity-60" : ""}`}>
-                      <button onClick={() => toggle(it.id)} aria-label={`Toggle ${it.label}`} className={`mt-0.5 w-5 h-5 shrink-0 border flex items-center justify-center transition-colors ${c ? "border-[#fd3737] bg-[#fd3737] text-[#0A0A0A]" : "border-[#555555] hover:border-[#fd3737]"}`}>{c && <span className="text-[11px] font-bold leading-none">&#10003;</span>}</button>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1.5">
-                          <span className={`text-sm md:text-[15px] font-semibold ${c ? "text-[#B8B8C0] line-through" : "text-[#FAFAFA]"}`}>{it.label}</span>
-                          {st && <span className={`px-2 py-0.5 border text-[9px] uppercase tracking-wider ${st.cls}`}>{st.label}</span>}
-                        </div>
-                        {(it.formats || it.owner) && (
-                          <div className="mt-2 flex flex-wrap items-center gap-1.5">
-                            {it.formats && it.formats.map((f, fi) => (<span key={fi} className="px-2 py-0.5 text-[9.5px] tracking-wide" style={{ background: "#fd373714", color: "#fd3737", border: "1px solid #fd373733" }}>{f}</span>))}
-                            {it.owner && <span className="px-2 py-0.5 border border-[#333333] text-[9.5px] uppercase tracking-wide text-[#B8B8C0]">{it.owner}</span>}
-                          </div>
-                        )}
-                        {it.note && <p className="mt-1.5 text-[12.5px] text-[#71717A] leading-relaxed max-w-2xl">{it.note}</p>}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </GlassCard>
-          );
-        })}
-      </div>
-      {AC.footnote && <p className="text-[#71717A] text-xs leading-relaxed border-l-2 border-[#fd3737]/40 pl-4 mt-8">{AC.footnote}</p>}
-    </div>
-  );
-}
-
 /* ── page ── */
 export function TemporexWantingIsHaunting() {
   const heroRef = useRef<HTMLDivElement>(null);
@@ -292,7 +76,7 @@ export function TemporexWantingIsHaunting() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const nav = [
-    ['overview', 'Overview'], ['calendar', 'Calendar'], ['checklist', 'Checklist'], ['spend', 'Digital Spend'], ['activations', 'Activations'],
+    ['overview', 'Overview'], ['rollout', 'Rollout'], ['persingle', 'Per Single'], ['spend', 'Digital Spend'], ['activations', 'Activations'],
   ];
 
   return (
@@ -363,15 +147,81 @@ export function TemporexWantingIsHaunting() {
       </Section>
       <SectionDivider />
 
-      {/* 02 CONTENT CALENDAR */}
-      <Section id="calendar" number="02" title="The Content Calendar" subtitle="Every post, asset drop and paid moment across the cycle, by day. Water Holes is done; Real Time is next.">
-        <ContentCalendar />
+      {/* 02 ROLLOUT */}
+      <Section id="rollout" number="02" title="The Rollout" subtitle="The release cadence, and the asset ladder that repeats on every single.">
+        <div className="mb-12">
+          <div className="text-[11px] uppercase tracking-wider text-[#fd3737] mb-4">Release calendar</div>
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+            {C.calendar.map((c, i) => (
+              <GlassCard key={i} className={`p-5 text-center ${c.kind === 'ep' ? 'border-2 border-[#fd3737]/50' : c.kind === 'announce' ? 'border-l-2 border-l-[#fd3737]' : ''}`}>
+                <div className="font-display text-2xl text-[#FAFAFA]">{c.date}</div>
+                <div className="text-[#B8B8C0] text-xs mt-1 leading-snug">{c.label}</div>
+              </GlassCard>
+            ))}
+          </div>
+        </div>
+        <div id="assets" className="scroll-mt-24">
+          <div className="text-[11px] uppercase tracking-wider text-[#fd3737] mb-4">Asset rollout · every single, in relative days</div>
+          <GlassCard className="p-6 md:p-8 mb-4" hover={false}>
+            <p className="text-[#E4E4E9] text-sm md:text-base leading-relaxed">{C.assetLadder.intro}</p>
+            <p className="text-[#B8B8C0] text-xs md:text-sm leading-relaxed mt-4 pt-4 border-t border-[#333333]/60"><span className="text-[#fd3737]">Deliverable base: </span>{C.assetLadder.spec}</p>
+          </GlassCard>
+          <div className="space-y-2">
+            {C.assetLadder.rows.map((r, i) => (
+              <GlassCard key={i} className="p-4 md:p-5" hover={false}>
+                <div className="flex items-start gap-4">
+                  <div className="font-display text-lg md:text-xl text-[#fd3737] w-16 md:w-24 shrink-0">{r.day}</div>
+                  <div className="flex-1">
+                    <div className="text-[#FAFAFA] text-sm md:text-base leading-snug">{r.asset}</div>
+                    <div className="text-[#B8B8C0] text-xs mt-1 leading-relaxed">{r.note}</div>
+                  </div>
+                </div>
+              </GlassCard>
+            ))}
+          </div>
+          <GlassCard className="p-5 mt-4 border-l-2 border-l-[#fd3737]" hover={false}>
+            <p className="text-[#E4E4E9] text-sm leading-relaxed"><span className="text-[#fd3737] font-semibold">Album: </span>{C.assetLadder.albumNote}</p>
+          </GlassCard>
+        </div>
+        <div className="mt-10">
+          <div className="text-[11px] uppercase tracking-wider text-[#fd3737] mb-4">Video + live footage — where it goes</div>
+          <div className="grid md:grid-cols-2 gap-4">
+            <GlassCard className="p-6" hover={false}>
+              <h4 className="font-display text-base text-[#FAFAFA] mb-2">Live performance · the hero content</h4>
+              <p className="text-[#E4E4E9] text-sm leading-relaxed">{C.videoFootage.live}</p>
+            </GlassCard>
+            <GlassCard className="p-6" hover={false}>
+              <h4 className="font-display text-base text-[#FAFAFA] mb-2">The two music videos</h4>
+              <p className="text-[#E4E4E9] text-sm leading-relaxed">{C.videoFootage.videos}</p>
+            </GlassCard>
+          </div>
+        </div>
       </Section>
       <SectionDivider />
 
-      {/* 03 ASSET CHECKLIST */}
-      <Section id="checklist" number="03" title="The Asset Checklist" subtitle="The actual asset list per release, mapped to who makes each piece. Check items off as they land so the whole team sees status.">
-        <AssetChecklist />
+      {/* 03 PER-SINGLE BREAKOUT */}
+      <Section id="persingle" number="03" title="Per-Single Breakout" subtitle="Every single, broken out: the exact assets and where each one goes.">
+        <div className="space-y-5">
+          {C.perSingle.map((sg, i) => (
+            <GlassCard key={i} className={`p-6 md:p-7 ${sg.kind === 'ep' ? 'border-l-2 border-l-[#fd3737]' : ''}`} hover={false}>
+              <div className="flex flex-wrap items-center gap-3 mb-4">
+                <h4 className="font-display text-lg md:text-xl text-[#FAFAFA]">{sg.name}</h4>
+                <Badge color="#A1A1AA">{sg.timing}</Badge>
+                {sg.kind === 'video' && <Badge>music video</Badge>}
+                {sg.kind === 'ep' && <Badge>album</Badge>}
+              </div>
+              <div>
+                {sg.assets.map((a, j) => (
+                  <div key={j} className="grid md:grid-cols-2 gap-1 md:gap-4 py-2 border-t border-[#333333]/50">
+                    <div className="text-[#FAFAFA] text-sm leading-snug">{a.a}</div>
+                    <div className="text-[#B8B8C0] text-sm leading-snug"><span className="text-[#fd3737]">→ </span>{a.w}</div>
+                  </div>
+                ))}
+              </div>
+              <p className="text-[#B8B8C0] text-xs italic mt-4">{sg.note}</p>
+            </GlassCard>
+          ))}
+        </div>
       </Section>
       <SectionDivider />
 
