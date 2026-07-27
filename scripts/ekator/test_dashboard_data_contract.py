@@ -26,14 +26,26 @@ class DashboardDataContractTests(unittest.TestCase):
         self.assertIn("hasMeasuredMetrics(asset)", COMPONENT)
         self.assertNotIn("const hasPerformance = asset.views !== null;", COMPONENT)
 
+    def test_public_interaction_rate_uses_one_view_weighted_denominator(self) -> None:
+        self.assertIn("function interactionRate", COMPONENT)
+        self.assertIn("knownInteractions(asset) / asset.views", COMPONENT)
+        self.assertIn("Interaction rate", COMPONENT)
+        self.assertIn("View-weighted", COMPONENT)
+        self.assertNotIn("asset.engagementRate", COMPONENT)
+        self.assertNotIn("engagementRate:", LIB)
+
     def test_last_refreshed_is_explicit_and_includes_time(self) -> None:
         self.assertIn("Last refreshed", COMPONENT)
         self.assertIn("hour:", COMPONENT)
         self.assertIn("minute:", COMPONENT)
 
-    def test_daily_velocity_includes_interaction_pacing(self) -> None:
-        self.assertIn("Interaction velocity", COMPONENT)
-        self.assertIn("interactions/day", COMPONENT)
+    def test_age_normalized_pacing_is_labeled_as_since_publish(self) -> None:
+        self.assertIn("Average view pace since publish", COMPONENT)
+        self.assertIn("views/day since publish", COMPONENT)
+        self.assertIn("Average interaction pace since publish", COMPONENT)
+        self.assertIn("interactions/day since publish", COMPONENT)
+        self.assertNotIn("Daily Velocity", COMPONENT)
+        self.assertNotIn("Interaction velocity", COMPONENT)
 
     def test_instagram_reel_views_roll_up_across_the_dashboard(self) -> None:
         self.assertIn("const instagramViews", COMPONENT)
@@ -50,10 +62,10 @@ class DashboardDataContractTests(unittest.TestCase):
         for label in (
             "Owned Audience",
             "7-Day Growth",
-            "Measured Engagement",
+            "Measured Interaction",
             "Measured Attention",
             "Audience Momentum",
-            "Engagement Health",
+            "Interaction Health",
             "Sentiment Pulse",
             "Not yet measured",
             "Winning",
@@ -63,7 +75,7 @@ class DashboardDataContractTests(unittest.TestCase):
             self.assertIn(label, COMPONENT)
         self.assertIn("function buildAudienceTimeline", COMPONENT)
         self.assertIn("function deriveSevenDayAudienceGrowth", COMPONENT)
-        self.assertIn("function derivePortfolioEngagement", COMPONENT)
+        self.assertIn("function derivePortfolioInteraction", COMPONENT)
 
     def test_asset_specific_diagnostics_are_outside_the_hero(self) -> None:
         for stale_hero in (
@@ -84,10 +96,10 @@ class DashboardDataContractTests(unittest.TestCase):
         for current_anchor in (
             "Owned Audience",
             "7-Day Growth",
-            "Measured Engagement",
+            "Measured Interaction",
             "Measured Attention",
             "Audience Momentum",
-            "Engagement Health",
+            "Interaction Health",
             "Sentiment Pulse",
             "Winning",
             "Risk",
@@ -116,6 +128,51 @@ class DashboardDataContractTests(unittest.TestCase):
             "controlled 12-clip test",
         ):
             self.assertNotIn(stale_claim, COMPONENT)
+
+    def test_weekly_moves_follow_the_newest_episode_across_platforms(self) -> None:
+        for current_move in (
+            "into a same-day short-form sequence",
+            "Instagram preview into full-episode starts",
+            "binge path",
+            "Repeat the freshest high-response Instagram beat",
+        ):
+            self.assertIn(current_move, COMPONENT)
+        self.assertIn("episodeNumberFromCaption(asset.caption)", COMPONENT)
+        self.assertIn("(\\d+)\\s*화", COMPONENT)
+        self.assertIn("episodeNumber === newestEpisode.episodeNumber", COMPONENT)
+        self.assertIn("matchingEpisodePreview.asset.views !== null", COMPONENT)
+        self.assertIn("firstEpisode.episodeNumber !== newestEpisode.episodeNumber", COMPONENT)
+        self.assertIn("These cumulative totals cover different live windows", COMPONENT)
+        self.assertIn("the newest episode hook, a character reaction, and a lighter group moment", COMPONENT)
+        self.assertNotIn("twin dynamics, trainee pressure, and a lighter dorm/rule clip", COMPONENT)
+        self.assertNotIn("Turn episode-led demand into a controlled short-form sprint", COMPONENT)
+        self.assertNotIn("Use the current interaction leader as a controlled comparator", COMPONENT)
+
+    def test_weekly_insight_reads_the_newest_episode_across_owned_posts(self) -> None:
+        self.assertIn("Newest episode signal", COMPONENT)
+        self.assertIn("newestEpisodeAssets", COMPONENT)
+        self.assertIn("newestEpisodeViews", COMPONENT)
+        self.assertIn("newestEpisodeInteractions", COMPONENT)
+        self.assertIn("newestEpisodeViewBreakdown", COMPONENT)
+        self.assertNotIn("Current interaction leader", COMPONENT)
+
+    def test_interaction_terminology_is_consistent_in_public_and_internal_contracts(self) -> None:
+        for current_term in (
+            "Measured Interaction",
+            "Interaction Health",
+            "InteractionSnapshot",
+            "youtubeInteractionRate",
+            "interaction-rate-desc",
+        ):
+            self.assertIn(current_term, COMPONENT)
+        for stale_term in (
+            "Measured Engagement",
+            "Engagement Health",
+            "EngagementSnapshot",
+            "youtubeEngagement",
+            "engagement-desc",
+        ):
+            self.assertNotIn(stale_term, COMPONENT)
 
     def test_youtube_taxonomy_separates_episodes_from_other_publications(self) -> None:
         self.assertIn("function episodeNumberFromCaption", COMPONENT)

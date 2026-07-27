@@ -29,7 +29,27 @@ class NormalizePostTests(unittest.TestCase):
         self.assertIsNone(post["performance"]["views"])
         self.assertEqual(post["performance"]["likes"], 946)
         self.assertEqual(post["performance"]["comments"], 24)
-        self.assertAlmostEqual(post["performance"]["engagement_rate"], 1.4906, places=4)
+        self.assertIsNone(post["performance"]["engagement_rate"])
+
+    def test_stored_interaction_rate_uses_views_for_every_platform(self) -> None:
+        post = normalize_post(
+            {
+                "platform": "instagram",
+                "external_id": "3938216463586221600",
+                "url": "https://www.instagram.com/reel/DanWwIQpt7o/",
+                "caption": "Measured Reel",
+                "published_at": "2026-07-10T14:01:01Z",
+                "views": 1_000,
+                "likes": 100,
+                "comments": 10,
+                "shares": None,
+            },
+            audience=65_074,
+            captured_at="2026-07-10T18:00:00Z",
+            client_id="client-1",
+        )
+
+        self.assertAlmostEqual(post["performance"]["engagement_rate"], 11.0, places=4)
 
     def test_raw_media_url_is_not_accepted_as_a_publication(self) -> None:
         with self.assertRaisesRegex(ValueError, "canonical owned post URL"):

@@ -21,7 +21,6 @@ export type EkatorAsset = {
   likes: number | null;
   comments: number | null;
   shares: number | null;
-  engagementRate: number | null;
 };
 
 export type EkatorAssetSnapshot = {
@@ -58,7 +57,7 @@ export type EkatorChannelMetrics = {
   audience: number;
   posts: number;
   views: number | null;
-  engagementRate: number | null;
+  interactionRate: number | null;
 };
 
 export type EkatorMetricsSnapshot = {
@@ -312,7 +311,6 @@ export async function getEkatorAssetSnapshot(): Promise<EkatorAssetSnapshot> {
         likes: perf ? asNumber(perf.likes) : null,
         comments: perf ? asNumber(perf.comments) : null,
         shares: perf ? asNumber(perf.shares) : null,
-        engagementRate: perf ? asNumber(perf.engagement_rate) : null,
       };
     });
 
@@ -406,20 +404,17 @@ export async function getEkatorMetricsSnapshot(): Promise<EkatorMetricsSnapshot>
     const assets = assetSnap.assets;
 
     // Group by platform
-    const platformMap = new Map<string, { audience: number; posts: number; views: number; engagementSum: number; engagementCount: number }>();
+    const platformMap = new Map<string, { audience: number; posts: number; views: number; interactions: number }>();
 
     for (const asset of assets) {
       const p = asset.platform;
       if (!platformMap.has(p)) {
-        platformMap.set(p, { audience: 0, posts: 0, views: 0, engagementSum: 0, engagementCount: 0 });
+        platformMap.set(p, { audience: 0, posts: 0, views: 0, interactions: 0 });
       }
       const entry = platformMap.get(p)!;
       entry.posts += 1;
       if (asset.views !== null) entry.views += asset.views;
-      if (asset.engagementRate !== null) {
-        entry.engagementSum += asset.engagementRate;
-        entry.engagementCount += 1;
-      }
+      entry.interactions += (asset.likes ?? 0) + (asset.comments ?? 0) + (asset.shares ?? 0);
     }
 
     const channels: EkatorChannelMetrics[] = Array.from(platformMap.entries()).map(([platform, data]) => ({
@@ -427,7 +422,7 @@ export async function getEkatorMetricsSnapshot(): Promise<EkatorMetricsSnapshot>
       audience: data.audience,
       posts: data.posts,
       views: data.views > 0 ? data.views : null,
-      engagementRate: data.engagementCount > 0 ? data.engagementSum / data.engagementCount : null,
+      interactionRate: data.views > 0 ? (data.interactions / data.views) * 100 : null,
     }));
 
     return {

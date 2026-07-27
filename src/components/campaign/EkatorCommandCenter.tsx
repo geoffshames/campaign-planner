@@ -27,7 +27,7 @@ type Channel = {
   views: number | null;
   viewCount: number;
   share: number;
-  engagement: string;
+  interactionRate: string;
   status: 'strong' | 'watch' | 'risk';
   role: string;
   insight: string;
@@ -46,7 +46,7 @@ type DashboardMetrics = {
   otherYoutubeViews: number;
   otherYoutubeCount: number;
   videoCount: number;
-  youtubeEngagement: number | null;
+  youtubeInteractionRate: number | null;
   refreshedAt: string | null;
   readLabel: string;
 };
@@ -66,7 +66,7 @@ type AudienceGrowth = {
   baselineAt: string | null;
 };
 
-type EngagementSnapshot = {
+type InteractionSnapshot = {
   rate: number | null;
   views: number;
   interactions: number;
@@ -99,9 +99,9 @@ function formatRefreshedAt(value: string | null): string {
 }
 
 function episodeNumberFromCaption(caption: string): number | null {
-  const match = caption.match(/\bEP\.?\s*(\d+)\b/i);
+  const match = caption.match(/\b(?:EP\.?|Episode)\s*(\d+)\b|(\d+)\s*화/i);
   if (!match) return null;
-  const value = Number(match[1]);
+  const value = Number(match[1] ?? match[2]);
   return Number.isFinite(value) ? value : null;
 }
 
@@ -134,7 +134,7 @@ function deriveDashboardMetrics(snapshot: EkatorAssetSnapshot, channelSnapshot: 
     otherYoutubeViews: otherYoutubeAssets.reduce((sum, asset) => sum + (asset.views ?? 0), 0),
     otherYoutubeCount: otherYoutubeAssets.length,
     videoCount: published.length,
-    youtubeEngagement: totalViews > 0 ? (interactions / totalViews) * 100 : null,
+    youtubeInteractionRate: totalViews > 0 ? (interactions / totalViews) * 100 : null,
     refreshedAt: latestCapture,
     readLabel: formatRefreshedAt(latestCapture),
   };
@@ -153,11 +153,11 @@ function buildChannels(metrics: DashboardMetrics, assets: EkatorAssetSnapshot, c
   const instagramViewAssets = igAssets.filter((asset) => asset.views !== null);
   const instagramViews = instagramViewAssets.reduce((sum, asset) => sum + (asset.views ?? 0), 0);
   const instagramViewCount = instagramViewAssets.length;
-  const igEngagementReads = igAssets.map((asset) => asset.engagementRate).filter((value): value is number => value !== null);
-  const igEngagement = igEngagementReads.length > 0
-    ? `${(igEngagementReads.reduce((sum, value) => sum + value, 0) / igEngagementReads.length).toFixed(1)}%`
+  const instagramInteractions = instagramViewAssets.reduce((sum, asset) => sum + knownInteractions(asset), 0);
+  const instagramInteractionRate = instagramViews > 0
+    ? `${((instagramInteractions / instagramViews) * 100).toFixed(1)}%`
     : '—';
-  const ytEr = metrics.youtubeEngagement === null ? '—' : `${metrics.youtubeEngagement.toFixed(1)}%`;
+  const youtubeInteractionRate = metrics.youtubeInteractionRate === null ? '—' : `${metrics.youtubeInteractionRate.toFixed(1)}%`;
   const episodeShare = metrics.youtubeTotalViews > 0
     ? (metrics.episodeViews / metrics.youtubeTotalViews) * 100
     : 0;
@@ -168,14 +168,20 @@ function buildChannels(metrics: DashboardMetrics, assets: EkatorAssetSnapshot, c
   const youtubePostCount = yt?.postCount ?? metrics.videoCount;
   const tiktokPostCount = tt?.postCount ?? ttAssets.length;
   return [
-    { name: 'Instagram', handle: `@${ig?.handle || 'idoltillidie'}`, audience: instagramAudience, postCount: instagramPostCount, posts: `${instagramPostCount} posts`, views: instagramViewCount > 0 ? instagramViews : null, viewCount: instagramViewCount, share: makeShare(instagramAudience), engagement: igEngagement, status: 'strong', role: 'Top-of-funnel audience reservoir', insight: instagramViewCount > 0 ? `${instagramViewCount} verified Instagram Reels have ${compact(instagramViews)} measured views plus likes and comments.` : `${igAssets.length} verified Instagram posts have known interactions; Reel views are collecting.`, action: 'Use view and interaction velocity to identify the strongest hooks, then route the audience toward the newest episode.' },
-    { name: 'YouTube', handle: `@${yt?.handle || 'Idoltillidie'}`, audience: youtubeAudience, postCount: youtubePostCount, posts: `${youtubePostCount} videos`, views: metrics.hasMeasuredPerformance ? metrics.youtubeTotalViews : null, viewCount: metrics.videoCount, share: makeShare(youtubeAudience), engagement: ytEr, status: 'watch', role: 'Documentary home + retargeting anchor', insight: metrics.episodeCount > 0 ? `${metrics.episodeCount} measured episodes hold ${episodeShare.toFixed(1)}% of YouTube views, showing episode-led discovery beyond the subscriber base.` : metrics.hasMeasuredPerformance ? 'Published view data is available, but no episode rows are identified.' : 'Published YouTube performance is temporarily unavailable.', action: metrics.episodeCount > 0 ? 'Use the newest episode as the story anchor, then carry the strongest beats outward through short-form cuts.' : 'Confirm episode titles before changing the long-form publishing plan.' },
-    { name: 'TikTok', handle: `@${tt?.handle || 'idoltillidie'}`, audience: tiktokAudience, postCount: tiktokPostCount, posts: `${tiktokPostCount} videos`, views: null, viewCount: 0, share: makeShare(tiktokAudience), engagement: '—', status: tiktokPostCount > 0 ? 'watch' : 'risk', role: 'Dormant owned distribution', insight: tiktokPostCount > 0 ? 'TikTok publishing is active and ready for post-level pacing reads.' : 'There is a meaningful follower base but no official TikTok content, leaving algorithmic inventory unused.', action: 'Post three proven concepts first: twin dynamics, trainee pressure, and a lighter dorm/rule clip.' },
+    { name: 'Instagram', handle: `@${ig?.handle || 'idoltillidie'}`, audience: instagramAudience, postCount: instagramPostCount, posts: `${instagramPostCount} posts`, views: instagramViewCount > 0 ? instagramViews : null, viewCount: instagramViewCount, share: makeShare(instagramAudience), interactionRate: instagramInteractionRate, status: 'strong', role: 'Top-of-funnel audience reservoir', insight: instagramViewCount > 0 ? `${instagramViewCount} verified Instagram Reels have ${compact(instagramViews)} measured views plus likes and comments.` : `${igAssets.length} verified Instagram posts have known interactions; Reel views are collecting.`, action: 'Use current view totals and interaction rates to identify the strongest hooks, then route the audience toward the newest episode.' },
+    { name: 'YouTube', handle: `@${yt?.handle || 'Idoltillidie'}`, audience: youtubeAudience, postCount: youtubePostCount, posts: `${youtubePostCount} videos`, views: metrics.hasMeasuredPerformance ? metrics.youtubeTotalViews : null, viewCount: metrics.videoCount, share: makeShare(youtubeAudience), interactionRate: youtubeInteractionRate, status: 'watch', role: 'Documentary home + retargeting anchor', insight: metrics.episodeCount > 0 ? `${metrics.episodeCount} measured episodes hold ${episodeShare.toFixed(1)}% of YouTube views, showing episode-led discovery beyond the subscriber base.` : metrics.hasMeasuredPerformance ? 'Published view data is available, but no episode rows are identified.' : 'Published YouTube performance is temporarily unavailable.', action: metrics.episodeCount > 0 ? 'Use the newest episode as the story anchor, then carry the strongest beats outward through short-form cuts.' : 'Confirm episode titles before changing the long-form publishing plan.' },
+    { name: 'TikTok', handle: `@${tt?.handle || 'idoltillidie'}`, audience: tiktokAudience, postCount: tiktokPostCount, posts: `${tiktokPostCount} videos`, views: null, viewCount: 0, share: makeShare(tiktokAudience), interactionRate: '—', status: tiktokPostCount > 0 ? 'watch' : 'risk', role: 'Dormant owned distribution', insight: tiktokPostCount > 0 ? 'TikTok publishing is active and ready for post-level pacing reads.' : 'There is a meaningful follower base but no official TikTok content, leaving algorithmic inventory unused.', action: 'Post three proven concepts first: the newest episode hook, a character reaction, and a lighter group moment.' },
   ];
 }
 
 function knownInteractions(asset: EkatorAsset): number {
   return (asset.likes ?? 0) + (asset.comments ?? 0) + (asset.shares ?? 0);
+}
+
+function interactionRate(asset: EkatorAsset): number | null {
+  return asset.views !== null && asset.views > 0
+    ? (knownInteractions(asset) / asset.views) * 100
+    : null;
 }
 
 function platformPostCount(
@@ -246,7 +252,7 @@ function deriveSevenDayAudienceGrowth(timeline: AudienceTimelinePoint[]): Audien
   };
 }
 
-function derivePortfolioEngagement(assets: EkatorAssetSnapshot): EngagementSnapshot {
+function derivePortfolioInteraction(assets: EkatorAssetSnapshot): InteractionSnapshot {
   const platforms: EkatorOwnedChannel['platform'][] = ['instagram', 'youtube', 'tiktok'];
   const weightedFor = (platform?: EkatorOwnedChannel['platform']) => {
     const rows = assets.assets.filter((asset) => (
@@ -290,10 +296,26 @@ function buildInsights(
   const tiktok = channelSnapshot.channels.find((channel) => channel.platform === 'tiktok');
   const tiktokAudience = tiktok?.audience ?? 0;
   const tiktokPosts = platformPostCount('tiktok', assets, channelSnapshot);
-  const interactionLeader = assets.assets
-    .map((asset) => ({ asset, interactions: knownInteractions(asset) }))
-    .filter((entry) => entry.interactions > 0)
-    .sort((a, b) => b.interactions - a.interactions)[0];
+  const episodeNumbers = assets.assets
+    .filter((asset) => asset.platform === 'youtube')
+    .map((asset) => episodeNumberFromCaption(asset.caption))
+    .filter((episodeNumber): episodeNumber is number => episodeNumber !== null);
+  const newestEpisodeNumber = episodeNumbers.length > 0 ? Math.max(...episodeNumbers) : null;
+  const newestEpisodeAssets = newestEpisodeNumber === null
+    ? []
+    : assets.assets.filter((asset) => episodeNumberFromCaption(asset.caption) === newestEpisodeNumber);
+  const newestEpisodeViews = newestEpisodeAssets.reduce((sum, asset) => sum + (asset.views ?? 0), 0);
+  const newestEpisodeInteractions = newestEpisodeAssets.reduce((sum, asset) => sum + knownInteractions(asset), 0);
+  const newestEpisodeViewBreakdown = (['youtube', 'instagram', 'tiktok'] as const)
+    .map((platform) => ({
+      platform,
+      views: newestEpisodeAssets
+        .filter((asset) => asset.platform === platform)
+        .reduce((sum, asset) => sum + (asset.views ?? 0), 0),
+    }))
+    .filter((entry) => entry.views > 0)
+    .map((entry) => `${compact(entry.views)} ${entry.platform === 'youtube' ? 'YouTube' : entry.platform === 'instagram' ? 'Instagram' : 'TikTok'}`)
+    .join(' + ');
 
   return [
     {
@@ -313,7 +335,7 @@ function buildInsights(
       read: instagramViews > 0
         ? `${instagramViewAssets.length} verified Reels generated ${compact(instagramViews)} views across an audience of ${compact(instagramAudience)} followers (${instagramShare?.toFixed(1) ?? '—'}% of owned audience). ${instagramMeasuredPosts} posts carry measured performance.`
         : 'Instagram Reel views are collecting; verified post interactions remain available.',
-      action: 'Use view velocity and interaction rate together to choose the next hooks and story beats.',
+      action: 'Use view totals and interaction rate together to choose the next hooks and story beats.',
       tone: 'strong',
     },
     {
@@ -328,14 +350,14 @@ function buildInsights(
       tone: tiktokPosts > 0 ? 'watch' : 'risk',
     },
     {
-      label: 'Current interaction leader',
-      stat: interactionLeader ? compact(interactionLeader.interactions) : '—',
-      read: interactionLeader
-        ? `“${interactionLeader.asset.caption}” has ${compact(interactionLeader.interactions)} known interactions on ${interactionLeader.asset.platform}. This is an interaction signal, not a cross-platform view comparison.`
-        : 'No post currently has a measured interaction total.',
-      action: interactionLeader
-        ? 'Use its hook and story beat as one controlled comparator in the next publishing batch.'
-        : 'Restore post-level interaction collection before selecting a creative leader.',
+      label: newestEpisodeNumber === null ? 'Newest episode signal' : `Newest episode signal · EP ${newestEpisodeNumber}`,
+      stat: newestEpisodeViews > 0 ? compact(newestEpisodeViews) : '—',
+      read: newestEpisodeAssets.length > 0
+        ? `${newestEpisodeAssets.length} verified Episode ${newestEpisodeNumber} posts hold ${compact(newestEpisodeViews)} current views${newestEpisodeViewBreakdown ? ` (${newestEpisodeViewBreakdown})` : ''} and ${compact(newestEpisodeInteractions)} known interactions.`
+        : 'No verified owned-channel posts are currently identified for the newest episode.',
+      action: newestEpisodeAssets.length > 0
+        ? 'Use the same episode identifier and opening hook in the next Reels, Shorts, and TikTok sequence.'
+        : 'Confirm the newest episode title before changing the cross-platform sequence.',
       tone: 'strong',
     },
   ];
@@ -346,43 +368,89 @@ function buildRecommendations(
   assets: EkatorAssetSnapshot,
   channelSnapshot: EkatorChannelSnapshot,
 ): Rec[] {
-  const episodeShare = metrics.youtubeTotalViews > 0
-    ? (metrics.episodeViews / metrics.youtubeTotalViews) * 100
-    : null;
-  const otherYoutubeShare = metrics.youtubeTotalViews > 0
-    ? (metrics.otherYoutubeViews / metrics.youtubeTotalViews) * 100
-    : null;
-  const instagram = channelSnapshot.channels.find((channel) => channel.platform === 'instagram');
-  const instagramAudience = instagram?.audience ?? 0;
-  const instagramShare = metrics.ownedAudience > 0 ? (instagramAudience / metrics.ownedAudience) * 100 : null;
-  const instagramViewAssets = assets.assets.filter((asset) => asset.platform === 'instagram' && asset.views !== null);
-  const instagramViews = instagramViewAssets.reduce((sum, asset) => sum + (asset.views ?? 0), 0);
-  const tiktok = channelSnapshot.channels.find((channel) => channel.platform === 'tiktok');
-  const tiktokAudience = tiktok?.audience ?? 0;
-  const tiktokPosts = platformPostCount('tiktok', assets, channelSnapshot);
+  const youtubeEpisodes = assets.assets
+    .filter((asset) => asset.platform === 'youtube')
+    .map((asset) => ({ asset, episodeNumber: episodeNumberFromCaption(asset.caption) }))
+    .filter((entry): entry is { asset: EkatorAsset; episodeNumber: number } => entry.episodeNumber !== null)
+    .sort((a, b) => a.episodeNumber - b.episodeNumber);
+  const firstEpisode = youtubeEpisodes[0];
+  const newestEpisode = youtubeEpisodes.at(-1);
+  const matchingEpisodePreview = newestEpisode
+    ? assets.assets
+      .filter((asset) => asset.platform === 'instagram')
+      .map((asset) => ({ asset, episodeNumber: episodeNumberFromCaption(asset.caption) }))
+      .filter((entry): entry is { asset: EkatorAsset; episodeNumber: number } => (
+        entry.episodeNumber !== null && entry.episodeNumber === newestEpisode.episodeNumber
+      ))
+      .sort((a, b) => (b.asset.views ?? 0) - (a.asset.views ?? 0))[0]
+    : undefined;
+  const freshSignalAsset = assets.assets
+    .filter((asset) => (
+      asset.platform === 'instagram'
+      && asset.views !== null
+      && knownInteractions(asset) > 0
+      && episodeNumberFromCaption(asset.caption) !== newestEpisode?.episodeNumber
+    ))
+    .sort((a, b) => (
+      (b.postDate ?? '').localeCompare(a.postDate ?? '')
+      || ((interactionRate(b) ?? 0) - (interactionRate(a) ?? 0))
+    ))[0];
+  const newestEpisodeRate = newestEpisode ? interactionRate(newestEpisode.asset) : null;
+  const freshSignalRate = freshSignalAsset ? interactionRate(freshSignalAsset) : null;
   const interactionLeader = assets.assets
     .map((asset) => ({ asset, interactions: knownInteractions(asset) }))
     .filter((entry) => entry.interactions > 0)
     .sort((a, b) => b.interactions - a.interactions)[0];
-  const twinAssets = assets.assets.filter((asset) => /쌍둥이|twin/i.test(asset.caption));
-  const twinPlatforms = new Set(twinAssets.map((asset) => asset.platform));
-  const twinViews = twinAssets.reduce((sum, asset) => sum + (asset.views ?? 0), 0);
-  const twinInteractions = twinAssets.reduce((sum, asset) => sum + knownInteractions(asset), 0);
+  const tiktok = channelSnapshot.channels.find((channel) => channel.platform === 'tiktok');
+  const tiktokAudience = tiktok?.audience ?? 0;
+  const tiktokPosts = platformPostCount('tiktok', assets, channelSnapshot);
   const moves: Omit<Rec, 'rank'>[] = [];
 
-  moves.push(metrics.hasMeasuredPerformance && metrics.episodeCount > 0 && episodeShare !== null && otherYoutubeShare !== null
+  moves.push(newestEpisode
     ? {
-        title: 'Turn episode-led demand into a controlled short-form sprint',
-        why: `${metrics.episodeCount} measured episodes account for ${episodeShare.toFixed(1)}% of YouTube views; ${metrics.otherYoutubeCount} other YouTube publications account for ${otherYoutubeShare.toFixed(1)}%.`,
-        move: 'Cut six distinct moments from the newest episode across character, stakes, and lighter group dynamics; publish with consistent hooks over the next 72 hours.',
+        title: `Turn Episode ${newestEpisode.episodeNumber} into a same-day short-form sequence`,
+        why: `The newest full episode has ${compact(newestEpisode.asset.views ?? 0)} current views and ${compact(knownInteractions(newestEpisode.asset))} known interactions${newestEpisodeRate === null ? '' : ` (${newestEpisodeRate.toFixed(1)}% interaction rate)`}.`,
+        move: 'Release one suspense beat, one payoff or reaction beat, and one direct full-episode bridge across Reels, Shorts, and TikTok with the same episode identifier and opening-frame language.',
         owner: 'Content / clipping',
         impact: 'High',
       }
     : {
-        title: 'Confirm episode coverage before scaling output',
-        why: metrics.hasMeasuredPerformance ? 'Published view data is available, but no episode rows are identified.' : 'Published YouTube performance is unavailable, so episode-led demand cannot be verified.',
-        move: metrics.hasMeasuredPerformance ? 'Confirm episode titles in the publication ledger, then re-rank the queue from the corrected rows.' : 'Restore the post-level performance read and re-rank the queue from measured views and interactions.',
-        owner: 'Measurement',
+        title: 'Confirm the newest full episode before scaling output',
+        why: metrics.hasMeasuredPerformance ? 'Current YouTube performance is available, but no full-episode title is identified.' : 'Current YouTube performance is unavailable.',
+        move: 'Confirm the newest full-episode title, then build the next short-form sequence from its strongest story beats.',
+        owner: 'Content',
+        impact: 'High',
+      });
+
+  moves.push(matchingEpisodePreview && newestEpisode && matchingEpisodePreview.asset.views !== null
+    ? {
+        title: `Convert the Episode ${newestEpisode.episodeNumber} Instagram preview into full-episode starts`,
+        why: `The matching Instagram preview has ${compact(matchingEpisodePreview.asset.views ?? 0)} current views and ${compact(knownInteractions(matchingEpisodePreview.asset))} known interactions; the full episode has ${compact(newestEpisode.asset.views ?? 0)} current YouTube views.`,
+        move: 'Pin the full-episode call-to-action, run a same-day story link, and publish one follow-up Reel that begins with the same hook before pointing viewers to the full episode.',
+        owner: 'Owned social',
+        impact: 'High',
+      }
+    : {
+        title: 'Create a direct Instagram-to-episode path',
+        why: 'No matching Instagram preview is currently identified for the newest full episode.',
+        move: 'Publish one verified episode preview with a pinned call-to-action and same-day story link to the full episode.',
+        owner: 'Owned social',
+        impact: 'High',
+      });
+
+  moves.push(firstEpisode && newestEpisode && firstEpisode.episodeNumber !== newestEpisode.episodeNumber
+    ? {
+        title: `Build an Episode ${firstEpisode.episodeNumber} → Episode ${newestEpisode.episodeNumber} binge path`,
+        why: `Episode ${firstEpisode.episodeNumber} remains the series entry point with ${compact(firstEpisode.asset.views ?? 0)} cumulative views since ${firstEpisode.asset.postDate ?? 'publication'}; Episode ${newestEpisode.episodeNumber} is the newest destination with ${compact(newestEpisode.asset.views ?? 0)} since ${newestEpisode.asset.postDate ?? 'publication'}. These cumulative totals cover different live windows.`,
+        move: 'Connect the series with playlist order, end screens, pinned comments, and short-form descriptions that move viewers from the first episode to the newest one.',
+        owner: 'YouTube',
+        impact: 'High',
+      }
+    : {
+        title: 'Create a clear first-to-latest episode path',
+        why: 'The current publication set does not identify both a first and newest full episode.',
+        move: 'Confirm episode numbering, then connect the series with a playlist, end screens, and pinned comments.',
+        owner: 'YouTube',
         impact: 'High',
       });
 
@@ -392,7 +460,7 @@ function buildRecommendations(
         why: tiktokAudience > 0
           ? `${compact(tiktokAudience)} followers and zero published posts are currently recorded.`
           : 'Zero published TikTok posts are currently recorded; the audience total is unavailable.',
-        move: 'Publish three proven concepts—twin dynamics, the high-stakes premise, and a lighter reaction—then record first-hour, 24-hour, and 72-hour views and interactions.',
+        move: 'Publish three proven concepts—the newest episode hook, a character reaction, and a lighter group moment—then record first-hour, 24-hour, and 72-hour views and interactions.',
         owner: 'Owned social',
         impact: 'High',
       }
@@ -404,41 +472,29 @@ function buildRecommendations(
         impact: 'High',
       });
 
-  if (twinPlatforms.size >= 2 && twinViews > 0 && twinInteractions > 0) {
-    moves.push({
-      title: 'Turn the twin dynamic into a cross-platform series',
-      why: `${twinAssets.length} twin-focused publications across ${twinPlatforms.size} platforms generated ${compact(twinViews)} measured views and ${compact(twinInteractions)} known interactions.`,
-      move: 'Release the next twin-focused cut with a concise context overlay, then route viewers to the episode containing the full story.',
-      owner: 'Creative strategy',
-      impact: 'High',
-    });
-  }
-
-  moves.push({
-    title: 'Turn the Instagram audience into a measurable episode path',
-    why: instagramViews > 0
-      ? `${instagramViewAssets.length} verified Reels generated ${compact(instagramViews)} measured views from an Instagram audience of ${compact(instagramAudience)} followers (${instagramShare?.toFixed(1) ?? '—'}% of owned audience).`
-      : 'Instagram Reel views are collecting; use the verified interaction reads until view coverage arrives.',
-    move: 'Use a pinned full-episode call-to-action and story-link sequence; capture first-party reach, taps, saves, shares, and link clicks.',
-    owner: 'Owned social',
-    impact: 'High',
-  });
-
-  moves.push(interactionLeader
+  moves.push(freshSignalAsset
     ? {
-        title: 'Use the current interaction leader as a controlled comparator',
-        why: `“${interactionLeader.asset.caption}” leads the current ledger with ${compact(interactionLeader.interactions)} known interactions on ${interactionLeader.asset.platform}.`,
-        move: 'Repeat its hook or story beat in one new cut while holding format and publishing window consistent enough to compare the next read.',
+        title: 'Repeat the freshest high-response Instagram beat',
+        why: `“${freshSignalAsset.caption}” has ${compact(freshSignalAsset.views ?? 0)} current views and ${compact(knownInteractions(freshSignalAsset))} known interactions${freshSignalRate === null ? '' : ` (${freshSignalRate.toFixed(1)}% interaction rate)`}.`,
+        move: 'Publish one close-up response cut and one context-first variant from the newest episode, keeping the episode identifier and call-to-action consistent.',
         owner: 'Creative strategy',
         impact: 'Medium',
       }
-    : {
-        title: 'Restore interaction coverage before selecting a creative leader',
-        why: 'No current asset has a known interaction total.',
-        move: 'Collect likes, comments, and shares for the next published batch, then choose the repeatable hook from measured results.',
-        owner: 'Measurement',
-        impact: 'Medium',
-      });
+    : interactionLeader
+      ? {
+          title: 'Repeat the strongest current interaction signal',
+          why: `“${interactionLeader.asset.caption}” has ${compact(interactionLeader.interactions)} known interactions on ${interactionLeader.asset.platform}.`,
+          move: 'Repeat its opening hook or story beat in one new cut and compare the next view-backed read.',
+          owner: 'Creative strategy',
+          impact: 'Medium',
+        }
+      : {
+          title: 'Wait for a view-backed reaction signal',
+          why: 'No current reaction asset has a measured interaction total.',
+          move: 'Collect current views, likes, and comments on the next reaction-led cuts before choosing a repeatable hook.',
+          owner: 'Owned social',
+          impact: 'Medium',
+        });
 
   return moves.map((move, index) => ({ ...move, rank: index + 1 }));
 }
@@ -573,7 +629,7 @@ function RefreshButton() {
 }
 
 /** Evergreen hero — durable campaign-health signals */
-function EvergreenKpiRail({ metrics, channels, growth, engagement }: { metrics: DashboardMetrics; channels: Channel[]; growth: AudienceGrowth; engagement: EngagementSnapshot }) {
+function EvergreenKpiRail({ metrics, channels, growth, interaction }: { metrics: DashboardMetrics; channels: Channel[]; growth: AudienceGrowth; interaction: InteractionSnapshot }) {
   const measuredAttention = channels.reduce((sum, channel) => sum + (channel.views ?? 0), 0);
   const items = [
     { label: 'Owned Audience', value: metrics.ownedAudience > 0 ? compact(metrics.ownedAudience) : '—', sub: 'Instagram + YouTube + TikTok' },
@@ -582,7 +638,7 @@ function EvergreenKpiRail({ metrics, channels, growth, engagement }: { metrics: 
       value: growth.percent === null ? '—' : `${growth.percent >= 0 ? '+' : ''}${growth.percent.toFixed(1)}%`,
       sub: growth.net === null ? 'Collecting 7-day baseline' : `${growth.net >= 0 ? '+' : ''}${compact(growth.net)} audience · 7 days`,
     },
-    { label: 'Measured Engagement', value: engagement.rate === null ? '—' : `${engagement.rate.toFixed(1)}%`, sub: engagement.rate === null ? 'Awaiting view-backed posts' : `${compact(engagement.interactions)} interactions · ${engagement.measuredPosts} posts` },
+    { label: 'Measured Interaction', value: interaction.rate === null ? '—' : `${interaction.rate.toFixed(1)}%`, sub: interaction.rate === null ? 'Awaiting view-backed posts' : `${compact(interaction.interactions)} interactions · ${interaction.measuredPosts} posts` },
     { label: 'Measured Attention', value: measuredAttention > 0 ? compact(measuredAttention) : '—', sub: measuredAttention > 0 ? 'Source-backed public views' : 'View coverage pending' },
   ];
   return (
@@ -648,24 +704,24 @@ function AudienceMomentum({ timeline, channels, growth }: { timeline: AudienceTi
   );
 }
 
-function EngagementHealth({ engagement }: { engagement: EngagementSnapshot }) {
-  const maxRate = Math.max(1, ...engagement.byPlatform.map((entry) => entry.rate ?? 0));
+function InteractionHealth({ interaction }: { interaction: InteractionSnapshot }) {
+  const maxRate = Math.max(1, ...interaction.byPlatform.map((entry) => entry.rate ?? 0));
   const labels: Record<EkatorOwnedChannel['platform'], string> = { instagram: 'Instagram', youtube: 'YouTube', tiktok: 'TikTok' };
   return (
-    <section className="min-w-0 rounded-lg border bg-[#0E0E0E] p-4 sm:p-5" style={{ borderColor: line }} aria-labelledby="engagement-health-title">
-      <div className="flex items-start justify-between gap-4 border-b pb-4" style={{ borderColor: line }}><div><div id="engagement-health-title" className="text-[10px] uppercase tracking-[0.2em]" style={{ color: red }}>Engagement Health</div><div className="mt-1 text-xs text-[#A0A0AA]">View-weighted portfolio rate</div></div><div className="text-right"><div className="font-mono text-3xl font-black text-white">{engagement.rate === null ? '—' : `${engagement.rate.toFixed(1)}%`}</div><div className="mt-1 font-mono text-[9px] uppercase tracking-wider text-[#A0A0AA]">{engagement.measuredPosts} measured posts</div></div></div>
-      <div className="mt-4 space-y-4">{engagement.byPlatform.map((entry) => <div key={entry.platform}><div className="flex items-center justify-between gap-3 text-xs"><span className="font-semibold text-[#E4E4E9]">{labels[entry.platform]}</span><span className="font-mono font-bold text-white">{entry.rate === null ? '—' : `${entry.rate.toFixed(1)}%`}</span></div><div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-[#242424]"><div className="h-full rounded-full" style={{ width: entry.rate === null ? '0%' : `${Math.max(3, (entry.rate / maxRate) * 100)}%`, background: entry.platform === 'tiktok' ? red : light }} /></div><div className="mt-1 font-mono text-[9px] text-[#A0A0AA]">{entry.measuredPosts} view-backed {entry.measuredPosts === 1 ? 'post' : 'posts'}</div></div>)}</div>
+    <section className="min-w-0 rounded-lg border bg-[#0E0E0E] p-4 sm:p-5" style={{ borderColor: line }} aria-labelledby="interaction-health-title">
+      <div className="flex items-start justify-between gap-4 border-b pb-4" style={{ borderColor: line }}><div><div id="interaction-health-title" className="text-[10px] uppercase tracking-[0.2em]" style={{ color: red }}>Interaction Health</div><div className="mt-1 text-xs text-[#A0A0AA]">View-weighted portfolio interaction rate</div></div><div className="text-right"><div className="font-mono text-3xl font-black text-white">{interaction.rate === null ? '—' : `${interaction.rate.toFixed(1)}%`}</div><div className="font-mono text-[9px] uppercase tracking-wider text-[#A0A0AA]">{interaction.measuredPosts} view-backed posts</div></div></div>
+      <div className="mt-4 space-y-4">{interaction.byPlatform.map((entry) => <div key={entry.platform}><div className="flex items-center justify-between gap-3 text-xs"><span className="font-semibold text-[#E4E4E9]">{labels[entry.platform]}</span><span className="font-mono font-bold text-white">{entry.rate === null ? '—' : `${entry.rate.toFixed(1)}%`}</span></div><div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-[#242424]"><div className="h-full rounded-full" style={{ width: entry.rate === null ? '0%' : `${Math.max(3, (entry.rate / maxRate) * 100)}%`, background: entry.platform === 'tiktok' ? red : light }} /></div><div className="mt-1 font-mono text-[9px] text-[#A0A0AA]">{entry.measuredPosts} view-backed {entry.measuredPosts === 1 ? 'post' : 'posts'}</div></div>)}</div>
       <p className="mt-4 border-t pt-3 text-[10px] leading-relaxed text-[#A0A0AA]" style={{ borderColor: line }}>Likes + comments + shares ÷ measured views. Posts without a public view count are excluded.</p>
     </section>
   );
 }
 
-function SentimentPulse({ engagement }: { engagement: EngagementSnapshot }) {
+function SentimentPulse({ interaction }: { interaction: InteractionSnapshot }) {
   return (
     <section className="min-w-0 rounded-lg border bg-[#0E0E0E] p-4 sm:p-5" style={{ borderColor: line }} aria-labelledby="sentiment-pulse-title">
       <div className="flex items-start justify-between gap-4"><div><div id="sentiment-pulse-title" className="text-[10px] uppercase tracking-[0.2em]" style={{ color: red }}>Sentiment Pulse</div><div className="mt-1 text-xs text-[#A0A0AA]">Audience quality signal</div></div><span className="rounded-sm border px-2 py-1 font-mono text-[9px] font-bold uppercase tracking-wider" style={{ borderColor: red, color: red }}>Data gap</span></div>
       <div className="mt-5 font-mono text-2xl font-black text-white">Not yet measured</div>
-      <p className="mt-2 text-xs leading-relaxed text-[#E4E4E9]">{compact(engagement.comments)} comments are counted, but comment text and polarity are not connected. No sentiment score is inferred from engagement totals.</p>
+      <p className="mt-2 text-xs leading-relaxed text-[#E4E4E9]">{compact(interaction.comments)} comments are counted, but comment text and polarity are not connected. No sentiment score is inferred from interaction totals.</p>
       <div className="mt-4 border-t pt-3" style={{ borderColor: line }}><div className="text-[9px] uppercase tracking-[0.16em] text-[#A0A0AA]">Required next layer</div><div className="mt-1 text-xs leading-relaxed text-white">Comment ingestion, language normalization, and positive / neutral / negative classification with sample coverage.</div></div>
     </section>
   );
@@ -717,7 +773,7 @@ function StatusStrip({ registry, assets }: { registry: EkatorRegistrySnapshot; a
 
 /* ── COMMAND CENTER (above the fold) ──────────────────────────────── */
 
-function CommandCenter({ registry, assets, metrics, channels, audienceTimeline, growth, engagement }: { registry: EkatorRegistrySnapshot; assets: EkatorAssetSnapshot; metrics: DashboardMetrics; channels: Channel[]; audienceTimeline: AudienceTimelinePoint[]; growth: AudienceGrowth; engagement: EngagementSnapshot }) {
+function CommandCenter({ registry, assets, metrics, channels, audienceTimeline, growth, interaction }: { registry: EkatorRegistrySnapshot; assets: EkatorAssetSnapshot; metrics: DashboardMetrics; channels: Channel[]; audienceTimeline: AudienceTimelinePoint[]; growth: AudienceGrowth; interaction: InteractionSnapshot }) {
   return (
     <div className="mx-auto w-full min-w-0 max-w-[1400px] px-4 pb-6 pt-8 sm:pt-12 md:px-6 lg:px-8 lg:pt-20">
       <div className="mb-4 flex min-w-0 flex-col items-start gap-4 border-b pb-4 sm:flex-row sm:items-end sm:justify-between sm:gap-3 sm:pb-3" style={{ borderColor: line }}>
@@ -731,13 +787,13 @@ function CommandCenter({ registry, assets, metrics, channels, audienceTimeline, 
         </div>
       </div>
 
-      <div className="mb-3"><EvergreenKpiRail metrics={metrics} channels={channels} growth={growth} engagement={engagement} /></div>
+      <div className="mb-3"><EvergreenKpiRail metrics={metrics} channels={channels} growth={growth} interaction={interaction} /></div>
 
       <div className="mb-3 grid min-w-0 grid-cols-1 gap-3 lg:grid-cols-[minmax(0,2fr)_minmax(300px,0.8fr)]">
         <AudienceMomentum timeline={audienceTimeline} channels={channels} growth={growth} />
         <div className="grid min-w-0 gap-3">
-          <EngagementHealth engagement={engagement} />
-          <SentimentPulse engagement={engagement} />
+          <InteractionHealth interaction={interaction} />
+          <SentimentPulse interaction={interaction} />
         </div>
       </div>
 
@@ -821,8 +877,8 @@ function ChannelModal({ channel, onClose }: { channel: Channel; onClose: () => v
             <div className="mt-1 font-mono text-xl font-bold" style={{ color: statusColor(channel.status) }}>{channel.share}%</div>
           </div>
           <div className="rounded-lg p-3" style={{ background: '#141414' }}>
-            <div className="text-[10px] uppercase tracking-wider text-[#A0A0AA]">Engagement</div>
-            <div className="mt-1 font-mono text-xl font-bold text-white">{channel.engagement}</div>
+            <div className="text-[10px] uppercase tracking-wider text-[#A0A0AA]">Interaction rate</div>
+            <div className="mt-1 font-mono text-xl font-bold text-white">{channel.interactionRate}</div>
           </div>
           <div className="rounded-lg p-3" style={{ background: '#141414' }}>
             <div className="text-[10px] uppercase tracking-wider text-[#A0A0AA]">Views</div>
@@ -865,7 +921,7 @@ function ChannelTable({ channels }: { channels: Channel[] }) {
             <div>Channel</div>
             <div>Audience</div>
             <div>Share</div>
-            <div>Engagement</div>
+            <div>Interaction rate</div>
             <div>Views</div>
             <div>Detail</div>
           </div>
@@ -882,7 +938,7 @@ function ChannelTable({ channels }: { channels: Channel[] }) {
                   <div className="h-full rounded-full" style={{ width: `${ch.share}%`, background: statusColor(ch.status) }} />
                 </div>
               </div>
-              <div className="font-mono text-sm font-bold" style={{ color: ch.engagement === '—' ? muted : white }}>{ch.engagement}</div>
+              <div className="font-mono text-sm font-bold" style={{ color: ch.interactionRate === '—' ? muted : white }}>{ch.interactionRate}</div>
               <div className="font-mono text-sm" style={{ color: ch.views === null || ch.views === 0 ? muted : white }}>{ch.views === null || ch.views === 0 ? '—' : compact(ch.views)}</div>
               <div>
                 <button
@@ -1004,8 +1060,8 @@ function AssetShadowbox({ asset, onClose }: { asset: EkatorAsset; onClose: () =>
             <div className="mt-0.5 font-mono text-lg font-bold text-white">{asset.comments !== null ? compact(asset.comments) : '—'}</div>
           </div>
           <div className="bg-[#0E0E0E] px-4 py-3">
-            <div className="text-[10px] uppercase tracking-wider text-[#A0A0AA]">Engagement</div>
-            <div className="mt-0.5 font-mono text-lg font-bold" style={{ color: red }}>{asset.engagementRate !== null ? `${asset.engagementRate.toFixed(1)}%` : '—'}</div>
+            <div className="text-[10px] uppercase tracking-wider text-[#A0A0AA]">Interaction rate</div>
+            <div className="mt-0.5 font-mono text-lg font-bold" style={{ color: red }}>{interactionRate(asset) !== null ? `${interactionRate(asset)?.toFixed(1)}%` : '—'}</div>
           </div>
         </div>
 
@@ -1025,7 +1081,7 @@ function AssetShadowbox({ asset, onClose }: { asset: EkatorAsset; onClose: () =>
 /** Asset board — dynamic, sortable, filterable, with shadowbox */
 function AssetBoard({ assets }: { assets: EkatorAssetSnapshot }) {
   const [filter, setFilter] = useState<string>('All');
-  const [sort, setSort] = useState<'views-desc' | 'views-asc' | 'date-desc' | 'date-asc' | 'engagement-desc'>('views-desc');
+  const [sort, setSort] = useState<'views-desc' | 'views-asc' | 'date-desc' | 'date-asc' | 'interaction-rate-desc'>('views-desc');
   const [selected, setSelected] = useState<EkatorAsset | null>(null);
   const selectedTriggerRef = useRef<HTMLButtonElement | null>(null);
 
@@ -1041,7 +1097,7 @@ function AssetBoard({ assets }: { assets: EkatorAssetSnapshot }) {
     { value: 'views-asc', label: 'Views ↑' },
     { value: 'date-desc', label: 'Date ↓' },
     { value: 'date-asc', label: 'Date ↑' },
-    { value: 'engagement-desc', label: 'Engagement ↓' },
+    { value: 'interaction-rate-desc', label: 'Interaction rate ↓' },
   ];
 
   const filtered = filter === 'All' ? allAssets : allAssets.filter(a => a.platform === filter);
@@ -1049,8 +1105,8 @@ function AssetBoard({ assets }: { assets: EkatorAssetSnapshot }) {
   const sorted = [...filtered].sort((a, b) => {
     const av = a.views ?? 0;
     const bv = b.views ?? 0;
-    const ae = a.engagementRate ?? 0;
-    const be = b.engagementRate ?? 0;
+    const ae = interactionRate(a) ?? 0;
+    const be = interactionRate(b) ?? 0;
     const ad = a.postDate ? new Date(a.postDate).getTime() : 0;
     const bd = b.postDate ? new Date(b.postDate).getTime() : 0;
     switch (sort) {
@@ -1058,7 +1114,7 @@ function AssetBoard({ assets }: { assets: EkatorAssetSnapshot }) {
       case 'views-asc': return av - bv;
       case 'date-desc': return bd - ad;
       case 'date-asc': return ad - bd;
-      case 'engagement-desc': return be - ae;
+      case 'interaction-rate-desc': return be - ae;
       default: return 0;
     }
   });
@@ -1126,7 +1182,7 @@ function AssetBoard({ assets }: { assets: EkatorAssetSnapshot }) {
             </div>
             {sorted.map(asset => {
               const views = asset.views;
-              const engagement = asset.engagementRate;
+              const rate = interactionRate(asset);
               const hasPerformance = hasMeasuredMetrics(asset);
               return (
                 <button
@@ -1166,7 +1222,7 @@ function AssetBoard({ assets }: { assets: EkatorAssetSnapshot }) {
                     <span className="font-mono text-[9px] uppercase tracking-wider text-[#A0A0AA] md:hidden">Interactions</span>
                     {hasPerformance ? (
                       <div>
-                        <div className="font-mono text-sm font-bold text-white">{engagement !== null ? `${engagement.toFixed(1)}%` : '—'}</div>
+                        <div className="font-mono text-sm font-bold text-white">{rate !== null ? `${rate.toFixed(1)}%` : '—'}</div>
                         <div className="mt-0.5 font-mono text-[9px] text-[#A0A0AA]">{asset.likes !== null ? `${compact(asset.likes)} likes` : 'likes —'} · {asset.comments !== null ? `${compact(asset.comments)} comments` : 'comments —'}</div>
                       </div>
                     ) : (
@@ -1235,10 +1291,9 @@ function MeasurementTable({ assets, metrics, channelSnapshot }: { assets: Ekator
     return Math.max(1, Math.ceil((snapshotDate.getTime() - publishedAtMs) / 86_400_000));
   };
   const velocityFor = (asset: EkatorAsset) => asset.views === null ? 0 : Math.round(asset.views / ageDaysFor(asset));
-  const interactionTotal = (asset: EkatorAsset) => (asset.likes ?? 0) + (asset.comments ?? 0) + (asset.shares ?? 0);
-  const interactionVelocityFor = (asset: EkatorAsset) => Math.round(interactionTotal(asset) / ageDaysFor(asset));
+  const interactionVelocityFor = (asset: EkatorAsset) => Math.round(knownInteractions(asset) / ageDaysFor(asset));
   const episodeAssets = publishedAssets
-    .filter((asset) => episodeNumberFromCaption(asset.caption) !== null)
+    .filter((asset) => asset.platform === 'youtube' && episodeNumberFromCaption(asset.caption) !== null)
     .sort((a, b) => (episodeNumberFromCaption(a.caption) ?? 0) - (episodeNumberFromCaption(b.caption) ?? 0));
   const episodeIds = new Set(episodeAssets.map((asset) => asset.itemId));
   const velocityAssets = publishedAssets
@@ -1246,8 +1301,8 @@ function MeasurementTable({ assets, metrics, channelSnapshot }: { assets: Ekator
     .map((asset) => ({ asset, velocity: velocityFor(asset) }))
     .sort((a, b) => b.velocity - a.velocity);
   const interactionVelocityAssets = assets.assets
-    .filter((asset) => asset.postDate && interactionTotal(asset) > 0)
-    .map((asset) => ({ asset, velocity: interactionVelocityFor(asset), total: interactionTotal(asset) }))
+    .filter((asset) => asset.postDate && knownInteractions(asset) > 0)
+    .map((asset) => ({ asset, velocity: interactionVelocityFor(asset), total: knownInteractions(asset) }))
     .sort((a, b) => b.velocity - a.velocity)
     .slice(0, 12);
   const maxVelocity = Math.max(1, ...velocityAssets.map((entry) => entry.velocity));
@@ -1318,10 +1373,10 @@ function MeasurementTable({ assets, metrics, channelSnapshot }: { assets: Ekator
         <div className="rounded-lg border p-5" style={{ borderColor: line, background: '#0E0E0E' }}>
           <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
             <div>
-              <div className="text-[11px] uppercase tracking-[0.2em]" style={{ color: red }}>Daily Velocity</div>
-              <div className="mt-1 text-[10px] text-[#A0A0AA]">Hover or focus any bar for the exact daily pace.</div>
+              <div className="text-[11px] uppercase tracking-[0.2em]" style={{ color: red }}>Average view pace since publish</div>
+              <div className="mt-1 text-[10px] text-[#A0A0AA]">Cumulative views divided by days since publication—not a recent-period velocity read. Hover or focus any bar for exact values.</div>
             </div>
-            <div className="font-mono text-[11px] text-[#A0A0AA]">views/day · {metrics.readLabel}</div>
+            <div className="font-mono text-[11px] text-[#A0A0AA]">views/day since publish · {metrics.readLabel}</div>
           </div>
           {episodeAssets.length > 0 && (
             <div className="mb-5 rounded-md border px-4 py-3" style={{ background: '#140A0A', borderColor: '#3A1717' }}>
@@ -1331,7 +1386,7 @@ function MeasurementTable({ assets, metrics, channelSnapshot }: { assets: Ekator
                 {episodeAssets.map((asset) => (
                   <div key={asset.itemId} className="flex min-w-0 items-center justify-between gap-3 rounded border px-3 py-2" style={{ borderColor: '#3A1717' }}>
                     <div className="min-w-0"><div className="truncate text-xs font-semibold text-white">{asset.caption}</div><div className="font-mono text-[9px] text-[#A0A0AA]">{compact(asset.views ?? 0)} total</div></div>
-                    <div className="shrink-0 font-mono text-lg font-black" style={{ color: red }}>{compact(velocityFor(asset))}/d</div>
+                    <div className="shrink-0 font-mono text-lg font-black" style={{ color: red }}>{compact(velocityFor(asset))}/day avg</div>
                   </div>
                 ))}
               </div>
@@ -1344,7 +1399,7 @@ function MeasurementTable({ assets, metrics, channelSnapshot }: { assets: Ekator
                   type="button"
                   key={asset.itemId}
                   className="group relative flex h-52 min-w-0 flex-col justify-end rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FD3737]"
-                  aria-label={`${asset.caption}: ${velocity.toLocaleString()} views per day, ${asset.views?.toLocaleString()} total views`}
+                  aria-label={`${asset.caption}: ${velocity.toLocaleString()} average views per day since publish, ${asset.views?.toLocaleString()} total views`}
                   aria-describedby={`velocity-tooltip-${index}`}
                 >
                   <span
@@ -1354,10 +1409,10 @@ function MeasurementTable({ assets, metrics, channelSnapshot }: { assets: Ekator
                     role="tooltip"
                   >
                     <span className="block text-xs font-bold leading-snug text-white">{asset.caption}</span>
-                    <span className="mt-2 block font-mono text-lg font-black" style={{ color: red }}>{velocity.toLocaleString()} views/day</span>
+                    <span className="mt-2 block font-mono text-lg font-black" style={{ color: red }}>{velocity.toLocaleString()} views/day since publish</span>
                     <span className="mt-1 block font-mono text-[10px] text-[#A0A0AA]">{asset.views?.toLocaleString()} total · {asset.postDate}</span>
                   </span>
-                  <span className="mb-2 block font-mono text-[10px] font-bold text-white opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">{compact(velocity)}/d</span>
+                  <span className="mb-2 block font-mono text-[10px] font-bold text-white opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">{compact(velocity)}/day avg</span>
                   <span className="block w-full rounded-t-sm transition-all group-hover:brightness-125 group-focus-visible:brightness-125" style={{ height: `${Math.max(14, (velocity / maxVelocity) * 132)}px`, background: index === 0 ? red : '#B92B2B' }} aria-hidden="true" />
                   <span className="mt-2 block font-mono text-[10px] font-bold" style={{ color: red }}>#{index + 1}</span>
                 </button>
@@ -1369,17 +1424,17 @@ function MeasurementTable({ assets, metrics, channelSnapshot }: { assets: Ekator
               <div key={asset.itemId} className="flex min-w-0 items-center gap-2 text-xs">
                 <span className="w-6 shrink-0 font-mono font-bold" style={{ color: red }}>#{index + 1}</span>
                 <span className="flex-1 truncate text-[#E4E4E9]">{asset.caption}</span>
-                <span className="shrink-0 font-mono font-bold text-white">{compact(velocity)}/d</span>
+                <span className="shrink-0 font-mono font-bold text-white">{compact(velocity)}/day avg</span>
               </div>
             ))}
           </div>
           <div className="mt-6 border-t pt-5" style={{ borderColor: line }}>
             <div className="mb-3 flex flex-wrap items-end justify-between gap-2">
               <div>
-                <div className="text-[11px] uppercase tracking-[0.2em]" style={{ color: red }}>Interaction velocity</div>
-                <div className="mt-1 text-[10px] text-[#A0A0AA]">Likes + comments + shares per day across verified owned posts.</div>
+                <div className="text-[11px] uppercase tracking-[0.2em]" style={{ color: red }}>Average interaction pace since publish</div>
+                <div className="mt-1 text-[10px] text-[#A0A0AA]">Known likes, comments, and shares divided by days since publication.</div>
               </div>
-              <div className="font-mono text-[10px] text-[#A0A0AA]">interactions/day</div>
+              <div className="font-mono text-[10px] text-[#A0A0AA]">interactions/day since publish</div>
             </div>
             <div className="grid gap-2 sm:grid-cols-2">
               {interactionVelocityAssets.map(({ asset, velocity, total }, index) => (
@@ -1396,11 +1451,11 @@ function MeasurementTable({ assets, metrics, channelSnapshot }: { assets: Ekator
                     <span className="block truncate text-xs font-semibold text-white">{asset.caption}</span>
                     <span className="font-mono text-[9px] uppercase text-[#A0A0AA]">{asset.platform} · {compact(total)} total</span>
                   </span>
-                  <span className="font-mono text-xs font-black text-white">{compact(velocity)}/d</span>
+                  <span className="font-mono text-xs font-black text-white">{compact(velocity)}/day avg</span>
                 </a>
               ))}
             </div>
-            <p className="mt-3 text-[10px] leading-relaxed text-[#A0A0AA]">Reel views and interactions are connected. Interaction pace remains the cross-platform comparator for posts whose view metric is unavailable.</p>
+            <p className="mt-3 text-[10px] leading-relaxed text-[#A0A0AA]">Reel views and interactions are connected. This age-normalized average keeps posts with unavailable views in the comparison without implying a recent-period delta.</p>
           </div>
         </div>
       </div>
@@ -1499,7 +1554,7 @@ export function EkatorCommandCenter({ registry, assets, channelSnapshot }: { reg
   const channelData = useMemo(() => buildChannels(metrics, assets, channelSnapshot), [metrics, assets, channelSnapshot]);
   const audienceTimeline = useMemo(() => buildAudienceTimeline(channelSnapshot), [channelSnapshot]);
   const audienceGrowth = useMemo(() => deriveSevenDayAudienceGrowth(audienceTimeline), [audienceTimeline]);
-  const engagement = useMemo(() => derivePortfolioEngagement(assets), [assets]);
+  const interaction = useMemo(() => derivePortfolioInteraction(assets), [assets]);
   const insights = useMemo(() => buildInsights(metrics, assets, channelSnapshot), [metrics, assets, channelSnapshot]);
   const recommendations = useMemo(() => buildRecommendations(metrics, assets, channelSnapshot), [metrics, assets, channelSnapshot]);
   const nav = useMemo(() => [
@@ -1527,7 +1582,7 @@ export function EkatorCommandCenter({ registry, assets, channelSnapshot }: { reg
 
       {/* COMMAND CENTER — above the fold */}
       <header ref={heroRef} className="min-h-[100dvh] min-w-0 pt-14">
-        <CommandCenter registry={registry} assets={assets} metrics={metrics} channels={channelData} audienceTimeline={audienceTimeline} growth={audienceGrowth} engagement={engagement} />
+        <CommandCenter registry={registry} assets={assets} metrics={metrics} channels={channelData} audienceTimeline={audienceTimeline} growth={audienceGrowth} interaction={interaction} />
       </header>
 
       {/* Divider */}

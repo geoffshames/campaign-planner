@@ -78,7 +78,7 @@ def normalize_post(
     comments = _integer(raw.get("comments"))
     shares = _integer(raw.get("shares"))
     known_interactions = sum(value or 0 for value in (likes, comments, shares))
-    denominator = audience if platform == "instagram" else views
+    denominator = views
     engagement_rate = None
     if denominator and denominator > 0 and any(value is not None for value in (likes, comments, shares)):
         engagement_rate = round((known_interactions / denominator) * 100, 4)
