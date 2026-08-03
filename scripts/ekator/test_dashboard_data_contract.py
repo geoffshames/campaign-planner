@@ -187,6 +187,17 @@ class DashboardDataContractTests(unittest.TestCase):
         ):
             self.assertNotIn(stale_taxonomy, COMPONENT)
 
+    def test_full_episode_anchors_exclude_localized_preview_markers(self) -> None:
+        self.assertIn("function fullEpisodeNumberFromCaption", COMPONENT)
+        self.assertIn("caption.match(/\\b(?:EP\\.?|Episode)\\s*(\\d+)\\b/)", COMPONENT)
+        self.assertIn("fullEpisodeNumberFromCaption(asset.caption)", COMPONENT)
+        self.assertIn("episodeNumberFromCaption(asset.caption) === newestEpisodeNumber", COMPONENT)
+        self.assertIn("(\\d+)\\s*화", COMPONENT)
+        self.assertNotIn(
+            ".filter((asset) => asset.platform === 'youtube' && episodeNumberFromCaption(asset.caption) !== null)",
+            COMPONENT,
+        )
+
     def test_paid_copy_reflects_partial_verified_coverage(self) -> None:
         self.assertIn("NO VERIFIED DELIVERY", COMPONENT)
         self.assertIn("NO VERIFIED DELIVERY", GUARD)

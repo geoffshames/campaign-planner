@@ -98,6 +98,7 @@ function formatRefreshedAt(value: string | null): string {
   }).format(date);
 }
 
+// Broad matcher: use for cross-platform episode families, including localized previews.
 function episodeNumberFromCaption(caption: string): number | null {
   const match = caption.match(/\b(?:EP\.?|Episode)\s*(\d+)\b|(\d+)\s*화/i);
   if (!match) return null;
@@ -105,10 +106,18 @@ function episodeNumberFromCaption(caption: string): number | null {
   return Number.isFinite(value) ? value : null;
 }
 
+// Strict title matcher: only canonical full-episode anchors use this taxonomy.
+function fullEpisodeNumberFromCaption(caption: string): number | null {
+  const match = caption.match(/\b(?:EP\.?|Episode)\s*(\d+)\b/);
+  if (!match) return null;
+  const value = Number(match[1]);
+  return Number.isFinite(value) ? value : null;
+}
+
 function deriveDashboardMetrics(snapshot: EkatorAssetSnapshot, channelSnapshot: EkatorChannelSnapshot): DashboardMetrics {
   const published = snapshot.assets.filter((asset) => asset.platform === 'youtube' && asset.views !== null);
   const episodeAssets = published
-    .map((asset) => ({ asset, episodeNumber: episodeNumberFromCaption(asset.caption) }))
+    .map((asset) => ({ asset, episodeNumber: fullEpisodeNumberFromCaption(asset.caption) }))
     .filter((entry): entry is { asset: EkatorAsset; episodeNumber: number } => entry.episodeNumber !== null);
   const episodeIds = new Set(episodeAssets.map(({ asset }) => asset.itemId));
   const otherYoutubeAssets = published.filter((asset) => !episodeIds.has(asset.itemId));
@@ -296,11 +305,11 @@ function buildInsights(
   const tiktok = channelSnapshot.channels.find((channel) => channel.platform === 'tiktok');
   const tiktokAudience = tiktok?.audience ?? 0;
   const tiktokPosts = platformPostCount('tiktok', assets, channelSnapshot);
-  const episodeNumbers = assets.assets
+  const fullEpisodeNumbers = assets.assets
     .filter((asset) => asset.platform === 'youtube')
-    .map((asset) => episodeNumberFromCaption(asset.caption))
+    .map((asset) => fullEpisodeNumberFromCaption(asset.caption))
     .filter((episodeNumber): episodeNumber is number => episodeNumber !== null);
-  const newestEpisodeNumber = episodeNumbers.length > 0 ? Math.max(...episodeNumbers) : null;
+  const newestEpisodeNumber = fullEpisodeNumbers.length > 0 ? Math.max(...fullEpisodeNumbers) : null;
   const newestEpisodeAssets = newestEpisodeNumber === null
     ? []
     : assets.assets.filter((asset) => episodeNumberFromCaption(asset.caption) === newestEpisodeNumber);
@@ -370,7 +379,7 @@ function buildRecommendations(
 ): Rec[] {
   const youtubeEpisodes = assets.assets
     .filter((asset) => asset.platform === 'youtube')
-    .map((asset) => ({ asset, episodeNumber: episodeNumberFromCaption(asset.caption) }))
+    .map((asset) => ({ asset, episodeNumber: fullEpisodeNumberFromCaption(asset.caption) }))
     .filter((entry): entry is { asset: EkatorAsset; episodeNumber: number } => entry.episodeNumber !== null)
     .sort((a, b) => a.episodeNumber - b.episodeNumber);
   const firstEpisode = youtubeEpisodes[0];
@@ -1293,8 +1302,8 @@ function MeasurementTable({ assets, metrics, channelSnapshot }: { assets: Ekator
   const velocityFor = (asset: EkatorAsset) => asset.views === null ? 0 : Math.round(asset.views / ageDaysFor(asset));
   const interactionVelocityFor = (asset: EkatorAsset) => Math.round(knownInteractions(asset) / ageDaysFor(asset));
   const episodeAssets = publishedAssets
-    .filter((asset) => asset.platform === 'youtube' && episodeNumberFromCaption(asset.caption) !== null)
-    .sort((a, b) => (episodeNumberFromCaption(a.caption) ?? 0) - (episodeNumberFromCaption(b.caption) ?? 0));
+    .filter((asset) => asset.platform === 'youtube' && fullEpisodeNumberFromCaption(asset.caption) !== null)
+    .sort((a, b) => (fullEpisodeNumberFromCaption(a.caption) ?? 0) - (fullEpisodeNumberFromCaption(b.caption) ?? 0));
   const episodeIds = new Set(episodeAssets.map((asset) => asset.itemId));
   const velocityAssets = publishedAssets
     .filter((asset) => !episodeIds.has(asset.itemId))
