@@ -79,6 +79,13 @@ type InteractionSnapshot = {
   }>;
 };
 
+type MatchedCrossPlatformCut = {
+  title: string;
+  instagram: EkatorAsset;
+  youtube: EkatorAsset;
+  latestPostAt: number;
+};
+
 function hasMeasuredMetrics(asset: EkatorAsset): boolean {
   return asset.views !== null || asset.likes !== null || asset.comments !== null || asset.shares !== null;
 }
@@ -112,6 +119,75 @@ function fullEpisodeNumberFromCaption(caption: string): number | null {
   if (!match) return null;
   const value = Number(match[1]);
   return Number.isFinite(value) ? value : null;
+}
+
+function publicationTime(asset: EkatorAsset): number {
+  if (!asset.postDate) return 0;
+  const value = new Date(asset.postDate).getTime();
+  return Number.isFinite(value) ? value : 0;
+}
+
+function isPreviewCaption(caption: string): boolean {
+  return /\b(?:preview|teaser)\b|선공개/i.test(caption);
+}
+
+function isFinalePreviewCaption(caption: string): boolean {
+  return isPreviewCaption(caption) && /\bfinale\b|최종화/i.test(caption);
+}
+
+function isScheduleUpdateCaption(caption: string): boolean {
+  return /\bschedule\b|일정\s*조정|공개\s*예정|공개로\s*변경/i.test(caption);
+}
+
+function firstCaptionLine(caption: string): string {
+  return caption.split(/\r?\n/).map((line) => line.trim()).find(Boolean) ?? '';
+}
+
+function crossPlatformMatchKey(caption: string): string {
+  return firstCaptionLine(caption)
+    .normalize('NFKC')
+    .toLocaleLowerCase()
+    .replace(/[“”"'‘’!?.,|｜:：]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function findActivePreview(assets: EkatorAsset[], newestFullEpisode?: EkatorAsset): EkatorAsset | undefined {
+  const newestFullEpisodeAt = newestFullEpisode ? publicationTime(newestFullEpisode) : 0;
+  return [...assets]
+    .filter((asset) => (
+      asset.platform === 'youtube'
+      && isPreviewCaption(asset.caption)
+      && fullEpisodeNumberFromCaption(asset.caption) === null
+      && publicationTime(asset) > newestFullEpisodeAt
+      && hasMeasuredMetrics(asset)
+    ))
+    .sort((a, b) => publicationTime(b) - publicationTime(a))[0];
+}
+
+function findLatestScheduleUpdate(assets: EkatorAsset[]): EkatorAsset | undefined {
+  return [...assets]
+    .filter((asset) => asset.platform === 'instagram' && isScheduleUpdateCaption(asset.caption) && knownInteractions(asset) > 0)
+    .sort((a, b) => publicationTime(b) - publicationTime(a))[0];
+}
+
+function buildMatchedCrossPlatformCuts(assets: EkatorAsset[]): MatchedCrossPlatformCut[] {
+  const instagramByCaption = new Map<string, EkatorAsset>();
+  for (const asset of assets) {
+    if (asset.platform !== 'instagram' || asset.views === null || asset.views <= 0) continue;
+    const key = crossPlatformMatchKey(asset.caption);
+    if (key && !instagramByCaption.has(key)) instagramByCaption.set(key, asset);
+  }
+
+  return assets
+    .filter((asset) => asset.platform === 'youtube' && asset.views !== null && asset.views > 0)
+    .flatMap((youtube): MatchedCrossPlatformCut[] => {
+      const title = firstCaptionLine(youtube.caption);
+      const instagram = instagramByCaption.get(crossPlatformMatchKey(youtube.caption));
+      return instagram ? [{ title, instagram, youtube, latestPostAt: Math.max(publicationTime(instagram), publicationTime(youtube)) }] : [];
+    })
+    .sort((a, b) => b.latestPostAt - a.latestPostAt)
+    .slice(0, 4);
 }
 
 function deriveDashboardMetrics(snapshot: EkatorAssetSnapshot, channelSnapshot: EkatorChannelSnapshot): DashboardMetrics {
@@ -305,11 +381,13 @@ function buildInsights(
   const tiktok = channelSnapshot.channels.find((channel) => channel.platform === 'tiktok');
   const tiktokAudience = tiktok?.audience ?? 0;
   const tiktokPosts = platformPostCount('tiktok', assets, channelSnapshot);
-  const fullEpisodeNumbers = assets.assets
+  const fullEpisodes = assets.assets
     .filter((asset) => asset.platform === 'youtube')
-    .map((asset) => fullEpisodeNumberFromCaption(asset.caption))
-    .filter((episodeNumber): episodeNumber is number => episodeNumber !== null);
-  const newestEpisodeNumber = fullEpisodeNumbers.length > 0 ? Math.max(...fullEpisodeNumbers) : null;
+    .map((asset) => ({ asset, episodeNumber: fullEpisodeNumberFromCaption(asset.caption) }))
+    .filter((entry): entry is { asset: EkatorAsset; episodeNumber: number } => entry.episodeNumber !== null)
+    .sort((a, b) => a.episodeNumber - b.episodeNumber);
+  const newestFullEpisode = fullEpisodes.at(-1);
+  const newestEpisodeNumber = newestFullEpisode?.episodeNumber ?? null;
   const newestEpisodeAssets = newestEpisodeNumber === null
     ? []
     : assets.assets.filter((asset) => episodeNumberFromCaption(asset.caption) === newestEpisodeNumber);
@@ -325,6 +403,9 @@ function buildInsights(
     .filter((entry) => entry.views > 0)
     .map((entry) => `${compact(entry.views)} ${entry.platform === 'youtube' ? 'YouTube' : entry.platform === 'instagram' ? 'Instagram' : 'TikTok'}`)
     .join(' + ');
+  const activePreview = findActivePreview(assets.assets, newestFullEpisode?.asset);
+  const activePreviewRate = activePreview ? interactionRate(activePreview) : null;
+  const activePreviewName = activePreview && isFinalePreviewCaption(activePreview.caption) ? 'Finale preview' : 'Latest preview';
 
   return [
     {
@@ -358,17 +439,25 @@ function buildInsights(
         : 'Publish the first controlled cuts and establish a post-level baseline.',
       tone: tiktokPosts > 0 ? 'watch' : 'risk',
     },
-    {
-      label: newestEpisodeNumber === null ? 'Newest episode signal' : `Newest episode signal · EP ${newestEpisodeNumber}`,
-      stat: newestEpisodeViews > 0 ? compact(newestEpisodeViews) : '—',
-      read: newestEpisodeAssets.length > 0
-        ? `${newestEpisodeAssets.length} verified Episode ${newestEpisodeNumber} posts hold ${compact(newestEpisodeViews)} current views${newestEpisodeViewBreakdown ? ` (${newestEpisodeViewBreakdown})` : ''} and ${compact(newestEpisodeInteractions)} known interactions.`
-        : 'No verified owned-channel posts are currently identified for the newest episode.',
-      action: newestEpisodeAssets.length > 0
-        ? 'Use the same episode identifier and opening hook in the next Reels, Shorts, and TikTok sequence.'
-        : 'Confirm the newest episode title before changing the cross-platform sequence.',
-      tone: 'strong',
-    },
+    activePreview
+      ? {
+          label: `${activePreviewName} signal`,
+          stat: activePreview.views !== null ? compact(activePreview.views) : compact(knownInteractions(activePreview)),
+          read: `The live ${activePreviewName.toLocaleLowerCase()} has ${activePreview.views === null ? 'no public view count and' : `${compact(activePreview.views)} current views and`} ${compact(knownInteractions(activePreview))} known interactions${activePreviewRate === null ? '' : ` (${activePreviewRate.toFixed(1)}% interaction rate)`} in the latest snapshot.`,
+          action: 'Mirror the same hook across owned short-form channels and link each cut into the episode playlist.',
+          tone: 'strong' as const,
+        }
+      : {
+          label: newestEpisodeNumber === null ? 'Newest episode signal' : `Newest episode signal · EP ${newestEpisodeNumber}`,
+          stat: newestEpisodeViews > 0 ? compact(newestEpisodeViews) : '—',
+          read: newestEpisodeAssets.length > 0
+            ? `${newestEpisodeAssets.length} verified Episode ${newestEpisodeNumber} posts hold ${compact(newestEpisodeViews)} current views${newestEpisodeViewBreakdown ? ` (${newestEpisodeViewBreakdown})` : ''} and ${compact(newestEpisodeInteractions)} known interactions.`
+            : 'No verified owned-channel posts are currently identified for the newest episode.',
+          action: newestEpisodeAssets.length > 0
+            ? 'Use the same episode identifier and opening hook in the next Reels, Shorts, and TikTok sequence.'
+            : 'Confirm the newest episode title before changing the cross-platform sequence.',
+          tone: 'strong' as const,
+        },
   ];
 }
 
@@ -384,15 +473,30 @@ function buildRecommendations(
     .sort((a, b) => a.episodeNumber - b.episodeNumber);
   const firstEpisode = youtubeEpisodes[0];
   const newestEpisode = youtubeEpisodes.at(-1);
-  const matchingEpisodePreview = newestEpisode
-    ? assets.assets
-      .filter((asset) => asset.platform === 'instagram')
-      .map((asset) => ({ asset, episodeNumber: episodeNumberFromCaption(asset.caption) }))
-      .filter((entry): entry is { asset: EkatorAsset; episodeNumber: number } => (
-        entry.episodeNumber !== null && entry.episodeNumber === newestEpisode.episodeNumber
-      ))
-      .sort((a, b) => (b.asset.views ?? 0) - (a.asset.views ?? 0))[0]
-    : undefined;
+  const activePreview = findActivePreview(assets.assets, newestEpisode?.asset);
+  const activePreviewRate = activePreview ? interactionRate(activePreview) : null;
+  const activePreviewName = activePreview && isFinalePreviewCaption(activePreview.caption) ? 'finale preview' : 'latest preview';
+  const matchedCuts = buildMatchedCrossPlatformCuts(assets.assets);
+  const matchedInstagramViews = matchedCuts.reduce((sum, cut) => sum + (cut.instagram.views ?? 0), 0);
+  const matchedYoutubeViews = matchedCuts.reduce((sum, cut) => sum + (cut.youtube.views ?? 0), 0);
+  const matchedInstagramInteractions = matchedCuts.reduce((sum, cut) => sum + knownInteractions(cut.instagram), 0);
+  const matchedYoutubeInteractions = matchedCuts.reduce((sum, cut) => sum + knownInteractions(cut.youtube), 0);
+  const matchedInstagramRate = matchedInstagramViews > 0 ? (matchedInstagramInteractions / matchedInstagramViews) * 100 : null;
+  const matchedYoutubeRate = matchedYoutubeViews > 0 ? (matchedYoutubeInteractions / matchedYoutubeViews) * 100 : null;
+  const strongestMatchedTitles = [...matchedCuts]
+    .sort((a, b) => {
+      const aViews = (a.instagram.views ?? 0) + (a.youtube.views ?? 0);
+      const bViews = (b.instagram.views ?? 0) + (b.youtube.views ?? 0);
+      const aRate = aViews > 0 ? (knownInteractions(a.instagram) + knownInteractions(a.youtube)) / aViews : 0;
+      const bRate = bViews > 0 ? (knownInteractions(b.instagram) + knownInteractions(b.youtube)) / bViews : 0;
+      return bRate - aRate;
+    })
+    .slice(0, 2)
+    .map((cut) => `“${cut.title}”`)
+    .join(' and ');
+  const scheduleUpdate = findLatestScheduleUpdate(assets.assets);
+  const scheduleInteractions = scheduleUpdate ? knownInteractions(scheduleUpdate) : 0;
+  const scheduleRate = scheduleUpdate ? interactionRate(scheduleUpdate) : null;
   const freshSignalAsset = assets.assets
     .filter((asset) => (
       asset.platform === 'instagram'
@@ -404,25 +508,29 @@ function buildRecommendations(
       (b.postDate ?? '').localeCompare(a.postDate ?? '')
       || ((interactionRate(b) ?? 0) - (interactionRate(a) ?? 0))
     ))[0];
-  const newestEpisodeRate = newestEpisode ? interactionRate(newestEpisode.asset) : null;
   const freshSignalRate = freshSignalAsset ? interactionRate(freshSignalAsset) : null;
-  const interactionLeader = assets.assets
-    .map((asset) => ({ asset, interactions: knownInteractions(asset) }))
-    .filter((entry) => entry.interactions > 0)
-    .sort((a, b) => b.interactions - a.interactions)[0];
+  const episodeShare = metrics.youtubeTotalViews > 0 ? (metrics.episodeViews / metrics.youtubeTotalViews) * 100 : null;
   const tiktok = channelSnapshot.channels.find((channel) => channel.platform === 'tiktok');
   const tiktokAudience = tiktok?.audience ?? 0;
   const tiktokPosts = platformPostCount('tiktok', assets, channelSnapshot);
   const moves: Omit<Rec, 'rank'>[] = [];
 
-  moves.push(newestEpisode
+  moves.push(activePreview
     ? {
-        title: `Turn Episode ${newestEpisode.episodeNumber} into a same-day short-form sequence`,
-        why: `The newest full episode has ${compact(newestEpisode.asset.views ?? 0)} current views and ${compact(knownInteractions(newestEpisode.asset))} known interactions${newestEpisodeRate === null ? '' : ` (${newestEpisodeRate.toFixed(1)}% interaction rate)`}.`,
-        move: 'Release one suspense beat, one payoff or reaction beat, and one direct full-episode bridge across Reels, Shorts, and TikTok with the same episode identifier and opening-frame language.',
+        title: isFinalePreviewCaption(activePreview.caption) ? 'Make the live finale preview the campaign anchor' : 'Make the latest preview the campaign anchor',
+        why: `The live ${activePreviewName} has ${activePreview.views === null ? 'no public view count and' : `${compact(activePreview.views)} current views and`} ${compact(knownInteractions(activePreview))} known interactions${activePreviewRate === null ? '' : ` (${activePreviewRate.toFixed(1)}% interaction rate)`}.`,
+        move: 'Extend the live preview across Reels, Shorts, and TikTok, then route each cut into the episode playlist.',
         owner: 'Content / clipping',
         impact: 'High',
       }
+    : newestEpisode
+      ? {
+          title: `Turn Episode ${newestEpisode.episodeNumber} into a same-day short-form sequence`,
+          why: `The newest full episode has ${compact(newestEpisode.asset.views ?? 0)} current views and ${compact(knownInteractions(newestEpisode.asset))} known interactions${interactionRate(newestEpisode.asset) === null ? '' : ` (${interactionRate(newestEpisode.asset)?.toFixed(1)}% interaction rate)`}.`,
+          move: 'Release one suspense beat, one payoff or reaction beat, and one direct full-episode bridge across Reels, Shorts, and TikTok with the same episode identifier and opening-frame language.',
+          owner: 'Content / clipping',
+          impact: 'High',
+        }
     : {
         title: 'Confirm the newest full episode before scaling output',
         why: metrics.hasMeasuredPerformance ? 'Current YouTube performance is available, but no full-episode title is identified.' : 'Current YouTube performance is unavailable.',
@@ -431,11 +539,11 @@ function buildRecommendations(
         impact: 'High',
       });
 
-  moves.push(matchingEpisodePreview && newestEpisode && matchingEpisodePreview.asset.views !== null
+  moves.push(matchedCuts.length >= 2 && matchedInstagramRate !== null && matchedYoutubeRate !== null
     ? {
-        title: `Convert the Episode ${newestEpisode.episodeNumber} Instagram preview into full-episode starts`,
-        why: `The matching Instagram preview has ${compact(matchingEpisodePreview.asset.views ?? 0)} current views and ${compact(knownInteractions(matchingEpisodePreview.asset))} known interactions; the full episode has ${compact(newestEpisode.asset.views ?? 0)} current YouTube views.`,
-        move: 'Pin the full-episode call-to-action, run a same-day story link, and publish one follow-up Reel that begins with the same hook before pointing viewers to the full episode.',
+        title: 'Pair Reel reach with Short response',
+        why: `${matchedCuts.length} matched recent cuts hold ${compact(matchedInstagramViews)} Instagram views at ${matchedInstagramRate.toFixed(1)}% interaction and ${compact(matchedYoutubeViews)} YouTube views at ${matchedYoutubeRate.toFixed(1)}% interaction.`,
+        move: 'Publish each new story beat as a matched Reel and Short with the same opening language and episode-playlist destination.',
         owner: 'Owned social',
         impact: 'High',
       }
@@ -447,11 +555,43 @@ function buildRecommendations(
         impact: 'High',
       });
 
+  moves.push(scheduleUpdate && activePreview
+    ? {
+        title: 'Turn schedule-change attention into a viewing bridge',
+        why: scheduleUpdate.views === null
+          ? `The latest schedule update has ${compact(scheduleInteractions)} known interactions. Public views are unavailable, so this is an interaction-only signal.`
+          : `The latest schedule update has ${compact(scheduleUpdate.views)} current views and ${compact(scheduleInteractions)} known interactions${scheduleRate === null ? '' : ` (${scheduleRate.toFixed(1)}% interaction rate)`}.`,
+        move: 'Add a pinned comment and Story link directing announcement engagement to the live preview, with the episode playlist as the catch-up destination.',
+        owner: 'Owned social',
+        impact: 'High',
+      }
+    : freshSignalAsset
+      ? {
+          title: 'Repeat the freshest high-response Instagram beat',
+          why: `“${firstCaptionLine(freshSignalAsset.caption)}” has ${compact(freshSignalAsset.views ?? 0)} current views and ${compact(knownInteractions(freshSignalAsset))} known interactions${freshSignalRate === null ? '' : ` (${freshSignalRate.toFixed(1)}% interaction rate)`}.`,
+          move: 'Publish one close-up response cut and one context-first variant while keeping the episode call-to-action consistent.',
+          owner: 'Creative strategy',
+          impact: 'Medium',
+        }
+    : {
+        title: 'Wait for a view-backed reaction signal',
+        why: 'No current Instagram reaction asset has a measured interaction total.',
+        move: 'Collect current views, likes, and comments on the next reaction-led cuts before choosing a repeatable hook.',
+        owner: 'Owned social',
+        impact: 'Medium',
+      });
+
   moves.push(firstEpisode && newestEpisode && firstEpisode.episodeNumber !== newestEpisode.episodeNumber
     ? {
-        title: `Build an Episode ${firstEpisode.episodeNumber} → Episode ${newestEpisode.episodeNumber} binge path`,
-        why: `Episode ${firstEpisode.episodeNumber} remains the series entry point with ${compact(firstEpisode.asset.views ?? 0)} cumulative views since ${firstEpisode.asset.postDate ?? 'publication'}; Episode ${newestEpisode.episodeNumber} is the newest destination with ${compact(newestEpisode.asset.views ?? 0)} since ${newestEpisode.asset.postDate ?? 'publication'}. These cumulative totals cover different live windows.`,
-        move: 'Connect the series with playlist order, end screens, pinned comments, and short-form descriptions that move viewers from the first episode to the newest one.',
+        title: activePreview && isFinalePreviewCaption(activePreview.caption)
+          ? 'Connect finale interest to the full-season binge path'
+          : `Build an Episode ${firstEpisode.episodeNumber} to Episode ${newestEpisode.episodeNumber} binge path`,
+        why: episodeShare === null
+          ? 'The episode share of current YouTube views is unavailable.'
+          : `${metrics.episodeCount} full episodes account for ${episodeShare.toFixed(1)}% of ${compact(metrics.youtubeTotalViews)} official YouTube views. Episode ${firstEpisode.episodeNumber} remains the entry point at ${compact(firstEpisode.asset.views ?? 0)}, while Episode ${newestEpisode.episodeNumber} holds ${compact(newestEpisode.asset.views ?? 0)}. These cumulative totals cover different live windows.`,
+        move: activePreview
+          ? `Place the live preview inside the ordered episode playlist, then use its pinned comment, description, and end screen to offer Episode ${firstEpisode.episodeNumber} as the start point and Episode ${newestEpisode.episodeNumber} as the catch-up point.`
+          : 'Connect the series with playlist order, end screens, pinned comments, and short-form descriptions that move viewers from the first episode to the newest one.',
         owner: 'YouTube',
         impact: 'High',
       }
@@ -465,11 +605,13 @@ function buildRecommendations(
 
   moves.push(tiktokPosts === 0
     ? {
-        title: 'Activate TikTok and establish the first pacing baseline',
+        title: 'Activate TikTok with the proven campaign cuts',
         why: tiktokAudience > 0
           ? `${compact(tiktokAudience)} followers and zero published posts are currently recorded.`
           : 'Zero published TikTok posts are currently recorded; the audience total is unavailable.',
-        move: 'Publish three proven concepts—the newest episode hook, a character reaction, and a lighter group moment—then record first-hour, 24-hour, and 72-hour views and interactions.',
+        move: activePreview
+          ? `Publish three controlled posts: the ${activePreviewName} hook${strongestMatchedTitles ? `, ${strongestMatchedTitles}` : ', a character reaction, and a lighter group moment'}. Record first-hour, 24-hour, and 72-hour views and interactions separately.`
+          : 'Publish the newest episode hook, a character reaction, and a lighter group moment, then record first-hour, 24-hour, and 72-hour views and interactions separately.',
         owner: 'Owned social',
         impact: 'High',
       }
@@ -480,30 +622,6 @@ function buildRecommendations(
         owner: 'Owned social',
         impact: 'High',
       });
-
-  moves.push(freshSignalAsset
-    ? {
-        title: 'Repeat the freshest high-response Instagram beat',
-        why: `“${freshSignalAsset.caption}” has ${compact(freshSignalAsset.views ?? 0)} current views and ${compact(knownInteractions(freshSignalAsset))} known interactions${freshSignalRate === null ? '' : ` (${freshSignalRate.toFixed(1)}% interaction rate)`}.`,
-        move: 'Publish one close-up response cut and one context-first variant from the newest episode, keeping the episode identifier and call-to-action consistent.',
-        owner: 'Creative strategy',
-        impact: 'Medium',
-      }
-    : interactionLeader
-      ? {
-          title: 'Repeat the strongest current interaction signal',
-          why: `“${interactionLeader.asset.caption}” has ${compact(interactionLeader.interactions)} known interactions on ${interactionLeader.asset.platform}.`,
-          move: 'Repeat its opening hook or story beat in one new cut and compare the next view-backed read.',
-          owner: 'Creative strategy',
-          impact: 'Medium',
-        }
-      : {
-          title: 'Wait for a view-backed reaction signal',
-          why: 'No current reaction asset has a measured interaction total.',
-          move: 'Collect current views, likes, and comments on the next reaction-led cuts before choosing a repeatable hook.',
-          owner: 'Owned social',
-          impact: 'Medium',
-        });
 
   return moves.map((move, index) => ({ ...move, rank: index + 1 }));
 }
@@ -736,7 +854,7 @@ function SentimentPulse({ interaction }: { interaction: InteractionSnapshot }) {
   );
 }
 
-function ExecutiveRead({ metrics, channels }: { metrics: DashboardMetrics; channels: Channel[] }) {
+function ExecutiveRead({ metrics, channels, recommendations }: { metrics: DashboardMetrics; channels: Channel[]; recommendations: Rec[] }) {
   const measuredChannels = channels.filter((channel) => channel.views !== null && channel.views > 0);
   const measuredViews = measuredChannels.reduce((sum, channel) => sum + (channel.views ?? 0), 0);
   const leader = [...measuredChannels].sort((a, b) => (b.views ?? 0) - (a.views ?? 0))[0];
@@ -746,7 +864,7 @@ function ExecutiveRead({ metrics, channels }: { metrics: DashboardMetrics; chann
   const reads = [
     { label: 'Winning', value: leader && leaderShare !== null ? `${leader.name} carries ${leaderShare.toFixed(1)}% of measured public views.` : 'Measured attention is still collecting.', accent: light },
     { label: 'Risk', value: tiktokDormant ? (tiktok && tiktok.audience > 0 ? `${compact(tiktok.audience)} TikTok followers remain inactive with no official posts.` : 'TikTok publishing remains inactive with no official posts.') : 'No channel-level activation gap is currently flagged.', accent: red },
-    { label: 'Next move', value: tiktokDormant ? 'Publish the first controlled TikTok cuts and establish a seven-day pacing baseline.' : metrics.hasMeasuredPerformance ? 'Repeat the strongest cross-platform hook inside a comparable measurement window.' : 'Restore post-level performance coverage before changing the content plan.', accent: red },
+    { label: 'Next move', value: recommendations[0]?.move ?? (tiktokDormant ? 'Publish the first controlled TikTok cuts and establish a seven-day pacing baseline.' : metrics.hasMeasuredPerformance ? 'Repeat the strongest cross-platform hook inside a comparable measurement window.' : 'Restore post-level performance coverage before changing the content plan.'), accent: red },
   ];
   return (
     <section className="grid overflow-hidden rounded-lg border bg-[#0E0E0E] md:grid-cols-3" style={{ borderColor: line }} aria-label="Executive read">{reads.map((read, index) => <div key={read.label} className={`relative min-w-0 px-4 py-4 sm:px-5 ${index > 0 ? 'border-t md:border-l md:border-t-0' : ''}`} style={{ borderColor: line }}><div className="absolute left-0 top-0 h-full w-1" style={{ background: read.accent }} /><div className="text-[9px] uppercase tracking-[0.18em] text-[#A0A0AA]">{read.label}</div><p className="mt-2 text-sm font-semibold leading-snug text-white">{read.value}</p></div>)}</section>
@@ -782,7 +900,7 @@ function StatusStrip({ registry, assets }: { registry: EkatorRegistrySnapshot; a
 
 /* ── COMMAND CENTER (above the fold) ──────────────────────────────── */
 
-function CommandCenter({ registry, assets, metrics, channels, audienceTimeline, growth, interaction }: { registry: EkatorRegistrySnapshot; assets: EkatorAssetSnapshot; metrics: DashboardMetrics; channels: Channel[]; audienceTimeline: AudienceTimelinePoint[]; growth: AudienceGrowth; interaction: InteractionSnapshot }) {
+function CommandCenter({ registry, assets, metrics, channels, audienceTimeline, growth, interaction, recommendations }: { registry: EkatorRegistrySnapshot; assets: EkatorAssetSnapshot; metrics: DashboardMetrics; channels: Channel[]; audienceTimeline: AudienceTimelinePoint[]; growth: AudienceGrowth; interaction: InteractionSnapshot; recommendations: Rec[] }) {
   return (
     <div className="mx-auto w-full min-w-0 max-w-[1400px] px-4 pb-6 pt-8 sm:pt-12 md:px-6 lg:px-8 lg:pt-20">
       <div className="mb-4 flex min-w-0 flex-col items-start gap-4 border-b pb-4 sm:flex-row sm:items-end sm:justify-between sm:gap-3 sm:pb-3" style={{ borderColor: line }}>
@@ -806,7 +924,7 @@ function CommandCenter({ registry, assets, metrics, channels, audienceTimeline, 
         </div>
       </div>
 
-      <div className="mb-3"><ExecutiveRead metrics={metrics} channels={channels} /></div>
+      <div className="mb-3"><ExecutiveRead metrics={metrics} channels={channels} recommendations={recommendations} /></div>
 
       <div className="rounded-lg border" style={{ borderColor: line, background: '#0E0E0E' }}><StatusStrip registry={registry} assets={assets} /></div>
     </div>
@@ -1351,7 +1469,7 @@ function MeasurementTable({ assets, metrics, channelSnapshot }: { assets: Ekator
       {/* Post-level table */}
       <div className="overflow-hidden rounded-lg border" style={{ borderColor: line }}>
         <div className="hidden grid-cols-[1fr_1fr_1fr_2fr] gap-4 bg-[#141414] px-5 py-3 font-mono text-[11px] uppercase tracking-[0.15em] text-[#A0A0AA] md:grid">
-          <div>Platform</div><div>Audience</div><div>Coverage</div><div>Current read → Next data</div>
+          <div>Platform</div><div>Audience</div><div>Coverage</div><div>Current read / Next data</div>
         </div>
         {liveLayers.map((layer, i) => (
           <div key={layer.platform} className={`grid grid-cols-1 gap-4 px-5 py-5 md:grid-cols-[1fr_1fr_1fr_2fr] ${i > 0 ? 'border-t' : ''}`} style={{ borderColor: line }}>
@@ -1491,10 +1609,10 @@ function MeasurementTable({ assets, metrics, channelSnapshot }: { assets: Ekator
         <div className="rounded-lg border p-5" style={{ borderColor: line, background: '#0E0E0E' }}>
           <div className="mb-4 flex items-center justify-between">
             <div className="text-[11px] uppercase tracking-[0.2em]" style={{ color: red }}>Paid Media</div>
-            <span className="font-mono text-sm font-bold" style={{ color: '#D42D2D' }}>NO VERIFIED DELIVERY</span>
+            <span className="font-mono text-sm font-bold" style={{ color: '#D42D2D' }}>NOT LIVE YET</span>
           </div>
           <div className="mb-4 rounded-md p-4" style={{ background: '#140A0A' }}>
-            <p className="text-sm leading-relaxed text-white">No verified paid delivery is available. Delivery, efficiency, and conversion fields will populate when verified campaign data is available.</p>
+            <p className="text-sm leading-relaxed text-white">Paid media is not live yet. Spend, reach, efficiency, and conversion will appear here once campaigns launch.</p>
           </div>
           <div className="grid grid-cols-2 gap-2">
             {paidFields.map(field => (
@@ -1591,7 +1709,7 @@ export function EkatorCommandCenter({ registry, assets, channelSnapshot }: { reg
 
       {/* COMMAND CENTER — above the fold */}
       <header ref={heroRef} className="min-h-[100dvh] min-w-0 pt-14">
-        <CommandCenter registry={registry} assets={assets} metrics={metrics} channels={channelData} audienceTimeline={audienceTimeline} growth={audienceGrowth} interaction={interaction} />
+        <CommandCenter registry={registry} assets={assets} metrics={metrics} channels={channelData} audienceTimeline={audienceTimeline} growth={audienceGrowth} interaction={interaction} recommendations={recommendations} />
       </header>
 
       {/* Divider */}

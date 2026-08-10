@@ -99,7 +99,7 @@ REQUIRED = [
     "interactions/day since publish",
     "Ranked moves for the next 72 hours",
     "Paid Media",
-    "NO VERIFIED DELIVERY",
+    "NOT LIVE YET",
 ]
 
 ROUTES = ["/ekator", "/campaign/ekator"]

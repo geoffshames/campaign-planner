@@ -129,32 +129,41 @@ class DashboardDataContractTests(unittest.TestCase):
         ):
             self.assertNotIn(stale_claim, COMPONENT)
 
-    def test_weekly_moves_follow_the_newest_episode_across_platforms(self) -> None:
+    def test_weekly_moves_follow_the_live_finale_preview_and_current_cross_platform_evidence(self) -> None:
         for current_move in (
-            "into a same-day short-form sequence",
-            "Instagram preview into full-episode starts",
-            "binge path",
-            "Repeat the freshest high-response Instagram beat",
+            "Make the live finale preview the campaign anchor",
+            "Pair Reel reach with Short response",
+            "Turn schedule-change attention into a viewing bridge",
+            "Connect finale interest to the full-season binge path",
+            "Activate TikTok with the proven campaign cuts",
         ):
             self.assertIn(current_move, COMPONENT)
-        self.assertIn("episodeNumberFromCaption(asset.caption)", COMPONENT)
-        self.assertIn("(\\d+)\\s*화", COMPONENT)
-        self.assertIn("episodeNumber === newestEpisode.episodeNumber", COMPONENT)
-        self.assertIn("matchingEpisodePreview.asset.views !== null", COMPONENT)
+        self.assertIn("function findActivePreview", COMPONENT)
+        self.assertIn("isFinalePreviewCaption(activePreview.caption)", COMPONENT)
+        self.assertIn("function buildMatchedCrossPlatformCuts", COMPONENT)
+        self.assertIn("matchedInstagramInteractions / matchedInstagramViews", COMPONENT)
+        self.assertIn("matchedYoutubeInteractions / matchedYoutubeViews", COMPONENT)
+        self.assertIn("function findLatestScheduleUpdate", COMPONENT)
+        self.assertIn("scheduleUpdate.views === null", COMPONENT)
         self.assertIn("firstEpisode.episodeNumber !== newestEpisode.episodeNumber", COMPONENT)
         self.assertIn("These cumulative totals cover different live windows", COMPONENT)
-        self.assertIn("the newest episode hook, a character reaction, and a lighter group moment", COMPONENT)
-        self.assertNotIn("twin dynamics, trainee pressure, and a lighter dorm/rule clip", COMPONENT)
+        self.assertIn("strongestMatchedTitles", COMPONENT)
         self.assertNotIn("Turn episode-led demand into a controlled short-form sprint", COMPONENT)
         self.assertNotIn("Use the current interaction leader as a controlled comparator", COMPONENT)
 
-    def test_weekly_insight_reads_the_newest_episode_across_owned_posts(self) -> None:
+    def test_weekly_insight_promotes_a_newer_preview_without_reclassifying_it_as_an_episode(self) -> None:
+        self.assertIn("Finale preview", COMPONENT)
+        self.assertIn("publicationTime(asset) > newestFullEpisodeAt", COMPONENT)
+        self.assertIn("fullEpisodeNumberFromCaption(asset.caption) === null", COMPONENT)
         self.assertIn("Newest episode signal", COMPONENT)
         self.assertIn("newestEpisodeAssets", COMPONENT)
         self.assertIn("newestEpisodeViews", COMPONENT)
         self.assertIn("newestEpisodeInteractions", COMPONENT)
         self.assertIn("newestEpisodeViewBreakdown", COMPONENT)
         self.assertNotIn("Current interaction leader", COMPONENT)
+
+    def test_public_copy_uses_words_instead_of_progression_arrows(self) -> None:
+        self.assertNotIn("→", COMPONENT)
 
     def test_interaction_terminology_is_consistent_in_public_and_internal_contracts(self) -> None:
         for current_term in (
@@ -198,9 +207,10 @@ class DashboardDataContractTests(unittest.TestCase):
             COMPONENT,
         )
 
-    def test_paid_copy_reflects_partial_verified_coverage(self) -> None:
-        self.assertIn("NO VERIFIED DELIVERY", COMPONENT)
-        self.assertIn("NO VERIFIED DELIVERY", GUARD)
+    def test_paid_copy_keeps_a_client_facing_not_live_yet_state(self) -> None:
+        self.assertIn("NOT LIVE YET", COMPONENT)
+        self.assertIn("NOT LIVE YET", GUARD)
+        self.assertIn("Paid media is not live yet", COMPONENT)
         self.assertIn("UNVERIFIED", COMPONENT)
         for overconfident_claim in (
             "No campaigns are live",
