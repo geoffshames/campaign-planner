@@ -1698,7 +1698,7 @@ export function EkatorCommandCenter({ registry, assets, channelSnapshot }: { reg
         <div className="mx-auto flex h-14 max-w-[1400px] items-center gap-3 px-4 md:px-6 lg:px-8">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/brand/CC-LOGO-2024-WHITE.png" alt="Crowd Control" className="h-4 max-w-[82px] shrink-0 object-contain opacity-90 sm:max-w-none" />
-          <div className="flex min-w-0 flex-1 items-center justify-start gap-3 overflow-x-auto [scrollbar-width:none] lg:justify-center lg:gap-5 [&::-webkit-scrollbar]:hidden">
+          <div className="flex min-w-0 flex-1 items-center justify-start gap-2 overflow-x-auto [scrollbar-width:none] lg:justify-center lg:gap-5 [&::-webkit-scrollbar]:hidden">
             {nav.map(([id, label]) => (
               <a key={id} href={`#${id}`} className="flex min-h-11 shrink-0 items-center font-mono text-[10px] uppercase tracking-[0.12em] text-[#A0A0AA] transition-colors hover:text-[#FD3737] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#FD3737] lg:tracking-[0.15em]">{label}</a>
             ))}

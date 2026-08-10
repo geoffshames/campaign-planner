@@ -165,6 +165,9 @@ class DashboardDataContractTests(unittest.TestCase):
     def test_public_copy_uses_words_instead_of_progression_arrows(self) -> None:
         self.assertNotIn("→", COMPONENT)
 
+    def test_mobile_navigation_fits_the_primary_route_labels(self) -> None:
+        self.assertIn("justify-start gap-2 overflow-x-auto", COMPONENT)
+
     def test_interaction_terminology_is_consistent_in_public_and_internal_contracts(self) -> None:
         for current_term in (
             "Measured Interaction",
