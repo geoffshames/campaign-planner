@@ -37,7 +37,7 @@ export const okNikoMore = {
     ],
     context: [
       'Chartmetric career stage reads "undiscovered" with a growth trend, artist rank 319,233 globally and 1,315 in Finland.',
-      'Spotify popularity score sits at 24, consistent with a catalogue that gets discovered repeatedly and retained rarely.',
+      'Spotify popularity score sits at 24, consistent with a catalog that gets discovered repeatedly and retained rarely.',
       'Zero current playlist placements on Spotify, editorial or otherwise. The listening is arriving through association and algorithm, not curation.',
       'His previous release "never mine" sits on 10 playlists total, none editorial.',
     ],
@@ -183,11 +183,11 @@ export const okNikoMore = {
     spec: [
       { field: 'Platform', value: 'Meta (Instagram and Facebook)' },
       { field: 'Objective', value: 'Traffic' },
-      { field: 'Optimisation event', value: 'Landing Page Views' },
+      { field: 'Optimization event', value: 'Landing Page Views' },
       { field: 'Geography', value: 'Australia and New Zealand, combined in one ad set' },
-      { field: 'Budget', value: '$35 per day' },
+      { field: 'Budget type', value: 'Lifetime, set once at launch' },
       { field: 'Flight length', value: '14 days, 21 Aug to 3 Sep' },
-      { field: 'Total spend', value: '$490 of $500, $10 held back' },
+      { field: 'Total spend', value: '$500, paced by Meta across the 14 days' },
       { field: 'Age range', value: '18 to 34' },
       { field: 'Audience', value: 'Broad, no interest stacking' },
       { field: 'Placements', value: 'Advantage+ (Reels, Stories, Feed)' },
@@ -203,7 +203,12 @@ export const okNikoMore = {
       {
         title: 'Why not a conversion objective',
         body:
-          'Optimising to a save or pre-save event is the theoretically correct setup, and at a larger budget it is what we would run. Meta needs roughly fifty events a week to exit the learning phase on a conversion objective. $500 will not deliver that, and a conversion campaign stuck in learning performs worse than a well-fed Landing Page View campaign. We will still fire and read the conversion event. We just will not ask the algorithm to optimise against it yet.',
+          'Optimizing to a save or pre-save event is the theoretically correct setup, and at a larger budget it is what we would run. Meta needs roughly fifty events a week to exit the learning phase on a conversion objective. $500 will not deliver that, and a conversion campaign stuck in learning performs worse than a well-fed Landing Page View campaign. We will still fire and read the conversion event. We just will not ask the algorithm to optimize against it yet.',
+      },
+      {
+        title: 'Why a lifetime budget and not a daily one',
+        body:
+          'This is a fixed pot against a fixed window, so the budget should be set the same way. A lifetime budget spends the full $500 across the fourteen days, paces into the days and hours that are converting, and removes the thing most likely to damage a small test: somebody adjusting the daily number mid-flight and resetting the learning phase. Set it once at launch and do not touch it.',
       },
       {
         title: 'Why one ad set and not two',
@@ -249,7 +254,7 @@ export const okNikoMore = {
         day: 'Days 0 to 3',
         action: 'Change nothing',
         detail:
-          'The ad set is in the learning phase. Editing budget, audience or creative resets it and burns the spend that has already been used to train delivery. The most common way a $500 test is wasted is by being optimised on day two.',
+          'The ad set is in the learning phase. Editing budget, audience or creative resets it and burns the spend that has already been used to train delivery. The most common way a $500 test is wasted is by being optimized on day two.',
       },
       {
         day: 'Day 4',
@@ -261,7 +266,7 @@ export const okNikoMore = {
         day: 'Day 7',
         action: 'Mid-flight check',
         detail:
-          'Compare cost per click against the $0.50 benchmark. If it is running above $0.70, add a single interest layer or refresh the weakest creative. If it is under $0.30, consider pulling the $10 reserve forward.',
+          'Compare cost per click against the $0.50 benchmark. If it is running above $0.70, add a single interest layer or refresh the weakest creative. If it is under $0.30, change nothing and let it run. A flight that is working is not a flight that needs managing.',
       },
       {
         day: 'Day 14',
@@ -279,7 +284,7 @@ export const okNikoMore = {
     modelled: {
       title: 'The number that actually matters',
       body:
-        'At a $0.40 cost per DSP click, $490 buys roughly 1,225 clicks through to Spotify. If 10 to 15% of those convert to a follow, this campaign adds 120 to 185 followers. Against a base of 349, that is a 35 to 53% increase in the entire audience OK NIKO owns, for $500, in fourteen days. That is the outcome to hold this test to. Not streams, which he can already generate, but followers, which he never has.',
+        'At a $0.40 cost per DSP click, $500 buys roughly 1,250 clicks through to Spotify. If 10 to 15% of those convert to a follow, this campaign adds 125 to 185 followers. Against a base of 349, that is a 36 to 53% increase in the entire audience OK NIKO owns, for $500, in fourteen days. That is the outcome to hold this test to. Not streams, which he can already generate, but followers, which he never has.',
       caveat:
         'Stated honestly: neither Feature.fm nor Linkfire publish a click-to-follow conversion benchmark, and we could not source one. The click volume above is modelled from published cost-per-DSP-click benchmarks. The follow rate is an assumption we are testing, not a figure we are promising. This flight is how we find out what the real number is, and after it we will never have to guess again.',
     },
@@ -289,7 +294,7 @@ export const okNikoMore = {
   next: {
     headline: 'What the $500 sets up.',
     summary:
-      'A first flight is only worth running if the second one is cheaper because of it. Three assets come out of this fortnight that OK NIKO does not currently have: a working Pixel and Conversions API on the smart link, a creative ranking based on his own audience rather than assumption, and an engagement custom audience large enough to seed a lookalike. None of those exist today.',
+      'A first flight is only worth running if the second one is cheaper because of it. Three assets come out of these two weeks that OK NIKO does not currently have: a working Pixel and Conversions API on the smart link, a creative ranking based on his own audience rather than assumption, and an engagement custom audience large enough to seed a lookalike. None of those exist today.',
     moves: [
       {
         window: 'During the flight',
@@ -325,7 +330,7 @@ export const okNikoMore = {
     constraints: {
       title: 'Two things that are not available, stated up front',
       points: [
-        'triple j Unearthed is restricted to Australian artists, and the Warehouse dance programme is sourced entirely from Unearthed. That door is closed to a Finnish artist based in Los Angeles. It opens with an Australian collaborator or remixer on a follow-up, and Club Angel, Bella Claxton and Strict Face are all in-lane, all Australian and all already in rotation there.',
+        'triple j Unearthed is restricted to Australian artists, and the Warehouse dance program is sourced entirely from Unearthed. That door is closed to a Finnish artist based in Los Angeles. It opens with an Australian collaborator or remixer on a follow-up, and Club Angel, Bella Claxton and Strict Face are all in-lane, all Australian and all already in rotation there.',
         'Every major Australian and New Zealand summer festival lineup for this season was announced in July and August and is already public. An August release cannot buy a slot this summer. What it buys is four months of build into the peak consumption window and credibility for the 2027 and 2028 booking conversations.',
       ],
     },
@@ -335,7 +340,7 @@ export const okNikoMore = {
   competitive: {
     headline: 'The release window, read honestly.',
     items: [
-      { artist: 'MPH x Skrillex', release: '"Mirage", 14 Aug, DisOrder / Capitol', threat: 'High', note: 'Owns the UK Garage conversation and the dance editorial slots this fortnight, with a major behind it and a tour announce following.' },
+      { artist: 'MPH x Skrillex', release: '"Mirage", 14 Aug, DisOrder / Capitol', threat: 'High', note: 'Owns the UK Garage conversation and the dance editorial slots this month, with a major behind it and a tour announce following.' },
       { artist: 'Overmono', release: 'Pure Devotion LP, 7 Aug', threat: 'Medium', note: 'Album cycle absorbing attention in the euphoric club lane. Also touring Australia this summer.' },
       { artist: 'Ninajirachi x Porter Robinson', release: '"WannaCry", 28 Jul', threat: 'Medium', note: 'Australian producer with a US legacy feature, still active in exactly our test market.' },
       { artist: '21 August slate', release: 'Jorja Smith, Brandon Flowers, Sam Smith, Jamie T, Fontaines D.C.', threat: 'Low', note: 'Crowded with pop, indie and rap. Very light on 140 BPM club records.' },
@@ -353,15 +358,15 @@ export const okNikoMore = {
       impact: 'Medium',
       triggerSignal: 'Daily listener gain drops below +200, or monthly listeners fall two days running.',
       contingency:
-        'This is expected rather than feared. It is why the flight is fourteen days and not thirty. The paid traffic is not dependent on the spike, and the follower gain it produces is retained after the spike ends. If decay starts early, pull the $10 reserve forward and front-load the remaining days.',
+        'This is expected rather than feared. It is why the flight is fourteen days and not thirty. The paid traffic does not depend on the spike, and the followers it converts are retained after the spike ends. The lifetime budget also handles this without intervention: Meta paces into the days that are performing, so an early decay shifts weight forward on its own rather than needing a manual edit.',
     },
     {
       title: 'The Pixel is not live at launch',
       likelihood: 'Medium',
       impact: 'High',
-      triggerSignal: 'Landing Page View is unavailable as an optimisation event when the ad set is built.',
+      triggerSignal: 'Landing Page View is unavailable as an optimization event when the ad set is built.',
       contingency:
-        'Do not launch on Link Clicks as a workaround. Delay by 24 to 48 hours and install the Pixel and Conversions API. Launching without it forfeits the optimisation event, the conversion read and the retargeting audience, which is most of the value of the test.',
+        'Do not launch on Link Clicks as a workaround. Delay by 24 to 48 hours and install the Pixel and Conversions API. Launching without it forfeits the optimization event, the conversion read and the retargeting audience, which is most of the value of the test.',
     },
     {
       title: 'Costs run high because the account has no history',
