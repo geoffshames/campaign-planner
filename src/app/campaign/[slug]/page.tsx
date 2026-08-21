@@ -5,6 +5,7 @@ import { BadTunerForeverLove } from '@/components/campaign/BadTunerForeverLove';
 import { TemporexWantingIsHaunting } from '@/components/campaign/TemporexWantingIsHaunting';
 import { MiguelDamned } from '@/components/campaign/MiguelDamned';
 import { GoVanniSay2Much } from '@/components/campaign/GoVanniSay2Much';
+import { OkNikoMore } from '@/components/campaign/OkNikoMore';
 import type { Metadata } from 'next';
 
 export function generateStaticParams() {
@@ -16,6 +17,8 @@ export function generateStaticParams() {
     { slug: 'miguel-damned' },
     { slug: 'kodoku-he-lives' },
     { slug: 'govanni-say-2-much' },
+    { slug: 'ok-niko-more' },
+    { slug: 'ok-niko' },
   ];
 }
 
@@ -58,6 +61,17 @@ export function generateMetadata({ params }: { params: { slug: string } }): Meta
       },
     };
   }
+  if (params.slug === 'ok-niko-more' || params.slug === 'ok-niko') {
+    return {
+      ...noIndex,
+      title: 'OK NIKO, More ft. RNZ\u014C | Campaign Planner',
+      description: 'Audit and $500 paid test plan for OK NIKO\u2019s "More" ft. RNZ\u014C. Chartmetric and Cobrand grounded: the conversion gap, the spike anatomy, and a 14-day Australia and New Zealand traffic flight.',
+      openGraph: {
+        title: 'OK NIKO, More ft. RNZ\u014C | Crowd Control Digital',
+        description: 'Audit and $500 paid test plan for the "More" release.',
+      },
+    };
+  }
   if (params.slug === 'miguel-damned') {
     return {
       ...noIndex,
@@ -92,6 +106,9 @@ export function generateMetadata({ params }: { params: { slug: string } }): Meta
 export default function CampaignPageServer({ params }: { params: { slug: string } }) {
   if (params.slug === 'temporex-wanting-is-haunting' || params.slug === 'temporex-fantastic-machine') {
     return <TemporexWantingIsHaunting />;
+  }
+  if (params.slug === 'ok-niko-more' || params.slug === 'ok-niko') {
+    return <OkNikoMore />;
   }
   if (params.slug === 'miguel-damned') {
     return <MiguelDamned />;
