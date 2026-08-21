@@ -15,7 +15,7 @@ export const govanniSay2Much = {
 
   hero: {
     strap: 'Audit and first paid test',
-    line: 'A $500 flight built to buy a creative winner, not streams.',
+    line: 'A $500 single-channel flight built to buy a creative winner, not streams.',
   },
 
   /* ─────────────── 01 THE READ ─────────────── */
@@ -133,17 +133,17 @@ export const govanniSay2Much = {
   /* ─────────────── 04 BUDGET ─────────────── */
   budget_talk: {
     headline: 'What $500 can and cannot do.',
-    body: 'Our stated minimum viable spend is $2,500 per channel. $500 is one fifth of that, and it will not move a streaming number that already sits at 265,914 monthly listeners. Run honestly, the expected direct impact of this flight is somewhere near 1,000 to 1,600 streams. Against his base that is not measurable. So this flight is not being bought for streams. It is being bought for a validated creative winner and a seeded retargeting pool, which are the two things that make the next $2,500 work instead of guess.',
+    body: 'Our stated minimum viable spend is $2,500 per channel. $500 is one fifth of that, and it will not move a streaming number that already sits at 265,914 monthly listeners. Run honestly, the expected direct impact of this flight is somewhere near 1,300 to 2,000 streams. Against his base that is not measurable. So this flight is not being bought for streams. It is being bought for a validated creative winner and a seeded retargeting pool, which are the two things that make the next $2,500 work instead of guess. Every dollar sits on one channel, because $500 spread across two platforms produces two unreadable results instead of one clear answer.',
     cannot: [
       'Move monthly listeners in any measurable way',
-      'Exit the learning phase on a US conversion campaign',
+      'Reach the streaming audience directly on the DSP side',
       'Sustain reach past the two-week flight',
       'Substitute for the missing content engine',
     ],
     can: [
       'Identify which creative hook actually holds attention',
       'Seed a pixel pool that Phase 2 builds lookalikes from',
-      'Read whether the European audience converts to action',
+      'Clear the learning phase on both cells rather than stalling in it',
       'Prove the process before the real money is committed',
     ],
   },
@@ -151,47 +151,34 @@ export const govanniSay2Much = {
   /* ─────────────── 05 THE TEST ─────────────── */
   test: {
     headline: 'Buy the cheapest honest impressions, then spend the real money on the winner.',
-    thesis: 'Instagram inventory in Poland runs near $5.75 CPM against roughly $24.00 in the United States. For a flight whose only job is separating four creatives from each other, that differential is the entire argument. The same $400 buys roughly 55,000 impressions across Poland and Germany, or roughly 16,700 in the United States. Sixteen thousand impressions split four ways produces no readable signal. Fifty-five thousand does.',
-    whyNotUS: 'The United States is where the streams and the royalties are, and it is where Phase 2 goes. It is the wrong place to run a $400 experiment, because the auction price means you buy conclusions you cannot trust.',
+    thesis: 'Instagram inventory in Poland runs near $5.75 CPM against roughly $24.00 in the United States. For a flight whose only job is separating four creatives from each other, that differential is the entire argument. The full $500 buys roughly 65,200 impressions across Poland and Germany, or roughly 20,800 in the United States. Twenty thousand impressions split four ways produces no readable signal. Sixty-five thousand does, and it puts roughly 11,300 impressions behind each creative in Poland and 5,000 in Germany, which is enough to separate them on click-through rather than on noise.',
+    whyNotUS: 'The United States is where the streams and the royalties are, and it is where Phase 2 goes. It is the wrong place to run a $500 experiment, because the auction price means you buy conclusions you cannot trust. Holding the whole budget on one platform also matters more than it sounds: at this size, both cells clear the roughly fifty optimisation events per week that Meta needs to leave the learning phase, which a thinner split would not.',
     cells: [
       {
         id: 'A',
         name: 'Poland learning engine',
-        spend: 240,
+        spend: 260,
         days: 14,
-        daily: '$17.14',
+        daily: '$18.57',
         platform: 'Meta (Instagram)',
         geo: 'Poland',
         objective: 'Traffic, optimized for Landing Page Views',
-        estImpressions: '~41,700',
+        estImpressions: '~45,200',
         cpm: '~$5.75',
-        rationale: 'Cheapest quality inventory in the market set, and 15,169 existing monthly listeners means this is a warm audience rather than a cold one. Poland runs high English proficiency, so no localization penalty on the creative.',
+        rationale: 'Cheapest quality inventory in the market set, and 15,169 existing monthly listeners means this is a warm audience rather than a cold one. Poland runs high English proficiency, so no localization penalty on the creative. At roughly 11,300 impressions per creative this is the cell that actually decides the winner.',
       },
       {
         id: 'B',
         name: 'Germany validation',
-        spend: 160,
+        spend: 240,
         days: 14,
-        daily: '$11.43',
+        daily: '$17.14',
         platform: 'Meta (Instagram)',
         geo: 'Germany',
         objective: 'Traffic, optimized for Landing Page Views',
-        estImpressions: '~13,300',
+        estImpressions: '~20,000',
         cpm: '~$12.00',
-        rationale: 'His largest non-US market at 21,069 listeners. Running the identical creative set in a second independent market is what separates a real winner from a Poland-specific fluke.',
-      },
-      {
-        id: 'C',
-        name: 'Spotify Marquee',
-        spend: 100,
-        days: 10,
-        daily: '$10.00',
-        platform: 'Spotify Marquee',
-        geo: 'United States',
-        objective: 'Full-screen new release notification',
-        estImpressions: 'Cost per click',
-        cpm: 'CPC priced',
-        rationale: 'Speaks directly to the 41,647 followers and recent listeners who have no idea this single exists. This is the activation problem addressed with the one tool built for exactly it. Starts August 24, once the track clears the three-day minimum.',
+        rationale: 'His largest non-US market at 21,069 listeners. Running the identical creative set in a second independent market is what separates a real winner from a Poland-specific fluke. Funded to roughly 5,000 impressions per creative, which is the floor for reading a click-through difference rather than guessing at one.',
       },
     ],
     targeting: {
@@ -258,7 +245,7 @@ export const govanniSay2Much = {
     items: [
       {
         title: 'Turn on Discovery Mode',
-        detail: 'Eligibility starts at 25,000 monthly listeners and he clears it roughly ten times over. There is no cash cost. The trade is a 30 percent royalty reduction applied only to streams the programme itself generates. Apply it to the catalog now, since a track needs 30 days live before it qualifies.',
+        detail: 'This is the DSP-side lever, and it costs nothing. Eligibility starts at 25,000 monthly listeners and he clears it roughly ten times over. The trade is a 30 percent royalty reduction applied only to streams the programme itself generates, never on the catalog as a whole. Apply it to the top five tracks now, since a song needs 30 days live before it qualifies, and add Say 2 Much in late September. It pairs mechanically with the paid flight: ads drive saves and repeat plays, those signals prime the algorithm, and Discovery Mode amplifies the surfaces the paid traffic just warmed.',
         cost: 'No cash cost',
       },
       {
@@ -288,7 +275,7 @@ export const govanniSay2Much = {
     moves: [
       { title: 'Winner into the United States', detail: 'The proven creative against the 125,139 US monthly listeners, on Conversions rather than Traffic now that the pixel carries data.' },
       { title: 'Lookalike modelling', detail: 'One percent lookalike built off the Phase 1 pixel pool. Lookalikes typically run 20 to 40 percent under broad interest targeting on cost per conversion for music.' },
-      { title: 'Retarget the hot pool', detail: 'The Instagram engager audience runs at roughly eighteen times platform average engagement. It is small, and it is the highest-intent inventory available.' },
+      { title: 'Retarget the hot pool', detail: 'The Instagram engager audience runs at roughly eighteen times platform average engagement. It is small, high-intent, and deliberately left untouched in Phase 1. Spending against it now would burn the most valuable pool on the market at a frequency too low to convert; it is worth far more hit properly once there is budget behind it.' },
       { title: 'Ride the September European window', detail: 'OsamaSon plays Berlin on September 24 and Warsaw on September 26 and 27. Genre demand is being actively stimulated in his two strongest European markets. Hold retargeting budget for that window.' },
     ],
   },
@@ -300,7 +287,7 @@ export const govanniSay2Much = {
       { item: 'Meta Business Manager access', detail: 'Partner access to the ad account and the @govanni____ Instagram, plus whitelisting permission for creative slot four.', priority: 'Blocking' },
       { item: 'Four vertical cuts', detail: '9:16 at 1080x1920, 15 to 20 seconds each, matching the four creative directions.', priority: 'Blocking' },
       { item: 'Smart link', detail: 'A Feature.fm or Linkfire link with the Meta pixel installed and server-side events enabled. No pixel means no measurement and no Phase 2 lookalike.', priority: 'Blocking' },
-      { item: 'Spotify for Artists access', detail: 'Required for Marquee and Discovery Mode. Confirm the distributor supports Marquee under the new rights holder.', priority: 'Blocking' },
+      { item: 'Spotify for Artists access', detail: 'Required for Discovery Mode and for reading whether the flight moved saves and repeat plays. Confirm the distributor supports it under the current rights holder.', priority: 'Preferred' },
       { item: 'Say 2 Much video', detail: 'Timing confirmation, and the file when it exists.', priority: 'Preferred' },
       { item: 'Raw and unused footage', detail: 'Phone footage, studio clips and rehearsal material. This consistently beats polished video as ad creative.', priority: 'Preferred' },
     ],
@@ -327,7 +314,7 @@ export const govanniSay2Much = {
       likelihood: 'High',
       impact: 'Medium',
       signal: 'SOUTH ELECTRA carries Cecil Park Records, Say 2 Much carries In Search of Entertainment, and the May single was self-released',
-      response: 'Confirm which entity controls Spotify for Artists before committing the Marquee budget. Marquee eligibility depends on distributor support, and a rights-holder change mid-year is the most common way that access breaks.',
+      response: 'Confirm which entity controls Spotify for Artists and the Meta assets before launch. Discovery Mode access depends on distributor support, and a rights-holder change mid-year is the most common way that access quietly breaks. It also determines who can grant the ad account and Instagram permissions this flight runs on.',
     },
     {
       title: 'The flight ends before the algorithm settles',
@@ -343,7 +330,7 @@ export const govanniSay2Much = {
     'Chartmetric artist and audience data, pulled August 21, 2026',
     'Spotify and Apple Music catalog pages, observed August 21, 2026',
     'Instagram, TikTok and YouTube public profiles, observed August 21, 2026',
-    'Spotify for Artists documentation on Marquee budgeting and Discovery Mode eligibility',
+    'Spotify for Artists documentation on Discovery Mode eligibility',
     'Published Meta and TikTok cost benchmarks by market, 2026',
   ],
   sourceNote: 'Cost per thousand figures are planning estimates drawn from published 2026 benchmark data rather than first-party platform reporting. Relative differences between markets are consistent across independent sources; absolute figures should be validated against the live ad account before budget is committed.',

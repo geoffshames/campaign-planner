@@ -430,7 +430,7 @@ export function GoVanniSay2Much() {
         </GlassCard>
 
         {/* cells */}
-        <div className="grid lg:grid-cols-3 gap-5 mb-10">
+        <div className="grid md:grid-cols-2 gap-5 mb-10">
           {C.test.cells.map((cell) => (
             <GlassCard key={cell.id} className="p-6 flex flex-col">
               <div className="flex items-start justify-between mb-4">
