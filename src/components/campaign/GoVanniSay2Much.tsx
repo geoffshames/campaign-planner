@@ -111,7 +111,7 @@ function AnimatedBar({ percent, color = '#fd3737', delay = 0 }: { percent: numbe
 function InversionChart() {
   const { ref, inView } = useInView({ threshold: 0.25 });
   const d = C.standing.listenerSeries;
-  const W = 900, H = 300, PAD_L = 8, PAD_R = 8, PAD_T = 24, PAD_B = 34;
+  const W = 900, H = 300, PAD_L = 26, PAD_R = 26, PAD_T = 24, PAD_B = 34;
   const iw = W - PAD_L - PAD_R, ih = H - PAD_T - PAD_B;
   const maxL = 500000, maxF = 45000;
   const x = (i: number) => PAD_L + (i / (d.length - 1)) * iw;
@@ -225,9 +225,9 @@ export function GoVanniSay2Much() {
       <div ref={heroRef} className="relative h-[86vh] min-h-[600px] flex items-end overflow-hidden">
         <motion.div className="absolute inset-0 z-0" style={{ y: heroY }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/images/govanni-say-2-much/artist.jpg" alt="" className="w-full h-full object-cover object-top opacity-70" />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-[#0A0A0A]/70 to-[#0A0A0A]/40" />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#0A0A0A] via-transparent to-[#0A0A0A]/60" />
+          <img src="/images/govanni-say-2-much/artist.jpg" alt="" className="w-full h-full object-cover object-top" style={{ filter: 'brightness(1.35) contrast(1.05)' }} />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-[#0A0A0A]/45 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#0A0A0A]/95 via-[#0A0A0A]/25 to-[#0A0A0A]/50" />
         </motion.div>
         <motion.div className="relative z-10 max-w-6xl mx-auto px-6 pb-16 w-full" style={{ opacity: heroFade }}>
           <div className="flex flex-wrap gap-2 mb-6">
