@@ -9,7 +9,7 @@ export const govanniSay2Much = {
   homeBase: 'Houston to Los Angeles',
   tier: 'Emerging',
   budget: 500,
-  campaignWindow: 'August 21 to September 14, 2026',
+  campaignWindow: 'August 21 to September 1, 2026',
   dataAsOf: 'August 21, 2026',
   spotifyTrack: 'https://open.spotify.com/track/2Uz0Ynme1gbxtBjV7sV066',
 
@@ -137,7 +137,7 @@ export const govanniSay2Much = {
     cannot: [
       'Move monthly listeners in any measurable way',
       'Reach the streaming audience directly on the DSP side',
-      'Sustain reach past the two-week flight',
+      'Sustain reach past the seven-day flight',
       'Substitute for the missing content engine',
     ],
     can: [
@@ -152,14 +152,14 @@ export const govanniSay2Much = {
   test: {
     headline: 'Buy the cheapest honest impressions, then spend the real money on the winner.',
     thesis: 'Instagram inventory in Poland runs near $5.75 CPM against roughly $24.00 in the United States. For a flight whose only job is separating four creatives from each other, that differential is the entire argument. The full $500 buys roughly 65,200 impressions across Poland and Germany, or roughly 20,800 in the United States. Twenty thousand impressions split four ways produces no readable signal. Sixty-five thousand does, and it puts roughly 11,300 impressions behind each creative in Poland and 5,000 in Germany, which is enough to separate them on click-through rather than on noise.',
-    whyNotUS: 'The United States is where the streams and the royalties are, and it is where Phase 2 goes. It is the wrong place to run a $500 experiment, because the auction price means you buy conclusions you cannot trust. Holding the whole budget on one platform also matters more than it sounds: at this size, both cells clear the roughly fifty optimisation events per week that Meta needs to leave the learning phase, which a thinner split would not.',
+    whyNotUS: 'The United States is where the streams and the royalties are, and it is where Phase 2 goes. It is the wrong place to run a $500 experiment, because the auction price means you buy conclusions you cannot trust. Holding the whole budget on one platform and compressing it into seven days matters more than it sounds: at roughly $71 a day across the two cells, both clear the fifty optimisation events per week Meta needs to leave the learning phase by more than fifteen times over. A thinner or slower flight would spend a meaningful share of its life still learning.',
     cells: [
       {
         id: 'A',
         name: 'Poland learning engine',
         spend: 260,
-        days: 14,
-        daily: '$18.57',
+        days: 7,
+        daily: '$37.14',
         platform: 'Meta (Instagram)',
         geo: 'Poland',
         objective: 'Traffic, optimized for Landing Page Views',
@@ -171,8 +171,8 @@ export const govanniSay2Much = {
         id: 'B',
         name: 'Germany validation',
         spend: 240,
-        days: 14,
-        daily: '$17.14',
+        days: 7,
+        daily: '$34.29',
         platform: 'Meta (Instagram)',
         geo: 'Germany',
         objective: 'Traffic, optimized for Landing Page Views',
@@ -192,7 +192,7 @@ export const govanniSay2Much = {
       placementsRationale: 'Reels plays audio on by default while roughly 85 percent of Facebook feed video plays muted. When the product is the song, a muted placement is wasted money. Stories carries both the cheapest impressions and the highest click-through of any placement, and it is consistently underweighted in music plans.',
     },
     creative: {
-      note: 'Four variants minimum. Creative fatigue lands between day seven and day fourteen, and creative variation moves music campaign results more than audience variation does.',
+      note: 'Four variants minimum. Creative variation moves music campaign results more than audience variation does. A seven-day flight also reads every cut at its freshest, since fatigue does not set in until day seven at the earliest, so the comparison between them is clean rather than confounded by decay.',
       specs: '9:16 at 1080x1920, 15 to 20 seconds, Spotify wordmark as a transparent overlay, explicit "Listen now on Spotify" call to action.',
       slots: [
         {
@@ -222,13 +222,13 @@ export const govanniSay2Much = {
   /* ─────────────── 06 READING RESULTS ─────────────── */
   readout: {
     headline: 'What we are measuring, and when we are allowed to react.',
-    holdRule: 'Do not judge the flight before day 14. The final week of a flight routinely outperforms the first by two to three times as the algorithm settles. Killing a campaign on day four buys noise and calls it data.',
+    holdRule: 'Let it run the full seven days and let Meta allocate freely for the first seventy-two hours. Days one and two are the algorithm settling, not a result, and a campaign killed on day two buys noise and calls it data. The flight is short by design, so the discipline is holding through the noisy opening rather than holding for weeks.',
     thresholds: [
       { metric: 'Cost per landing page view', good: 'Under $0.40', great: 'Under $0.20', note: 'Primary efficiency read' },
       { metric: 'Thumb-stop rate', good: 'Above 20%', great: 'Above 25%', note: 'Three-second plays over impressions' },
       { metric: 'Click-through, Stories', good: 'Above 1.0%', great: 'Above 1.34%', note: 'Stories benchmark' },
       { metric: 'Click-through, Reels', good: 'Above 0.6%', great: 'Above 0.76%', note: 'Reels benchmark' },
-      { metric: 'Creative kill line', good: 'Below 0.5% CTR at $40 spend', great: '', note: 'Per creative, not per campaign' },
+      { metric: 'Creative kill line', good: 'Below 0.5% CTR at $25 spend', great: '', note: 'Per creative, and only after 72 hours' },
     ],
     winnerRule: 'The winner is the creative with the best hold rate and the lowest cost per landing page view that ranks top two in Poland and Germany independently. Winning one market is a result. Winning both is a signal that travels.',
     deliverables: [
@@ -271,7 +271,7 @@ export const govanniSay2Much = {
     headline: 'What $2,500 per channel unlocks.',
     body: 'Phase 2 is where the money meets the market that pays. It runs on the creative Phase 1 proved and the pixel Phase 1 seeded, which is the difference between a media buy and an expensive guess.',
     timing: 'Open September 1. Hold through the August 28 release cluster rather than fighting it.',
-    timingReason: 'August 28 brings Lancey Foux, Night Lovell and Rod Wave. The first two sit directly on this audience and the third pulls broad rap attention for a week. A campaign launched today hits its stride precisely as that lands.',
+    timingReason: 'August 28 brings Lancey Foux, Night Lovell and Rod Wave. The first two sit directly on this audience and the third pulls broad rap attention for a week. A seven-day flight closes before any of it lands, which leaves the readout clean and puts Phase 2 in the September window rather than in the middle of a crowded weekend.',
     moves: [
       { title: 'Winner into the United States', detail: 'The proven creative against the 125,139 US monthly listeners, on Conversions rather than Traffic now that the pixel carries data.' },
       { title: 'Lookalike modelling', detail: 'One percent lookalike built off the Phase 1 pixel pool. Lookalikes typically run 20 to 40 percent under broad interest targeting on cost per conversion for music.' },
@@ -317,11 +317,11 @@ export const govanniSay2Much = {
       response: 'Confirm which entity controls Spotify for Artists and the Meta assets before launch. Discovery Mode access depends on distributor support, and a rights-holder change mid-year is the most common way that access quietly breaks. It also determines who can grant the ad account and Instagram permissions this flight runs on.',
     },
     {
-      title: 'The flight ends before the algorithm settles',
+      title: 'Seven days is a short window to read',
       likelihood: 'Medium',
       impact: 'High',
-      signal: 'Pressure to react to weak day-three numbers',
-      response: 'The fourteen-day hold is the plan, not a suggestion. Budget is committed up front so that early volatility cannot trigger an early kill.',
+      signal: 'Pressure to react to weak day-two numbers, or a cost per landing page view that is still climbing when the flight closes',
+      response: 'The compression is deliberate and the event volume supports it: both cells clear Meta\u2019s weekly optimisation threshold more than fifteen times over, so the algorithm has what it needs even on a short calendar. The two real costs are named rather than hidden. Concentrating spend into fewer days can lift CPM modestly against the estimates here, and a short flight gives the system less calendar time to find pockets. Both are accepted in exchange for a clean read before the August 28 release cluster and a Phase 2 that can open on September 1.',
     },
   ],
 
