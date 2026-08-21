@@ -4,6 +4,7 @@ import { CampaignPage as CampaignPageComponent } from '@/components/campaign/Cam
 import { BadTunerForeverLove } from '@/components/campaign/BadTunerForeverLove';
 import { TemporexWantingIsHaunting } from '@/components/campaign/TemporexWantingIsHaunting';
 import { MiguelDamned } from '@/components/campaign/MiguelDamned';
+import { GoVanniSay2Much } from '@/components/campaign/GoVanniSay2Much';
 import type { Metadata } from 'next';
 
 export function generateStaticParams() {
@@ -14,6 +15,7 @@ export function generateStaticParams() {
     { slug: 'temporex-fantastic-machine' },
     { slug: 'miguel-damned' },
     { slug: 'kodoku-he-lives' },
+    { slug: 'govanni-say-2-much' },
   ];
 }
 
@@ -29,6 +31,18 @@ export function generateMetadata({ params }: { params: { slug: string } }): Meta
         title: 'temporex — Fantastic Machine | Crowd Control Digital',
         description: 'Album rollout strategy for temporex.',
         images: ['/images/temporex-fantastic-machine/og.png'],
+      },
+    };
+  }
+  if (params.slug === 'govanni-say-2-much') {
+    return {
+      ...noIndex,
+      title: 'GoVanni, Say 2 Much | Campaign Planner',
+      description: 'Audit and $500 first paid test for GoVanni\u2019s Say 2 Much. Chartmetric-grounded read on the follower/listener inversion, plus a two-market creative validation flight.',
+      openGraph: {
+        title: 'GoVanni, Say 2 Much | Crowd Control Digital',
+        description: 'Audit and first paid test structure.',
+        images: ['/images/govanni-say-2-much/artist.jpg'],
       },
     };
   }
@@ -84,6 +98,9 @@ export default function CampaignPageServer({ params }: { params: { slug: string 
   }
   if (params.slug === 'bad-tuner-forever-love') {
     return <BadTunerForeverLove />;
+  }
+  if (params.slug === 'govanni-say-2-much') {
+    return <GoVanniSay2Much />;
   }
   if (params.slug === 'kodoku-he-lives') {
     return <CampaignPageComponent campaign={kodokuHeLives} />;
