@@ -129,37 +129,41 @@ class DashboardDataContractTests(unittest.TestCase):
         ):
             self.assertNotIn(stale_claim, COMPONENT)
 
-    def test_weekly_moves_follow_the_live_finale_preview_and_current_cross_platform_evidence(self) -> None:
+    def test_weekly_moves_prioritize_current_cross_platform_hook_evidence(self) -> None:
         for current_move in (
-            "Make the live finale preview the campaign anchor",
-            "Pair Reel reach with Short response",
-            "Turn schedule-change attention into a viewing bridge",
-            "Connect finale interest to the full-season binge path",
+            "Scale the strongest cross-platform hook now",
+            "Bridge short-form momentum into Episode",
+            "Turn the highest-response hook into a follow-up",
             "Activate TikTok with the proven campaign cuts",
+            "Build an Episode",
         ):
             self.assertIn(current_move, COMPONENT)
-        self.assertIn("function findActivePreview", COMPONENT)
-        self.assertIn("isFinalePreviewCaption(activePreview.caption)", COMPONENT)
         self.assertIn("function buildMatchedCrossPlatformCuts", COMPONENT)
-        self.assertIn("matchedInstagramInteractions / matchedInstagramViews", COMPONENT)
-        self.assertIn("matchedYoutubeInteractions / matchedYoutubeViews", COMPONENT)
-        self.assertIn("function findLatestScheduleUpdate", COMPONENT)
-        self.assertIn("scheduleUpdate.views === null", COMPONENT)
+        self.assertIn("function matchedCutStats", COMPONENT)
+        self.assertIn("const reachLeader", COMPONENT)
+        self.assertIn("const responseLeader", COMPONENT)
+        self.assertIn("combinedViews", COMPONENT)
+        self.assertIn("interactionRate", COMPONENT)
         self.assertIn("firstEpisode.episodeNumber !== newestEpisode.episodeNumber", COMPONENT)
         self.assertIn("These cumulative totals cover different live windows", COMPONENT)
-        self.assertIn("strongestMatchedTitles", COMPONENT)
-        self.assertNotIn("Turn episode-led demand into a controlled short-form sprint", COMPONENT)
-        self.assertNotIn("Use the current interaction leader as a controlled comparator", COMPONENT)
+        self.assertIn("A current cross-platform hook and canonical newest episode are not both available", COMPONENT)
+        self.assertIn("Fewer than two matched Reel and Short pairs are currently available", COMPONENT)
+        self.assertNotIn("No second matched Reel and Short pair is currently available", COMPONENT)
+        self.assertNotIn("No matching Instagram preview is currently identified for the newest full episode", COMPONENT)
+        self.assertNotIn("Only one current matched Reel and Short pair is available", COMPONENT)
+        self.assertNotIn("Turn schedule-change attention into a viewing bridge", COMPONENT)
 
-    def test_weekly_insight_promotes_a_newer_preview_without_reclassifying_it_as_an_episode(self) -> None:
+    def test_newest_episode_insight_uses_only_the_canonical_full_episode_metric(self) -> None:
         self.assertIn("Finale preview", COMPONENT)
         self.assertIn("publicationTime(asset) > newestFullEpisodeAt", COMPONENT)
         self.assertIn("fullEpisodeNumberFromCaption(asset.caption) === null", COMPONENT)
         self.assertIn("Newest episode signal", COMPONENT)
-        self.assertIn("newestEpisodeAssets", COMPONENT)
+        self.assertIn("newestEpisodeAsset", COMPONENT)
         self.assertIn("newestEpisodeViews", COMPONENT)
         self.assertIn("newestEpisodeInteractions", COMPONENT)
-        self.assertIn("newestEpisodeViewBreakdown", COMPONENT)
+        self.assertIn("Companion short-form posts show which hooks to repeat", COMPONENT)
+        self.assertNotIn("newestEpisodeAssets", COMPONENT)
+        self.assertNotIn("newestEpisodeViewBreakdown", COMPONENT)
         self.assertNotIn("Current interaction leader", COMPONENT)
 
     def test_public_copy_uses_words_instead_of_progression_arrows(self) -> None:
@@ -167,6 +171,7 @@ class DashboardDataContractTests(unittest.TestCase):
 
     def test_mobile_navigation_fits_the_primary_route_labels(self) -> None:
         self.assertIn("justify-start gap-2 overflow-x-auto", COMPONENT)
+        self.assertIn("min-h-11 min-w-11", COMPONENT)
 
     def test_interaction_terminology_is_consistent_in_public_and_internal_contracts(self) -> None:
         for current_term in (
@@ -187,7 +192,7 @@ class DashboardDataContractTests(unittest.TestCase):
             self.assertNotIn(stale_term, COMPONENT)
 
     def test_youtube_taxonomy_separates_episodes_from_other_publications(self) -> None:
-        self.assertIn("function episodeNumberFromCaption", COMPONENT)
+        self.assertIn("function fullEpisodeNumberFromCaption", COMPONENT)
         self.assertIn("const episodeAssets", COMPONENT)
         self.assertIn("other YouTube publications", COMPONENT)
         self.assertIn("Episode anchors", COMPONENT)
@@ -203,21 +208,20 @@ class DashboardDataContractTests(unittest.TestCase):
         self.assertIn("function fullEpisodeNumberFromCaption", COMPONENT)
         self.assertIn("caption.match(/\\b(?:EP\\.?|Episode)\\s*(\\d+)\\b/)", COMPONENT)
         self.assertIn("fullEpisodeNumberFromCaption(asset.caption)", COMPONENT)
-        self.assertIn("episodeNumberFromCaption(asset.caption) === newestEpisodeNumber", COMPONENT)
-        self.assertIn("(\\d+)\\s*화", COMPONENT)
-        self.assertNotIn(
-            ".filter((asset) => asset.platform === 'youtube' && episodeNumberFromCaption(asset.caption) !== null)",
-            COMPONENT,
-        )
+        self.assertIn("const newestEpisodeAsset = newestFullEpisode?.asset", COMPONENT)
+        self.assertNotIn("function episodeNumberFromCaption", COMPONENT)
+        self.assertNotIn("(\\d+)\\s*화", COMPONENT)
 
-    def test_paid_copy_keeps_a_client_facing_not_live_yet_state(self) -> None:
-        self.assertIn("NOT LIVE YET", COMPONENT)
-        self.assertIn("NOT LIVE YET", GUARD)
-        self.assertIn("Paid media is not live yet", COMPONENT)
-        self.assertIn("UNVERIFIED", COMPONENT)
+    def test_paid_copy_uses_the_verified_partial_coverage_state(self) -> None:
+        self.assertIn("NO VERIFIED DELIVERY", COMPONENT)
+        self.assertIn("NO VERIFIED DELIVERY", GUARD)
+        self.assertIn("No verified paid delivery is available", COMPONENT)
+        self.assertNotIn("NOT LIVE YET", COMPONENT)
+        self.assertNotIn("UNVERIFIED", COMPONENT)
         for overconfident_claim in (
             "No campaigns are live",
             "No paid campaigns are live",
+            "Paid media is not live yet",
             "Maintain the measurement boundary",
             "Keep the delivery section marked Not live",
         ):
