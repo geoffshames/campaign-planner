@@ -9,6 +9,7 @@ LIB = (ROOT / "src/lib/ekator-dashboard.ts").read_text()
 COMPONENT = (ROOT / "src/components/campaign/EkatorCommandCenter.tsx").read_text()
 GUARD = (ROOT / "scripts/ekator/guard_dashboard.py").read_text()
 HERO = COMPONENT.split("function CommandCenter", 1)[1].split("/* ── DETAIL SECTIONS", 1)[0]
+RECOMMENDATIONS = COMPONENT.split("function buildRecommendations", 1)[1].split("const measurementLayers", 1)[0]
 PAGES = "\n".join(
     (ROOT / path).read_text()
     for path in ("src/app/ekator/page.tsx", "src/app/campaign/ekator/page.tsx")
@@ -131,27 +132,39 @@ class DashboardDataContractTests(unittest.TestCase):
 
     def test_weekly_moves_prioritize_current_cross_platform_hook_evidence(self) -> None:
         for current_move in (
+            "Activate TikTok with three proven cuts",
             "Scale the strongest cross-platform hook now",
             "Bridge short-form momentum into Episode",
             "Turn the highest-response hook into a follow-up",
-            "Activate TikTok with the proven campaign cuts",
-            "Build an Episode",
+            "Extend the twin-bond storyline",
         ):
             self.assertIn(current_move, COMPONENT)
         self.assertIn("function buildMatchedCrossPlatformCuts", COMPONENT)
         self.assertIn("function matchedCutStats", COMPONENT)
+        self.assertIn("function findTwinBondCut", COMPONENT)
+        self.assertIn("const recentMatchedCuts = matchedCuts.slice(0, 4)", COMPONENT)
+        self.assertIn("const twinBondCut = findTwinBondCut(matchedCuts)", COMPONENT)
+        self.assertIn("Activate TikTok with three proven cuts", GUARD)
+        self.assertIn("Extend the twin-bond storyline", GUARD)
         self.assertIn("const reachLeader", COMPONENT)
         self.assertIn("const responseLeader", COMPONENT)
         self.assertIn("combinedViews", COMPONENT)
         self.assertIn("interactionRate", COMPONENT)
-        self.assertIn("firstEpisode.episodeNumber !== newestEpisode.episodeNumber", COMPONENT)
-        self.assertIn("These cumulative totals cover different live windows", COMPONENT)
         self.assertIn("A current cross-platform hook and canonical newest episode are not both available", COMPONENT)
         self.assertIn("Fewer than two matched Reel and Short pairs are currently available", COMPONENT)
+        self.assertLess(
+            RECOMMENDATIONS.index("if (tiktokPosts === 0)"),
+            RECOMMENDATIONS.index("moves.push(reachLeader && reachStats"),
+        )
         self.assertNotIn("No second matched Reel and Short pair is currently available", COMPONENT)
         self.assertNotIn("No matching Instagram preview is currently identified for the newest full episode", COMPONENT)
         self.assertNotIn("Only one current matched Reel and Short pair is available", COMPONENT)
         self.assertNotIn("Turn schedule-change attention into a viewing bridge", COMPONENT)
+
+    def test_cross_platform_matching_normalizes_editorial_prefixes(self) -> None:
+        self.assertIn(r".replace(/^\[[^\]]*\]\s*/, '')", COMPONENT)
+        self.assertIn("우애", COMPONENT)
+        self.assertIn("쌍둥이", COMPONENT)
 
     def test_newest_episode_insight_uses_only_the_canonical_full_episode_metric(self) -> None:
         self.assertIn("Finale preview", COMPONENT)

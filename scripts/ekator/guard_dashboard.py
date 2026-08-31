@@ -98,6 +98,8 @@ REQUIRED = [
     "Average interaction pace since publish",
     "interactions/day since publish",
     "Ranked moves for the next 72 hours",
+    "Activate TikTok with three proven cuts",
+    "Extend the twin-bond storyline",
     "Paid Media",
     "NO VERIFIED DELIVERY",
 ]

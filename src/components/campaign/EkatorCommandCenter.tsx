@@ -135,6 +135,7 @@ function crossPlatformMatchKey(caption: string): string {
   return firstCaptionLine(caption)
     .normalize('NFKC')
     .toLocaleLowerCase()
+    .replace(/^\[[^\]]*\]\s*/, '')
     .replace(/[“”"'‘’!?.,|｜:：]/g, '')
     .replace(/\s+/g, ' ')
     .trim();
@@ -164,12 +165,11 @@ function buildMatchedCrossPlatformCuts(assets: EkatorAsset[]): MatchedCrossPlatf
   return assets
     .filter((asset) => asset.platform === 'youtube' && asset.views !== null && asset.views > 0)
     .flatMap((youtube): MatchedCrossPlatformCut[] => {
-      const title = firstCaptionLine(youtube.caption);
+      const title = firstCaptionLine(youtube.caption).replace(/^\[[^\]]*\]\s*/, '');
       const instagram = instagramByCaption.get(crossPlatformMatchKey(youtube.caption));
       return instagram ? [{ title, instagram, youtube, latestPostAt: Math.max(publicationTime(instagram), publicationTime(youtube)) }] : [];
     })
-    .sort((a, b) => b.latestPostAt - a.latestPostAt)
-    .slice(0, 4);
+    .sort((a, b) => b.latestPostAt - a.latestPostAt);
 }
 
 function matchedCutStats(cut: MatchedCrossPlatformCut) {
@@ -180,6 +180,17 @@ function matchedCutStats(cut: MatchedCrossPlatformCut) {
     combinedInteractions,
     interactionRate: combinedViews > 0 ? (combinedInteractions / combinedViews) * 100 : null,
   };
+}
+
+function findTwinBondCut(cuts: MatchedCrossPlatformCut[]): MatchedCrossPlatformCut | undefined {
+  return [...cuts]
+    .filter((cut) => /쌍둥이|\btwins?\b|\bsiblings?\b/i.test(cut.title))
+    .sort((a, b) => {
+      const aBondStory = /우애|\bbond\b/i.test(a.title) ? 1 : 0;
+      const bBondStory = /우애|\bbond\b/i.test(b.title) ? 1 : 0;
+      return bBondStory - aBondStory
+        || matchedCutStats(b).combinedInteractions - matchedCutStats(a).combinedInteractions;
+    })[0];
 }
 
 function deriveDashboardMetrics(snapshot: EkatorAssetSnapshot, channelSnapshot: EkatorChannelSnapshot): DashboardMetrics {
@@ -416,7 +427,7 @@ function buildInsights(
         : 'TikTok audience and publication data are temporarily unavailable.',
       action: tiktokPosts > 0
         ? 'Capture first-hour, 24-hour, and 72-hour pacing before increasing output.'
-        : 'Publish the first controlled cuts and establish a post-level baseline.',
+        : 'Publish a three-cut sequence within 72 hours and record 1-hour, 24-hour, and 72-hour performance.',
       tone: tiktokPosts > 0 ? 'watch' : 'risk',
     },
     activePreview
@@ -457,18 +468,39 @@ function buildRecommendations(
   const activePreviewRate = activePreview ? interactionRate(activePreview) : null;
   const activePreviewName = activePreview && isFinalePreviewCaption(activePreview.caption) ? 'finale preview' : 'latest preview';
   const matchedCuts = buildMatchedCrossPlatformCuts(assets.assets);
-  const reachLeader = [...matchedCuts]
+  const recentMatchedCuts = matchedCuts.slice(0, 4);
+  const reachLeader = [...recentMatchedCuts]
     .sort((a, b) => matchedCutStats(b).combinedViews - matchedCutStats(a).combinedViews)[0];
-  const responseLeader = [...matchedCuts]
+  const responseLeader = [...recentMatchedCuts]
     .filter((cut) => cut.youtube.itemId !== reachLeader?.youtube.itemId)
     .sort((a, b) => (matchedCutStats(b).interactionRate ?? 0) - (matchedCutStats(a).interactionRate ?? 0))[0];
+  const twinBondCut = findTwinBondCut(matchedCuts);
   const reachStats = reachLeader ? matchedCutStats(reachLeader) : null;
   const responseStats = responseLeader ? matchedCutStats(responseLeader) : null;
+  const twinBondStats = twinBondCut ? matchedCutStats(twinBondCut) : null;
   const episodeShare = metrics.youtubeTotalViews > 0 ? (metrics.episodeViews / metrics.youtubeTotalViews) * 100 : null;
   const tiktok = channelSnapshot.channels.find((channel) => channel.platform === 'tiktok');
   const tiktokAudience = tiktok?.audience ?? 0;
   const tiktokPosts = platformPostCount('tiktok', assets, channelSnapshot);
+  const latestOwnedPostAt = assets.assets.reduce((latest, asset) => Math.max(latest, publicationTime(asset)), 0);
+  const latestOwnedPostLabel = latestOwnedPostAt > 0
+    ? new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' }).format(new Date(latestOwnedPostAt))
+    : null;
   const moves: Omit<Rec, 'rank'>[] = [];
+
+  if (tiktokPosts === 0) {
+    moves.push({
+      title: 'Activate TikTok with three proven cuts',
+      why: tiktokAudience > 0
+        ? `${compact(tiktokAudience)} followers and zero published posts are currently recorded.${latestOwnedPostLabel ? ` No verified owned-channel publication has appeared since ${latestOwnedPostLabel}.` : ''}`
+        : `Zero published TikTok posts are currently recorded.${latestOwnedPostLabel ? ` No verified owned-channel publication has appeared since ${latestOwnedPostLabel}.` : ''}`,
+      move: reachLeader && responseLeader
+        ? `Publish “${reachLeader.title}” first, “${responseLeader.title}” second, and a lighter character or group beat third. Record 1-hour, 24-hour, and 72-hour views and interactions separately.`
+        : 'Publish the strongest current hook, a character reaction, and a lighter group moment, then record 1-hour, 24-hour, and 72-hour views and interactions separately.',
+      owner: 'Owned social',
+      impact: 'High',
+    });
+  }
 
   moves.push(reachLeader && reachStats
     ? {
@@ -534,27 +566,25 @@ function buildRecommendations(
         impact: 'Medium',
       });
 
-  moves.push(tiktokPosts === 0
+  if (tiktokPosts > 0) {
+    moves.push({
+      title: 'Use current TikTok posts to establish a pacing baseline',
+      why: `${tiktokPosts} TikTok ${tiktokPosts === 1 ? 'post is' : 'posts are'} live for an audience of ${tiktokAudience > 0 ? compact(tiktokAudience) : '—'}.`,
+      move: 'Compare first-hour, 24-hour, and 72-hour views and interactions before increasing posting volume.',
+      owner: 'Owned social',
+      impact: 'High',
+    });
+  }
+
+  moves.push(twinBondCut && twinBondStats
     ? {
-        title: 'Activate TikTok with the proven campaign cuts',
-        why: tiktokAudience > 0
-          ? `${compact(tiktokAudience)} followers and zero published posts are currently recorded.`
-          : 'Zero published TikTok posts are currently recorded; the audience total is unavailable.',
-        move: reachLeader && responseLeader
-          ? `Publish “${reachLeader.title}” first, “${responseLeader.title}” second, and a lighter character or group beat third. Record first-hour, 24-hour, and 72-hour views and interactions separately.`
-          : 'Publish the strongest current hook, a character reaction, and a lighter group moment, then record first-hour, 24-hour, and 72-hour views and interactions separately.',
-        owner: 'Owned social',
+        title: 'Extend the twin-bond storyline',
+        why: `“${twinBondCut.title}” holds ${compact(twinBondStats.combinedViews)} current views and ${compact(twinBondStats.combinedInteractions)} known interactions across Instagram and YouTube${twinBondStats.interactionRate === null ? '' : ` (${twinBondStats.interactionRate.toFixed(1)}% interaction rate)`}.`,
+        move: 'Build a recurring member-bond series around what the twins notice, protect, or reveal only to each other. Lead with the relationship before adding series context.',
+        owner: 'Creative strategy',
         impact: 'High',
       }
-    : {
-        title: 'Use current TikTok posts to establish a pacing baseline',
-        why: `${tiktokPosts} TikTok ${tiktokPosts === 1 ? 'post is' : 'posts are'} live for an audience of ${tiktokAudience > 0 ? compact(tiktokAudience) : '—'}.`,
-        move: 'Compare first-hour, 24-hour, and 72-hour views and interactions before increasing posting volume.',
-        owner: 'Owned social',
-        impact: 'High',
-      });
-
-  moves.push(firstEpisode && newestEpisode && firstEpisode.episodeNumber !== newestEpisode.episodeNumber
+    : firstEpisode && newestEpisode && firstEpisode.episodeNumber !== newestEpisode.episodeNumber
     ? {
         title: `Build an Episode ${firstEpisode.episodeNumber} to Episode ${newestEpisode.episodeNumber} binge path`,
         why: episodeShare === null
