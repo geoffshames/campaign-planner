@@ -193,6 +193,34 @@ function findTwinBondCut(cuts: MatchedCrossPlatformCut[]): MatchedCrossPlatformC
     })[0];
 }
 
+const lowContextHumorEvidenceByPlatform = {
+  instagram: { publicationId: 'Dafh5PFpHRZ', title: '너무 무더운(?) 분위기였어요' },
+  youtube: { publicationId: 'EnHVhRJUSY4', title: '너무 무더운(?) 분위기였어요' },
+} as const;
+const lowContextHumorEvidenceIds = new Set<string>(
+  Object.values(lowContextHumorEvidenceByPlatform).map((evidence) => evidence.publicationId),
+);
+
+function isLowContextHumorEvidence(asset: EkatorAsset): boolean {
+  if (!asset.sourceUrl) return false;
+  try {
+    return new URL(asset.sourceUrl).pathname
+      .split('/')
+      .some((segment) => lowContextHumorEvidenceIds.has(segment));
+  } catch {
+    return false;
+  }
+}
+
+function findLowContextHumorCut(cuts: MatchedCrossPlatformCut[]): MatchedCrossPlatformCut | undefined {
+  const expectedTitle = crossPlatformMatchKey(lowContextHumorEvidenceByPlatform.youtube.title);
+  return cuts.find((cut) => (
+    crossPlatformMatchKey(cut.title) === expectedTitle
+    && isLowContextHumorEvidence(cut.instagram)
+    && isLowContextHumorEvidence(cut.youtube)
+  ));
+}
+
 function deriveDashboardMetrics(snapshot: EkatorAssetSnapshot, channelSnapshot: EkatorChannelSnapshot): DashboardMetrics {
   const published = snapshot.assets.filter((asset) => asset.platform === 'youtube' && asset.views !== null);
   const episodeAssets = published
@@ -475,9 +503,11 @@ function buildRecommendations(
     .filter((cut) => cut.youtube.itemId !== reachLeader?.youtube.itemId)
     .sort((a, b) => (matchedCutStats(b).interactionRate ?? 0) - (matchedCutStats(a).interactionRate ?? 0))[0];
   const twinBondCut = findTwinBondCut(matchedCuts);
+  const lowContextHumorCut = findLowContextHumorCut(matchedCuts);
   const reachStats = reachLeader ? matchedCutStats(reachLeader) : null;
   const responseStats = responseLeader ? matchedCutStats(responseLeader) : null;
   const twinBondStats = twinBondCut ? matchedCutStats(twinBondCut) : null;
+  const lowContextHumorStats = lowContextHumorCut ? matchedCutStats(lowContextHumorCut) : null;
   const episodeShare = metrics.youtubeTotalViews > 0 ? (metrics.episodeViews / metrics.youtubeTotalViews) * 100 : null;
   const tiktok = channelSnapshot.channels.find((channel) => channel.platform === 'tiktok');
   const tiktokAudience = tiktok?.audience ?? 0;
@@ -506,7 +536,9 @@ function buildRecommendations(
     ? {
         title: 'Scale the strongest cross-platform hook now',
         why: `“${reachLeader.title}” holds ${compact(reachStats.combinedViews)} current views and ${compact(reachStats.combinedInteractions)} known interactions across Instagram and YouTube${reachStats.interactionRate === null ? '' : ` (${reachStats.interactionRate.toFixed(1)}% interaction rate)`}.`,
-        move: 'Release a first-person stakes cut and a context-first member-reaction cut. Preserve the core identity statement in the opening frame.',
+        move: newestEpisode
+          ? `Release a first-person stakes cut and a context-first member-reaction cut. Preserve the core identity statement in the opening frame. Route both edits directly into Episode ${newestEpisode.episodeNumber} through captions, pinned comments, the profile link, playlist placement, and end screens.`
+          : 'Release a first-person stakes cut and a context-first member-reaction cut. Preserve the core identity statement in the opening frame.',
         owner: 'Creative strategy',
         impact: 'High',
       }
@@ -534,20 +566,46 @@ function buildRecommendations(
         impact: 'High',
       });
 
-  moves.push(reachLeader && reachStats && newestEpisode
+  moves.push(twinBondCut && twinBondStats
     ? {
-        title: `Bridge short-form momentum into Episode ${newestEpisode.episodeNumber}`,
-        why: `“${reachLeader.title}” holds ${compact(reachStats.combinedViews)} current cross-platform views, while Episode ${newestEpisode.episodeNumber} holds ${compact(newestEpisode.asset.views ?? 0)} YouTube views. These are current cumulative totals, not proof of click-through.`,
-        move: `Give both follow-up cuts a direct Episode ${newestEpisode.episodeNumber} destination through the caption, pinned comment, profile link, playlist, and end screen.`,
-        owner: 'Owned social',
+        title: 'Extend the twin-bond storyline',
+        why: `“${twinBondCut.title}” holds ${compact(twinBondStats.combinedViews)} current views and ${compact(twinBondStats.combinedInteractions)} known interactions across Instagram and YouTube${twinBondStats.interactionRate === null ? '' : ` (${twinBondStats.interactionRate.toFixed(1)}% interaction rate)`}.`,
+        move: 'Build a recurring member-bond series around what the twins notice, protect, or reveal only to each other. Lead with the relationship before adding series context.',
+        owner: 'Creative strategy',
+        impact: 'High',
+      }
+    : firstEpisode && newestEpisode && firstEpisode.episodeNumber !== newestEpisode.episodeNumber
+    ? {
+        title: `Build an Episode ${firstEpisode.episodeNumber} to Episode ${newestEpisode.episodeNumber} binge path`,
+        why: episodeShare === null
+          ? 'The episode share of current YouTube views is unavailable.'
+          : `${metrics.episodeCount} full episodes account for ${episodeShare.toFixed(1)}% of ${compact(metrics.youtubeTotalViews)} official YouTube views. Episode ${firstEpisode.episodeNumber} remains the entry point at ${compact(firstEpisode.asset.views ?? 0)}, while Episode ${newestEpisode.episodeNumber} holds ${compact(newestEpisode.asset.views ?? 0)}. These cumulative totals cover different live windows.`,
+        move: 'Connect the series with playlist order, end screens, pinned comments, and short-form descriptions. Present the first episode as the start point and the newest episode as the catch-up point.',
+        owner: 'YouTube',
         impact: 'High',
       }
     : {
-        title: 'Create the next cross-platform episode bridge',
-        why: 'A current cross-platform hook and canonical newest episode are not both available.',
-        move: 'Confirm the newest full episode and publish a matched Reel and Short before assigning the next bridge.',
-        owner: 'Owned social',
+        title: 'Create a clear first-to-latest episode path',
+        why: 'The current publication set does not identify both a first and newest full episode.',
+        move: 'Confirm episode numbering, then connect the series with a playlist, end screens, and pinned comments.',
+        owner: 'YouTube',
         impact: 'High',
+      });
+
+  moves.push(lowContextHumorCut && lowContextHumorStats
+    ? {
+        title: 'Use low-context humor as the third TikTok test',
+        why: `“${lowContextHumorCut.title}” holds ${compact(lowContextHumorStats.combinedViews)} current views and ${compact(lowContextHumorStats.combinedInteractions)} known interactions across Instagram and YouTube${lowContextHumorStats.interactionRate === null ? '' : ` (${lowContextHumorStats.interactionRate.toFixed(1)}% interaction rate)`}.`,
+        move: 'Open directly on the funny reaction, require no episode knowledge, and add series context only after the payoff.',
+        owner: 'Creative strategy',
+        impact: 'High',
+      }
+    : {
+        title: 'Use low-context character moments as the third TikTok test',
+        why: 'No current matched low-context humor cut is identified across Instagram and YouTube.',
+        move: 'Choose a self-contained reaction or character beat that works without episode context, then introduce the series after the payoff.',
+        owner: 'Creative strategy',
+        impact: 'Medium',
       });
 
   moves.push(responseLeader && responseStats
@@ -575,32 +633,6 @@ function buildRecommendations(
       impact: 'High',
     });
   }
-
-  moves.push(twinBondCut && twinBondStats
-    ? {
-        title: 'Extend the twin-bond storyline',
-        why: `“${twinBondCut.title}” holds ${compact(twinBondStats.combinedViews)} current views and ${compact(twinBondStats.combinedInteractions)} known interactions across Instagram and YouTube${twinBondStats.interactionRate === null ? '' : ` (${twinBondStats.interactionRate.toFixed(1)}% interaction rate)`}.`,
-        move: 'Build a recurring member-bond series around what the twins notice, protect, or reveal only to each other. Lead with the relationship before adding series context.',
-        owner: 'Creative strategy',
-        impact: 'High',
-      }
-    : firstEpisode && newestEpisode && firstEpisode.episodeNumber !== newestEpisode.episodeNumber
-    ? {
-        title: `Build an Episode ${firstEpisode.episodeNumber} to Episode ${newestEpisode.episodeNumber} binge path`,
-        why: episodeShare === null
-          ? 'The episode share of current YouTube views is unavailable.'
-          : `${metrics.episodeCount} full episodes account for ${episodeShare.toFixed(1)}% of ${compact(metrics.youtubeTotalViews)} official YouTube views. Episode ${firstEpisode.episodeNumber} remains the entry point at ${compact(firstEpisode.asset.views ?? 0)}, while Episode ${newestEpisode.episodeNumber} holds ${compact(newestEpisode.asset.views ?? 0)}. These cumulative totals cover different live windows.`,
-        move: 'Connect the series with playlist order, end screens, pinned comments, and short-form descriptions. Present the first episode as the start point and the newest episode as the catch-up point.',
-        owner: 'YouTube',
-        impact: 'High',
-      }
-    : {
-        title: 'Create a clear first-to-latest episode path',
-        why: 'The current publication set does not identify both a first and newest full episode.',
-        move: 'Confirm episode numbering, then connect the series with a playlist, end screens, and pinned comments.',
-        owner: 'YouTube',
-        impact: 'High',
-      });
 
   return moves.map((move, index) => ({ ...move, rank: index + 1 }));
 }

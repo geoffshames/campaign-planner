@@ -100,6 +100,7 @@ REQUIRED = [
     "Ranked moves for the next 72 hours",
     "Activate TikTok with three proven cuts",
     "Extend the twin-bond storyline",
+    "Use low-context",
     "Paid Media",
     "NO VERIFIED DELIVERY",
 ]

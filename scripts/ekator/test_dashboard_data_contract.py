@@ -10,6 +10,7 @@ COMPONENT = (ROOT / "src/components/campaign/EkatorCommandCenter.tsx").read_text
 GUARD = (ROOT / "scripts/ekator/guard_dashboard.py").read_text()
 HERO = COMPONENT.split("function CommandCenter", 1)[1].split("/* ── DETAIL SECTIONS", 1)[0]
 RECOMMENDATIONS = COMPONENT.split("function buildRecommendations", 1)[1].split("const measurementLayers", 1)[0]
+LOW_CONTEXT_HUMOR_SELECTOR = COMPONENT.split("function findLowContextHumorCut", 1)[1].split("function deriveDashboardMetrics", 1)[0]
 PAGES = "\n".join(
     (ROOT / path).read_text()
     for path in ("src/app/ekator/page.tsx", "src/app/campaign/ekator/page.tsx")
@@ -134,28 +135,52 @@ class DashboardDataContractTests(unittest.TestCase):
         for current_move in (
             "Activate TikTok with three proven cuts",
             "Scale the strongest cross-platform hook now",
-            "Bridge short-form momentum into Episode",
-            "Turn the highest-response hook into a follow-up",
             "Extend the twin-bond storyline",
+            "Use low-context humor as the third TikTok test",
+            "Turn the highest-response hook into a follow-up",
         ):
             self.assertIn(current_move, COMPONENT)
         self.assertIn("function buildMatchedCrossPlatformCuts", COMPONENT)
         self.assertIn("function matchedCutStats", COMPONENT)
         self.assertIn("function findTwinBondCut", COMPONENT)
+        self.assertIn("function findLowContextHumorCut", COMPONENT)
+        self.assertIn("const lowContextHumorEvidenceByPlatform", COMPONENT)
+        self.assertIn("const lowContextHumorEvidenceIds = new Set<string>", COMPONENT)
+        self.assertIn("Dafh5PFpHRZ", COMPONENT)
+        self.assertIn("EnHVhRJUSY4", COMPONENT)
+        self.assertIn("너무 무더운(?) 분위기였어요", COMPONENT)
+        self.assertIn(".find((cut) =>", LOW_CONTEXT_HUMOR_SELECTOR)
+        self.assertNotIn(".sort(", LOW_CONTEXT_HUMOR_SELECTOR)
+        self.assertNotIn("const lowContextHumor =", LOW_CONTEXT_HUMOR_SELECTOR)
+        self.assertNotIn(".test(cut.title)", LOW_CONTEXT_HUMOR_SELECTOR)
+        self.assertIn("Use low-context character moments as the third TikTok test", COMPONENT)
         self.assertIn("const recentMatchedCuts = matchedCuts.slice(0, 4)", COMPONENT)
         self.assertIn("const twinBondCut = findTwinBondCut(matchedCuts)", COMPONENT)
+        self.assertIn("const lowContextHumorCut = findLowContextHumorCut(matchedCuts)", COMPONENT)
         self.assertIn("Activate TikTok with three proven cuts", GUARD)
         self.assertIn("Extend the twin-bond storyline", GUARD)
+        self.assertIn('"Use low-context"', GUARD)
+        self.assertNotIn('"Use low-context humor as the third TikTok test"', GUARD)
         self.assertIn("const reachLeader", COMPONENT)
         self.assertIn("const responseLeader", COMPONENT)
         self.assertIn("combinedViews", COMPONENT)
         self.assertIn("interactionRate", COMPONENT)
-        self.assertIn("A current cross-platform hook and canonical newest episode are not both available", COMPONENT)
         self.assertIn("Fewer than two matched Reel and Short pairs are currently available", COMPONENT)
-        self.assertLess(
-            RECOMMENDATIONS.index("if (tiktokPosts === 0)"),
-            RECOMMENDATIONS.index("moves.push(reachLeader && reachStats"),
+        self.assertIn("Route both edits directly into Episode", COMPONENT)
+        expected_order = (
+            "if (tiktokPosts === 0)",
+            "moves.push(reachLeader && reachStats",
+            "moves.push(twinBondCut && twinBondStats",
+            "moves.push(lowContextHumorCut && lowContextHumorStats",
+            "moves.push(responseLeader && responseStats",
         )
+        for marker in expected_order:
+            self.assertIn(marker, RECOMMENDATIONS)
+        self.assertEqual(
+            list(expected_order),
+            sorted(expected_order, key=RECOMMENDATIONS.index),
+        )
+        self.assertNotIn("Bridge short-form momentum into Episode", RECOMMENDATIONS)
         self.assertNotIn("No second matched Reel and Short pair is currently available", COMPONENT)
         self.assertNotIn("No matching Instagram preview is currently identified for the newest full episode", COMPONENT)
         self.assertNotIn("Only one current matched Reel and Short pair is available", COMPONENT)
