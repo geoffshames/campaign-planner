@@ -142,7 +142,7 @@ class DashboardDataContractTests(unittest.TestCase):
             self.assertIn(current_move, COMPONENT)
         self.assertIn("function buildMatchedCrossPlatformCuts", COMPONENT)
         self.assertIn("function matchedCutStats", COMPONENT)
-        self.assertIn("function findTwinBondCut", COMPONENT)
+        self.assertIn("function findTwinBondCuts", COMPONENT)
         self.assertIn("function findLowContextHumorCut", COMPONENT)
         self.assertIn("const lowContextHumorEvidenceByPlatform", COMPONENT)
         self.assertIn("const lowContextHumorEvidenceIds = new Set<string>", COMPONENT)
@@ -155,7 +155,7 @@ class DashboardDataContractTests(unittest.TestCase):
         self.assertNotIn(".test(cut.title)", LOW_CONTEXT_HUMOR_SELECTOR)
         self.assertIn("Use low-context character moments as the third TikTok test", COMPONENT)
         self.assertIn("const recentMatchedCuts = matchedCuts.slice(0, 4)", COMPONENT)
-        self.assertIn("const twinBondCut = findTwinBondCut(matchedCuts)", COMPONENT)
+        self.assertIn("const twinBondCuts = findTwinBondCuts(matchedCuts)", COMPONENT)
         self.assertIn("const lowContextHumorCut = findLowContextHumorCut(matchedCuts)", COMPONENT)
         self.assertIn("Activate TikTok with three proven cuts", GUARD)
         self.assertIn("Extend the twin-bond storyline", GUARD)
@@ -170,7 +170,7 @@ class DashboardDataContractTests(unittest.TestCase):
         expected_order = (
             "if (tiktokPosts === 0)",
             "moves.push(reachLeader && reachStats",
-            "moves.push(twinBondCut && twinBondStats",
+            "moves.push(twinBondCuts.length > 0",
             "moves.push(lowContextHumorCut && lowContextHumorStats",
             "moves.push(responseLeader && responseStats",
         )
@@ -186,10 +186,49 @@ class DashboardDataContractTests(unittest.TestCase):
         self.assertNotIn("Only one current matched Reel and Short pair is available", COMPONENT)
         self.assertNotIn("Turn schedule-change attention into a viewing bridge", COMPONENT)
 
+    def test_twin_bond_strategy_aggregates_every_matched_story(self) -> None:
+        self.assertIn("function aggregateMatchedCutsStats", COMPONENT)
+        self.assertIn("const twinBondStats = aggregateMatchedCutsStats(twinBondCuts)", RECOMMENDATIONS)
+        self.assertIn("twin-bond ${twinBondCuts.length === 1 ? 'hook' : 'hooks'} hold", RECOMMENDATIONS)
+        self.assertIn("across ${twinBondCuts.length * 2} owned posts", RECOMMENDATIONS)
+        self.assertNotIn("function findTwinBondCut(", COMPONENT)
+
+    def test_twin_bond_taxonomy_requires_twin_and_relationship_language(self) -> None:
+        selector = COMPONENT.split("function isTwinBondTitle", 1)[1].split("const lowContextHumorEvidenceByPlatform", 1)[0]
+        self.assertIn("const normalized = crossPlatformMatchKey(title)", selector)
+        self.assertIn("const hasTwin =", selector)
+        self.assertIn("const hasBond =", selector)
+        self.assertIn("return hasTwin && hasBond", selector)
+        self.assertIn(".filter((cut) => isTwinBondTitle(cut.title))", selector)
+        self.assertNotIn(".sort(", selector)
+
+    def test_tiktok_sequence_uses_verified_low_context_cut_third(self) -> None:
+        self.assertIn("const tiktokSequenceIds = new Set", RECOMMENDATIONS)
+        self.assertIn("const hasDistinctTikTokSequence = tiktokSequenceIds.size === 3", RECOMMENDATIONS)
+        self.assertIn("hasDistinctTikTokSequence && reachLeader && responseLeader && lowContextHumorCut", RECOMMENDATIONS)
+        self.assertIn("and “${lowContextHumorCut.title}” third", RECOMMENDATIONS)
+
+    def test_cross_platform_matching_is_one_pair_per_caption(self) -> None:
+        matcher = COMPONENT.split("function buildMatchedCrossPlatformCuts", 1)[1].split("function matchedCutStats", 1)[0]
+        self.assertIn("const youtubeByCaption = new Map<string, EkatorAsset>()", matcher)
+        self.assertIn("const current = target.get(key)", matcher)
+        self.assertIn("publicationTime(asset) > publicationTime(current)", matcher)
+        self.assertIn("Array.from(youtubeByCaption.values())", matcher)
+
     def test_cross_platform_matching_normalizes_editorial_prefixes(self) -> None:
         self.assertIn(r".replace(/^\[[^\]]*\]\s*/, '')", COMPONENT)
         self.assertIn("우애", COMPONENT)
         self.assertIn("쌍둥이", COMPONENT)
+
+    def test_low_context_humor_evidence_accepts_youtube_watch_urls(self) -> None:
+        publication_id_helper = COMPONENT.split("function publicationId", 1)[1].split("function isLowContextHumorEvidence", 1)[0]
+        evidence_matcher = COMPONENT.split("function isLowContextHumorEvidence", 1)[1].split("function findLowContextHumorCut", 1)[0]
+        self.assertIn("hostname === 'youtube.com'", publication_id_helper)
+        self.assertIn("segments[0] === 'watch'", publication_id_helper)
+        self.assertIn("url.searchParams.get('v')", publication_id_helper)
+        self.assertNotIn("url.pathname === '/watch'", publication_id_helper)
+        self.assertIn("publicationId(asset)", evidence_matcher)
+        self.assertNotIn("new URL(asset.sourceUrl).pathname", evidence_matcher)
 
     def test_newest_episode_insight_uses_only_the_canonical_full_episode_metric(self) -> None:
         self.assertIn("Finale preview", COMPONENT)

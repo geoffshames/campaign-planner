@@ -156,14 +156,17 @@ function findActivePreview(assets: EkatorAsset[], newestFullEpisode?: EkatorAsse
 
 function buildMatchedCrossPlatformCuts(assets: EkatorAsset[]): MatchedCrossPlatformCut[] {
   const instagramByCaption = new Map<string, EkatorAsset>();
+  const youtubeByCaption = new Map<string, EkatorAsset>();
   for (const asset of assets) {
-    if (asset.platform !== 'instagram' || asset.views === null || asset.views <= 0) continue;
+    if ((asset.platform !== 'instagram' && asset.platform !== 'youtube') || asset.views === null || asset.views <= 0) continue;
     const key = crossPlatformMatchKey(asset.caption);
-    if (key && !instagramByCaption.has(key)) instagramByCaption.set(key, asset);
+    if (!key) continue;
+    const target = asset.platform === 'instagram' ? instagramByCaption : youtubeByCaption;
+    const current = target.get(key);
+    if (!current || publicationTime(asset) > publicationTime(current)) target.set(key, asset);
   }
 
-  return assets
-    .filter((asset) => asset.platform === 'youtube' && asset.views !== null && asset.views > 0)
+  return Array.from(youtubeByCaption.values())
     .flatMap((youtube): MatchedCrossPlatformCut[] => {
       const title = firstCaptionLine(youtube.caption).replace(/^\[[^\]]*\]\s*/, '');
       const instagram = instagramByCaption.get(crossPlatformMatchKey(youtube.caption));
@@ -182,15 +185,31 @@ function matchedCutStats(cut: MatchedCrossPlatformCut) {
   };
 }
 
-function findTwinBondCut(cuts: MatchedCrossPlatformCut[]): MatchedCrossPlatformCut | undefined {
-  return [...cuts]
-    .filter((cut) => /쌍둥이|\btwins?\b|\bsiblings?\b/i.test(cut.title))
-    .sort((a, b) => {
-      const aBondStory = /우애|\bbond\b/i.test(a.title) ? 1 : 0;
-      const bBondStory = /우애|\bbond\b/i.test(b.title) ? 1 : 0;
-      return bBondStory - aBondStory
-        || matchedCutStats(b).combinedInteractions - matchedCutStats(a).combinedInteractions;
-    })[0];
+function aggregateMatchedCutsStats(cuts: MatchedCrossPlatformCut[]) {
+  const totals = cuts.reduce((sum, cut) => {
+    const stats = matchedCutStats(cut);
+    return {
+      combinedViews: sum.combinedViews + stats.combinedViews,
+      combinedInteractions: sum.combinedInteractions + stats.combinedInteractions,
+    };
+  }, { combinedViews: 0, combinedInteractions: 0 });
+  return {
+    ...totals,
+    interactionRate: totals.combinedViews > 0
+      ? (totals.combinedInteractions / totals.combinedViews) * 100
+      : null,
+  };
+}
+
+function isTwinBondTitle(title: string): boolean {
+  const normalized = crossPlatformMatchKey(title);
+  const hasTwin = /쌍둥이|\btwins?\b|\bsiblings?\b/i.test(normalized);
+  const hasBond = /우애|하지만\s+둘은\s+쌍둥이|\bbond\b|\brelationship\b/i.test(normalized);
+  return hasTwin && hasBond;
+}
+
+function findTwinBondCuts(cuts: MatchedCrossPlatformCut[]): MatchedCrossPlatformCut[] {
+  return cuts.filter((cut) => isTwinBondTitle(cut.title));
 }
 
 const lowContextHumorEvidenceByPlatform = {
@@ -201,15 +220,33 @@ const lowContextHumorEvidenceIds = new Set<string>(
   Object.values(lowContextHumorEvidenceByPlatform).map((evidence) => evidence.publicationId),
 );
 
-function isLowContextHumorEvidence(asset: EkatorAsset): boolean {
-  if (!asset.sourceUrl) return false;
+function publicationId(asset: EkatorAsset): string | null {
+  if (!asset.sourceUrl) return null;
   try {
-    return new URL(asset.sourceUrl).pathname
-      .split('/')
-      .some((segment) => lowContextHumorEvidenceIds.has(segment));
+    const url = new URL(asset.sourceUrl);
+    const hostname = url.hostname.toLowerCase().replace(/^www\./, '');
+    const segments = url.pathname.split('/').filter(Boolean);
+    if (hostname === 'youtu.be') return segments[0] ?? null;
+    if (hostname === 'youtube.com' || hostname.endsWith('.youtube.com')) {
+      if (segments[0] === 'watch') return url.searchParams.get('v');
+      if (['shorts', 'live', 'embed'].includes(segments[0] ?? '')) return segments[1] ?? null;
+    }
+    if (hostname === 'instagram.com' || hostname.endsWith('.instagram.com')) {
+      if (['p', 'reel', 'tv'].includes(segments[0] ?? '')) return segments[1] ?? null;
+    }
+    if (hostname === 'tiktok.com' || hostname.endsWith('.tiktok.com')) {
+      const videoIndex = segments.indexOf('video');
+      return videoIndex >= 0 ? segments[videoIndex + 1] ?? null : null;
+    }
+    return null;
   } catch {
-    return false;
+    return null;
   }
+}
+
+function isLowContextHumorEvidence(asset: EkatorAsset): boolean {
+  const id = publicationId(asset);
+  return id !== null && lowContextHumorEvidenceIds.has(id);
 }
 
 function findLowContextHumorCut(cuts: MatchedCrossPlatformCut[]): MatchedCrossPlatformCut | undefined {
@@ -502,11 +539,16 @@ function buildRecommendations(
   const responseLeader = [...recentMatchedCuts]
     .filter((cut) => cut.youtube.itemId !== reachLeader?.youtube.itemId)
     .sort((a, b) => (matchedCutStats(b).interactionRate ?? 0) - (matchedCutStats(a).interactionRate ?? 0))[0];
-  const twinBondCut = findTwinBondCut(matchedCuts);
+  const twinBondCuts = findTwinBondCuts(matchedCuts);
   const lowContextHumorCut = findLowContextHumorCut(matchedCuts);
+  const tiktokSequenceIds = new Set(
+    [reachLeader?.youtube.itemId, responseLeader?.youtube.itemId, lowContextHumorCut?.youtube.itemId]
+      .filter((itemId): itemId is string => Boolean(itemId)),
+  );
+  const hasDistinctTikTokSequence = tiktokSequenceIds.size === 3;
   const reachStats = reachLeader ? matchedCutStats(reachLeader) : null;
   const responseStats = responseLeader ? matchedCutStats(responseLeader) : null;
-  const twinBondStats = twinBondCut ? matchedCutStats(twinBondCut) : null;
+  const twinBondStats = aggregateMatchedCutsStats(twinBondCuts);
   const lowContextHumorStats = lowContextHumorCut ? matchedCutStats(lowContextHumorCut) : null;
   const episodeShare = metrics.youtubeTotalViews > 0 ? (metrics.episodeViews / metrics.youtubeTotalViews) * 100 : null;
   const tiktok = channelSnapshot.channels.find((channel) => channel.platform === 'tiktok');
@@ -524,8 +566,8 @@ function buildRecommendations(
       why: tiktokAudience > 0
         ? `${compact(tiktokAudience)} followers and zero published posts are currently recorded.${latestOwnedPostLabel ? ` No verified owned-channel publication has appeared since ${latestOwnedPostLabel}.` : ''}`
         : `Zero published TikTok posts are currently recorded.${latestOwnedPostLabel ? ` No verified owned-channel publication has appeared since ${latestOwnedPostLabel}.` : ''}`,
-      move: reachLeader && responseLeader
-        ? `Publish “${reachLeader.title}” first, “${responseLeader.title}” second, and a lighter character or group beat third. Record 1-hour, 24-hour, and 72-hour views and interactions separately.`
+      move: hasDistinctTikTokSequence && reachLeader && responseLeader && lowContextHumorCut
+        ? `Publish “${reachLeader.title}” first, “${responseLeader.title}” second, and “${lowContextHumorCut.title}” third. Record 1-hour, 24-hour, and 72-hour views and interactions separately.`
         : 'Publish the strongest current hook, a character reaction, and a lighter group moment, then record 1-hour, 24-hour, and 72-hour views and interactions separately.',
       owner: 'Owned social',
       impact: 'High',
@@ -566,10 +608,10 @@ function buildRecommendations(
         impact: 'High',
       });
 
-  moves.push(twinBondCut && twinBondStats
+  moves.push(twinBondCuts.length > 0
     ? {
         title: 'Extend the twin-bond storyline',
-        why: `“${twinBondCut.title}” holds ${compact(twinBondStats.combinedViews)} current views and ${compact(twinBondStats.combinedInteractions)} known interactions across Instagram and YouTube${twinBondStats.interactionRate === null ? '' : ` (${twinBondStats.interactionRate.toFixed(1)}% interaction rate)`}.`,
+        why: `${twinBondCuts.length} twin-bond ${twinBondCuts.length === 1 ? 'hook' : 'hooks'} hold ${compact(twinBondStats.combinedViews)} current views and ${compact(twinBondStats.combinedInteractions)} known interactions across ${twinBondCuts.length * 2} owned posts${twinBondStats.interactionRate === null ? '' : ` (${twinBondStats.interactionRate.toFixed(1)}% interaction rate)`}.`,
         move: 'Build a recurring member-bond series around what the twins notice, protect, or reveal only to each other. Lead with the relationship before adding series context.',
         owner: 'Creative strategy',
         impact: 'High',
