@@ -520,7 +520,6 @@ function buildInsights(
 function buildRecommendations(
   metrics: DashboardMetrics,
   assets: EkatorAssetSnapshot,
-  channelSnapshot: EkatorChannelSnapshot,
 ): Rec[] {
   const youtubeEpisodes = assets.assets
     .filter((asset) => asset.platform === 'youtube')
@@ -541,47 +540,25 @@ function buildRecommendations(
     .sort((a, b) => (matchedCutStats(b).interactionRate ?? 0) - (matchedCutStats(a).interactionRate ?? 0))[0];
   const twinBondCuts = findTwinBondCuts(matchedCuts);
   const lowContextHumorCut = findLowContextHumorCut(matchedCuts);
-  const tiktokSequenceIds = new Set(
-    [reachLeader?.youtube.itemId, responseLeader?.youtube.itemId, lowContextHumorCut?.youtube.itemId]
-      .filter((itemId): itemId is string => Boolean(itemId)),
-  );
-  const hasDistinctTikTokSequence = tiktokSequenceIds.size === 3;
   const reachStats = reachLeader ? matchedCutStats(reachLeader) : null;
   const responseStats = responseLeader ? matchedCutStats(responseLeader) : null;
   const twinBondStats = aggregateMatchedCutsStats(twinBondCuts);
   const lowContextHumorStats = lowContextHumorCut ? matchedCutStats(lowContextHumorCut) : null;
   const episodeShare = metrics.youtubeTotalViews > 0 ? (metrics.episodeViews / metrics.youtubeTotalViews) * 100 : null;
-  const tiktok = channelSnapshot.channels.find((channel) => channel.platform === 'tiktok');
-  const tiktokAudience = tiktok?.audience ?? 0;
-  const tiktokPosts = platformPostCount('tiktok', assets, channelSnapshot);
   const latestOwnedPostAt = assets.assets.reduce((latest, asset) => Math.max(latest, publicationTime(asset)), 0);
   const latestOwnedPostLabel = latestOwnedPostAt > 0
     ? new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' }).format(new Date(latestOwnedPostAt))
     : null;
   const moves: Omit<Rec, 'rank'>[] = [];
 
-  if (tiktokPosts === 0) {
-    moves.push({
-      title: 'Activate TikTok with three proven cuts',
-      why: tiktokAudience > 0
-        ? `${compact(tiktokAudience)} followers and zero published posts are currently recorded.${latestOwnedPostLabel ? ` No verified owned-channel publication has appeared since ${latestOwnedPostLabel}.` : ''}`
-        : `Zero published TikTok posts are currently recorded.${latestOwnedPostLabel ? ` No verified owned-channel publication has appeared since ${latestOwnedPostLabel}.` : ''}`,
-      move: hasDistinctTikTokSequence && reachLeader && responseLeader && lowContextHumorCut
-        ? `Publish “${reachLeader.title}” first, “${responseLeader.title}” second, and “${lowContextHumorCut.title}” third. Record 1-hour, 24-hour, and 72-hour views and interactions separately.`
-        : 'Publish the strongest current hook, a character reaction, and a lighter group moment, then record 1-hour, 24-hour, and 72-hour views and interactions separately.',
-      owner: 'Owned social',
-      impact: 'High',
-    });
-  }
-
   moves.push(reachLeader && reachStats
     ? {
-        title: 'Scale the strongest cross-platform hook now',
-        why: `“${reachLeader.title}” holds ${compact(reachStats.combinedViews)} current views and ${compact(reachStats.combinedInteractions)} known interactions across Instagram and YouTube${reachStats.interactionRate === null ? '' : ` (${reachStats.interactionRate.toFixed(1)}% interaction rate)`}.`,
+        title: 'Restart owned publishing with the identity-stakes hook',
+        why: `${latestOwnedPostLabel ? `No verified owned-channel publication has appeared since ${latestOwnedPostLabel}, while ` : ''}“${reachLeader.title}” continued gaining across Instagram and YouTube in this week’s read and holds ${compact(reachStats.combinedViews)} current views with ${compact(reachStats.combinedInteractions)} known interactions${reachStats.interactionRate === null ? '' : ` (${reachStats.interactionRate.toFixed(1)}% interaction rate)`}.`,
         move: newestEpisode
-          ? `Release a first-person stakes cut and a context-first member-reaction cut. Preserve the core identity statement in the opening frame. Route both edits directly into Episode ${newestEpisode.episodeNumber} through captions, pinned comments, the profile link, playlist placement, and end screens.`
-          : 'Release a first-person stakes cut and a context-first member-reaction cut. Preserve the core identity statement in the opening frame.',
-        owner: 'Creative strategy',
+          ? `Publish a follow-up Reel and Short that preserve the opening identity statement, then send viewers to Episode ${newestEpisode.episodeNumber} through the caption, pinned comment, profile link, playlist placement, and end screen.`
+          : 'Publish a follow-up Reel and Short that preserve the opening identity statement, then send viewers to the newest full episode.',
+        owner: 'Owned social',
         impact: 'High',
       }
     : activePreview
@@ -608,6 +585,48 @@ function buildRecommendations(
         impact: 'High',
       });
 
+  moves.push(firstEpisode && newestEpisode && firstEpisode.episodeNumber !== newestEpisode.episodeNumber
+    ? {
+        title: `Bridge the origin story directly to Episode ${newestEpisode.episodeNumber}`,
+        why: episodeShare === null
+          ? 'The episode share of current YouTube views is unavailable.'
+          : `${metrics.episodeCount} full episodes account for ${episodeShare.toFixed(1)}% of ${compact(metrics.youtubeTotalViews)} official YouTube views. Episode ${firstEpisode.episodeNumber} remains the entry point at ${compact(firstEpisode.asset.views ?? 0)}, while Episode ${newestEpisode.episodeNumber} holds ${compact(newestEpisode.asset.views ?? 0)}.`,
+        move: `Cut a 20–30 second “where they started / where they landed” bridge using Episode ${firstEpisode.episodeNumber} and Episode ${newestEpisode.episodeNumber}. Link directly to Episode ${newestEpisode.episodeNumber} and the complete episode playlist.`,
+        owner: 'YouTube',
+        impact: 'High',
+      }
+    : metrics.episodeCount > 0
+    ? {
+        title: 'Turn episode-led demand into a binge path',
+        why: episodeShare === null ? 'The episode share of current YouTube views is unavailable.' : `${metrics.episodeCount} full episodes account for ${episodeShare.toFixed(1)}% of ${compact(metrics.youtubeTotalViews)} official YouTube views.`,
+        move: 'Confirm the first and newest episode anchors, then connect them with a short-form origin bridge, playlist order, end screens, and pinned comments.',
+        owner: 'YouTube',
+        impact: 'Medium',
+      }
+    : {
+        title: 'Confirm the episode path before the next restart cut',
+        why: 'The current publication set does not identify a full-episode anchor.',
+        move: 'Confirm episode numbering, then connect the restart sequence with a playlist, end screens, and pinned comments.',
+        owner: 'YouTube',
+        impact: 'Medium',
+      });
+
+  moves.push(lowContextHumorCut && lowContextHumorStats
+    ? {
+        title: 'Use low-context humor as the second restart cut',
+        why: `“${lowContextHumorCut.title}” holds ${compact(lowContextHumorStats.combinedViews)} current views and ${compact(lowContextHumorStats.combinedInteractions)} known interactions across Instagram and YouTube${lowContextHumorStats.interactionRate === null ? '' : ` (${lowContextHumorStats.interactionRate.toFixed(1)}% interaction rate)`}.`,
+        move: 'Open directly on the funny reaction, require no episode knowledge, and add series context only after the payoff.',
+        owner: 'Creative strategy',
+        impact: 'High',
+      }
+    : {
+        title: 'Use low-context character moments as the second restart cut',
+        why: 'No current matched low-context humor cut is identified across Instagram and YouTube.',
+        move: 'Choose a self-contained reaction or character beat that works without episode context, then introduce the series after the payoff.',
+        owner: 'Creative strategy',
+        impact: 'Medium',
+      });
+
   moves.push(twinBondCuts.length > 0
     ? {
         title: 'Extend the twin-bond storyline',
@@ -616,36 +635,10 @@ function buildRecommendations(
         owner: 'Creative strategy',
         impact: 'High',
       }
-    : firstEpisode && newestEpisode && firstEpisode.episodeNumber !== newestEpisode.episodeNumber
-    ? {
-        title: `Build an Episode ${firstEpisode.episodeNumber} to Episode ${newestEpisode.episodeNumber} binge path`,
-        why: episodeShare === null
-          ? 'The episode share of current YouTube views is unavailable.'
-          : `${metrics.episodeCount} full episodes account for ${episodeShare.toFixed(1)}% of ${compact(metrics.youtubeTotalViews)} official YouTube views. Episode ${firstEpisode.episodeNumber} remains the entry point at ${compact(firstEpisode.asset.views ?? 0)}, while Episode ${newestEpisode.episodeNumber} holds ${compact(newestEpisode.asset.views ?? 0)}. These cumulative totals cover different live windows.`,
-        move: 'Connect the series with playlist order, end screens, pinned comments, and short-form descriptions. Present the first episode as the start point and the newest episode as the catch-up point.',
-        owner: 'YouTube',
-        impact: 'High',
-      }
     : {
-        title: 'Create a clear first-to-latest episode path',
-        why: 'The current publication set does not identify both a first and newest full episode.',
-        move: 'Confirm episode numbering, then connect the series with a playlist, end screens, and pinned comments.',
-        owner: 'YouTube',
-        impact: 'High',
-      });
-
-  moves.push(lowContextHumorCut && lowContextHumorStats
-    ? {
-        title: 'Use low-context humor as the third TikTok test',
-        why: `“${lowContextHumorCut.title}” holds ${compact(lowContextHumorStats.combinedViews)} current views and ${compact(lowContextHumorStats.combinedInteractions)} known interactions across Instagram and YouTube${lowContextHumorStats.interactionRate === null ? '' : ` (${lowContextHumorStats.interactionRate.toFixed(1)}% interaction rate)`}.`,
-        move: 'Open directly on the funny reaction, require no episode knowledge, and add series context only after the payoff.',
-        owner: 'Creative strategy',
-        impact: 'High',
-      }
-    : {
-        title: 'Use low-context character moments as the third TikTok test',
-        why: 'No current matched low-context humor cut is identified across Instagram and YouTube.',
-        move: 'Choose a self-contained reaction or character beat that works without episode context, then introduce the series after the payoff.',
+        title: 'Build a recurring member-bond storyline',
+        why: 'No matched twin-bond pair is currently identified across Instagram and YouTube.',
+        move: 'Choose one relationship-led moment, publish matched Reel and Short versions, and compare view-weighted interaction rates.',
         owner: 'Creative strategy',
         impact: 'Medium',
       });
@@ -665,16 +658,6 @@ function buildRecommendations(
         owner: 'Owned social',
         impact: 'Medium',
       });
-
-  if (tiktokPosts > 0) {
-    moves.push({
-      title: 'Use current TikTok posts to establish a pacing baseline',
-      why: `${tiktokPosts} TikTok ${tiktokPosts === 1 ? 'post is' : 'posts are'} live for an audience of ${tiktokAudience > 0 ? compact(tiktokAudience) : '—'}.`,
-      move: 'Compare first-hour, 24-hour, and 72-hour views and interactions before increasing posting volume.',
-      owner: 'Owned social',
-      impact: 'High',
-    });
-  }
 
   return moves.map((move, index) => ({ ...move, rank: index + 1 }));
 }
@@ -1736,7 +1719,7 @@ export function EkatorCommandCenter({ registry, assets, channelSnapshot }: { reg
   const audienceGrowth = useMemo(() => deriveSevenDayAudienceGrowth(audienceTimeline), [audienceTimeline]);
   const interaction = useMemo(() => derivePortfolioInteraction(assets), [assets]);
   const insights = useMemo(() => buildInsights(metrics, assets, channelSnapshot), [metrics, assets, channelSnapshot]);
-  const recommendations = useMemo(() => buildRecommendations(metrics, assets, channelSnapshot), [metrics, assets, channelSnapshot]);
+  const recommendations = useMemo(() => buildRecommendations(metrics, assets), [metrics, assets]);
   const nav = useMemo(() => [
     ['channels', 'Channels'], ['assets', 'Assets'], ['insights', 'Insights'], ['data', 'Data'], ['moves', 'Moves'],
   ], []);

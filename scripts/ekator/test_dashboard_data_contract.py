@@ -133,10 +133,10 @@ class DashboardDataContractTests(unittest.TestCase):
 
     def test_weekly_moves_prioritize_current_cross_platform_hook_evidence(self) -> None:
         for current_move in (
-            "Activate TikTok with three proven cuts",
-            "Scale the strongest cross-platform hook now",
+            "Restart owned publishing with the identity-stakes hook",
+            "Bridge the origin story directly to Episode",
             "Extend the twin-bond storyline",
-            "Use low-context humor as the third TikTok test",
+            "Use low-context humor as the second restart cut",
             "Turn the highest-response hook into a follow-up",
         ):
             self.assertIn(current_move, COMPONENT)
@@ -153,25 +153,25 @@ class DashboardDataContractTests(unittest.TestCase):
         self.assertNotIn(".sort(", LOW_CONTEXT_HUMOR_SELECTOR)
         self.assertNotIn("const lowContextHumor =", LOW_CONTEXT_HUMOR_SELECTOR)
         self.assertNotIn(".test(cut.title)", LOW_CONTEXT_HUMOR_SELECTOR)
-        self.assertIn("Use low-context character moments as the third TikTok test", COMPONENT)
+        self.assertIn("Use low-context character moments as the second restart cut", COMPONENT)
         self.assertIn("const recentMatchedCuts = matchedCuts.slice(0, 4)", COMPONENT)
         self.assertIn("const twinBondCuts = findTwinBondCuts(matchedCuts)", COMPONENT)
         self.assertIn("const lowContextHumorCut = findLowContextHumorCut(matchedCuts)", COMPONENT)
-        self.assertIn("Activate TikTok with three proven cuts", GUARD)
+        self.assertIn("Restart owned publishing with the identity-stakes hook", GUARD)
+        self.assertIn("Bridge the origin story directly to Episode", GUARD)
         self.assertIn("Extend the twin-bond storyline", GUARD)
         self.assertIn('"Use low-context"', GUARD)
-        self.assertNotIn('"Use low-context humor as the third TikTok test"', GUARD)
         self.assertIn("const reachLeader", COMPONENT)
         self.assertIn("const responseLeader", COMPONENT)
         self.assertIn("combinedViews", COMPONENT)
         self.assertIn("interactionRate", COMPONENT)
         self.assertIn("Fewer than two matched Reel and Short pairs are currently available", COMPONENT)
-        self.assertIn("Route both edits directly into Episode", COMPONENT)
+        self.assertIn("send viewers to Episode", COMPONENT)
         expected_order = (
-            "if (tiktokPosts === 0)",
             "moves.push(reachLeader && reachStats",
-            "moves.push(twinBondCuts.length > 0",
+            "moves.push(firstEpisode && newestEpisode",
             "moves.push(lowContextHumorCut && lowContextHumorStats",
+            "moves.push(twinBondCuts.length > 0",
             "moves.push(responseLeader && responseStats",
         )
         for marker in expected_order:
@@ -185,6 +185,7 @@ class DashboardDataContractTests(unittest.TestCase):
         self.assertNotIn("No matching Instagram preview is currently identified for the newest full episode", COMPONENT)
         self.assertNotIn("Only one current matched Reel and Short pair is available", COMPONENT)
         self.assertNotIn("Turn schedule-change attention into a viewing bridge", COMPONENT)
+        self.assertNotIn("Activate TikTok with three proven cuts", RECOMMENDATIONS)
 
     def test_twin_bond_strategy_aggregates_every_matched_story(self) -> None:
         self.assertIn("function aggregateMatchedCutsStats", COMPONENT)
@@ -202,11 +203,11 @@ class DashboardDataContractTests(unittest.TestCase):
         self.assertIn(".filter((cut) => isTwinBondTitle(cut.title))", selector)
         self.assertNotIn(".sort(", selector)
 
-    def test_tiktok_sequence_uses_verified_low_context_cut_third(self) -> None:
-        self.assertIn("const tiktokSequenceIds = new Set", RECOMMENDATIONS)
-        self.assertIn("const hasDistinctTikTokSequence = tiktokSequenceIds.size === 3", RECOMMENDATIONS)
-        self.assertIn("hasDistinctTikTokSequence && reachLeader && responseLeader && lowContextHumorCut", RECOMMENDATIONS)
-        self.assertIn("and “${lowContextHumorCut.title}” third", RECOMMENDATIONS)
+    def test_restart_sequence_uses_verified_current_evidence(self) -> None:
+        self.assertIn("continued gaining across Instagram and YouTube in this week’s read", RECOMMENDATIONS)
+        self.assertIn("Publish a follow-up Reel and Short", RECOMMENDATIONS)
+        self.assertIn("Cut a 20–30 second “where they started / where they landed” bridge", RECOMMENDATIONS)
+        self.assertNotIn("const tiktokSequenceIds = new Set", RECOMMENDATIONS)
 
     def test_cross_platform_matching_is_one_pair_per_caption(self) -> None:
         matcher = COMPONENT.split("function buildMatchedCrossPlatformCuts", 1)[1].split("function matchedCutStats", 1)[0]
