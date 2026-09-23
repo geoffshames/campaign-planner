@@ -138,7 +138,7 @@ function Page() {
   }, [mx, my]);
   const [menuOpen, setMenuOpen] = useState(false);
   const nav: [string, string][] = [
-    ['brief', 'Brief'], ['track', 'The Track'], ['baseline', 'Baseline'], ['comps', 'Comps'], ['idea', 'The Idea'],
+    ['brief', 'Brief'], ['track', 'The Track'], ['baseline', 'Baseline'], ['video', 'Video Intel'], ['comps', 'Comps'], ['idea', 'The Idea'],
     ['system', 'Content'], ['playbook', 'Playbook'], ['ade', 'ADE'], ['measure', 'Measurement'], ['budget', 'Budget'], ['next', 'Next'],
   ];
   const maxStreams = Math.max(...C.baseline.catalog.map((c) => c.streams));
@@ -341,6 +341,45 @@ function Page() {
             </GlassCard>
           ))}
         </div>
+      </Section>
+      <SectionDivider />
+
+      {/* 03b VIDEO INTEL */}
+      <Section id="video" number="03b" title="Video Intelligence" subtitle={C.videoIntel.headline}>
+        <GlassCard className="p-8 mb-8 border-l-2 border-l-[#fd3737]" glow hover={false}><p className="text-[#E4E4E9] leading-relaxed">{C.videoIntel.body}</p></GlassCard>
+        <GlassCard className="p-0 overflow-x-auto mb-8" hover={false}>
+          <table className="w-full text-sm min-w-[860px]">
+            <thead><tr className="text-left text-[11px] uppercase tracking-[0.2em] text-[#B8B8C0] border-b border-[#333333]">
+              <th className="p-4">Post</th><th className="p-4">Result</th><th className="p-4">Hook timing</th><th className="p-4">Edit</th><th className="p-4">Format</th>
+            </tr></thead>
+            <tbody>
+              {C.videoIntel.rows.map((r, i) => (
+                <tr key={i} className="border-b border-[#262626] last:border-0">
+                  <td className="p-4 text-[#FAFAFA]">{r.post}</td>
+                  <td className="p-4 whitespace-nowrap"><Badge color={r.verdict === 'win' ? '#fd3737' : r.verdict === 'paid' ? '#F59E0B' : '#A1A1AA'}>{r.result}</Badge></td>
+                  <td className="p-4 text-[#E4E4E9]">{r.hook}</td>
+                  <td className="p-4 text-[#E4E4E9]">{r.cuts}</td>
+                  <td className="p-4 text-[#E4E4E9]">{r.format}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </GlassCard>
+        <h3 className="font-display text-2xl text-[#FAFAFA] mb-6">The edit rules for every “The One” asset</h3>
+        <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-4 mb-12">
+          {C.videoIntel.rules.map((r, i) => (
+            <GlassCard key={i} className="p-6">
+              <div className="font-display text-base text-[#FAFAFA]">{r.t}</div>
+              <p className="text-[#B8B8C0] text-sm mt-2 leading-relaxed">{r.d}</p>
+            </GlassCard>
+          ))}
+        </div>
+        <GlassCard className="p-8" hover={false}>
+          <div className="text-[11px] tracking-[0.25em] uppercase text-[#fd3737] font-semibold">YouTube</div>
+          <div className="font-display text-2xl text-[#FAFAFA] mt-2">{C.youtube.headline}</div>
+          <p className="text-[#E4E4E9] text-sm mt-3 leading-relaxed">{C.youtube.body}</p>
+          <div className="space-y-2 mt-5">{C.youtube.actions.map((a, i) => <div key={i} className="flex gap-3 text-sm text-[#E4E4E9] leading-relaxed"><span className="text-[#fd3737]">→</span>{a}</div>)}</div>
+        </GlassCard>
       </Section>
       <SectionDivider />
 

@@ -97,6 +97,41 @@ export const loekTheOne = {
     ],
   },
 
+
+  /* ── 03b VIDEO INTELLIGENCE (TwelveLabs Pegasus 1.5, 23 Sep 2026) ── */
+  videoIntel: {
+    headline: 'His winners cut on the beat and land the hook in two seconds. His losers are single takes that make you wait.',
+    body:
+      'We ran seven of Loek’s own posts through TwelveLabs video analysis: his three best-performing Instagram reels, his weakest recent reel, two ordinary TikTok teasers and the 132K-play outlier. The split is not about budget or polish. It is about edit rhythm and how fast the hook arrives.',
+    rows: [
+      { post: 'Instagram · “In My Arms” DJ booth, lyric captions', result: '29.7K views', hook: 'Hook at 0:02, hands up on the lyric', cuts: '~10 cuts in 19s (~2s shots)', format: 'Live booth + single-word lyric captions', verdict: 'win' },
+      { post: 'Instagram · “In My Arms” beach montage', result: '34.0K views', hook: 'Caption word on frame 1', cuts: '1–2s shots, cut to the beat', format: 'Lifestyle montage + kinetic lyric captions', verdict: 'win' },
+      { post: 'Instagram · London club night', result: '21.5K views', hook: 'Exterior at 0:00, cut inside on the drop at 0:04', cuts: '12–14 cuts in 24s (~1.7s shots)', format: 'Handheld crowd/live POV, no captions', verdict: 'win' },
+      { post: 'Instagram · “Weekend” jet ski', result: '2.0K views', hook: 'No audible hook in first 2s', cuts: '0 cuts, one continuous shot', format: 'Generic “summer should sound like” caption', verdict: 'loss' },
+      { post: 'TikTok · “I feel like the one” teaser (June)', result: '1.4K plays', hook: 'Vocal hook arrives at 0:07', cuts: '0 cuts, walk-and-talk', format: 'Artist lifestyle teaser', verdict: 'loss' },
+      { post: 'TikTok · “Came to save your summer”', result: '1.9K plays', hook: 'Movement on the beat at 0:02', cuts: '0 cuts, static wide', format: 'Single performer, caption template', verdict: 'mid' },
+      { post: 'TikTok · “Focus” rooftop (outlier)', result: '132K plays, 117 likes', hook: 'Lip-sync from 0:00', cuts: '0 cuts, static talking head', format: 'Lifestyle teaser with lyric captions', verdict: 'paid' },
+    ],
+    rules: [
+      { t: 'Hook inside two seconds', d: 'Every winner has the vocal or a visual beat in the first two seconds. The June “I feel like the one” teaser made people wait seven seconds for the hook to land.' },
+      { t: 'Cut on the beat, every 1.5–2 seconds', d: 'Winners run 10 to 14 cuts per 20 seconds, synced to the kick. Every loser is a single continuous take.' },
+      { t: 'Kinetic single-word lyric captions', d: 'The two best reels flash the lyric one word at a time on the beat. For “The One” that means BE / THE / ONE / FOR A / MINUTE, which doubles as the meme caption.' },
+      { t: 'Real rooms beat pretty places', d: 'Crowd and booth footage out-performs scenic lifestyle footage unless the scenic edit is cut hard to the lyric.' },
+      { t: 'Generic captions die', d: '“This is what summer should sound like” and “is this the song of the summer?” captions sit at the bottom of his performance range. Specific, relatable captions are the fix.' },
+    ],
+  },
+
+  youtube: {
+    headline: 'YouTube is the unworked channel.',
+    body:
+      'The biggest single asset in the “I Run” story on YouTube is not the official video (~622K views). It is a lyric-video upload on a third-party channel with ~21.4M views, followed by an extended mix (~1.5M) and a free-download drum & bass remix spread across channels (roughly 4.7M combined). By contrast, the “Weekend” official visualizer sits at ~7K views and “In My Arms” reached YouTube mainly through small promo-channel uploads (the largest ~66K). A lyric-channel and bootleg-remix layer is cheap and extends the tail by months.',
+    actions: [
+      'Service the official lyric video to two or three large lyric/promo channels on release day, not just the label channel.',
+      'Commission one or two “free download” bootlegs (a harder club edit and a DnB flip) from rising producers for week +2 to +4.',
+      'Title everything “LOEK – The One (for a minute)”: a YouTube search for “Loek The One” today returns a racing driver and a chess grandmaster.',
+    ],
+  },
+
   /* ── 04 COMPARABLES ── */
   comps: [
     {
@@ -352,6 +387,8 @@ export const loekTheOne = {
     'Spotify public artist profiles, 22 Sep 2026 (Loek 670.9K, VisionV 2M, Toby Romeo 3.4M monthly listeners).',
     'kworb.net Spotify stream ledgers for Loek (27 Jul 2026) and VisionV (4 Sep 2026).',
     '@loekmusic Instagram reels (39, Mar–Aug 2026) and TikTok posts (20, Jun–Sep 2026) via TokScript, 23 Sep 2026.',
+    'TwelveLabs Pegasus 1.5 video analysis of seven @loekmusic posts (23 Sep 2026). Model transcriptions of lyrics are unreliable and are not quoted.',
+    'YouTube search results and view counts for “I Run”, “In My Arms”, “Weekend” and “Loek The One” (23 Sep 2026).',
     'Billboard, Music Week, Wikipedia (“I Run”), Digital Music News, EDM Sauce, TikTok Newsroom, Beatportal.',
     'Call with David Korr, UMG Germany, 22 Sep 2026.',
   ],
