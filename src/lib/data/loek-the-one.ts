@@ -19,7 +19,7 @@ export const loekTheOne = {
   song: 'The One',
   label: 'Island Berlin · Universal Music Germany',
   pulledAt: '2026-09-23',
-  password: 'forAminute',
+  password: 'umusic',
   thesis:
     'Turn the one line everybody will sing back, “be the one for a minute,” into a caption the internet can use, run it through one tight brief across meme pages, clippers and Loek himself, and let ADE week be the moment the whole thing lands in one city at once.',
 
