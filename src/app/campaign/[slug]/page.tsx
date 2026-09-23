@@ -6,6 +6,7 @@ import { TemporexWantingIsHaunting } from '@/components/campaign/TemporexWanting
 import { MiguelDamned } from '@/components/campaign/MiguelDamned';
 import { GoVanniSay2Much } from '@/components/campaign/GoVanniSay2Much';
 import { OkNikoMore } from '@/components/campaign/OkNikoMore';
+import { LoekTheOne } from '@/components/campaign/LoekTheOne';
 import type { Metadata } from 'next';
 
 export function generateStaticParams() {
@@ -19,6 +20,7 @@ export function generateStaticParams() {
     { slug: 'govanni-say-2-much' },
     { slug: 'ok-niko-more' },
     { slug: 'ok-niko' },
+    { slug: 'loek-the-one' },
   ];
 }
 
@@ -34,6 +36,18 @@ export function generateMetadata({ params }: { params: { slug: string } }): Meta
         title: 'temporex — Fantastic Machine | Crowd Control Digital',
         description: 'Album rollout strategy for temporex.',
         images: ['/images/temporex-fantastic-machine/og.png'],
+      },
+    };
+  }
+  if (params.slug === 'loek-the-one') {
+    return {
+      ...noIndex,
+      title: 'Loek — The One | Campaign Planner',
+      description: 'Confidential campaign strategy for Loek\u2019s \u201cThe One\u201d, the ADE focus track for Island Berlin / Universal Music Germany.',
+      openGraph: {
+        title: 'Loek — The One | Crowd Control Digital',
+        description: 'Confidential campaign strategy.',
+        images: ['/images/loek-the-one/hero.jpg'],
       },
     };
   }
@@ -106,6 +120,9 @@ export function generateMetadata({ params }: { params: { slug: string } }): Meta
 export default function CampaignPageServer({ params }: { params: { slug: string } }) {
   if (params.slug === 'temporex-wanting-is-haunting' || params.slug === 'temporex-fantastic-machine') {
     return <TemporexWantingIsHaunting />;
+  }
+  if (params.slug === 'loek-the-one') {
+    return <LoekTheOne />;
   }
   if (params.slug === 'ok-niko-more' || params.slug === 'ok-niko') {
     return <OkNikoMore />;
