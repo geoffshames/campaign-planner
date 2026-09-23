@@ -2,8 +2,8 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { motion, useScroll, useSpring, useTransform, useMotionValue } from 'framer-motion';
-import { ResponsiveContainer, ComposedChart, BarChart, Bar, Area, ReferenceArea, XAxis, YAxis, CartesianGrid, Tooltip as RTooltip } from 'recharts';
-import { loekTheOne as C, energyCurve, igReels, ttPosts } from '@/lib/data/loek-the-one';
+import { ResponsiveContainer, ComposedChart, BarChart, Bar, Area, Line, ReferenceArea, ReferenceLine, XAxis, YAxis, CartesianGrid, Tooltip as RTooltip } from 'recharts';
+import { loekTheOne as C, energyCurve, igReels, ttPosts, dailyStreams, havenBenchmark } from '@/lib/data/loek-the-one';
 
 /* ── hooks ── */
 function useInView(opts: { threshold?: number; rootMargin?: string; once?: boolean } = {}) {
@@ -40,7 +40,8 @@ function SectionDivider() {
 }
 
 function Section({ id, number, title, subtitle, children }: { id: string; number: string; title: string; subtitle?: string; children: React.ReactNode }) {
-  const { ref, inView } = useInView();
+  // threshold 0: tall sections (7,000px+ on phones) can never show 12% of themselves in one viewport, so a ratio threshold would leave them invisible.
+  const { ref, inView } = useInView({ threshold: 0 });
   return (
     <section id={id} className="max-w-6xl mx-auto px-6 py-20 md:py-28">
       <motion.div ref={ref} initial="hidden" animate={inView ? 'visible' : 'hidden'} variants={stagger}>
@@ -71,7 +72,9 @@ function AnimatedBar({ pct, color = '#fd3737' }: { pct: number; color?: string }
 }
 
 function Badge({ children, color = '#fd3737' }: { children: React.ReactNode; color?: string }) {
-  return <span className="px-3 py-1 rounded-full text-[11px] font-semibold" style={{ background: `${color}22`, color }}>{children}</span>;
+  // Neutral badge tints keep a readable text colour: #A1A1AA / #71717A are fills only, never text.
+  const neutral = color === '#A1A1AA' || color === '#71717A';
+  return <span className="px-3 py-1 rounded-full text-[11px] font-semibold" style={{ background: `${color}22`, color: neutral ? '#E4E4E9' : color }}>{children}</span>;
 }
 
 function levelColor(v: string) { return v === 'High' ? '#EF4444' : v === 'Medium' ? '#F59E0B' : '#22C55E'; }
@@ -81,6 +84,47 @@ function Pill({ children }: { children: React.ReactNode }) {
 }
 
 function fmtT(s: number) { return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; }
+
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const ts = (d: string) => Date.parse(`${d}T00:00:00Z`);
+function fmtMonth(v: number) { return MONTHS[new Date(v).getUTCMonth()]; }
+function fmtDay(v: number) { const d = new Date(v); return `${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]}`; }
+function fmtK(v: number) { return v >= 1_000_000 ? `${(v / 1_000_000).toFixed(v >= 10_000_000 ? 1 : 2)}M` : v >= 1000 ? `${Math.round(v / 1000)}K` : `${v}`; }
+const axisTick = { fill: '#B8B8C0', fontSize: 11 };
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function SeriesTip({ active, payload, label, names }: any) {
+  if (!active || !payload?.length) return null;
+  return (
+    <div className="rounded-xl border border-[#333333] bg-[#141414] px-4 py-3 shadow-xl text-xs">
+      <div className="text-[#FAFAFA] font-semibold mb-1">{fmtDay(label)}</div>
+      {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+      {payload.filter((p: any) => p.value != null).map((p: any) => (
+        <div key={p.dataKey} style={{ color: p.dataKey === 'followers' || p.dataKey === 'ima' || p.dataKey === 'creates' ? '#E4E4E9' : '#fd3737' }}>
+          {(names && names[p.dataKey]) || p.dataKey} {Number(p.value).toLocaleString()}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function LegendDot({ color, dashed = false, children }: { color: string; dashed?: boolean; children: React.ReactNode }) {
+  return <span className="flex items-center gap-2"><span className="w-4 h-[3px] rounded-full" style={{ background: dashed ? `repeating-linear-gradient(90deg, ${color} 0 4px, transparent 4px 7px)` : color }} />{children}</span>;
+}
+
+function roleColor(r: string) { return r === 'Treated' ? '#fd3737' : r === 'Test market' ? '#D42D2D' : r === 'Holdout' || r === 'Alt. holdout' ? '#A1A1AA' : '#71717A'; }
+
+function InViewVideo({ src, poster, className = '' }: { src: string; poster?: string; className?: string }) {
+  const ref = useRef<HTMLVideoElement>(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) { el.play().catch(() => { /* autoplay blocked */ }); } else { el.pause(); } }, { threshold: 0.35 });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+  return <video ref={ref} src={src} poster={poster} muted loop playsInline preload="none" className={className} />;
+}
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function CurveTip({ active, payload, label }: any) {
@@ -138,10 +182,16 @@ function Page() {
   }, [mx, my]);
   const [menuOpen, setMenuOpen] = useState(false);
   const nav: [string, string][] = [
-    ['brief', 'Brief'], ['track', 'The Track'], ['baseline', 'Baseline'], ['video', 'Video Intel'], ['comps', 'Comps'], ['idea', 'The Idea'],
-    ['system', 'Content'], ['playbook', 'Playbook'], ['ade', 'ADE'], ['measure', 'Measurement'], ['budget', 'Budget'], ['next', 'Next'],
+    ['brief', 'Brief'], ['track', 'The Track'], ['baseline', 'Baseline'], ['markets', 'Markets'], ['video', 'Video'], ['comps', 'Comps'], ['idea', 'The Idea'],
+    ['examples', 'Examples'], ['system', 'Content'], ['playbook', 'Playbook'], ['ade', 'ADE'], ['measure', 'Measure'], ['budget', 'Budget'], ['next', 'Next'],
   ];
   const maxStreams = Math.max(...C.baseline.catalog.map((c) => c.streams));
+  const listenerData = C.baseline.listenerSeries.map((d) => ({ ...d, t: ts(d.date) }));
+  const streamData = dailyStreams.map((d) => ({ ...d, t: ts(d.date) }));
+  const havenData = havenBenchmark.map((d) => ({ ...d, t: ts(d.date) }));
+  const maxMarket = Math.max(...C.markets.map((m) => m.listeners));
+  const maxCity = Math.max(...C.cities.map((m) => m.listeners));
+  const monthTicks = ['2026-03-01', '2026-04-01', '2026-05-01', '2026-06-01', '2026-07-01', '2026-08-01', '2026-09-01'].map(ts);
 
   return (
     <div className="bg-[#0A0A0A] text-[#FAFAFA] min-h-screen relative">
@@ -152,15 +202,15 @@ function Page() {
         <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/brand/CC-LOGO-2024-WHITE.png" alt="Crowd Control Digital" className="h-5 w-auto opacity-90" />
-          <div className="hidden lg:flex gap-4 text-[12px] text-[#B8B8C0]">
+          <div className="hidden xl:flex gap-3 text-[11px] text-[#B8B8C0] whitespace-nowrap">
             {nav.map(([id, label]) => <a key={id} href={`#${id}`} className="uppercase tracking-wide hover:text-[#fd3737] transition-colors">{label}</a>)}
           </div>
-          <button onClick={() => setMenuOpen((o) => !o)} aria-label="Toggle menu" aria-expanded={menuOpen} className="lg:hidden text-[#FAFAFA] p-2 -mr-2">
+          <button onClick={() => setMenuOpen((o) => !o)} aria-label="Toggle menu" aria-expanded={menuOpen} className="xl:hidden text-[#FAFAFA] p-2 -mr-2">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">{menuOpen ? (<><line x1="5" y1="5" x2="19" y2="19" /><line x1="19" y1="5" x2="5" y2="19" /></>) : (<><line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" /></>)}</svg>
           </button>
         </div>
         {menuOpen && (
-          <div className="lg:hidden border-t border-[#333333]/40 bg-[#0A0A0A]/95">
+          <div className="xl:hidden border-t border-[#333333]/40 bg-[#0A0A0A]/95">
             <div className="max-w-6xl mx-auto px-6 py-4 grid grid-cols-2 gap-x-4 gap-y-3 text-[13px] text-[#E4E4E9]">
               {nav.map(([id, label]) => <a key={id} href={`#${id}`} onClick={() => setMenuOpen(false)} className="uppercase tracking-wide hover:text-[#fd3737] transition-colors">{label}</a>)}
             </div>
@@ -287,8 +337,35 @@ function Page() {
             </GlassCard>
           ))}
         </div>
+        <GlassCard className="p-4 md:p-8 mb-8" hover={false}>
+          <div className="flex flex-wrap items-start justify-between gap-3 mb-2">
+            <div>
+              <div className="text-[11px] tracking-[0.25em] uppercase text-[#fd3737] font-semibold">Spotify monthly listeners · Chartmetric</div>
+              <h3 className="font-display text-xl md:text-2xl text-[#FAFAFA] mt-2">{C.baseline.listenerNote.headline}</h3>
+            </div>
+            <div className="flex flex-wrap gap-4 text-xs text-[#E4E4E9]"><LegendDot color="#fd3737">Monthly listeners</LegendDot><LegendDot color="#A1A1AA" dashed>Spotify followers (right)</LegendDot></div>
+          </div>
+          <p className="text-[#E4E4E9] text-sm leading-relaxed mb-6 max-w-4xl">{C.baseline.listenerNote.body}</p>
+          <div className="h-[300px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <ComposedChart data={listenerData} margin={{ top: 18, right: 0, left: -10, bottom: 0 }}>
+                <CartesianGrid stroke="#262626" vertical={false} />
+                <ReferenceArea yAxisId="l" x1={ts('2026-07-05')} x2={ts('2026-07-17')} fill="#fd3737" fillOpacity={0.1} />
+                <ReferenceLine yAxisId="l" x={ts('2026-03-11')} stroke="#B8B8C0" strokeDasharray="3 3" label={{ value: 'In My Arms', fill: '#E4E4E9', fontSize: 11, position: 'insideTopLeft' }} />
+                <ReferenceLine yAxisId="l" x={ts('2026-06-19')} stroke="#B8B8C0" strokeDasharray="3 3" label={{ value: 'Weekend', fill: '#E4E4E9', fontSize: 11, position: 'insideTopLeft' }} />
+                <XAxis dataKey="t" type="number" scale="time" domain={[ts('2026-03-01'), ts('2026-09-23')]} ticks={monthTicks} tickFormatter={fmtMonth} stroke="#71717A" tick={axisTick} />
+                <YAxis yAxisId="l" domain={[0, 1400000]} tickFormatter={fmtK} stroke="#71717A" tick={axisTick} />
+                <YAxis yAxisId="f" orientation="right" domain={[3000, 5000]} tickFormatter={(v) => `${(v / 1000).toFixed(1)}K`} stroke="#71717A" tick={axisTick} width={44} />
+                <RTooltip content={<SeriesTip names={{ listeners: 'Listeners', followers: 'Followers' }} />} />
+                <Line yAxisId="l" type="monotone" dataKey="listeners" stroke="#fd3737" strokeWidth={2.5} dot={{ r: 3, fill: '#fd3737' }} activeDot={{ r: 5 }} isAnimationActive={false} />
+                <Line yAxisId="f" type="monotone" dataKey="followers" stroke="#A1A1AA" strokeWidth={2} strokeDasharray="5 4" dot={false} isAnimationActive={false} />
+              </ComposedChart>
+            </ResponsiveContainer>
+          </div>
+          <p className="text-[#B8B8C0] text-xs mt-3">{C.baseline.listenerNote.note} Shaded: 5–17 Jul “Weekend” stream lift.</p>
+        </GlassCard>
         <GlassCard className="p-8 mb-8" hover={false}>
-          <h3 className="font-display text-lg text-[#FAFAFA] mb-6">Catalog, Spotify streams</h3>
+          <h3 className="font-display text-lg text-[#FAFAFA] mb-6">Catalog, Spotify streams (Chartmetric, 23 Sep)</h3>
           <div className="space-y-5">
             {C.baseline.catalog.map((c, i) => (
               <div key={i}>
@@ -300,6 +377,53 @@ function Page() {
               </div>
             ))}
           </div>
+        </GlassCard>
+        <GlassCard className="p-4 md:p-8 mb-8" hover={false}>
+          <div className="flex flex-wrap items-start justify-between gap-3 mb-2">
+            <div>
+              <div className="text-[11px] tracking-[0.25em] uppercase text-[#fd3737] font-semibold">Daily Spotify streams · Chartmetric</div>
+              <h3 className="font-display text-xl md:text-2xl text-[#FAFAFA] mt-2">{C.baseline.streamsNote.headline}</h3>
+            </div>
+            <div className="flex flex-wrap gap-4 text-xs text-[#E4E4E9]"><LegendDot color="#fd3737">Weekend</LegendDot><LegendDot color="#A1A1AA">In My Arms</LegendDot></div>
+          </div>
+          <p className="text-[#E4E4E9] text-sm leading-relaxed mb-6 max-w-4xl">{C.baseline.streamsNote.body}</p>
+          <div className="h-[300px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <ComposedChart data={streamData} margin={{ top: 18, right: 8, left: -10, bottom: 0 }}>
+                <CartesianGrid stroke="#262626" vertical={false} />
+                <ReferenceArea x1={ts('2026-07-05')} x2={ts('2026-07-17')} fill="#fd3737" fillOpacity={0.1} label={{ value: 'Lift', fill: '#E4E4E9', fontSize: 11, position: 'insideTopLeft' }} />
+                <ReferenceLine x={ts('2026-06-19')} stroke="#B8B8C0" strokeDasharray="3 3" label={{ value: 'Weekend out', fill: '#E4E4E9', fontSize: 11, position: 'insideTopRight' }} />
+                <XAxis dataKey="t" type="number" scale="time" domain={[ts('2026-03-01'), ts('2026-09-23')]} ticks={monthTicks} tickFormatter={fmtMonth} stroke="#71717A" tick={axisTick} />
+                <YAxis tickFormatter={fmtK} stroke="#71717A" tick={axisTick} />
+                <RTooltip content={<SeriesTip names={{ weekend: 'Weekend', ima: 'In My Arms' }} />} />
+                <Line type="monotone" dataKey="ima" stroke="#A1A1AA" strokeWidth={1.75} dot={false} connectNulls isAnimationActive={false} />
+                <Line type="monotone" dataKey="weekend" stroke="#fd3737" strokeWidth={2.5} dot={false} connectNulls isAnimationActive={false} />
+              </ComposedChart>
+            </ResponsiveContainer>
+          </div>
+          <p className="text-[#B8B8C0] text-xs mt-3">{C.baseline.streamsNote.note}</p>
+        </GlassCard>
+        <h3 className="font-display text-2xl text-[#FAFAFA] mb-6">{C.baseline.playlists.headline}</h3>
+        <div className="grid md:grid-cols-2 gap-4 mb-4">
+          {C.baseline.playlists.rows.map((r, i) => (
+            <GlassCard key={i} className="p-6 md:p-8" glow={i === 0} hover={false}>
+              <div className="flex items-baseline justify-between gap-3">
+                <div className="font-display text-2xl text-[#FAFAFA]">{r.track}</div>
+                <div className="font-display text-2xl text-[#fd3737]">{r.streams}</div>
+              </div>
+              <div className="space-y-4 mt-6">
+                {([['Spotify editorial', r.editorial], ['Algorithmic', r.algorithmic], ['User playlists', r.user], ['TikTok', r.tiktok]] as [string, string][]).map(([k, v]) => (
+                  <div key={k}>
+                    <div className="text-[11px] uppercase tracking-[0.2em] text-[#B8B8C0] mb-1">{k}</div>
+                    <p className="text-[#E4E4E9] text-sm leading-relaxed">{v}</p>
+                  </div>
+                ))}
+              </div>
+            </GlassCard>
+          ))}
+        </div>
+        <GlassCard className="p-6 md:p-8 mb-8 border-l-2 border-l-[#fd3737]" hover={false}>
+          <p className="text-[#E4E4E9] leading-relaxed">{C.baseline.playlists.take}</p>
         </GlassCard>
         <div className="grid md:grid-cols-2 gap-6 mb-8">
           <GlassCard className="p-6" hover={false}>
@@ -344,6 +468,75 @@ function Page() {
       </Section>
       <SectionDivider />
 
+      {/* 03a MARKETS */}
+      <Section id="markets" number="03a" title="Where People Listen" subtitle={C.marketsNote.headline}>
+        <GlassCard className="p-8 mb-8 border-l-2 border-l-[#fd3737]" glow hover={false}><p className="text-[#E4E4E9] leading-relaxed">{C.marketsNote.body}</p></GlassCard>
+        <div className="grid lg:grid-cols-5 gap-6 mb-8">
+          <GlassCard className="lg:col-span-3 p-6 md:p-8" hover={false}>
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+              <h3 className="font-display text-lg text-[#FAFAFA]">Top countries, monthly listeners</h3>
+              <div className="flex flex-wrap gap-3 text-[11px] text-[#E4E4E9]">
+                {[['Treated', '#fd3737'], ['Holdout', '#A1A1AA'], ['Test market', '#D42D2D']].map(([l, c]) => <span key={l} className="flex items-center gap-2"><span className="w-3 h-3 rounded-sm" style={{ background: c }} />{l}</span>)}
+              </div>
+            </div>
+            <div className="space-y-4">
+              {C.markets.map((m) => (
+                <div key={m.code}>
+                  <div className="flex flex-wrap justify-between gap-2 mb-1.5 text-sm">
+                    <span className="text-[#FAFAFA]">{m.country}{m.role && <span className="ml-2 text-[11px] font-semibold" style={{ color: m.role === 'Treated' ? '#fd3737' : '#E4E4E9' }}>· {m.role}</span>}</span>
+                    <span className="text-[#E4E4E9]">{m.listeners.toLocaleString()} <span className="text-[#B8B8C0] text-xs ml-2">{m.perK.toFixed(2)} per 1,000</span></span>
+                  </div>
+                  <AnimatedBar pct={(m.listeners / maxMarket) * 100} color={roleColor(m.role)} />
+                </div>
+              ))}
+            </div>
+          </GlassCard>
+          <div className="lg:col-span-2 flex flex-col gap-6">
+            <GlassCard className="p-6 md:p-8" hover={false}>
+              <h3 className="font-display text-lg text-[#FAFAFA] mb-5">Top cities</h3>
+              <div className="space-y-3">
+                {C.cities.map((c) => (
+                  <div key={c.city}>
+                    <div className="flex justify-between gap-2 mb-1 text-sm"><span className={c.city === 'Amsterdam' ? 'text-[#fd3737] font-semibold' : 'text-[#FAFAFA]'}>{c.city} <span className="text-[#B8B8C0] text-xs">{c.code}</span></span><span className="text-[#E4E4E9]">{c.listeners.toLocaleString()}</span></div>
+                    <AnimatedBar pct={(c.listeners / maxCity) * 100} color={c.city === 'Amsterdam' ? '#fd3737' : '#71717A'} />
+                  </div>
+                ))}
+              </div>
+              <p className="text-[#E4E4E9] text-sm leading-relaxed mt-5">{C.marketsNote.ade}</p>
+            </GlassCard>
+          </div>
+        </div>
+        <h3 className="font-display text-2xl text-[#FAFAFA] mb-6">Holdout check</h3>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+          {C.marketsNote.verdicts.map((v, i) => (
+            <GlassCard key={i} className="p-6">
+              <div className="flex items-center justify-between gap-2"><div className="font-display text-base text-[#FAFAFA]">{v.t}</div><Badge color={i === 0 ? '#fd3737' : '#A1A1AA'}>{v.v}</Badge></div>
+              <p className="text-[#B8B8C0] text-sm mt-3 leading-relaxed">{v.d}</p>
+            </GlassCard>
+          ))}
+        </div>
+        <h3 className="font-display text-2xl text-[#FAFAFA] mb-2">Who the audience is</h3>
+        <p className="text-[#B8B8C0] text-sm mb-6">{C.baseline.audience.source}</p>
+        <div className="grid md:grid-cols-3 gap-4 mb-4">
+          <GlassCard className="p-6" hover={false}>
+            <div className="text-[11px] uppercase tracking-[0.2em] text-[#B8B8C0] mb-4">Gender</div>
+            <div className="flex h-3 rounded-full overflow-hidden mb-3">{C.baseline.audience.gender.map((g, i) => <div key={g.label} style={{ width: `${g.pct}%`, background: i === 0 ? '#fd3737' : '#71717A' }} />)}</div>
+            <div className="flex justify-between text-sm text-[#E4E4E9]">{C.baseline.audience.gender.map((g) => <span key={g.label}>{g.label} <span className="font-display text-xl text-[#FAFAFA] ml-1">{g.pct}%</span></span>)}</div>
+          </GlassCard>
+          <GlassCard className="p-6" hover={false}>
+            <div className="text-[11px] uppercase tracking-[0.2em] text-[#B8B8C0] mb-4">Age</div>
+            <div className="space-y-3">{C.baseline.audience.age.map((a) => <div key={a.label}><div className="flex justify-between text-sm mb-1"><span className="text-[#E4E4E9]">{a.label}</span><span className="text-[#FAFAFA] font-semibold">{a.pct}%</span></div><AnimatedBar pct={a.pct} color={a.label === '18–24' ? '#fd3737' : '#71717A'} /></div>)}</div>
+          </GlassCard>
+          <GlassCard className="p-6" hover={false}>
+            <div className="text-[11px] uppercase tracking-[0.2em] text-[#B8B8C0] mb-4">Share of Instagram likes</div>
+            <div className="space-y-3">{C.baseline.audience.engaged.map((a, i) => <div key={a.label}><div className="flex justify-between text-sm mb-1"><span className="text-[#E4E4E9]">{a.label}</span><span className="text-[#FAFAFA] font-semibold">{a.pct}%</span></div><AnimatedBar pct={a.pct * 3} color={i === 0 ? '#fd3737' : '#71717A'} /></div>)}</div>
+          </GlassCard>
+        </div>
+        <GlassCard className="p-6 md:p-8 border-l-2 border-l-[#fd3737]" hover={false}><p className="text-[#E4E4E9] leading-relaxed">{C.baseline.audience.take}</p></GlassCard>
+        <p className="text-[#B8B8C0] text-xs mt-6">{C.marketsNote.note}</p>
+      </Section>
+      <SectionDivider />
+
       {/* 03b VIDEO INTEL */}
       <Section id="video" number="03b" title="Video Intelligence" subtitle={C.videoIntel.headline}>
         <GlassCard className="p-8 mb-8 border-l-2 border-l-[#fd3737]" glow hover={false}><p className="text-[#E4E4E9] leading-relaxed">{C.videoIntel.body}</p></GlassCard>
@@ -385,6 +578,33 @@ function Page() {
 
       {/* 04 COMPS */}
       <Section id="comps" number="04" title="Comparables" subtitle="Seven releases that tell us how this sound travels right now, and what to take from each.">
+        <GlassCard className="p-4 md:p-8 mb-8" glow hover={false}>
+          <div className="flex flex-wrap items-start justify-between gap-3 mb-2">
+            <div>
+              <div className="text-[11px] tracking-[0.25em] uppercase text-[#fd3737] font-semibold">Benchmark · HAVEN. “I Run” · Chartmetric</div>
+              <h3 className="font-display text-xl md:text-2xl text-[#FAFAFA] mt-2">{C.benchmark.headline}</h3>
+            </div>
+            <div className="flex flex-wrap gap-4 text-xs text-[#E4E4E9]"><LegendDot color="#fd3737">Monthly listeners</LegendDot><LegendDot color="#A1A1AA" dashed>TikTok creates, original (right)</LegendDot><span className="flex items-center gap-2"><span className="w-2.5 h-2.5 rounded-full bg-[#D42D2D]" />Creates, re-record</span></div>
+          </div>
+          <p className="text-[#E4E4E9] text-sm leading-relaxed mb-6 max-w-4xl">{C.benchmark.body}</p>
+          <div className="h-[300px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <ComposedChart data={havenData} margin={{ top: 18, right: 0, left: -10, bottom: 0 }}>
+                <CartesianGrid stroke="#262626" vertical={false} />
+                <ReferenceLine yAxisId="l" x={ts('2025-10-29')} stroke="#B8B8C0" strokeDasharray="3 3" label={{ value: 'Original out', fill: '#E4E4E9', fontSize: 11, position: 'insideTopLeft' }} />
+                <ReferenceLine yAxisId="l" x={ts('2025-11-21')} stroke="#B8B8C0" strokeDasharray="3 3" label={{ value: 'Re-record out', fill: '#E4E4E9', fontSize: 11, position: 'insideTopLeft' }} />
+                <XAxis dataKey="t" type="number" scale="time" domain={[ts('2025-10-27'), ts('2025-12-05')]} ticks={['2025-11-01', '2025-11-08', '2025-11-15', '2025-11-22', '2025-11-29'].map(ts)} tickFormatter={fmtDay} stroke="#71717A" tick={axisTick} />
+                <YAxis yAxisId="l" domain={[0, 8000000]} tickFormatter={fmtK} stroke="#71717A" tick={axisTick} />
+                <YAxis yAxisId="c" orientation="right" domain={[0, 250000]} tickFormatter={fmtK} stroke="#71717A" tick={axisTick} width={44} />
+                <RTooltip content={<SeriesTip names={{ listeners: 'Monthly listeners', creates: 'Creates (original)', createsRerecord: 'Creates (re-record)' }} />} />
+                <Line yAxisId="l" type="monotone" dataKey="listeners" stroke="#fd3737" strokeWidth={2.5} dot={{ r: 3, fill: '#fd3737' }} connectNulls isAnimationActive={false} />
+                <Line yAxisId="c" type="monotone" dataKey="creates" stroke="#A1A1AA" strokeWidth={2} strokeDasharray="5 4" dot={{ r: 2, fill: '#A1A1AA' }} connectNulls isAnimationActive={false} />
+                <Line yAxisId="c" dataKey="createsRerecord" stroke="#D42D2D" strokeWidth={0} dot={{ r: 5, fill: '#D42D2D' }} isAnimationActive={false} />
+              </ComposedChart>
+            </ResponsiveContainer>
+          </div>
+          <p className="text-[#B8B8C0] text-xs mt-3">{C.benchmark.note}</p>
+        </GlassCard>
         <div className="space-y-4 mb-10">
           {C.comps.map((c, i) => (
             <GlassCard key={i} className="p-6 md:p-8">
@@ -435,6 +655,34 @@ function Page() {
             ))}
           </div>
         </GlassCard>
+      </Section>
+      <SectionDivider />
+
+      {/* 05b EXAMPLES */}
+      <Section id="examples" number="05b" title="Example Creative" subtitle="What “The One (For A Minute)” could look like across the three voices and ADE. Six assets, each tied to a pillar.">
+        <div className="flex flex-wrap items-center gap-3 mb-4">
+          <span className="px-4 py-1.5 rounded-full text-[12px] font-semibold uppercase tracking-[0.2em] bg-[#fd3737] text-[#0A0A0A]">{C.examples.label}</span>
+        </div>
+        <p className="text-[#E4E4E9] text-sm leading-relaxed mb-10 max-w-4xl">{C.examples.note}</p>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {C.examples.items.map((e, i) => (
+            <GlassCard key={i} className="p-0 overflow-hidden flex flex-col" hover={false}>
+              <div className="relative bg-[#0A0A0A]" style={{ aspectRatio: e.ratio }}>
+                {e.kind === 'video'
+                  ? <InViewVideo src={e.src} poster={e.poster} className="absolute inset-0 w-full h-full object-cover" />
+                  /* eslint-disable-next-line @next/next/no-img-element */
+                  : <img src={e.src} alt={`${e.title}, example creative`} loading="lazy" className="absolute inset-0 w-full h-full object-cover" />}
+                <span className="absolute top-3 left-3 px-2.5 py-1 rounded-full text-[10px] font-semibold uppercase tracking-[0.15em] bg-[#0A0A0A]/80 text-[#FAFAFA] border border-[#333333]">Example</span>
+              </div>
+              <div className="p-6 flex-1">
+                <div className="text-[11px] uppercase tracking-[0.2em] text-[#fd3737] font-semibold">{e.format} · directional only</div>
+                <div className="font-display text-xl text-[#FAFAFA] mt-2">{e.title}</div>
+                <div className="text-[#B8B8C0] text-xs mt-1">{e.pillar}</div>
+                <p className="text-[#E4E4E9] text-sm mt-3 leading-relaxed">{e.use}</p>
+              </div>
+            </GlassCard>
+          ))}
+        </div>
       </Section>
       <SectionDivider />
 
