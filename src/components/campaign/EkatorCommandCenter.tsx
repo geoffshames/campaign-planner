@@ -520,6 +520,7 @@ function buildInsights(
 function buildRecommendations(
   metrics: DashboardMetrics,
   assets: EkatorAssetSnapshot,
+  channelSnapshot: EkatorChannelSnapshot,
 ): Rec[] {
   const youtubeEpisodes = assets.assets
     .filter((asset) => asset.platform === 'youtube')
@@ -544,6 +545,16 @@ function buildRecommendations(
   const responseStats = responseLeader ? matchedCutStats(responseLeader) : null;
   const twinBondStats = aggregateMatchedCutsStats(twinBondCuts);
   const lowContextHumorStats = lowContextHumorCut ? matchedCutStats(lowContextHumorCut) : null;
+  const tiktokPosts = platformPostCount('tiktok', assets, channelSnapshot);
+  const tiktokAudience = channelSnapshot.channels.find((channel) => channel.platform === 'tiktok')?.audience ?? null;
+  const tiktokProvenHooks = [
+    reachLeader ? 'identity-stakes' : null,
+    twinBondCuts.length > 0 ? 'twin-bond' : null,
+    responseLeader ? 'highest-response' : null,
+  ].filter((hook): hook is string => hook !== null);
+  const tiktokProvenHookLabel = tiktokProvenHooks.length <= 1
+    ? tiktokProvenHooks[0] ?? ''
+    : `${tiktokProvenHooks.slice(0, -1).join(', ')}${tiktokProvenHooks.length > 2 ? ',' : ''} and ${tiktokProvenHooks.at(-1)}`;
   const episodeShare = metrics.youtubeTotalViews > 0 ? (metrics.episodeViews / metrics.youtubeTotalViews) * 100 : null;
   const latestOwnedPostAt = assets.assets.reduce((latest, asset) => Math.max(latest, publicationTime(asset)), 0);
   const latestOwnedPostLabel = latestOwnedPostAt > 0
@@ -585,6 +596,46 @@ function buildRecommendations(
         impact: 'High',
       });
 
+  moves.push(tiktokAudience !== null && tiktokAudience > 0 && tiktokPosts === 0
+    ? {
+        title: tiktokProvenHooks.length === 3
+          ? 'Open TikTok with three already-proven hooks'
+          : 'Open TikTok with the strongest proven hooks',
+        why: `${compact(tiktokAudience)} followers and no verified official publications create an immediate distribution opening.${tiktokProvenHookLabel ? ` Matched Instagram and YouTube publications already validate ${tiktokProvenHookLabel} story hooks.` : ''}`,
+        move: tiktokProvenHooks.length === 3
+          ? 'Publish the identity-stakes, strongest twin-bond, and highest-response cuts over 72 hours, one per day. Record first-hour, 24-hour, and 72-hour views, follows, comments, saves, and shares for each.'
+          : 'Publish the strongest matched Instagram and YouTube cuts over 72 hours, one per day, then record first-hour, 24-hour, and 72-hour views, follows, comments, saves, and shares.',
+        owner: 'TikTok',
+        impact: 'High',
+      }
+    : {
+        title: tiktokPosts > 0 ? 'Use TikTok publishing to set the pacing baseline' : 'Confirm the TikTok audience before activation',
+        why: tiktokPosts > 0
+          ? `${tiktokAudience === null ? 'Audience is pending. ' : `${compact(tiktokAudience)} followers. `}${tiktokPosts} verified official ${tiktokPosts === 1 ? 'publication is' : 'publications are'} currently recorded.`
+          : 'TikTok audience or publication coverage is currently unavailable.',
+        move: tiktokPosts > 0
+          ? 'Compare first-hour, 24-hour, and 72-hour performance across the live posts before increasing output.'
+          : 'Restore the current audience and publication read before setting the TikTok sequence.',
+        owner: 'TikTok',
+        impact: tiktokPosts > 0 ? 'High' : 'Medium',
+      });
+
+  moves.push(twinBondCuts.length > 0
+    ? {
+        title: 'Extend the twin-bond storyline',
+        why: `${twinBondCuts.length} twin-bond ${twinBondCuts.length === 1 ? 'hook' : 'hooks'} hold ${compact(twinBondStats.combinedViews)} current views and ${compact(twinBondStats.combinedInteractions)} known interactions across ${twinBondCuts.length * 2} owned posts${twinBondStats.interactionRate === null ? '' : ` (${twinBondStats.interactionRate.toFixed(1)}% interaction rate)`}.`,
+        move: 'Build a recurring member-bond series around what the twins notice, protect, or reveal only to each other. Lead with the relationship before adding series context.',
+        owner: 'Creative strategy',
+        impact: 'High',
+      }
+    : {
+        title: 'Build a recurring member-bond storyline',
+        why: 'No matched twin-bond pair is currently identified across Instagram and YouTube.',
+        move: 'Choose one relationship-led moment, publish matched Reel and Short versions, and compare view-weighted interaction rates.',
+        owner: 'Creative strategy',
+        impact: 'Medium',
+      });
+
   moves.push(firstEpisode && newestEpisode && firstEpisode.episodeNumber !== newestEpisode.episodeNumber
     ? {
         title: `Bridge the origin story directly to Episode ${newestEpisode.episodeNumber}`,
@@ -623,22 +674,6 @@ function buildRecommendations(
         title: 'Use low-context character moments as the second restart cut',
         why: 'No current matched low-context humor cut is identified across Instagram and YouTube.',
         move: 'Choose a self-contained reaction or character beat that works without episode context, then introduce the series after the payoff.',
-        owner: 'Creative strategy',
-        impact: 'Medium',
-      });
-
-  moves.push(twinBondCuts.length > 0
-    ? {
-        title: 'Extend the twin-bond storyline',
-        why: `${twinBondCuts.length} twin-bond ${twinBondCuts.length === 1 ? 'hook' : 'hooks'} hold ${compact(twinBondStats.combinedViews)} current views and ${compact(twinBondStats.combinedInteractions)} known interactions across ${twinBondCuts.length * 2} owned posts${twinBondStats.interactionRate === null ? '' : ` (${twinBondStats.interactionRate.toFixed(1)}% interaction rate)`}.`,
-        move: 'Build a recurring member-bond series around what the twins notice, protect, or reveal only to each other. Lead with the relationship before adding series context.',
-        owner: 'Creative strategy',
-        impact: 'High',
-      }
-    : {
-        title: 'Build a recurring member-bond storyline',
-        why: 'No matched twin-bond pair is currently identified across Instagram and YouTube.',
-        move: 'Choose one relationship-led moment, publish matched Reel and Short versions, and compare view-weighted interaction rates.',
         owner: 'Creative strategy',
         impact: 'Medium',
       });
@@ -1719,7 +1754,7 @@ export function EkatorCommandCenter({ registry, assets, channelSnapshot }: { reg
   const audienceGrowth = useMemo(() => deriveSevenDayAudienceGrowth(audienceTimeline), [audienceTimeline]);
   const interaction = useMemo(() => derivePortfolioInteraction(assets), [assets]);
   const insights = useMemo(() => buildInsights(metrics, assets, channelSnapshot), [metrics, assets, channelSnapshot]);
-  const recommendations = useMemo(() => buildRecommendations(metrics, assets), [metrics, assets]);
+  const recommendations = useMemo(() => buildRecommendations(metrics, assets, channelSnapshot), [metrics, assets, channelSnapshot]);
   const nav = useMemo(() => [
     ['channels', 'Channels'], ['assets', 'Assets'], ['insights', 'Insights'], ['data', 'Data'], ['moves', 'Moves'],
   ], []);

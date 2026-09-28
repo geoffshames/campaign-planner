@@ -99,6 +99,7 @@ REQUIRED = [
     "interactions/day since publish",
     "Ranked moves for the next 72 hours",
     "Restart owned publishing with the identity-stakes hook",
+    "Open TikTok with three already-proven hooks",
     "Bridge the origin story directly to Episode",
     "Extend the twin-bond storyline",
     "Use low-context",

@@ -134,6 +134,7 @@ class DashboardDataContractTests(unittest.TestCase):
     def test_weekly_moves_prioritize_current_cross_platform_hook_evidence(self) -> None:
         for current_move in (
             "Restart owned publishing with the identity-stakes hook",
+            "Open TikTok with three already-proven hooks",
             "Bridge the origin story directly to Episode",
             "Extend the twin-bond storyline",
             "Use low-context humor as the second restart cut",
@@ -157,7 +158,10 @@ class DashboardDataContractTests(unittest.TestCase):
         self.assertIn("const recentMatchedCuts = matchedCuts.slice(0, 4)", COMPONENT)
         self.assertIn("const twinBondCuts = findTwinBondCuts(matchedCuts)", COMPONENT)
         self.assertIn("const lowContextHumorCut = findLowContextHumorCut(matchedCuts)", COMPONENT)
+        self.assertIn("const tiktokPosts = platformPostCount('tiktok', assets, channelSnapshot)", RECOMMENDATIONS)
+        self.assertIn("const tiktokAudience = channelSnapshot.channels.find((channel) => channel.platform === 'tiktok')?.audience ?? null", RECOMMENDATIONS)
         self.assertIn("Restart owned publishing with the identity-stakes hook", GUARD)
+        self.assertIn("Open TikTok with three already-proven hooks", GUARD)
         self.assertIn("Bridge the origin story directly to Episode", GUARD)
         self.assertIn("Extend the twin-bond storyline", GUARD)
         self.assertIn('"Use low-context"', GUARD)
@@ -169,9 +173,10 @@ class DashboardDataContractTests(unittest.TestCase):
         self.assertIn("send viewers to Episode", COMPONENT)
         expected_order = (
             "moves.push(reachLeader && reachStats",
+            "moves.push(tiktokAudience !== null && tiktokAudience > 0 && tiktokPosts === 0",
+            "moves.push(twinBondCuts.length > 0",
             "moves.push(firstEpisode && newestEpisode",
             "moves.push(lowContextHumorCut && lowContextHumorStats",
-            "moves.push(twinBondCuts.length > 0",
             "moves.push(responseLeader && responseStats",
         )
         for marker in expected_order:
@@ -186,6 +191,17 @@ class DashboardDataContractTests(unittest.TestCase):
         self.assertNotIn("Only one current matched Reel and Short pair is available", COMPONENT)
         self.assertNotIn("Turn schedule-change attention into a viewing bridge", COMPONENT)
         self.assertNotIn("Activate TikTok with three proven cuts", RECOMMENDATIONS)
+
+    def test_weekly_recommendations_use_the_live_tiktok_snapshot(self) -> None:
+        self.assertIn("channelSnapshot: EkatorChannelSnapshot", RECOMMENDATIONS)
+        self.assertIn("buildRecommendations(metrics, assets, channelSnapshot)", COMPONENT)
+        self.assertIn("[metrics, assets, channelSnapshot]", COMPONENT)
+        self.assertIn("${compact(tiktokAudience)} followers and no verified official publications", RECOMMENDATIONS)
+        self.assertIn("Audience is pending.", RECOMMENDATIONS)
+        self.assertIn("const tiktokProvenHookLabel", RECOMMENDATIONS)
+        self.assertIn("${tiktokProvenHooks.length > 2 ? ',' : ''} and", RECOMMENDATIONS)
+        self.assertIn("first-hour, 24-hour, and 72-hour", RECOMMENDATIONS)
+        self.assertNotIn("60,200", RECOMMENDATIONS)
 
     def test_twin_bond_strategy_aggregates_every_matched_story(self) -> None:
         self.assertIn("function aggregateMatchedCutsStats", COMPONENT)
