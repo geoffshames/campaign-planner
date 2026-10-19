@@ -564,11 +564,9 @@ function buildRecommendations(
 
   moves.push(reachLeader && reachStats
     ? {
-        title: 'Restart owned publishing with the identity-stakes hook',
-        why: `${latestOwnedPostLabel ? `No verified owned-channel publication has appeared since ${latestOwnedPostLabel}, while ` : ''}“${reachLeader.title}” continued gaining across Instagram and YouTube in this week’s read and holds ${compact(reachStats.combinedViews)} current views with ${compact(reachStats.combinedInteractions)} known interactions${reachStats.interactionRate === null ? '' : ` (${reachStats.interactionRate.toFixed(1)}% interaction rate)`}.`,
-        move: newestEpisode
-          ? `Publish a follow-up Reel and Short that preserve the opening identity statement, then send viewers to Episode ${newestEpisode.episodeNumber} through the caption, pinned comment, profile link, playlist placement, and end screen.`
-          : 'Publish a follow-up Reel and Short that preserve the opening identity statement, then send viewers to the newest full episode.',
+        title: 'Extend the Season 2 teaser into a three-channel launch',
+        why: `“${reachLeader.title}” is the strongest current matched launch signal across Instagram and YouTube, with ${compact(reachStats.combinedViews)} views and ${compact(reachStats.combinedInteractions)} known interactions${reachStats.interactionRate === null ? '' : ` (${reachStats.interactionRate.toFixed(1)}% interaction rate)`}.${latestOwnedPostLabel ? ` No verified owned-channel publication has appeared since ${latestOwnedPostLabel}.` : ''}`,
+        move: 'Publish the TikTok adaptation now, then follow with one character-led Reel and Short that keep the same opening premise. Route every version to the full-episode playlist.',
         owner: 'Owned social',
         impact: 'High',
       }

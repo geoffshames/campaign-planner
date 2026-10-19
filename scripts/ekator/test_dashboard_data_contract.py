@@ -133,7 +133,7 @@ class DashboardDataContractTests(unittest.TestCase):
 
     def test_weekly_moves_prioritize_current_cross_platform_hook_evidence(self) -> None:
         for current_move in (
-            "Restart owned publishing with the identity-stakes hook",
+            "Extend the Season 2 teaser into a three-channel launch",
             "Open TikTok with three already-proven hooks",
             "Bridge the origin story directly to Episode",
             "Extend the twin-bond storyline",
@@ -160,7 +160,7 @@ class DashboardDataContractTests(unittest.TestCase):
         self.assertIn("const lowContextHumorCut = findLowContextHumorCut(matchedCuts)", COMPONENT)
         self.assertIn("const tiktokPosts = platformPostCount('tiktok', assets, channelSnapshot)", RECOMMENDATIONS)
         self.assertIn("const tiktokAudience = channelSnapshot.channels.find((channel) => channel.platform === 'tiktok')?.audience ?? null", RECOMMENDATIONS)
-        self.assertIn("Restart owned publishing with the identity-stakes hook", GUARD)
+        self.assertIn("Extend the Season 2 teaser into a three-channel launch", GUARD)
         self.assertIn("Open TikTok with three already-proven hooks", GUARD)
         self.assertIn("Bridge the origin story directly to Episode", GUARD)
         self.assertIn("Extend the twin-bond storyline", GUARD)
@@ -170,7 +170,7 @@ class DashboardDataContractTests(unittest.TestCase):
         self.assertIn("combinedViews", COMPONENT)
         self.assertIn("interactionRate", COMPONENT)
         self.assertIn("Fewer than two matched Reel and Short pairs are currently available", COMPONENT)
-        self.assertIn("send viewers to Episode", COMPONENT)
+        self.assertIn("Route every version to the full-episode playlist", COMPONENT)
         expected_order = (
             "moves.push(reachLeader && reachStats",
             "moves.push(tiktokAudience !== null && tiktokAudience > 0 && tiktokPosts === 0",
@@ -220,9 +220,9 @@ class DashboardDataContractTests(unittest.TestCase):
         self.assertNotIn(".sort(", selector)
 
     def test_restart_sequence_uses_verified_current_evidence(self) -> None:
-        self.assertIn("continued gaining across Instagram and YouTube in this week’s read", RECOMMENDATIONS)
-        self.assertIn("Publish a follow-up Reel and Short", RECOMMENDATIONS)
-        self.assertIn("Cut a 20–30 second “where they started / where they landed” bridge", RECOMMENDATIONS)
+        self.assertIn("is the strongest current matched launch signal across Instagram and YouTube", RECOMMENDATIONS)
+        self.assertIn("Publish the TikTok adaptation now", RECOMMENDATIONS)
+        self.assertIn("Route every version to the full-episode playlist", RECOMMENDATIONS)
         self.assertNotIn("const tiktokSequenceIds = new Set", RECOMMENDATIONS)
 
     def test_cross_platform_matching_is_one_pair_per_caption(self) -> None:
