@@ -2,10 +2,10 @@
 
 import Link from 'next/link';
 import { miguelHyh as C } from '@/lib/data/miguel-have-you-heard';
-import { Band, Chrome, Fill, Footer, Gated, Head, Hero, MAIL, Marquee, RESEARCH_URL, Reveal, s } from './shared';
+import { Band, Chrome, Footer, Gated, Head, Hero, InViewVideo, MAIL, Marquee, RESEARCH_URL, Reveal, s } from './shared';
 
 const NAV: [string, string][] = [
-  ['brief', 'Brief'], ['idea', 'The idea'], ['date', 'Date'], ['ladder', 'Stagger'], ['shoot', 'Shoots'], ['playbook', 'Playbook'],
+  ['brief', 'Brief'], ['idea', 'The idea'], ['activations', 'Activations'], ['examples', 'Creative'], ['date', 'Date'], ['ladder', 'Stagger'], ['shoot', 'Shoots'], ['playbook', 'Playbook'],
   ['system', 'Content'], ['paid', 'Paid'], ['ideas', 'Ideas'], ['measure', 'Measure'], ['next', 'Next'],
 ];
 
@@ -89,9 +89,73 @@ export function HyhPlan() {
         </section>
         <div className={s.rule} />
 
+        {/* ACTIVATIONS */}
+        <section id="activations" className={s.section}>
+          <Head n="03" label="Lyric activations" title="Lyric *activations.*" intro="Three real-world moments, each built from a line in the song. Each one is designed to produce footage fans film for us and to grow the S1C list, not to be an expensive stunt that ends when the night does." />
+          {C.activations.map((x, i) => (
+            <div key={x.name} className={s.feature} style={{ marginTop: i === 0 ? 0 : 'clamp(72px, 12vh, 140px)' }}>
+              <Reveal className={s.featureMedia}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={x.img} alt={`${x.name}, example creative`} loading="lazy" />
+                <span className={`${s.featureCap} ${s.mono}`}>Example, directional only</span>
+              </Reveal>
+              <div>
+                <Reveal>
+                  <p className={`${s.mono} ${s.red}`}>{pad(i)} {x.when}</p>
+                  <h3 className={s.h3} style={{ fontSize: 'clamp(2.2rem, 4.4vw, 4rem)', margin: '16px 0 18px' }}>{x.name}</h3>
+                  <p className={s.quote} style={{ fontSize: 'clamp(1.3rem, 2.2vw, 2rem)', lineHeight: 1.1 }}>{x.lyric}</p>
+                  <p className={s.intro} style={{ marginTop: 24 }}>{x.d}</p>
+                </Reveal>
+                <div className={s.subhead} style={{ marginTop: 36 }}><h3 className={s.h3}>How it works</h3></div>
+                <Reveal className={s.rows}>
+                  {x.how.map((h, j) => (
+                    <div key={j} className={`${s.row} ${s.row2}`}><span className={s.rowIdx}>{pad(j)}</span><p className={s.body}>{h}</p></div>
+                  ))}
+                </Reveal>
+                <Reveal>
+                  <p className={s.signal} style={{ marginTop: 20 }}><b>What it makes</b>{x.makes}</p>
+                  <p className={s.signal}><b>Needs</b>{x.needs}</p>
+                </Reveal>
+              </div>
+            </div>
+          ))}
+          <Reveal><p className={s.note} style={{ marginTop: 48 }}>{C.lyricNote}</p></Reveal>
+        </section>
+        <div className={s.rule} />
+
+        {/* EXAMPLES */}
+        <section id="examples" className={s.section}>
+          <Head n="04" label="Example creative" title="Example *creative.*" intro={<><span className={`${s.tag} ${s.tagFill}`}>Examples, directional only</span><span style={{ display: 'block', marginTop: 16 }}>{C.examples.note}</span></>} />
+          <Reveal>
+            <div className={s.reel}>
+              {C.examples.items.map((e, i) => (
+                <article key={e.src} className={`${s.clip} ${e.ratio === '4 / 5' ? s.clipWide : ''}`}>
+                  <div className={s.clipMedia} style={{ aspectRatio: e.ratio }}>
+                    {e.kind === 'video'
+                      ? <InViewVideo src={e.src} poster={e.poster} />
+                      // eslint-disable-next-line @next/next/no-img-element
+                      : <img src={e.src} alt={`${e.title}, example creative`} loading="lazy" />}
+                    <span className={s.clipChip}>Example</span>
+                  </div>
+                  <div className={s.clipMeta}>
+                    <div>
+                      <h3>{e.title}</h3>
+                      <p className={s.mono} style={{ fontSize: 10, marginTop: 8, color: 'var(--red)' }}>{e.format}</p>
+                      <p>{e.use}</p>
+                    </div>
+                    <span className={s.clipIdx}>{pad(i)}</span>
+                  </div>
+                </article>
+              ))}
+            </div>
+            <div className={`${s.reelHint} ${s.mono}`}><span>Swipe for all {C.examples.items.length}</span><span>Stills: GPT Image 2.5. Video: Seedance 2.5</span></div>
+          </Reveal>
+        </section>
+        <div className={s.rule} />
+
         {/* 03 DATE */}
         <section id="date" className={s.section}>
-          <Head n="03" label="Release date" title="Release *date.*" intro={C.dateCall.intro} />
+          <Head n="05" label="Release date" title="Release *date.*" intro={C.dateCall.intro} />
           <Reveal className={s.tableWrap}>
             <table className={`${s.table} ${s.tableMin}`}>
               <thead><tr><th style={{ width: '34%' }}>Factor</th><th>Fri 6 Nov</th><th>Fri 13 Nov</th></tr></thead>
@@ -120,7 +184,7 @@ export function HyhPlan() {
 
         {/* 04 LADDER */}
         <section id="ladder" className={s.section}>
-          <Head n="04" label="The stagger" title="Teaser and video *stagger.*" intro={C.ladder.intro} />
+          <Head n="06" label="The stagger" title="Teaser and video *stagger.*" intro={C.ladder.intro} />
           <Reveal className={s.rows}>
             {C.ladder.items.map((x, i) => (
               <div key={x.when + x.what} className={s.row}>
@@ -139,7 +203,7 @@ export function HyhPlan() {
 
         {/* 05 SHOOTS */}
         <section id="shoot" className={s.section}>
-          <Head n="05" label="Shot lists" title="Shot *lists.*" intro="The stagger only works if the shoots produce enough distinct pieces. These are the captures we would ask for, alongside whatever the creative team has planned." />
+          <Head n="07" label="Shot lists" title="Shot *lists.*" intro="The stagger only works if the shoots produce enough distinct pieces. These are the captures we would ask for, alongside whatever the creative team has planned." />
           <Reveal className={`${s.panels} ${s.panels2}`}>
             {([['26 to 27 October', 'Short-form shoot', C.shootAsks.october], ['4 to 5 November', 'Music video shoot', C.shootAsks.video]] as const).map(([when, name, list], i) => (
               <div key={name} className={`${s.panel} ${i === 0 ? s.panelAlt : ''}`}>
@@ -156,7 +220,7 @@ export function HyhPlan() {
 
         {/* 06 PLAYBOOK */}
         <section id="playbook" className={s.section}>
-          <Head n="06" label="Week by week" title="Week by *week.*" intro="Built around a Friday 13 November release. If the date moves to 6 November, every week below shifts one week earlier." />
+          <Head n="08" label="Week by week" title="Week by *week.*" intro="Built around a Friday 13 November release. If the date moves to 6 November, every week below shifts one week earlier." />
           <div className={s.timeline}>
             {C.weeks.map((w) => (
               <Reveal key={w.label} className={`${s.tlItem} ${w.label === 'Release week' ? s.tlAde : ''}`}>
@@ -179,7 +243,7 @@ export function HyhPlan() {
 
         {/* 07 SYSTEM */}
         <section id="system" className={s.section}>
-          <Head n="07" label="Content system" title="Content by *channel.*" intro="Each channel has one job per phase. Miguel’s feed carries the song, S1C carries the firsts, YouTube carries the video, and paid only follows what is already working." />
+          <Head n="09" label="Content system" title="Content by *channel.*" intro="Each channel has one job per phase. Miguel’s feed carries the song, S1C carries the firsts, YouTube carries the video, and paid only follows what is already working." />
           <Reveal className={s.tableWrap}>
             <table className={`${s.table} ${s.tableMin}`}>
               <thead><tr><th>Phase</th><th>Miguel</th><th>S1C</th><th>YouTube</th><th>Paid</th></tr></thead>
@@ -198,25 +262,28 @@ export function HyhPlan() {
 
         {/* 08 PAID */}
         <section id="paid" className={s.section}>
-          <Head n="08" label="Paid media" title="Paid *media.*" intro={C.paid.intro} />
-          <Reveal className={`${s.panels} ${s.panels2}`}>
-            {C.paid.tiers.map((p, i) => (
-              <div key={p.name} className={`${s.panel} ${i === 1 ? s.panelAlt : ''}`}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16, alignItems: 'baseline' }}>
-                  <p className={`${s.mono} ${s.red}`}>{pad(i)} {p.name}</p>
-                  <p className={`${s.mono} ${s.muted}`}>{p.window}</p>
-                </div>
-                <p className={s.range} style={{ marginTop: 22, color: i === 1 ? 'var(--red)' : undefined }}>{p.range}</p>
-                <p className={s.body} style={{ marginTop: 18 }}>{p.d}</p>
-                <div className={s.lines}>
-                  {p.lines.map((l, j) => (
-                    <div key={l.item} className={s.line}>
-                      <div className={s.lineTop}><span>{l.item}</span><b>{l.pct}%</b></div>
-                      <Fill pct={l.pct * 1.6} thin color={j === 0 ? '#fd3737' : j === 1 ? '#d42d2d' : j === 2 ? '#a1a1aa' : '#71717a'} />
-                    </div>
-                  ))}
-                </div>
-                <p className={s.gate}>{p.gate}</p>
+          <Head n="10" label="Paid media" title="Paid *media.*" intro={C.paid.intro} />
+          <Reveal className={s.tableWrap}>
+            <table className={`${s.table} ${s.tableMin}`}>
+              <thead><tr><th style={{ width: '22%' }}>Channel</th><th>Role</th><th>How we run it</th></tr></thead>
+              <tbody>
+                {C.paid.channels.map((r) => (
+                  <tr key={r.ch}>
+                    <td style={display}>{r.ch}</td>
+                    <td data-label="Role">{r.role}</td>
+                    <td data-label="How we run it">{r.how}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </Reveal>
+          <div className={s.subhead}><h3 className={s.h3}>Techniques</h3></div>
+          <Reveal className={`${s.cols} ${s.cols4}`}>
+            {C.paid.techniques.map((x, i) => (
+              <div key={x.t} className={s.col}>
+                <span className={s.colIdx}>{pad(i)}</span>
+                <h4 className={s.colTitle}>{x.t}</h4>
+                <p>{x.d}</p>
               </div>
             ))}
           </Reveal>
@@ -226,7 +293,7 @@ export function HyhPlan() {
 
         {/* 09 IDEAS */}
         <section id="ideas" className={s.section}>
-          <Head n="09" label="Creative ideas" title="Creative *ideas.*" intro="Ideas beyond the core plan, each with who would need to say yes. Pick the ones that feel like Miguel; the plan works without any of them." />
+          <Head n="11" label="Creative ideas" title="Creative *ideas.*" intro="More ideas beyond the core plan and the three activations, each with who would need to say yes. Pick the ones that feel like Miguel." />
           <Reveal className={s.rows}>
             {C.ideas.map((x, i) => (
               <div key={x.t} className={s.row}>
@@ -244,7 +311,7 @@ export function HyhPlan() {
 
         {/* 10 MEASURE */}
         <section id="measure" className={s.section}>
-          <Head n="10" label="Measurement" title="*Measurement.*" intro={C.measurement.body} />
+          <Head n="12" label="Measurement" title="*Measurement.*" intro={C.measurement.body} />
           <Reveal className={s.rows}>
             {C.measurement.methods.map((m, i) => (
               <div key={m.t} className={s.row}>
@@ -270,7 +337,7 @@ export function HyhPlan() {
 
         {/* 11 NEXT */}
         <section id="next" className={s.section}>
-          <Head n="11" label="Risks and next steps" title="Risks and open *questions.*" intro="What could go wrong and what we do about it, then the answers that finalise the plan." />
+          <Head n="13" label="Risks and next steps" title="Risks and open *questions.*" intro="What could go wrong and what we do about it, then the answers that finalise the plan." />
           <Reveal className={s.tableWrap}>
             <table className={`${s.table} ${s.tableMin}`}>
               <thead><tr><th>Risk</th><th>Level</th><th>What we do</th></tr></thead>

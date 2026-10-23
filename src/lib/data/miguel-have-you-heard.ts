@@ -84,6 +84,23 @@ export const miguelHyh = {
     ],
   },
 
+  lyricNote: 'Lyrics quoted as heard on the working mix shared 14 October, to be confirmed against the final lyric sheet before anything is built.',
+
+  examples: {
+    note: 'What the activations and the announce could look like. Generated to show direction only: the real assets come from the shoots and Miguel’s creative team.',
+    items: [
+      { kind: 'video', src: '/images/miguel-have-you-heard/examples/cold-open-card.mp4', poster: '/images/miguel-have-you-heard/examples/cold-open-card-poster.jpg', ratio: '9 / 16', title: 'Announce card', format: '9:16 Reel and TikTok', use: 'The title lands word by word on the beat (117 BPM), the date in red at the end. Built for the Tue 3 Nov announce and the day-before teaser.' },
+      { kind: 'image', src: '/images/miguel-have-you-heard/examples/hourglass.jpg', ratio: '4 / 5', title: 'The Hourglass', format: 'Activation', use: 'Six metres of steel and glass on the sand, red sand timed to the East Coast release.' },
+      { kind: 'video', src: '/images/miguel-have-you-heard/examples/hourglass-loop.mp4', poster: '/images/miguel-have-you-heard/examples/hourglass-loop-poster.jpg', ratio: '9 / 16', title: 'Hourglass loop', format: 'S1C stream and Canvas mood', use: 'The visual language for the three-hour countdown stream and a direction for the Spotify Canvas loop.' },
+      { kind: 'image', src: '/images/miguel-have-you-heard/examples/rumor-line-posters.jpg', ratio: '4 / 5', title: 'The Rumor Line', format: 'Wheatpaste, four cities', use: 'Three words and a number. No name. Up the same night as the cold-open teaser.' },
+      { kind: 'image', src: '/images/miguel-have-you-heard/examples/rumor-line-text.jpg', ratio: '4 / 5', title: 'The reply', format: 'S1C text line', use: 'Text the number, get a voice note from Miguel and a place on the list.' },
+      { kind: 'image', src: '/images/miguel-have-you-heard/examples/the-ride-wheel.jpg', ratio: '4 / 5', title: 'The Ride', format: 'Activation', use: 'The pier’s Ferris wheel in red for one night of release weekend.' },
+      { kind: 'video', src: '/images/miguel-have-you-heard/examples/the-ride-wheel.mp4', poster: '/images/miguel-have-you-heard/examples/the-ride-wheel-poster.jpg', ratio: '9 / 16', title: 'The Ride, vertical', format: '9:16 out-now week', use: 'The kind of footage the public films for free when a landmark turns red.' },
+      { kind: 'image', src: '/images/miguel-have-you-heard/examples/the-ride-gondola.jpg', ratio: '4 / 5', title: 'Inside a gondola', format: 'Listening booth', use: 'Two to a gondola, headphones on, the song starting at the top of the loop.' },
+      { kind: 'image', src: '/images/miguel-have-you-heard/examples/enjoy-the-ride-series.jpg', ratio: '9 / 16', title: 'Enjoy the Ride', format: 'Short-film series', use: 'Miguel with people who have lived ninety years or more, asking what they would tell themselves.' },
+    ],
+  },
+
   dateCall: {
     intro: 'Both dates work on paper. Thirteen November is the one that gives the music room to be heard, and the trade-off is manageable.',
     rows: [
@@ -135,7 +152,7 @@ export const miguelHyh = {
 
   cadence: [
     { phase: 'Pre-release', miguel: '3 to 4 posts a week from the ladder, plus a “Have you heard?” story', s1c: 'Notify list open from the announce; first listen on Wed 11 Nov; one SMS and one email', youtube: 'Shorts of each teaser', paid: 'None. Trial Reels only, to learn which hook and caption to back.' },
-    { phase: 'Release week', miguel: 'Daily for four days, then the video-set bridge', s1c: 'Out-now SMS and email; members-only clip from the first listen', youtube: 'Official audio, out-now Short, Premiere page live', paid: 'Five-day test on the posts already winning organically' },
+    { phase: 'Release week', miguel: 'Daily for four days, then the video-set bridge', s1c: 'The Hourglass stream; out-now SMS and email; The Ride for top sharers', youtube: 'Official audio, out-now Short, Premiere page live', paid: 'Behind the posts already winning organically' },
     { phase: 'Video', miguel: 'Trailer, premiere, a Short the same day', s1c: 'Video one hour early for members', youtube: 'Premiere with Miguel in chat, Shorts from the video', paid: 'Scale the winner; YouTube in-feed behind the video' },
     { phase: 'Sustain', miguel: '2 to 3 a week: cutdowns, covers he responds to, stories', s1c: 'Live version first; signed-vinyl thank-yous to top sharers', youtube: 'Live performance video, cutdown Shorts', paid: 'Hold at the winning level, cut what stops working' },
   ],
@@ -158,7 +175,7 @@ export const miguelHyh = {
       label: 'Week −2', dates: '2 to 8 Nov', title: 'Announce and video shoot',
       objective: 'Plant the hook as Miguel’s own sound, announce on S1C, and get the video shot.',
       actions: [
-        'Sun 1 Nov: the cold open on TikTok and Instagram as an original sound. No title, no date.',
+        'Sun 1 Nov: the cold open on TikTok and Instagram as an original sound. No title, no date. The Rumor Line posters go up the same night.',
         'Tue 3 Nov: the announce. S1C first, socials an hour later, notify link everywhere. One SMS and one email to the existing list.',
         'Wed 4 and Thu 5 Nov: music video shoot, with a vertical B-camera and the live vocal take. The weekly livestream moves or becomes a short message from set.',
         'Fri 6 Nov: teaser three. Start Instagram Trial Reels: five hook and caption variants to non-followers.',
@@ -172,18 +189,19 @@ export const miguelHyh = {
       actions: [
         'Mon 9 Nov: teaser four, the breakdown sound.',
         'Wed 11 Nov: first listen on the S1C livestream. Story of the song, playback for members, clips for Thursday and Friday.',
-        'Thu 12 Nov: “Tomorrow.”',
+        'Thu 12 Nov: the day-before teaser.',
         'Fri 13 Nov: out now across every channel, official audio on YouTube, SMS and email to S1C. Release-day Reddit thread with a fan moderator and an out-now note from Miguel.',
-        'Fri to Sun: Miguel answers fan posts and the first covers. Paid test starts on the two posts with the best organic hold.',
-        'Sat 14 Nov (optional): the unannounced performance, if approved. See creative ideas.',
+        'Thu 12 Nov, 6 to 9pm PT: The Hourglass runs out on the beach as the song goes live on the East Coast. Streamed on S1C.',
+        'Fri to Sun: Miguel answers fan posts and the first covers. Paid starts behind the two posts with the best organic hold.',
+        'Sat 14 Nov: The Ride. S1C members hear the song at the top of a red Ferris wheel.',
       ],
       signals: 'Saves and follows, not just streams. First-weekend saves above 10% of streams; first covers appearing without being asked.',
     },
     {
       label: 'Week +1', dates: '16 to 22 Nov', title: 'Paid read and video premiere',
-      objective: 'Read the five-day test, move money to what worked, and premiere the video while the single is still fresh.',
+      objective: 'Read the first five days of paid, move to what worked, and premiere the video while the single is still fresh.',
       actions: [
-        'Mon 16 Nov: five-day read of the paid test. Scale the winner, cut the rest, report where the money moved.',
+        'Mon 16 Nov: five-day read of paid. Scale the winner, cut the rest, report what moved.',
         'Sun 15 to Tue 17 Nov: behind-the-scenes from the video set.',
         'Wed 18 Nov: video trailer and Premiere page. Spotify music video pitch submitted before the premiere.',
         'Fri 20 Nov: the video. S1C members an hour early, YouTube Premiere with Miguel in chat, Shorts the same day.',
@@ -198,7 +216,7 @@ export const miguelHyh = {
         'If the video missed 20 Nov: premiere Tue 24 Nov. If it is not ready by then, hold to Tue 8 Dec.',
         'Video cutdown one, tested in Trial Reels first.',
         'A “Have you heard?” story with a gratitude angle: “enjoy the ride” fits the week without forcing it.',
-        'Paid holds at the winning level; holiday inventory gets more expensive late in the week.',
+        'Paid holds behind the winning posts; holiday ad inventory gets more crowded late in the week.',
       ],
       signals: 'Streams holding within 20% of release week. Cutdown completion rates.',
     },
@@ -237,38 +255,78 @@ export const miguelHyh = {
   ],
 
   paid: {
-    intro: 'Paid media follows the audience, it does not lead it. Nothing runs before release. From release day, money only goes behind posts that are already holding real attention, and every week we report what we tested, what won and where the money moved.',
-    tiers: [
-      {
-        name: 'Floor', range: '$2.5K / month', window: 'From 13 Nov',
-        d: 'Amplifies the organic winners only. Enough to read a signal on one platform at a time.',
-        lines: [
-          { item: 'Instagram and Facebook, to Spotify and Apple', pct: 60 },
-          { item: 'TikTok Spark Ads on the best posts', pct: 25 },
-          { item: 'Singers and creators', pct: 15 },
-        ],
-        gate: 'Scales only when a five-day read shows streams moving in the paid markets.',
-      },
-      {
-        name: 'Recommended', range: '$15–20K', window: '13 Nov to 13 Dec',
-        d: 'A real test on three platforms in week one, then scale behind the winner and the video. This is where label support makes the difference.',
-        lines: [
-          { item: 'Instagram and Facebook, to Spotify and Apple', pct: 45 },
-          { item: 'YouTube in-feed and Shorts, behind the video', pct: 30 },
-          { item: 'TikTok Spark Ads on Miguel and creator posts', pct: 15 },
-          { item: 'Singers and creators', pct: 10 },
-        ],
-        gate: 'Week one is a $3K test. Scale only behind the creative that wins it. Below about $2.5K per platform, a test cannot tell you anything.',
-      },
+    intro: 'Paid media follows the audience, it does not lead it. Nothing runs before release. From release day, paid only goes behind posts that are already holding real attention, and every week we report what we tested, what won and what we changed.',
+    channels: [
+      { ch: 'Instagram and Facebook', role: 'The release-week engine. Reels and Stories placements driving to Spotify and Apple Music.', how: 'Run the organic winner exactly as posted before making anything new. On recent CCD campaigns the original out-now post beat every purpose-made ad variant.' },
+      { ch: 'Spotify Marquee and Showcase', role: 'Reach the 36.8M people already listening to Miguel’s catalog, inside Spotify, at the moment of release.', how: 'Run through RCA, aimed at lapsed and catalog-only listeners. The cleanest way to turn catalog listening into new-music listening.' },
+      { ch: 'YouTube', role: 'Carries the video: in-feed behind the premiere, Shorts ads behind the cutdowns.', how: 'Premiere reminders before the video, then retarget everyone who watched the official audio.' },
+      { ch: 'TikTok Spark Ads', role: 'Boosts real posts, Miguel’s and fans’, so the likes and comments stay on the original.', how: 'Only on posts with organic hold. Creator and cover posts run with the creator’s permission.' },
+      { ch: 'Creator partnership ads', role: 'The best covers from the singers’ chain run as ads from the singers’ own handles.', how: 'Turns the strongest fan and peer versions into the creative refresh for weeks three and four.' },
+      { ch: 'Retargeting', role: 'Everyone who engaged once hears about the next thing: the video, the live version, the vinyl.', how: 'Audiences built from video viewers, S1C sign-ups and Spotify clickers, refreshed weekly.' },
+    ],
+    techniques: [
+      { t: 'Test before paid', d: 'Instagram Trial Reels show each teaser to non-followers first. We only put paid behind the hook and caption that already won.' },
+      { t: 'Back the winner', d: 'No new ad creative until a post proves itself organically. Then we scale that post, not a cut of it.' },
+      { t: 'Refresh with the rollout', d: 'The creative rotates with the stagger: audio, then the video, then covers, then the live version. Each one gives paid a new reason to show up.' },
+      { t: 'Read it in five days', d: 'Each paid push gets a five-day before-and-after read in Spotify for Artists, in the markets it ran in against markets it did not. Spend moves on that read.' },
     ],
     markets: 'United States first. Then the markets where Miguel already over-delivers and attention is cheaper: the Philippines (6.5M monthly listeners, his number two country), the United Kingdom, Australia, South Africa and Canada.',
   },
+
+  activations: [
+    {
+      name: 'The Hourglass',
+      lyric: 'We’re just running out of sand in the hourglass',
+      when: 'Thu 12 Nov, on the beach by Santa Monica pier',
+      img: '/images/miguel-have-you-heard/examples/hourglass.jpg',
+      d: 'A six-metre hourglass on the sand, filled with red sand timed to run out at 9pm Pacific: the moment the song goes live on the East Coast. It is turned over three hours earlier and streamed on S1C the whole time, so fans everywhere watch the same sand fall. When the last grain drops, the song plays on the beach for the first time.',
+      how: [
+        'The location goes out by S1C text only, two hours before it turns.',
+        'Live on S1C for three hours, with Miguel arriving for the last thirty minutes.',
+        'When it empties, the song plays out over the sand and a hundred phones film the moment.',
+        'Afterwards the red sand is bottled in small vials and sent to the people who brought the most friends to S1C.',
+      ],
+      makes: 'A three-hour stream, the release moment filmed from every angle, and a keepsake that keeps the story going into December.',
+      needs: 'Fabrication, beach permit, label sign-off on playback',
+    },
+    {
+      name: 'The Rumor Line',
+      lyric: 'Have you heard?',
+      when: 'From Sun 1 Nov in Los Angeles, New York, London and Manila',
+      img: '/images/miguel-have-you-heard/examples/rumor-line-posters.jpg',
+      d: 'Unbranded posters go up the same night as the cold-open teaser in four of Miguel’s biggest cities: black, three words and a number. No name. Text the number and Miguel answers with a voice note: one of his “Have you heard?” stories, and a promise to text you first when there is something to hear.',
+      how: [
+        'Wheatpasted posters plus a handful of digital screens, the same design in all four cities.',
+        'The number is S1C’s own text line, so every person who texts becomes a subscriber.',
+        'Fans post the posters and work it out online. Miguel confirms it with the announce on Tue 3 Nov.',
+        'A new voice note goes out every week through December, each a different story.',
+      ],
+      makes: 'A cryptic street moment fans decode for us, direct growth of the S1C text list, and a reason to keep replying after release.',
+      needs: 'Out-of-home placement, S1C text line',
+    },
+    {
+      name: 'The Ride',
+      lyric: 'So enjoy the ride, let it move you',
+      when: 'Sat 14 Nov, release weekend, Santa Monica pier',
+      img: '/images/miguel-have-you-heard/examples/the-ride-wheel.jpg',
+      d: 'The pier’s Ferris wheel, lit red for one night. S1C members ride two to a gondola with headphones and hear the song over the ocean at the top of the loop. Miguel rides the last one. Nothing is announced publicly until the wheel is already red, so the city sees it before anyone reads about it.',
+      how: [
+        'Every gondola is a private listening booth with headphones and the song cued to start at the top.',
+        'Invitations go to the top S1C sharers and a plus-one.',
+        'A vertical camera in one gondola films the song from the top of the wheel for the out-now week.',
+        'The red wheel is visible from the beach and the coast road, so the public footage takes care of itself.',
+      ],
+      makes: 'The hero image of release week, a vertical film of the song over the ocean, and a real reward for the people spreading it.',
+      needs: 'Venue buyout, label support',
+    },
+  ],
 
   ideas: [
     { t: 'The “Have you heard?” stories', d: 'A weekly 30 to 45 second story from Miguel, sourced from the S1C livestreams. Each one is a true moment from his past that foreshadows who he is now. It runs before, during and after the single and outlives it.', ask: 'Miguel' },
     { t: 'First listen on S1C', d: 'The Wednesday before release, members hear the song first on the livestream, with Miguel telling the story of it. It makes the list matter and gives us release-week clips no one else has.', ask: 'Label sign-off on pre-release playback' },
     { t: 'Who told you?', d: 'Every S1C member gets a personal share link. The people who bring the most friends to the list are thanked with signed vinyl from the 11 December reissues. Word of mouth, counted.', ask: 'Sony Legacy for the signed copies' },
-    { t: 'The unannounced performance', d: 'Release weekend in Los Angeles, two hours’ notice by S1C text only: Miguel performs the song from a box truck or a rooftop, filmed by fans. Small crowd, big footage.', ask: 'Budget, permits, label support' },
+    { t: 'Enjoy the Ride', d: 'A short-film series: Miguel sits with people who have lived ninety years or more and asks what they would tell themselves about enjoying the ride. The song sits underneath. Gentle, funny, shareable, and exactly what the hook means.', ask: 'Miguel, a small documentary crew' },
+    { t: 'The unannounced performance', d: 'Two hours’ notice by S1C text only: Miguel performs the song from a box truck or a rooftop in Los Angeles, filmed by fans. Small crowd, big footage.', ask: 'Permits, label support' },
     { t: 'The singers’ chain', d: 'Invite singers of every size, from peers to bedroom vocalists, to sing the hook their way. Miguel answers the best within a day. If it catches, an official versions release in January.', ask: 'Miguel' },
     { t: 'The live version', d: 'One take of the breakdown and final chorus, captured on the video set. Released in December as a vertical and a YouTube performance, and the centrepiece of the Apple in-studio session.', ask: 'Video director, Apple' },
     { t: 'A playlist that tells the story', d: 'A pinned “Have You Heard” playlist on his Spotify profile: the single on top, then the catalog songs that point at where he is now, with a note from Miguel on each.', ask: 'Sony Legacy, RCA' },
@@ -276,12 +334,12 @@ export const miguelHyh = {
   ],
 
   measurement: {
-    body: 'We agree on the scoreboard before release, not after. One weekly report: what we tested, what won, where money moved and what it moved. These matter more than raw streams.',
+    body: 'We agree on the scoreboard before release, not after. One weekly report: what we tested, what won, and what we changed because of it. These matter more than raw streams.',
     methods: [
       { t: 'Save and follow rate', d: 'Saves per stream and new Spotify followers tell us whether people want to hear the song again and hear what Miguel does next. This is the number paid is judged on.' },
       { t: 'S1C list growth', d: 'New notify sign-ups, SMS opt-ins and share-link referrals. The list built on this single is the launch list for everything after it.' },
       { t: 'Organic pickup', d: 'Fan uses of the official sounds, unprompted covers, and Reddit and comment conversation about the song itself. If people pass it on without being paid to, the plan is working.' },
-      { t: 'The paid read', d: 'Each paid flight gets a five-day before-and-after read in Spotify for Artists for the markets it ran in, against markets it did not. Money moves on that read, every week.' },
+      { t: 'The paid read', d: 'Each paid push gets a five-day before-and-after read in Spotify for Artists for the markets it ran in, against markets it did not. We move on that read, every week.' },
     ],
   },
 
@@ -302,7 +360,8 @@ export const miguelHyh = {
   questions: [
     'Can we lock Friday 13 November, with the final master and DSP delivery by Friday 30 October?',
     'Who at RCA owns the Spotify pitch, the pre-save and notify links, and the radio plan and impact date?',
-    'What support can RCA put behind paid media in the four weeks after release?',
+    'Can RCA run Spotify Marquee and Showcase behind the release, and support paid in the four weeks after it?',
+    'Which of the three activations should we scope first: The Hourglass, The Rumor Line or The Ride?',
     'Who is directing the video, and what is the realistic delivery date? That decides 20 November, 24 November or 8 December.',
     'Can we brief the vertical captures on the 26 to 27 October shoot against the shot list above?',
     'Where do the 1800 episodes now land relative to the 3 November announce?',
@@ -391,7 +450,7 @@ export const miguelHyh = {
     { t: 'Countdown Pages are for albums', d: 'Spotify’s Countdown Pages and the Upcoming Releases hub are open to albums and EPs only, so a single needs its own notify path. That is why S1C carries the pre-release list.' },
     { t: 'Pitch early', d: 'Spotify needs the pitch at least seven days out to guarantee Release Radar, and editors see it best with two weeks or more. Music videos are now a separate pitch, made before release.' },
     { t: 'Premiere on a traction moment', d: 'YouTube’s own guidance is to premiere the video on release day or on a later moment of traction, go live first and redirect, and post a Short the same day.' },
-    { t: 'Trial Reels test for free', d: 'Instagram Trial Reels show to non-followers first and report results in about a day. The right way to choose a hook and caption before putting money behind one.' },
+    { t: 'Trial Reels test before paid', d: 'Instagram Trial Reels show to non-followers first and report results in about a day. The right way to choose a hook and caption before backing one.' },
     { t: 'Radio after the holidays', d: 'Radio impact dates run independently of release dates. Fall servicing is crowded and December programming turns to holiday music, so January is the cleaner window.' },
   ],
 
