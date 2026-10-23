@@ -7,3 +7,4 @@ export { kodokuHeLives } from './kodoku-he-lives';
 export { govanniSay2Much } from './govanni-say-2-much';
 export { okNikoMore } from './ok-niko-more';
 export { loekTheOne } from './loek-the-one';
+export { miguelHyh } from './miguel-have-you-heard';
