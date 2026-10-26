@@ -131,16 +131,6 @@ function firstCaptionLine(caption: string): string {
   return caption.split(/\r?\n/).map((line) => line.trim()).find(Boolean) ?? '';
 }
 
-function crossPlatformMatchKey(caption: string): string {
-  return firstCaptionLine(caption)
-    .normalize('NFKC')
-    .toLocaleLowerCase()
-    .replace(/^\[[^\]]*\]\s*/, '')
-    .replace(/[“”"'‘’!?.,|｜:：]/g, '')
-    .replace(/\s+/g, ' ')
-    .trim();
-}
-
 function findActivePreview(assets: EkatorAsset[], newestFullEpisode?: EkatorAsset): EkatorAsset | undefined {
   const newestFullEpisodeAt = newestFullEpisode ? publicationTime(newestFullEpisode) : 0;
   return [...assets]
@@ -154,27 +144,6 @@ function findActivePreview(assets: EkatorAsset[], newestFullEpisode?: EkatorAsse
     .sort((a, b) => publicationTime(b) - publicationTime(a))[0];
 }
 
-function buildMatchedCrossPlatformCuts(assets: EkatorAsset[]): MatchedCrossPlatformCut[] {
-  const instagramByCaption = new Map<string, EkatorAsset>();
-  const youtubeByCaption = new Map<string, EkatorAsset>();
-  for (const asset of assets) {
-    if ((asset.platform !== 'instagram' && asset.platform !== 'youtube') || asset.views === null || asset.views <= 0) continue;
-    const key = crossPlatformMatchKey(asset.caption);
-    if (!key) continue;
-    const target = asset.platform === 'instagram' ? instagramByCaption : youtubeByCaption;
-    const current = target.get(key);
-    if (!current || publicationTime(asset) > publicationTime(current)) target.set(key, asset);
-  }
-
-  return Array.from(youtubeByCaption.values())
-    .flatMap((youtube): MatchedCrossPlatformCut[] => {
-      const title = firstCaptionLine(youtube.caption).replace(/^\[[^\]]*\]\s*/, '');
-      const instagram = instagramByCaption.get(crossPlatformMatchKey(youtube.caption));
-      return instagram ? [{ title, instagram, youtube, latestPostAt: Math.max(publicationTime(instagram), publicationTime(youtube)) }] : [];
-    })
-    .sort((a, b) => b.latestPostAt - a.latestPostAt);
-}
-
 function matchedCutStats(cut: MatchedCrossPlatformCut) {
   const combinedViews = (cut.instagram.views ?? 0) + (cut.youtube.views ?? 0);
   const combinedInteractions = knownInteractions(cut.instagram) + knownInteractions(cut.youtube);
@@ -185,40 +154,16 @@ function matchedCutStats(cut: MatchedCrossPlatformCut) {
   };
 }
 
-function aggregateMatchedCutsStats(cuts: MatchedCrossPlatformCut[]) {
-  const totals = cuts.reduce((sum, cut) => {
-    const stats = matchedCutStats(cut);
-    return {
-      combinedViews: sum.combinedViews + stats.combinedViews,
-      combinedInteractions: sum.combinedInteractions + stats.combinedInteractions,
-    };
-  }, { combinedViews: 0, combinedInteractions: 0 });
-  return {
-    ...totals,
-    interactionRate: totals.combinedViews > 0
-      ? (totals.combinedInteractions / totals.combinedViews) * 100
-      : null,
-  };
-}
+type MatchedCutEvidence = {
+  instagramId: string;
+  youtubeId: string;
+};
 
-function isTwinBondTitle(title: string): boolean {
-  const normalized = crossPlatformMatchKey(title);
-  const hasTwin = /쌍둥이|\btwins?\b|\bsiblings?\b/i.test(normalized);
-  const hasBond = /우애|하지만\s+둘은\s+쌍둥이|\bbond\b|\brelationship\b/i.test(normalized);
-  return hasTwin && hasBond;
-}
-
-function findTwinBondCuts(cuts: MatchedCrossPlatformCut[]): MatchedCrossPlatformCut[] {
-  return cuts.filter((cut) => isTwinBondTitle(cut.title));
-}
-
-const lowContextHumorEvidenceByPlatform = {
-  instagram: { publicationId: 'Dafh5PFpHRZ', title: '너무 무더운(?) 분위기였어요' },
-  youtube: { publicationId: 'EnHVhRJUSY4', title: '너무 무더운(?) 분위기였어요' },
-} as const;
-const lowContextHumorEvidenceIds = new Set<string>(
-  Object.values(lowContextHumorEvidenceByPlatform).map((evidence) => evidence.publicationId),
-);
+const weeklyCutEvidence = {
+  seasonTwoTeaser: { instagramId: 'DejijqZJF0Z', youtubeId: 'gaRcoDeKbEQ' },
+  traineeIdentity: { instagramId: 'DcOWibKSkNR', youtubeId: '86SKD1ZdV8U' },
+  emotionalMilestone: { instagramId: 'DcLyIEKpZtV', youtubeId: '-pU24FoCLv0' },
+} as const satisfies Record<string, MatchedCutEvidence>;
 
 function publicationId(asset: EkatorAsset): string | null {
   if (!asset.sourceUrl) return null;
@@ -244,18 +189,16 @@ function publicationId(asset: EkatorAsset): string | null {
   }
 }
 
-function isLowContextHumorEvidence(asset: EkatorAsset): boolean {
-  const id = publicationId(asset);
-  return id !== null && lowContextHumorEvidenceIds.has(id);
-}
-
-function findLowContextHumorCut(cuts: MatchedCrossPlatformCut[]): MatchedCrossPlatformCut | undefined {
-  const expectedTitle = crossPlatformMatchKey(lowContextHumorEvidenceByPlatform.youtube.title);
-  return cuts.find((cut) => (
-    crossPlatformMatchKey(cut.title) === expectedTitle
-    && isLowContextHumorEvidence(cut.instagram)
-    && isLowContextHumorEvidence(cut.youtube)
-  ));
+function findEvidenceCut(assets: EkatorAsset[], evidence: MatchedCutEvidence): MatchedCrossPlatformCut | undefined {
+  const instagram = assets.find((asset) => asset.platform === 'instagram' && publicationId(asset) === evidence.instagramId);
+  const youtube = assets.find((asset) => asset.platform === 'youtube' && publicationId(asset) === evidence.youtubeId);
+  if (!instagram || !youtube || instagram.views === null || youtube.views === null) return undefined;
+  return {
+    title: firstCaptionLine(youtube.caption).replace(/^\[[^\]]*\]\s*/, '').split('|')[0].trim(),
+    instagram,
+    youtube,
+    latestPostAt: Math.max(publicationTime(instagram), publicationTime(youtube)),
+  };
 }
 
 function deriveDashboardMetrics(snapshot: EkatorAssetSnapshot, channelSnapshot: EkatorChannelSnapshot): DashboardMetrics {
@@ -459,6 +402,8 @@ function buildInsights(
   const newestEpisodeAsset = newestFullEpisode?.asset;
   const newestEpisodeViews = newestEpisodeAsset?.views ?? 0;
   const newestEpisodeInteractions = newestEpisodeAsset ? knownInteractions(newestEpisodeAsset) : 0;
+  const seasonTwoTeaser = findEvidenceCut(assets.assets, weeklyCutEvidence.seasonTwoTeaser);
+  const seasonTwoTeaserStats = seasonTwoTeaser ? matchedCutStats(seasonTwoTeaser) : null;
   const activePreview = findActivePreview(assets.assets, newestFullEpisode?.asset);
   const activePreviewRate = activePreview ? interactionRate(activePreview) : null;
   const activePreviewName = activePreview && isFinalePreviewCaption(activePreview.caption) ? 'Finale preview' : 'Latest preview';
@@ -495,25 +440,33 @@ function buildInsights(
         : 'Publish a three-cut sequence within 72 hours and record 1-hour, 24-hour, and 72-hour performance.',
       tone: tiktokPosts > 0 ? 'watch' : 'risk',
     },
-    activePreview
+    seasonTwoTeaser && seasonTwoTeaserStats
       ? {
-          label: `${activePreviewName} signal`,
-          stat: activePreview.views !== null ? compact(activePreview.views) : compact(knownInteractions(activePreview)),
-          read: `The live ${activePreviewName.toLocaleLowerCase()} has ${activePreview.views === null ? 'no public view count and' : `${compact(activePreview.views)} current views and`} ${compact(knownInteractions(activePreview))} known interactions${activePreviewRate === null ? '' : ` (${activePreviewRate.toFixed(1)}% interaction rate)`} in the latest snapshot.`,
-          action: 'Mirror the same hook across owned short-form channels and link each cut into the episode playlist.',
+          label: 'Season 2 teaser signal',
+          stat: compact(seasonTwoTeaserStats.combinedViews),
+          read: `The matched Instagram and YouTube teaser posts hold ${compact(seasonTwoTeaserStats.combinedViews)} views and ${compact(seasonTwoTeaserStats.combinedInteractions)} known interactions${seasonTwoTeaserStats.interactionRate === null ? '' : ` (${seasonTwoTeaserStats.interactionRate.toFixed(1)}% interaction rate)`} in the latest snapshot.`,
+          action: 'Release a character-led follow-up with the same opening premise and route each version to the episode playlist.',
           tone: 'strong' as const,
         }
-      : {
-          label: newestEpisodeNumber === null ? 'Newest episode signal' : `Newest episode signal · EP ${newestEpisodeNumber}`,
-          stat: newestEpisodeViews > 0 ? compact(newestEpisodeViews) : '—',
-          read: newestEpisodeAsset
-            ? `Episode ${newestEpisodeNumber} holds ${compact(newestEpisodeViews)} current YouTube views and ${compact(newestEpisodeInteractions)} known interactions. Companion short-form posts show which hooks to repeat.`
-            : 'No canonical full-episode publication is currently identified for the newest episode.',
-          action: newestEpisodeAsset
-            ? 'Carry the strongest companion hook into Reels, Shorts, and TikTok, then link each cut back to the full episode.'
-            : 'Confirm the newest episode title before changing the cross-platform sequence.',
-          tone: 'strong' as const,
-        },
+      : activePreview
+        ? {
+            label: `${activePreviewName} signal`,
+            stat: activePreview.views !== null ? compact(activePreview.views) : compact(knownInteractions(activePreview)),
+            read: `The live ${activePreviewName.toLocaleLowerCase()} has ${activePreview.views === null ? 'no public view count and' : `${compact(activePreview.views)} current views and`} ${compact(knownInteractions(activePreview))} known interactions${activePreviewRate === null ? '' : ` (${activePreviewRate.toFixed(1)}% interaction rate)`} in the latest snapshot.`,
+            action: 'Mirror the same hook across owned short-form channels and link each cut into the episode playlist.',
+            tone: 'strong' as const,
+          }
+        : {
+            label: newestEpisodeNumber === null ? 'Newest episode signal' : `Newest episode signal · EP ${newestEpisodeNumber}`,
+            stat: newestEpisodeViews > 0 ? compact(newestEpisodeViews) : '—',
+            read: newestEpisodeAsset
+              ? `Episode ${newestEpisodeNumber} holds ${compact(newestEpisodeViews)} current YouTube views and ${compact(newestEpisodeInteractions)} known interactions. Companion short-form posts show which hooks to repeat.`
+              : 'No canonical full-episode publication is currently identified for the newest episode.',
+            action: newestEpisodeAsset
+              ? 'Carry the strongest companion hook into Reels, Shorts, and TikTok, then link each cut back to the full episode.'
+              : 'Confirm the newest episode title before changing the cross-platform sequence.',
+            tone: 'strong' as const,
+          },
   ];
 }
 
@@ -532,29 +485,14 @@ function buildRecommendations(
   const activePreview = findActivePreview(assets.assets, newestEpisode?.asset);
   const activePreviewRate = activePreview ? interactionRate(activePreview) : null;
   const activePreviewName = activePreview && isFinalePreviewCaption(activePreview.caption) ? 'finale preview' : 'latest preview';
-  const matchedCuts = buildMatchedCrossPlatformCuts(assets.assets);
-  const recentMatchedCuts = matchedCuts.slice(0, 4);
-  const reachLeader = [...recentMatchedCuts]
-    .sort((a, b) => matchedCutStats(b).combinedViews - matchedCutStats(a).combinedViews)[0];
-  const responseLeader = [...recentMatchedCuts]
-    .filter((cut) => cut.youtube.itemId !== reachLeader?.youtube.itemId)
-    .sort((a, b) => (matchedCutStats(b).interactionRate ?? 0) - (matchedCutStats(a).interactionRate ?? 0))[0];
-  const twinBondCuts = findTwinBondCuts(matchedCuts);
-  const lowContextHumorCut = findLowContextHumorCut(matchedCuts);
-  const reachStats = reachLeader ? matchedCutStats(reachLeader) : null;
-  const responseStats = responseLeader ? matchedCutStats(responseLeader) : null;
-  const twinBondStats = aggregateMatchedCutsStats(twinBondCuts);
-  const lowContextHumorStats = lowContextHumorCut ? matchedCutStats(lowContextHumorCut) : null;
+  const seasonTwoTeaser = findEvidenceCut(assets.assets, weeklyCutEvidence.seasonTwoTeaser);
+  const traineeIdentity = findEvidenceCut(assets.assets, weeklyCutEvidence.traineeIdentity);
+  const emotionalMilestone = findEvidenceCut(assets.assets, weeklyCutEvidence.emotionalMilestone);
+  const seasonTwoTeaserStats = seasonTwoTeaser ? matchedCutStats(seasonTwoTeaser) : null;
+  const traineeIdentityStats = traineeIdentity ? matchedCutStats(traineeIdentity) : null;
+  const emotionalMilestoneStats = emotionalMilestone ? matchedCutStats(emotionalMilestone) : null;
   const tiktokPosts = platformPostCount('tiktok', assets, channelSnapshot);
   const tiktokAudience = channelSnapshot.channels.find((channel) => channel.platform === 'tiktok')?.audience ?? null;
-  const tiktokProvenHooks = [
-    reachLeader ? 'identity-stakes' : null,
-    twinBondCuts.length > 0 ? 'twin-bond' : null,
-    responseLeader ? 'highest-response' : null,
-  ].filter((hook): hook is string => hook !== null);
-  const tiktokProvenHookLabel = tiktokProvenHooks.length <= 1
-    ? tiktokProvenHooks[0] ?? ''
-    : `${tiktokProvenHooks.slice(0, -1).join(', ')}${tiktokProvenHooks.length > 2 ? ',' : ''} and ${tiktokProvenHooks.at(-1)}`;
   const episodeShare = metrics.youtubeTotalViews > 0 ? (metrics.episodeViews / metrics.youtubeTotalViews) * 100 : null;
   const latestOwnedPostAt = assets.assets.reduce((latest, asset) => Math.max(latest, publicationTime(asset)), 0);
   const latestOwnedPostLabel = latestOwnedPostAt > 0
@@ -562,11 +500,11 @@ function buildRecommendations(
     : null;
   const moves: Omit<Rec, 'rank'>[] = [];
 
-  moves.push(reachLeader && reachStats
+  moves.push(seasonTwoTeaser && seasonTwoTeaserStats
     ? {
-        title: 'Extend the Season 2 teaser into a three-channel launch',
-        why: `“${reachLeader.title}” is the strongest current matched launch signal across Instagram and YouTube, with ${compact(reachStats.combinedViews)} views and ${compact(reachStats.combinedInteractions)} known interactions${reachStats.interactionRate === null ? '' : ` (${reachStats.interactionRate.toFixed(1)}% interaction rate)`}.${latestOwnedPostLabel ? ` No verified owned-channel publication has appeared since ${latestOwnedPostLabel}.` : ''}`,
-        move: 'Publish the TikTok adaptation now, then follow with one character-led Reel and Short that keep the same opening premise. Route every version to the full-episode playlist.',
+        title: 'Extend the Season 2 teaser while it is still gaining',
+        why: `“${seasonTwoTeaser.title}” is the strongest current matched launch signal across Instagram and YouTube, with ${compact(seasonTwoTeaserStats.combinedViews)} views and ${compact(seasonTwoTeaserStats.combinedInteractions)} known interactions${seasonTwoTeaserStats.interactionRate === null ? '' : ` (${seasonTwoTeaserStats.interactionRate.toFixed(1)}% interaction rate)`}.${latestOwnedPostLabel ? ` No verified owned-channel publication has appeared since ${latestOwnedPostLabel}.` : ''}`,
+        move: 'Publish a character-led TikTok, Reel, and Short that keep the same opening premise. Route every version to the full-episode playlist.',
         owner: 'Owned social',
         impact: 'High',
       }
@@ -596,13 +534,9 @@ function buildRecommendations(
 
   moves.push(tiktokAudience !== null && tiktokAudience > 0 && tiktokPosts === 0
     ? {
-        title: tiktokProvenHooks.length === 3
-          ? 'Open TikTok with three already-proven hooks'
-          : 'Open TikTok with the strongest proven hooks',
-        why: `${compact(tiktokAudience)} followers and no verified official publications create an immediate distribution opening.${tiktokProvenHookLabel ? ` Matched Instagram and YouTube publications already validate ${tiktokProvenHookLabel} story hooks.` : ''}`,
-        move: tiktokProvenHooks.length === 3
-          ? 'Publish the identity-stakes, strongest twin-bond, and highest-response cuts over 72 hours, one per day. Record first-hour, 24-hour, and 72-hour views, follows, comments, saves, and shares for each.'
-          : 'Publish the strongest matched Instagram and YouTube cuts over 72 hours, one per day, then record first-hour, 24-hour, and 72-hour views, follows, comments, saves, and shares.',
+        title: 'Activate the existing TikTok audience',
+        why: `${compact(tiktokAudience)} followers and no verified official publications create an immediate distribution opening. Instagram and YouTube already validate the Season 2 premise, trainee-identity hook, and emotional milestone storyline.`,
+        move: 'Publish those three proven concepts over 72 hours, one per day. Record first-hour, 24-hour, and 72-hour views, follows, comments, saves, and shares for each.',
         owner: 'TikTok',
         impact: 'High',
       }
@@ -618,25 +552,41 @@ function buildRecommendations(
         impact: tiktokPosts > 0 ? 'High' : 'Medium',
       });
 
-  moves.push(twinBondCuts.length > 0
+  moves.push(traineeIdentity && traineeIdentityStats
     ? {
-        title: 'Extend the twin-bond storyline',
-        why: `${twinBondCuts.length} twin-bond ${twinBondCuts.length === 1 ? 'hook' : 'hooks'} hold ${compact(twinBondStats.combinedViews)} current views and ${compact(twinBondStats.combinedInteractions)} known interactions across ${twinBondCuts.length * 2} owned posts${twinBondStats.interactionRate === null ? '' : ` (${twinBondStats.interactionRate.toFixed(1)}% interaction rate)`}.`,
-        move: 'Build a recurring member-bond series around what the twins notice, protect, or reveal only to each other. Lead with the relationship before adding series context.',
+        title: 'Build the next release around the trainee-identity hook',
+        why: `“${traineeIdentity.title}” holds ${compact(traineeIdentityStats.combinedViews)} current views and ${compact(traineeIdentityStats.combinedInteractions)} known interactions across Instagram and YouTube${traineeIdentityStats.interactionRate === null ? '' : ` (${traineeIdentityStats.interactionRate.toFixed(1)}% interaction rate)`}.`,
+        move: 'Turn the premise into a repeatable member-introduction series: one personal stake, one obstacle, and one reason to follow the next episode.',
         owner: 'Creative strategy',
         impact: 'High',
       }
     : {
-        title: 'Build a recurring member-bond storyline',
-        why: 'No matched twin-bond pair is currently identified across Instagram and YouTube.',
-        move: 'Choose one relationship-led moment, publish matched Reel and Short versions, and compare view-weighted interaction rates.',
+        title: 'Rebuild the trainee-identity hook as a matched release',
+        why: 'The verified trainee-identity pair is not currently available across both Instagram and YouTube.',
+        move: 'Publish matched Reel and Short versions that lead with one personal stake, one obstacle, and one reason to follow the next episode.',
+        owner: 'Creative strategy',
+        impact: 'Medium',
+      });
+
+  moves.push(emotionalMilestone && emotionalMilestoneStats
+    ? {
+        title: 'Follow the strongest emotional-response storyline',
+        why: `“${emotionalMilestone.title}” holds ${compact(emotionalMilestoneStats.combinedViews)} current views and ${compact(emotionalMilestoneStats.combinedInteractions)} known interactions across Instagram and YouTube${emotionalMilestoneStats.interactionRate === null ? '' : ` (${emotionalMilestoneStats.interactionRate.toFixed(1)}% interaction rate)`}.`,
+        move: 'Publish a reaction-led continuation showing what changed after that milestone, with enough opening context for viewers unfamiliar with the series.',
+        owner: 'Creative strategy',
+        impact: 'High',
+      }
+    : {
+        title: 'Create the next emotional milestone pair',
+        why: 'The verified emotional milestone pair is not currently available across both Instagram and YouTube.',
+        move: 'Publish matched Reel and Short versions that show the milestone, the immediate reaction, and the change that follows.',
         owner: 'Creative strategy',
         impact: 'Medium',
       });
 
   moves.push(firstEpisode && newestEpisode && firstEpisode.episodeNumber !== newestEpisode.episodeNumber
     ? {
-        title: `Bridge the origin story directly to Episode ${newestEpisode.episodeNumber}`,
+        title: 'Use the episodes as the conversion destination',
         why: episodeShare === null
           ? 'The episode share of current YouTube views is unavailable.'
           : `${metrics.episodeCount} full episodes account for ${episodeShare.toFixed(1)}% of ${compact(metrics.youtubeTotalViews)} official YouTube views. Episode ${firstEpisode.episodeNumber} remains the entry point at ${compact(firstEpisode.asset.views ?? 0)}, while Episode ${newestEpisode.episodeNumber} holds ${compact(newestEpisode.asset.views ?? 0)}.`,
@@ -645,52 +595,20 @@ function buildRecommendations(
         impact: 'High',
       }
     : metrics.episodeCount > 0
-    ? {
-        title: 'Turn episode-led demand into a binge path',
-        why: episodeShare === null ? 'The episode share of current YouTube views is unavailable.' : `${metrics.episodeCount} full episodes account for ${episodeShare.toFixed(1)}% of ${compact(metrics.youtubeTotalViews)} official YouTube views.`,
-        move: 'Confirm the first and newest episode anchors, then connect them with a short-form origin bridge, playlist order, end screens, and pinned comments.',
-        owner: 'YouTube',
-        impact: 'Medium',
-      }
-    : {
-        title: 'Confirm the episode path before the next restart cut',
-        why: 'The current publication set does not identify a full-episode anchor.',
-        move: 'Confirm episode numbering, then connect the restart sequence with a playlist, end screens, and pinned comments.',
-        owner: 'YouTube',
-        impact: 'Medium',
-      });
-
-  moves.push(lowContextHumorCut && lowContextHumorStats
-    ? {
-        title: 'Use low-context humor as the second restart cut',
-        why: `“${lowContextHumorCut.title}” holds ${compact(lowContextHumorStats.combinedViews)} current views and ${compact(lowContextHumorStats.combinedInteractions)} known interactions across Instagram and YouTube${lowContextHumorStats.interactionRate === null ? '' : ` (${lowContextHumorStats.interactionRate.toFixed(1)}% interaction rate)`}.`,
-        move: 'Open directly on the funny reaction, require no episode knowledge, and add series context only after the payoff.',
-        owner: 'Creative strategy',
-        impact: 'High',
-      }
-    : {
-        title: 'Use low-context character moments as the second restart cut',
-        why: 'No current matched low-context humor cut is identified across Instagram and YouTube.',
-        move: 'Choose a self-contained reaction or character beat that works without episode context, then introduce the series after the payoff.',
-        owner: 'Creative strategy',
-        impact: 'Medium',
-      });
-
-  moves.push(responseLeader && responseStats
-    ? {
-          title: 'Turn the highest-response hook into a follow-up',
-          why: `“${responseLeader.title}” holds ${compact(responseStats.combinedViews)} current views and ${compact(responseStats.combinedInteractions)} known interactions across its matched versions${responseStats.interactionRate === null ? '' : ` (${responseStats.interactionRate.toFixed(1)}% interaction rate)`}.`,
-          move: 'Publish one audience-reaction montage and one context-first version for viewers unfamiliar with the series, both linking to the newest episode.',
-          owner: 'Creative strategy',
-          impact: 'High',
+      ? {
+          title: 'Use the episodes as the conversion destination',
+          why: episodeShare === null ? 'The episode share of current YouTube views is unavailable.' : `${metrics.episodeCount} full episodes account for ${episodeShare.toFixed(1)}% of ${compact(metrics.youtubeTotalViews)} official YouTube views.`,
+          move: 'Confirm the first and newest episode anchors, then connect them with a short-form origin bridge, playlist order, end screens, and pinned comments.',
+          owner: 'YouTube',
+          impact: 'Medium',
         }
-    : {
-        title: 'Create a second comparable cross-platform hook',
-        why: 'Fewer than two matched Reel and Short pairs are currently available, so a separate response leader cannot be identified.',
-        move: 'Publish one reaction-led beat with the same opening language on Instagram and YouTube, then compare view-weighted interaction rates.',
-        owner: 'Owned social',
-        impact: 'Medium',
-      });
+      : {
+          title: 'Confirm the episode path before the next restart cut',
+          why: 'The current publication set does not identify a full-episode anchor.',
+          move: 'Confirm episode numbering, then connect the restart sequence with a playlist, end screens, and pinned comments.',
+          owner: 'YouTube',
+          impact: 'Medium',
+        });
 
   return moves.map((move, index) => ({ ...move, rank: index + 1 }));
 }

@@ -10,7 +10,6 @@ COMPONENT = (ROOT / "src/components/campaign/EkatorCommandCenter.tsx").read_text
 GUARD = (ROOT / "scripts/ekator/guard_dashboard.py").read_text()
 HERO = COMPONENT.split("function CommandCenter", 1)[1].split("/* ── DETAIL SECTIONS", 1)[0]
 RECOMMENDATIONS = COMPONENT.split("function buildRecommendations", 1)[1].split("const measurementLayers", 1)[0]
-LOW_CONTEXT_HUMOR_SELECTOR = COMPONENT.split("function findLowContextHumorCut", 1)[1].split("function deriveDashboardMetrics", 1)[0]
 PAGES = "\n".join(
     (ROOT / path).read_text()
     for path in ("src/app/ekator/page.tsx", "src/app/campaign/ekator/page.tsx")
@@ -133,51 +132,34 @@ class DashboardDataContractTests(unittest.TestCase):
 
     def test_weekly_moves_prioritize_current_cross_platform_hook_evidence(self) -> None:
         for current_move in (
-            "Extend the Season 2 teaser into a three-channel launch",
-            "Open TikTok with three already-proven hooks",
-            "Bridge the origin story directly to Episode",
-            "Extend the twin-bond storyline",
-            "Use low-context humor as the second restart cut",
-            "Turn the highest-response hook into a follow-up",
+            "Extend the Season 2 teaser while it is still gaining",
+            "Activate the existing TikTok audience",
+            "Build the next release around the trainee-identity hook",
+            "Follow the strongest emotional-response storyline",
+            "Use the episodes as the conversion destination",
         ):
             self.assertIn(current_move, COMPONENT)
-        self.assertIn("function buildMatchedCrossPlatformCuts", COMPONENT)
+            self.assertIn(current_move, GUARD)
         self.assertIn("function matchedCutStats", COMPONENT)
-        self.assertIn("function findTwinBondCuts", COMPONENT)
-        self.assertIn("function findLowContextHumorCut", COMPONENT)
-        self.assertIn("const lowContextHumorEvidenceByPlatform", COMPONENT)
-        self.assertIn("const lowContextHumorEvidenceIds = new Set<string>", COMPONENT)
-        self.assertIn("Dafh5PFpHRZ", COMPONENT)
-        self.assertIn("EnHVhRJUSY4", COMPONENT)
-        self.assertIn("너무 무더운(?) 분위기였어요", COMPONENT)
-        self.assertIn(".find((cut) =>", LOW_CONTEXT_HUMOR_SELECTOR)
-        self.assertNotIn(".sort(", LOW_CONTEXT_HUMOR_SELECTOR)
-        self.assertNotIn("const lowContextHumor =", LOW_CONTEXT_HUMOR_SELECTOR)
-        self.assertNotIn(".test(cut.title)", LOW_CONTEXT_HUMOR_SELECTOR)
-        self.assertIn("Use low-context character moments as the second restart cut", COMPONENT)
-        self.assertIn("const recentMatchedCuts = matchedCuts.slice(0, 4)", COMPONENT)
-        self.assertIn("const twinBondCuts = findTwinBondCuts(matchedCuts)", COMPONENT)
-        self.assertIn("const lowContextHumorCut = findLowContextHumorCut(matchedCuts)", COMPONENT)
-        self.assertIn("const tiktokPosts = platformPostCount('tiktok', assets, channelSnapshot)", RECOMMENDATIONS)
-        self.assertIn("const tiktokAudience = channelSnapshot.channels.find((channel) => channel.platform === 'tiktok')?.audience ?? null", RECOMMENDATIONS)
-        self.assertIn("Extend the Season 2 teaser into a three-channel launch", GUARD)
-        self.assertIn("Open TikTok with three already-proven hooks", GUARD)
-        self.assertIn("Bridge the origin story directly to Episode", GUARD)
-        self.assertIn("Extend the twin-bond storyline", GUARD)
-        self.assertIn('"Use low-context"', GUARD)
-        self.assertIn("const reachLeader", COMPONENT)
-        self.assertIn("const responseLeader", COMPONENT)
-        self.assertIn("combinedViews", COMPONENT)
-        self.assertIn("interactionRate", COMPONENT)
-        self.assertIn("Fewer than two matched Reel and Short pairs are currently available", COMPONENT)
+        self.assertIn("function findEvidenceCut", COMPONENT)
+        for publication_id in (
+            "DejijqZJF0Z",
+            "gaRcoDeKbEQ",
+            "DcOWibKSkNR",
+            "86SKD1ZdV8U",
+            "DcLyIEKpZtV",
+            "-pU24FoCLv0",
+        ):
+            self.assertIn(publication_id, COMPONENT)
+        self.assertIn("Season 2 teaser signal", COMPONENT)
+        self.assertIn("matched Instagram and YouTube teaser posts hold", COMPONENT)
         self.assertIn("Route every version to the full-episode playlist", COMPONENT)
         expected_order = (
-            "moves.push(reachLeader && reachStats",
+            "moves.push(seasonTwoTeaser && seasonTwoTeaserStats",
             "moves.push(tiktokAudience !== null && tiktokAudience > 0 && tiktokPosts === 0",
-            "moves.push(twinBondCuts.length > 0",
+            "moves.push(traineeIdentity && traineeIdentityStats",
+            "moves.push(emotionalMilestone && emotionalMilestoneStats",
             "moves.push(firstEpisode && newestEpisode",
-            "moves.push(lowContextHumorCut && lowContextHumorStats",
-            "moves.push(responseLeader && responseStats",
         )
         for marker in expected_order:
             self.assertIn(marker, RECOMMENDATIONS)
@@ -185,12 +167,12 @@ class DashboardDataContractTests(unittest.TestCase):
             list(expected_order),
             sorted(expected_order, key=RECOMMENDATIONS.index),
         )
-        self.assertNotIn("Bridge short-form momentum into Episode", RECOMMENDATIONS)
-        self.assertNotIn("No second matched Reel and Short pair is currently available", COMPONENT)
-        self.assertNotIn("No matching Instagram preview is currently identified for the newest full episode", COMPONENT)
-        self.assertNotIn("Only one current matched Reel and Short pair is available", COMPONENT)
-        self.assertNotIn("Turn schedule-change attention into a viewing bridge", COMPONENT)
-        self.assertNotIn("Activate TikTok with three proven cuts", RECOMMENDATIONS)
+        for retired_move in (
+            "Extend the twin-bond storyline",
+            "Use low-context humor as the second restart cut",
+            "Turn the highest-response hook into a follow-up",
+        ):
+            self.assertNotIn(retired_move, RECOMMENDATIONS)
 
     def test_weekly_recommendations_use_the_live_tiktok_snapshot(self) -> None:
         self.assertIn("channelSnapshot: EkatorChannelSnapshot", RECOMMENDATIONS)
@@ -198,54 +180,26 @@ class DashboardDataContractTests(unittest.TestCase):
         self.assertIn("[metrics, assets, channelSnapshot]", COMPONENT)
         self.assertIn("${compact(tiktokAudience)} followers and no verified official publications", RECOMMENDATIONS)
         self.assertIn("Audience is pending.", RECOMMENDATIONS)
-        self.assertIn("const tiktokProvenHookLabel", RECOMMENDATIONS)
-        self.assertIn("${tiktokProvenHooks.length > 2 ? ',' : ''} and", RECOMMENDATIONS)
         self.assertIn("first-hour, 24-hour, and 72-hour", RECOMMENDATIONS)
+        self.assertIn("Season 2 premise, trainee-identity hook, and emotional milestone storyline", RECOMMENDATIONS)
         self.assertNotIn("60,200", RECOMMENDATIONS)
-
-    def test_twin_bond_strategy_aggregates_every_matched_story(self) -> None:
-        self.assertIn("function aggregateMatchedCutsStats", COMPONENT)
-        self.assertIn("const twinBondStats = aggregateMatchedCutsStats(twinBondCuts)", RECOMMENDATIONS)
-        self.assertIn("twin-bond ${twinBondCuts.length === 1 ? 'hook' : 'hooks'} hold", RECOMMENDATIONS)
-        self.assertIn("across ${twinBondCuts.length * 2} owned posts", RECOMMENDATIONS)
-        self.assertNotIn("function findTwinBondCut(", COMPONENT)
-
-    def test_twin_bond_taxonomy_requires_twin_and_relationship_language(self) -> None:
-        selector = COMPONENT.split("function isTwinBondTitle", 1)[1].split("const lowContextHumorEvidenceByPlatform", 1)[0]
-        self.assertIn("const normalized = crossPlatformMatchKey(title)", selector)
-        self.assertIn("const hasTwin =", selector)
-        self.assertIn("const hasBond =", selector)
-        self.assertIn("return hasTwin && hasBond", selector)
-        self.assertIn(".filter((cut) => isTwinBondTitle(cut.title))", selector)
-        self.assertNotIn(".sort(", selector)
 
     def test_restart_sequence_uses_verified_current_evidence(self) -> None:
         self.assertIn("is the strongest current matched launch signal across Instagram and YouTube", RECOMMENDATIONS)
-        self.assertIn("Publish the TikTok adaptation now", RECOMMENDATIONS)
+        self.assertIn("Publish a character-led TikTok, Reel, and Short", RECOMMENDATIONS)
         self.assertIn("Route every version to the full-episode playlist", RECOMMENDATIONS)
         self.assertNotIn("const tiktokSequenceIds = new Set", RECOMMENDATIONS)
 
-    def test_cross_platform_matching_is_one_pair_per_caption(self) -> None:
-        matcher = COMPONENT.split("function buildMatchedCrossPlatformCuts", 1)[1].split("function matchedCutStats", 1)[0]
-        self.assertIn("const youtubeByCaption = new Map<string, EkatorAsset>()", matcher)
-        self.assertIn("const current = target.get(key)", matcher)
-        self.assertIn("publicationTime(asset) > publicationTime(current)", matcher)
-        self.assertIn("Array.from(youtubeByCaption.values())", matcher)
-
-    def test_cross_platform_matching_normalizes_editorial_prefixes(self) -> None:
-        self.assertIn(r".replace(/^\[[^\]]*\]\s*/, '')", COMPONENT)
-        self.assertIn("우애", COMPONENT)
-        self.assertIn("쌍둥이", COMPONENT)
-
-    def test_low_context_humor_evidence_accepts_youtube_watch_urls(self) -> None:
-        publication_id_helper = COMPONENT.split("function publicationId", 1)[1].split("function isLowContextHumorEvidence", 1)[0]
-        evidence_matcher = COMPONENT.split("function isLowContextHumorEvidence", 1)[1].split("function findLowContextHumorCut", 1)[0]
+    def test_weekly_evidence_selector_accepts_youtube_watch_urls(self) -> None:
+        publication_id_helper = COMPONENT.split("function publicationId", 1)[1].split("function findEvidenceCut", 1)[0]
+        evidence_matcher = COMPONENT.split("function findEvidenceCut", 1)[1].split("function deriveDashboardMetrics", 1)[0]
         self.assertIn("hostname === 'youtube.com'", publication_id_helper)
         self.assertIn("segments[0] === 'watch'", publication_id_helper)
         self.assertIn("url.searchParams.get('v')", publication_id_helper)
         self.assertNotIn("url.pathname === '/watch'", publication_id_helper)
         self.assertIn("publicationId(asset)", evidence_matcher)
-        self.assertNotIn("new URL(asset.sourceUrl).pathname", evidence_matcher)
+        self.assertIn("evidence.instagramId", evidence_matcher)
+        self.assertIn("evidence.youtubeId", evidence_matcher)
 
     def test_newest_episode_insight_uses_only_the_canonical_full_episode_metric(self) -> None:
         self.assertIn("Finale preview", COMPONENT)
