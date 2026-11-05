@@ -5,7 +5,7 @@ import { miguelHyh as C } from '@/lib/data/miguel-have-you-heard';
 import { Band, Chrome, Footer, Gated, Head, Hero, InViewVideo, MAIL, Marquee, RESEARCH_URL, Reveal, s } from './shared';
 
 const NAV: [string, string][] = [
-  ['brief', 'Brief'], ['idea', 'The idea'], ['activations', 'Activations'], ['examples', 'Creative'], ['date', 'Date'], ['ladder', 'Stagger'], ['shoot', 'Shoots'], ['playbook', 'Playbook'],
+  ['labor', 'Roles'], ['brief', 'Brief'], ['idea', 'The idea'], ['activations', 'Activations'], ['examples', 'Creative'], ['date', 'Date'], ['ladder', 'Stagger'], ['shoot', 'Shoots'], ['playbook', 'Playbook'],
   ['system', 'Content'], ['paid', 'Paid'], ['ideas', 'Ideas'], ['measure', 'Measure'], ['next', 'Next'],
 ];
 
@@ -32,9 +32,54 @@ export function HyhPlan() {
         />
         <Marquee items={['Have you heard?', 'Enjoy the ride', 'Let it move you', 'Heard it here first', 'One song, a long tail']} />
 
+        {/* LABOR */}
+        <section id="labor" className={s.section}>
+          <Head n="01" label="Division of labor" title="Division of *labor.*" intro={C.labor.intro} />
+          <Reveal className={s.tableWrap}>
+            <table className={`${s.table} ${s.tableMin}`}>
+              <thead><tr><th style={{ width: '24%' }}>Who</th><th>Owns</th></tr></thead>
+              <tbody>
+                {C.labor.owners.map((o) => (
+                  <tr key={o.who}>
+                    <td><span style={display}>{o.who}</span>{o.sub && <span className={s.note} style={{ display: 'block', marginTop: 6 }}>{o.sub}</span>}</td>
+                    <td data-label="Owns">{o.owns}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </Reveal>
+
+          <div className={s.subhead}><h3 className={s.h3}>Runs without Miguel</h3><span className={`${s.mono} ${s.muted}`}>Crowd Control</span></div>
+          <Reveal className={s.rows}>
+            {C.labor.autopilot.map((a, i) => (
+              <div key={a} className={`${s.row} ${s.row2}`} style={{ padding: '14px 0' }}><span className={s.rowIdx} style={{ fontSize: '1.2rem' }}>{pad(i)}</span><p className={s.body}>{a}</p></div>
+            ))}
+          </Reveal>
+          <Reveal><p className={s.gate}>{C.labor.autopilotNote}</p></Reveal>
+
+          <div className={s.subhead}><h3 className={s.h3}>What we need from Miguel</h3><span className={`${s.mono} ${s.muted}`}>{C.labor.needs.length} items</span></div>
+          <Reveal className={s.tableWrap}>
+            <table className={`${s.table} ${s.tableMin}`}>
+              <thead><tr><th style={{ width: '4%' }}>#</th><th style={{ width: '34%' }}>What we need</th><th style={{ width: '18%' }}>By</th><th>If we don’t hear back</th></tr></thead>
+              <tbody>
+                {C.labor.needs.map((x, i) => (
+                  <tr key={x.need}>
+                    <td className={s.mono} style={{ color: 'var(--red)' }}>{pad(i)}</td>
+                    <td>{x.need}</td>
+                    <td data-label="By" style={{ color: 'var(--paper)' }}>{x.by}</td>
+                    <td data-label="If we don’t hear back"><span className={`${s.tag} ${x.kind === 'Impact' ? s.tagRed : ''}`} style={{ marginRight: 10, marginBottom: 6 }}>{x.kind === 'Default' ? 'We decide' : 'Impact'}</span>{x.fallback}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </Reveal>
+          <Reveal><p className={s.note} style={{ marginTop: 20 }}>{C.labor.deadlineNote}</p></Reveal>
+        </section>
+        <div className={s.rule} />
+
         {/* 01 BRIEF */}
         <section id="brief" className={s.section}>
-          <Head n="01" label="The brief" title="The *brief.*" intro="What the plan has to do, and the four principles it is built on." />
+          <Head n="02" label="The brief" title="The *brief.*" intro="What the plan has to do, and the four principles it is built on." />
           <Reveal>
             <dl style={{ margin: 0, borderTop: '1px solid var(--line)' }}>
               {C.brief.heard.map((h) => (
@@ -57,7 +102,7 @@ export function HyhPlan() {
 
         {/* 02 IDEA */}
         <section id="idea" className={s.section}>
-          <Head n="02" label="The idea" title="The *idea.*" intro={C.idea.line} />
+          <Head n="03" label="The idea" title="The *idea.*" intro={C.idea.line} />
           <Reveal>
             <p className={s.quote}>{C.track.hook}</p>
             <p className={s.note} style={{ marginTop: 14 }}>{C.track.hookNote}</p>
@@ -91,7 +136,7 @@ export function HyhPlan() {
 
         {/* ACTIVATIONS */}
         <section id="activations" className={s.section}>
-          <Head n="03" label="Lyric activations" title="Lyric *activations.*" intro="Three real-world moments, each built from a line in the song. Each one is designed to produce footage fans film for us and to grow the S1C list, not to be an expensive stunt that ends when the night does." />
+          <Head n="04" label="Lyric activations" title="Lyric *activations.*" intro="Three real-world moments, each built from a line in the song. Each one is designed to produce footage fans film for us and to grow the S1C list, not to be an expensive stunt that ends when the night does." />
           {C.activations.map((x, i) => (
             <div key={x.name} className={s.feature} style={{ marginTop: i === 0 ? 0 : 'clamp(72px, 12vh, 140px)' }}>
               <Reveal className={s.featureMedia}>
@@ -125,7 +170,7 @@ export function HyhPlan() {
 
         {/* EXAMPLES */}
         <section id="examples" className={s.section}>
-          <Head n="04" label="Example creative" title="Example *creative.*" intro={<><span className={`${s.tag} ${s.tagFill}`}>Examples, directional only</span><span style={{ display: 'block', marginTop: 16 }}>{C.examples.note}</span></>} />
+          <Head n="05" label="Example creative" title="Example *creative.*" intro={<><span className={`${s.tag} ${s.tagFill}`}>Examples, directional only</span><span style={{ display: 'block', marginTop: 16 }}>{C.examples.note}</span></>} />
           <Reveal>
             <div className={s.reel}>
               {C.examples.items.map((e, i) => (
@@ -155,7 +200,7 @@ export function HyhPlan() {
 
         {/* 03 DATE */}
         <section id="date" className={s.section}>
-          <Head n="05" label="Release date" title="Release *date.*" intro={C.dateCall.intro} />
+          <Head n="06" label="Release date" title="Release *date.*" intro={C.dateCall.intro} />
           <Reveal className={s.tableWrap}>
             <table className={`${s.table} ${s.tableMin}`}>
               <thead><tr><th style={{ width: '34%' }}>Factor</th><th>Fri 6 Nov</th><th>Fri 13 Nov</th></tr></thead>
@@ -184,7 +229,7 @@ export function HyhPlan() {
 
         {/* 04 LADDER */}
         <section id="ladder" className={s.section}>
-          <Head n="06" label="The stagger" title="Teaser and video *stagger.*" intro={C.ladder.intro} />
+          <Head n="07" label="The stagger" title="Teaser and video *stagger.*" intro={C.ladder.intro} />
           <Reveal className={s.rows}>
             {C.ladder.items.map((x, i) => (
               <div key={x.when + x.what} className={s.row}>
@@ -203,7 +248,7 @@ export function HyhPlan() {
 
         {/* 05 SHOOTS */}
         <section id="shoot" className={s.section}>
-          <Head n="07" label="Shot lists" title="Shot *lists.*" intro="The stagger only works if the shoots produce enough distinct pieces. These are the captures we would ask for, alongside whatever the creative team has planned." />
+          <Head n="08" label="Shot lists" title="Shot *lists.*" intro="The stagger only works if the shoots produce enough distinct pieces. These are the captures we would ask for, alongside whatever the creative team has planned." />
           <Reveal className={`${s.panels} ${s.panels2}`}>
             {([['26 to 27 October', 'Short-form shoot', C.shootAsks.october], ['4 to 5 November', 'Music video shoot', C.shootAsks.video]] as const).map(([when, name, list], i) => (
               <div key={name} className={`${s.panel} ${i === 0 ? s.panelAlt : ''}`}>
@@ -220,7 +265,7 @@ export function HyhPlan() {
 
         {/* 06 PLAYBOOK */}
         <section id="playbook" className={s.section}>
-          <Head n="08" label="Week by week" title="Week by *week.*" intro="Built around a Friday 13 November release. If the date moves to 6 November, every week below shifts one week earlier." />
+          <Head n="09" label="Week by week" title="Week by *week.*" intro="Built around a Friday 13 November release. If the date moves to 6 November, every week below shifts one week earlier." />
           <div className={s.timeline}>
             {C.weeks.map((w) => (
               <Reveal key={w.label} className={`${s.tlItem} ${w.label === 'Release week' ? s.tlAde : ''}`}>
@@ -243,7 +288,7 @@ export function HyhPlan() {
 
         {/* 07 SYSTEM */}
         <section id="system" className={s.section}>
-          <Head n="09" label="Content system" title="Content by *channel.*" intro="Each channel has one job per phase. Miguel’s feed carries the song, S1C carries the firsts, YouTube carries the video, and paid only follows what is already working." />
+          <Head n="10" label="Content system" title="Content by *channel.*" intro="Each channel has one job per phase. Miguel’s feed carries the song, S1C carries the firsts, YouTube carries the video, and paid only follows what is already working." />
           <Reveal className={s.tableWrap}>
             <table className={`${s.table} ${s.tableMin}`}>
               <thead><tr><th>Phase</th><th>Miguel</th><th>S1C</th><th>YouTube</th><th>Paid</th></tr></thead>
@@ -262,7 +307,7 @@ export function HyhPlan() {
 
         {/* 08 PAID */}
         <section id="paid" className={s.section}>
-          <Head n="10" label="Paid media" title="Paid *media.*" intro={C.paid.intro} />
+          <Head n="11" label="Paid media" title="Paid *media.*" intro={C.paid.intro} />
           <Reveal className={s.tableWrap}>
             <table className={`${s.table} ${s.tableMin}`}>
               <thead><tr><th style={{ width: '22%' }}>Channel</th><th>Role</th><th>How we run it</th></tr></thead>
@@ -293,7 +338,7 @@ export function HyhPlan() {
 
         {/* 09 IDEAS */}
         <section id="ideas" className={s.section}>
-          <Head n="11" label="Creative ideas" title="Creative *ideas.*" intro="More ideas beyond the core plan and the three activations, each with who would need to say yes. Pick the ones that feel like Miguel." />
+          <Head n="12" label="Creative ideas" title="Creative *ideas.*" intro="More ideas beyond the core plan and the three activations, each with who would need to say yes. Pick the ones that feel like Miguel." />
           <Reveal className={s.rows}>
             {C.ideas.map((x, i) => (
               <div key={x.t} className={s.row}>
@@ -311,7 +356,7 @@ export function HyhPlan() {
 
         {/* 10 MEASURE */}
         <section id="measure" className={s.section}>
-          <Head n="12" label="Measurement" title="*Measurement.*" intro={C.measurement.body} />
+          <Head n="13" label="Measurement" title="*Measurement.*" intro={C.measurement.body} />
           <Reveal className={s.rows}>
             {C.measurement.methods.map((m, i) => (
               <div key={m.t} className={s.row}>
@@ -337,7 +382,7 @@ export function HyhPlan() {
 
         {/* 11 NEXT */}
         <section id="next" className={s.section}>
-          <Head n="13" label="Risks and next steps" title="Risks and open *questions.*" intro="What could go wrong and what we do about it, then the answers that finalise the plan." />
+          <Head n="14" label="Risks and next steps" title="Risks and open *questions.*" intro="What could go wrong and what we do about it, then the answers that finalise the plan." />
           <Reveal className={s.tableWrap}>
             <table className={`${s.table} ${s.tableMin}`}>
               <thead><tr><th>Risk</th><th>Level</th><th>What we do</th></tr></thead>

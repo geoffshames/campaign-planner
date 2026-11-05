@@ -24,6 +24,43 @@ export const miguelHyh = {
     ],
   },
 
+  labor: {
+    intro: 'Who owns what, so most of the plan runs without waiting on anyone, and the few things only Miguel can do are clear, dated and asked for early.',
+    owners: [
+      { who: 'Miguel', owns: 'The calls only he can make and the moments only he can be in: being on camera at the shoots, a handful of personal moments around release, and final say on the cover art and the video cut.' },
+      { who: 'Management', sub: 'Schedule ONE and Red Light', owns: 'One point of contact for every Miguel decision. Sophie and Mitch carry each request to him with lead time, hold the deadlines, and approve in his place where he has handed that over.' },
+      { who: 'Crowd Control', owns: 'Everything on the autopilot list below: editing and scheduling, testing, paid media, the S1C list and sends, creator outreach, Reddit, activation production, and a live dashboard plus a daily digest to Sophie and Mitch.' },
+      { who: 'RCA', owns: 'Delivery to streaming services, the Spotify editorial and video pitches, the pre-save link and metadata, Spotify Marquee and Showcase, and radio.' },
+      { who: 'Production', sub: 'Director and content crew', owns: 'The short-form and music video shoots, the video edit, and delivery of vertical selects and stills to Crowd Control.' },
+    ],
+    autopilot: [
+      'Cutting teasers from approved shoot footage and posting them on the stagger schedule',
+      'Instagram Trial Reels tests of hooks and captions',
+      'Paid media behind posts already live on his channels',
+      'The S1C notify page, plus text and email sends from approved templates',
+      'Inviting singers to cover the hook and resharing the best versions',
+      'The release-day Reddit thread with the fan moderator',
+      'Weekly cutdowns from the approved video',
+      'Watching partner and press channels for anything posted early',
+      'The live dashboard and the daily digest to Sophie and Mitch',
+    ],
+    autopilotNote: 'Once Miguel signs off this list, these run without coming back to him. He sees all of it in the daily digest, and anything he wants changed comes off the list.',
+    deadlineNote: 'Deadlines are set against the release and shoot days, and become calendar dates once the timeline is confirmed. Every request goes to Miguel through Sophie and Mitch, two weeks ahead wherever possible.',
+    needs: [
+      { need: 'Sign off the autopilot list, once', by: '6 weeks before release', kind: 'Default', fallback: 'The list runs as written. Anything he flags later comes off it.' },
+      { need: 'Choose which activations he wants: The Hourglass, The Rumor Line, The Ride', by: '6 weeks before release', kind: 'Default', fallback: 'We go ahead with The Rumor Line only, which does not need him on site, and drop the other two.' },
+      { need: 'Confirm the final lyric sheet', by: '5 weeks before release', kind: 'Impact', fallback: 'No lyrics are quoted in captions, art or activations until it is confirmed.' },
+      { need: 'Approve our capture list for the short-form shoot', by: '5 days before the shoot', kind: 'Default', fallback: 'The crew gets the list as written.' },
+      { need: 'Be on camera for the captures on the list', by: 'Short-form shoot day', kind: 'Impact', fallback: 'The stagger shrinks to whatever the shoot delivers, with longer gaps between drops.' },
+      { need: 'Record four to six “Have you heard?” voice notes', by: '4 weeks before release', kind: 'Impact', fallback: 'The Rumor Line launches with one story instead of a weekly series.' },
+      { need: 'Approve the cover art and announce copy', by: '3 weeks before release', kind: 'Impact', fallback: 'The announce moves back a week, and the teasing window shrinks with it.' },
+      { need: 'Approve each batch of teaser cuts', by: 'Within 72 hours of each batch', kind: 'Default', fallback: 'Sophie or Mitch approves in his place and the cut posts on schedule.' },
+      { need: 'Confirm the first-listen livestream', by: '2 weeks before release', kind: 'Impact', fallback: 'No first listen. S1C members get a members-only clip on release day instead.' },
+      { need: 'Twenty minutes a day for the first four days of release, answering fans and covers', by: '1 week before release', kind: 'Impact', fallback: 'Covers are reshared through S1C only, and fan replies from his accounts do not happen.' },
+      { need: 'Approve the final video cut', by: '5 days before the premiere', kind: 'Impact', fallback: 'The premiere moves to the next fallback date.' },
+    ],
+  },
+
   brief: {
     heard: [
       { k: 'The release', v: '“Have You Heard”, Miguel’s first new music since CAOS. A single now, with the music video following as soon as it is finished.' },
