@@ -99,12 +99,20 @@ REQUIRED = [
     "interactions/day since publish",
     "Ranked moves for the next 72 hours",
     "Extend the Season 2 teaser while it is still gaining",
-    "Activate the existing TikTok audience",
     "Build the next release around the trainee-identity hook",
     "Follow the strongest emotional-response storyline",
     "Use the episodes as the conversion destination",
     "Paid Media",
     "NO VERIFIED DELIVERY",
+]
+
+# Dynamic dashboard branches must render one supported public state per group.
+REQUIRED_ANY = [
+    (
+        "Activate the existing TikTok audience",
+        "Use TikTok publishing to set the pacing baseline",
+        "Confirm the TikTok audience before activation",
+    ),
 ]
 
 ROUTES = ["/ekator", "/campaign/ekator"]
@@ -117,7 +125,13 @@ def normalize_html(html: str) -> str:
     return re.sub(r"\s+", " ", text).strip()
 
 
-def scan_text(label: str, text: str, required: Iterable[str] | None = None, rendered: bool = False) -> list[dict[str, str]]:
+def scan_text(
+    label: str,
+    text: str,
+    required: Iterable[str] | None = None,
+    required_any: Iterable[Iterable[str]] | None = None,
+    rendered: bool = False,
+) -> list[dict[str, str]]:
     failures: list[dict[str, str]] = []
     lower = text.lower()
     forbidden = SOURCE_FORBIDDEN + (RENDERED_ONLY_FORBIDDEN if rendered else [])
@@ -129,6 +143,15 @@ def scan_text(label: str, text: str, required: Iterable[str] | None = None, rend
     for phrase in required or []:
         if phrase not in text:
             failures.append({"label": label, "type": "missing", "phrase": phrase, "context": ""})
+    for alternatives in required_any or []:
+        choices = tuple(alternatives)
+        if not any(phrase in text for phrase in choices):
+            failures.append({
+                "label": label,
+                "type": "missing_any",
+                "phrase": " | ".join(choices),
+                "context": "",
+            })
     return failures
 
 
@@ -178,7 +201,7 @@ def main() -> int:
             try:
                 html = fetch(url)
                 text = normalize_html(html)
-                failures.extend(scan_text(url, text, REQUIRED, rendered=True))
+                failures.extend(scan_text(url, text, REQUIRED, REQUIRED_ANY, rendered=True))
             except Exception as exc:  # noqa: BLE001
                 failures.append({"label": url, "type": "fetch_failed", "phrase": str(exc), "context": ""})
 

@@ -182,6 +182,15 @@ class DashboardDataContractTests(unittest.TestCase):
         self.assertIn("Audience is pending.", RECOMMENDATIONS)
         self.assertIn("first-hour, 24-hour, and 72-hour", RECOMMENDATIONS)
         self.assertIn("Season 2 premise, trainee-identity hook, and emotional milestone storyline", RECOMMENDATIONS)
+        for tiktok_state in (
+            "Activate the existing TikTok audience",
+            "Use TikTok publishing to set the pacing baseline",
+            "Confirm the TikTok audience before activation",
+        ):
+            self.assertIn(tiktok_state, RECOMMENDATIONS)
+            self.assertIn(tiktok_state, GUARD)
+        self.assertIn("REQUIRED_ANY", GUARD)
+        self.assertIn("missing_any", GUARD)
         self.assertNotIn("60,200", RECOMMENDATIONS)
 
     def test_restart_sequence_uses_verified_current_evidence(self) -> None:
