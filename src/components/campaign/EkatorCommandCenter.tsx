@@ -86,6 +86,10 @@ type MatchedCrossPlatformCut = {
   latestPostAt: number;
 };
 
+type MatchedThreePlatformCut = MatchedCrossPlatformCut & {
+  tiktok: EkatorAsset;
+};
+
 function hasMeasuredMetrics(asset: EkatorAsset): boolean {
   return asset.views !== null || asset.likes !== null || asset.comments !== null || asset.shares !== null;
 }
@@ -144,9 +148,12 @@ function findActivePreview(assets: EkatorAsset[], newestFullEpisode?: EkatorAsse
     .sort((a, b) => publicationTime(b) - publicationTime(a))[0];
 }
 
-function matchedCutStats(cut: MatchedCrossPlatformCut) {
-  const combinedViews = (cut.instagram.views ?? 0) + (cut.youtube.views ?? 0);
-  const combinedInteractions = knownInteractions(cut.instagram) + knownInteractions(cut.youtube);
+function matchedCutStats(cut: MatchedCrossPlatformCut | MatchedThreePlatformCut) {
+  const publications = 'tiktok' in cut
+    ? [cut.instagram, cut.youtube, cut.tiktok]
+    : [cut.instagram, cut.youtube];
+  const combinedViews = publications.reduce((sum, asset) => sum + (asset.views ?? 0), 0);
+  const combinedInteractions = publications.reduce((sum, asset) => sum + knownInteractions(asset), 0);
   return {
     combinedViews,
     combinedInteractions,
@@ -159,11 +166,16 @@ type MatchedCutEvidence = {
   youtubeId: string;
 };
 
+type MatchedThreePlatformEvidence = MatchedCutEvidence & {
+  tiktokId: string;
+};
+
 const weeklyCutEvidence = {
+  memberContrast: { instagramId: 'Dfeqbj3Jx4Y', youtubeId: 'rYbV2Krro4M', tiktokId: '7705360911065681170' },
   seasonTwoTeaser: { instagramId: 'DejijqZJF0Z', youtubeId: 'gaRcoDeKbEQ' },
   traineeIdentity: { instagramId: 'DcOWibKSkNR', youtubeId: '86SKD1ZdV8U' },
   emotionalMilestone: { instagramId: 'DcLyIEKpZtV', youtubeId: '-pU24FoCLv0' },
-} as const satisfies Record<string, MatchedCutEvidence>;
+} as const satisfies Record<string, MatchedCutEvidence | MatchedThreePlatformEvidence>;
 
 function publicationId(asset: EkatorAsset): string | null {
   if (!asset.sourceUrl) return null;
@@ -194,10 +206,24 @@ function findEvidenceCut(assets: EkatorAsset[], evidence: MatchedCutEvidence): M
   const youtube = assets.find((asset) => asset.platform === 'youtube' && publicationId(asset) === evidence.youtubeId);
   if (!instagram || !youtube || instagram.views === null || youtube.views === null) return undefined;
   return {
-    title: firstCaptionLine(youtube.caption).replace(/^\[[^\]]*\]\s*/, '').split('|')[0].trim(),
+    title: firstCaptionLine(youtube.caption).replace(/^\[[^\]]*\]\s*/, '').split('|')[0].split('#')[0].trim(),
     instagram,
     youtube,
     latestPostAt: Math.max(publicationTime(instagram), publicationTime(youtube)),
+  };
+}
+
+function findThreePlatformEvidenceCut(
+  assets: EkatorAsset[],
+  evidence: MatchedThreePlatformEvidence,
+): MatchedThreePlatformCut | undefined {
+  const matched = findEvidenceCut(assets, evidence);
+  const tiktok = assets.find((asset) => asset.platform === 'tiktok' && publicationId(asset) === evidence.tiktokId);
+  if (!matched || !tiktok || tiktok.views === null) return undefined;
+  return {
+    ...matched,
+    tiktok,
+    latestPostAt: Math.max(matched.latestPostAt, publicationTime(tiktok)),
   };
 }
 
@@ -402,6 +428,8 @@ function buildInsights(
   const newestEpisodeAsset = newestFullEpisode?.asset;
   const newestEpisodeViews = newestEpisodeAsset?.views ?? 0;
   const newestEpisodeInteractions = newestEpisodeAsset ? knownInteractions(newestEpisodeAsset) : 0;
+  const memberContrast = findThreePlatformEvidenceCut(assets.assets, weeklyCutEvidence.memberContrast);
+  const memberContrastStats = memberContrast ? matchedCutStats(memberContrast) : null;
   const seasonTwoTeaser = findEvidenceCut(assets.assets, weeklyCutEvidence.seasonTwoTeaser);
   const seasonTwoTeaserStats = seasonTwoTeaser ? matchedCutStats(seasonTwoTeaser) : null;
   const activePreview = findActivePreview(assets.assets, newestFullEpisode?.asset);
@@ -440,15 +468,23 @@ function buildInsights(
         : 'Publish a three-cut sequence within 72 hours and record 1-hour, 24-hour, and 72-hour performance.',
       tone: tiktokPosts > 0 ? 'watch' : 'risk',
     },
-    seasonTwoTeaser && seasonTwoTeaserStats
+    memberContrast && memberContrastStats
       ? {
-          label: 'Season 2 teaser signal',
-          stat: compact(seasonTwoTeaserStats.combinedViews),
-          read: `The matched Instagram and YouTube teaser posts hold ${compact(seasonTwoTeaserStats.combinedViews)} views and ${compact(seasonTwoTeaserStats.combinedInteractions)} known interactions${seasonTwoTeaserStats.interactionRate === null ? '' : ` (${seasonTwoTeaserStats.interactionRate.toFixed(1)}% interaction rate)`} in the latest snapshot.`,
-          action: 'Release a character-led follow-up with the same opening premise and route each version to the episode playlist.',
+          label: 'Cross-platform member-contrast signal',
+          stat: compact(memberContrastStats.combinedViews),
+          read: `“${memberContrast.title}” generated ${compact(memberContrastStats.combinedViews)} views and ${compact(memberContrastStats.combinedInteractions)} known interactions across Instagram, TikTok, and YouTube${memberContrastStats.interactionRate === null ? '' : ` (${memberContrastStats.interactionRate.toFixed(1)}% interaction rate)`}.`,
+          action: 'Repeat the structure with a new member pairing, then follow with individual ambition-and-obstacle introductions.',
           tone: 'strong' as const,
         }
-      : activePreview
+      : seasonTwoTeaser && seasonTwoTeaserStats
+        ? {
+            label: 'Season 2 teaser signal',
+            stat: compact(seasonTwoTeaserStats.combinedViews),
+            read: `The matched Instagram and YouTube teaser posts hold ${compact(seasonTwoTeaserStats.combinedViews)} views and ${compact(seasonTwoTeaserStats.combinedInteractions)} known interactions${seasonTwoTeaserStats.interactionRate === null ? '' : ` (${seasonTwoTeaserStats.interactionRate.toFixed(1)}% interaction rate)`} in the latest snapshot.`,
+            action: 'Release a character-led follow-up with the same opening premise and route each version to the episode playlist.',
+            tone: 'strong' as const,
+          }
+        : activePreview
         ? {
             label: `${activePreviewName} signal`,
             stat: activePreview.views !== null ? compact(activePreview.views) : compact(knownInteractions(activePreview)),
@@ -485,9 +521,11 @@ function buildRecommendations(
   const activePreview = findActivePreview(assets.assets, newestEpisode?.asset);
   const activePreviewRate = activePreview ? interactionRate(activePreview) : null;
   const activePreviewName = activePreview && isFinalePreviewCaption(activePreview.caption) ? 'finale preview' : 'latest preview';
+  const memberContrast = findThreePlatformEvidenceCut(assets.assets, weeklyCutEvidence.memberContrast);
   const seasonTwoTeaser = findEvidenceCut(assets.assets, weeklyCutEvidence.seasonTwoTeaser);
   const traineeIdentity = findEvidenceCut(assets.assets, weeklyCutEvidence.traineeIdentity);
   const emotionalMilestone = findEvidenceCut(assets.assets, weeklyCutEvidence.emotionalMilestone);
+  const memberContrastStats = memberContrast ? matchedCutStats(memberContrast) : null;
   const seasonTwoTeaserStats = seasonTwoTeaser ? matchedCutStats(seasonTwoTeaser) : null;
   const traineeIdentityStats = traineeIdentity ? matchedCutStats(traineeIdentity) : null;
   const emotionalMilestoneStats = emotionalMilestone ? matchedCutStats(emotionalMilestone) : null;
@@ -500,9 +538,25 @@ function buildRecommendations(
     : null;
   const moves: Omit<Rec, 'rank'>[] = [];
 
+  moves.push(memberContrast && memberContrastStats
+    ? {
+        title: 'Turn the member-contrast hook into a repeatable series',
+        why: `“${memberContrast.title}” generated ${compact(memberContrastStats.combinedViews)} views and ${compact(memberContrastStats.combinedInteractions)} known interactions across Instagram, TikTok, and YouTube${memberContrastStats.interactionRate === null ? '' : ` (${memberContrastStats.interactionRate.toFixed(1)}% interaction rate)`}.`,
+        move: 'Publish the next contrasting member pair, then follow with individual introductions that establish each member’s ambition and obstacle.',
+        owner: 'Creative strategy',
+        impact: 'High',
+      }
+    : {
+        title: 'Build the next member-pair contrast across all three channels',
+        why: 'The latest three-platform member-pair evidence is not fully available in the current snapshot.',
+        move: 'Publish one matched member-pair cut on Instagram, TikTok, and YouTube, then compare the same premise across all three channels.',
+        owner: 'Creative strategy',
+        impact: 'Medium',
+      });
+
   moves.push(seasonTwoTeaser && seasonTwoTeaserStats
     ? {
-        title: 'Extend the Season 2 teaser while it is still gaining',
+        title: 'Extend the Season 2 teaser with a character-led follow-up',
         why: `“${seasonTwoTeaser.title}” is the strongest current matched launch signal across Instagram and YouTube, with ${compact(seasonTwoTeaserStats.combinedViews)} views and ${compact(seasonTwoTeaserStats.combinedInteractions)} known interactions${seasonTwoTeaserStats.interactionRate === null ? '' : ` (${seasonTwoTeaserStats.interactionRate.toFixed(1)}% interaction rate)`}.${latestOwnedPostLabel ? ` No verified owned-channel publication has appeared since ${latestOwnedPostLabel}.` : ''}`,
         move: 'Publish a character-led TikTok, Reel, and Short that keep the same opening premise. Route every version to the full-episode playlist.',
         owner: 'Owned social',

@@ -132,7 +132,8 @@ class DashboardDataContractTests(unittest.TestCase):
 
     def test_weekly_moves_prioritize_current_cross_platform_hook_evidence(self) -> None:
         for current_move in (
-            "Extend the Season 2 teaser while it is still gaining",
+            "Turn the member-contrast hook into a repeatable series",
+            "Extend the Season 2 teaser with a character-led follow-up",
             "Activate the existing TikTok audience",
             "Build the next release around the trainee-identity hook",
             "Follow the strongest emotional-response storyline",
@@ -143,6 +144,9 @@ class DashboardDataContractTests(unittest.TestCase):
         self.assertIn("function matchedCutStats", COMPONENT)
         self.assertIn("function findEvidenceCut", COMPONENT)
         for publication_id in (
+            "Dfeqbj3Jx4Y",
+            "rYbV2Krro4M",
+            "7705360911065681170",
             "DejijqZJF0Z",
             "gaRcoDeKbEQ",
             "DcOWibKSkNR",
@@ -151,10 +155,13 @@ class DashboardDataContractTests(unittest.TestCase):
             "-pU24FoCLv0",
         ):
             self.assertIn(publication_id, COMPONENT)
+        self.assertIn("Cross-platform member-contrast signal", COMPONENT)
+        self.assertIn("Instagram, TikTok, and YouTube", COMPONENT)
         self.assertIn("Season 2 teaser signal", COMPONENT)
         self.assertIn("matched Instagram and YouTube teaser posts hold", COMPONENT)
         self.assertIn("Route every version to the full-episode playlist", COMPONENT)
         expected_order = (
+            "moves.push(memberContrast && memberContrastStats",
             "moves.push(seasonTwoTeaser && seasonTwoTeaserStats",
             "moves.push(tiktokAudience !== null && tiktokAudience > 0 && tiktokPosts === 0",
             "moves.push(traineeIdentity && traineeIdentityStats",
